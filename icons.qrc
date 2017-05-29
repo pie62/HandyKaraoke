@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Icons/next-track-button.png</file>
+        <file>Icons/pause-button.png</file>
+        <file>Icons/play-button.png</file>
+        <file>Icons/previous-track.png</file>
+        <file>Icons/video-player-stop-button.png</file>
+        <file>Icons/volume-adjustment-mute.png</file>
+        <file>Icons/volume-up-interface-symbol.png</file>
+    </qresource>
+</RCC>
