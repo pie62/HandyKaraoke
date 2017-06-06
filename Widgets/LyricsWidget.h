@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPropertyAnimation>
+#include <QTimer>
 
 class LyricsWidget : public QWidget
 {
@@ -47,6 +48,7 @@ public slots:
     void setSeekPosition(int tick);
 
 private:
+    QTimer *timer;
     QPropertyAnimation *animation;
 
     QFont text_font;

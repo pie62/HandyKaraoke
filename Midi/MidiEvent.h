@@ -67,7 +67,7 @@ public:
     MidiMetaType    metaEventType()  { return mType; }
     std::vector<unsigned char> data(){ return mData; }
 
-    float tempoBPM();
+    float tempoBpm();
 
 private:
     uint32_t eTick;

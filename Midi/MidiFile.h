@@ -25,11 +25,15 @@ public:
 
     int formatType() { return fFormatType; }
     int numberOfTracks() { return fNumOfTracks; }
-    int resorution() { return fResorution; }
+    int resorution() { return fResolution; }
+    int bpm();
+
     DivisionType divisionType() { return fDivision; }
     std::vector<MidiEvent*> events() { return fEvents; }
-    std::vector<MidiEvent*> tempoEvents() { return fTempoEvent; }
-    int bpm();
+    std::vector<MidiEvent*> tempoEvents() { return fTempoEvents; }
+    std::vector<MidiEvent*> controllerEvents() { return fControllerEvents; }
+    std::vector<MidiEvent*> programChangeEvents() { return fProgramChangeEvents; }
+    std::vector<MidiEvent*> controllerAndProgramEvents();
 
     void clear();
     bool read(std::string filename);
@@ -38,13 +42,21 @@ public:
     MidiEvent* createMetaEvent(int track, uint32_t tick, uint32_t delta, int number, std::vector<unsigned char> data);
     MidiEvent* createSysExEvent(int track, uint32_t tick, uint32_t delta, std::vector<unsigned char> data);
 
+    float    beatFromTick(uint32_t tick);
+    float    timeFromTick(uint32_t tick);
+    uint32_t tickFromTime(float time);
+    uint32_t tickFromTimeMs(float msTime);
+
+
 private:
     int fFormatType;
     int fNumOfTracks;
-    int fResorution;
+    int fResolution;
     DivisionType fDivision;
     std::vector<MidiEvent*> fEvents;
-    std::vector<MidiEvent*> fTempoEvent;
+    std::vector<MidiEvent*> fTempoEvents;
+    std::vector<MidiEvent*> fControllerEvents;
+    std::vector<MidiEvent*> fProgramChangeEvents;
 };
 
 

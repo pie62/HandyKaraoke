@@ -44,8 +44,6 @@ public slots:
     void stop();
     void playNext();
     void playPrevious();
-    void onPlayerFinished();
-
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -91,6 +89,7 @@ private slots:
     void on_btnPlay_clicked();
     void onSliderVolumeValueChanged(int value);
 
+    void onPlayerThreadFinished();
     void onPlayerPlayingEvent(MidiEvent *e);
 };
 

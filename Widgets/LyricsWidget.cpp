@@ -13,10 +13,11 @@ LyricsWidget::LyricsWidget(QWidget *parent) : QWidget(parent)
     /*timer = new QTimer();
     timer->setInterval(5);
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimerTimeout()));*/
+
     animation = new QPropertyAnimation();
     animation->setTargetObject(this);
     animation->setPropertyName("currentcur");
-    animation->setDuration(200);
+    animation->setDuration(300);
 
     text_color.setRgb(255, 255, 127);
     text_border_color = Qt::black;
@@ -28,9 +29,12 @@ LyricsWidget::LyricsWidget(QWidget *parent) : QWidget(parent)
     text_font.setBold(true);
 
     //this->
-    this->setMaximumHeight(text_font.pointSize() * 5);
-    this->setMinimumHeight(text_font.pointSize() * 5);
+    int maxH = text_font.pointSize() * 5;
+    this->setMaximumHeight(maxH);
+    this->setMinimumHeight(maxH);
 
+    timer = new QTimer();
+    connect(timer, SIGNAL(timeout()), this, SLOT(onTimerTimeout()));
 }
 
 LyricsWidget::~LyricsWidget()
@@ -39,6 +43,7 @@ LyricsWidget::~LyricsWidget()
     lyrics.clear();
 
     delete animation;
+    delete timer;
 }
 
 void LyricsWidget::setLyrics(QString lyr, QString curPath, uint32_t resolution)
@@ -91,12 +96,13 @@ void LyricsWidget::setCurrentCur(int cc)
     }
 
     current_Cur = cc;
-    this->update();
+    //this->update();
 }
 
 void LyricsWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
+
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
     QPen penText;
@@ -150,7 +156,6 @@ void LyricsWidget::paintEvent(QPaintEvent *event)
     //painter.setPen(pen);
     //painter.drawPath(path1);
     //painter.drawPath(path2);
-
 }
 
 void LyricsWidget::resizeEvent(QResizeEvent *event)
@@ -237,6 +242,11 @@ void LyricsWidget::setCursorPosition(int tick)
     if (tick < cur[cur_index])
         return;
 
+    //qDebug() << "Cur index  " << cur_index << " in " << cur.count();
+    //qDebug() << "Line index " << linesIndex << " in " << lyrics.count();
+    //qDebug() << "Char index " << char_index << " in " << char_width.count();
+    //qDebug() << "=============================================";
+
     bool use_animation = true;
 
     if (at_end_line) {
@@ -255,6 +265,7 @@ void LyricsWidget::setCursorPosition(int tick)
         cur_index++;
         calculateLinePosition();
         this->update();
+        timer->stop();
         return;
     }
 
@@ -282,14 +293,14 @@ void LyricsWidget::setCursorPosition(int tick)
         calculateLinePosition();
     }
 
-    if (char_index >= 0) {
-        percent = char_width[char_index];
+    if (char_index >= 0 && char_width.count() != 0) {
+        percent = char_width.at(char_index);
     }
     char_index++;
 
 
     if (cur_index == cur.count() - 1) {
-        percent = char_width.last();
+        percent = char_width.count() == 0 ? 0 : char_width.last();
     }
 
     cur_index++;
@@ -298,9 +309,11 @@ void LyricsWidget::setCursorPosition(int tick)
         if (animation->state() == QPropertyAnimation::Running) {
             animation->stop();
         }
+        //timer->stop();
         animation->setStartValue(current_Cur);
         animation->setEndValue(percent);
         animation->start();
+        timer->start(50);
     } else {
         setCurrentCur(percent);
     }
@@ -311,6 +324,11 @@ void LyricsWidget::setSeekPosition(int tick)
 {
     if (animation->state() == QPropertyAnimation::Running) {
         animation->stop();
+    }
+
+    if (tick == 0) {
+        reset();
+        return;
     }
 
     if (cur.count() == 0) return;
@@ -446,11 +464,7 @@ void LyricsWidget::calculateLinePosition()
 
 void LyricsWidget::onTimerTimeout()
 {
-    /*if (currentCur < percent) {
-        currentCur++;
-        this->update();
-    } else {
-        //timer->stop();
-    }
-    qDebug() << currentCur;*/
+    this->update();
+    if (current_Cur == percent)
+        timer->stop();
 }

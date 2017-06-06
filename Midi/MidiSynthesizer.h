@@ -14,7 +14,7 @@ public:
     ~MidiSynthesizer();
 
     bool setOutputDevice(int dv);
-    void setSoundFonts(std::vector<std::string> soundfonts);
+    void setSoundFonts(std::vector<std::string> &soundfonts);
     void setVolume(float vol);
     void reset();
 
@@ -32,6 +32,7 @@ public:
 
 private:
     HSTREAM stream;
+    HSTREAM _bassDrum, _snareDrum, _tom1Drum, _tom2Drum;
     std::vector<HSOUNDFONT> synth_HSOUNDFONT;
     std::vector<BASS_MIDI_FONT> synth_BASS_MIDI_FONT;
 

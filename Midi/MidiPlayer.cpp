@@ -1,216 +1,186 @@
 #include "MidiPlayer.h"
 
+#include <QTimer>
 #include <QDebug>
 
-
-MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
+MidiPlayer::MidiPlayer(QObject *parent) : QThread(parent)
 {
-    MidiOut midiOut;
-    for (int i=0; i<midiOut.getPortCount(); i++) {
-        MidiOut *o = new MidiOut();
-        midi_mapper.append(o);
-    }
-    for (int i=0; i<16; i++) {
-        Channel *c = new Channel(i, 0);
-        channels.append(c);
-    }
-
-    synth = new MidiSynthesizer();
-    midi = new MidiFile();
-    thread = new QThread();
-    eTimer = new QElapsedTimer();
-
-    moveToThread(thread);
-
-    connect(thread, SIGNAL(started()), this, SLOT(playEvents()));
+    _midi       = new MidiFile();
+    _midiOut    = new MidiOut();
+    _midiSynth  = new MidiSynthesizer();
+    _eTimer     = new QElapsedTimer();
 }
 
 MidiPlayer::~MidiPlayer()
 {
-    if (!stoped) stop();
-
-    delete eTimer;
-    delete thread;
-    delete midi;
-    delete synth;
-    foreach (Channel *c, channels) {
-        delete c;
-    }
-    foreach (MidiOut *o, midi_mapper) {
-        if (o->isPortOpen()) {
-            o->closePort();
-        }
-        delete o;
-    }
+    delete _eTimer;
+    delete _midiSynth;
+    delete _midiOut;
+    delete _midi;
 }
 
-QStringList MidiPlayer::midiDevices()
+std::vector<std::__cxx11::string> MidiPlayer::midiDevices()
 {
-    QStringList outName;
-    for (int i=0; i<midi_mapper.size(); i++) {
-        QString n = QString::fromStdString(midi_mapper[i]->getPortName(i));
-        outName << n;
+    std::vector<std::string> outName;
+    MidiOut o;
+    for (int i=0; i<o.getPortCount(); i++) {
+        outName.push_back(o.getPortName(i));
     }
     return outName;
 }
 
-int MidiPlayer::position()
-{
-    if (playing) {
-        float time = (eTimer->elapsed() + startEventTime) * 1.0f;
-        return tickFromTime(time);
-    } else {
-        return midi_position;
-    }
-}
-
-qint64 MidiPlayer::positionMS()
-{
-    return playing ? startEventTime + eTimer->elapsed() : midi_position_ms;
-}
-
 bool MidiPlayer::setMidiOut(int portNumer)
 {
-    if (portNumer >= midi_mapper.count())
+    if (portNumer != -1 && portNumer >= _midiOut->getPortCount())
         return false;
 
-    if (!stoped) stop();
+    if (!_stopped)
+        stop();
+
+    bool result = false;
+    if (_midiOut->isPortOpen())
+        _midiOut->closePort();
 
     if (portNumer == -1) {
-        defaultPort = -1;
+        _midiSynth->setVolume(_volume / 100.0f);
+        _midiPortNum = -1;
+        result = true;
     } else {
-        midi_mapper[defaultPort]->closePort();
-        if (!midi_mapper[portNumer]->isPortOpen()) {
-            midi_mapper[portNumer]->openPort(portNumer);
-            midi_mapper[portNumer]->setVolume(midi_volume / 100.0f);
-        }
-        defaultPort = portNumer;
+        _midiOut->openPort(portNumer);
+        _midiOut->setVolume(_volume / 100.0f);
+        result = _midiOut->isPortOpen();
+        _midiPortNum = result ? portNumer : _midiPortNum;
     }
 
-    for (int i=0; i<16; i++) {
-        channels[i]->setPort(defaultPort);
-    }
+    for (int i=0; i<16; i++)
+        _midiChannels[i].setPort(_midiPortNum);
+
+    return result;
+}
+
+bool MidiPlayer::load(std::__cxx11::string file)
+{
+    if (!_stopped)
+        stop();
+
+    if (!_midi->read(file))
+        return false;
+
+    MidiEvent *e = _midi->events().back();
+    _durationTick = e->tick();
+    _durationMs = _midi->timeFromTick(e->tick()) * 1000;
+
+    _finished = false;
+
     return true;
 }
 
-bool MidiPlayer::load(QString file)
+void MidiPlayer::stop(bool resetPos)
 {
-    if (playing) stop();
-    if (!midi->read(file.toStdString()))
-        return false;
+    if (_stopped)
+        return;
 
-    MidiEvent *e = midi->events().back();
-    midi_duration_ms = timeFromTick(e->tick());
-    midi_duration = e->tick();
-}
+    _playing = false;
+    _stopped = false;
+    _finished = false;
 
-void MidiPlayer::play()
-{
-    if (playing) return;
+    while (!isFinished()) {};
 
-    playing = true;
-    stoped = false;
-    playAfterSeek = true;
-    thread->start();
-}
-
-void MidiPlayer::pause()
-{
-    if (!playing || stoped) return;
-
-    playing = false;
-    stoped = false;
-    playAfterSeek = false;
-    sendAllNotesOff();
-    QThread::msleep(50);
-    sendAllNotesOff();
-}
-
-void MidiPlayer::resume()
-{
-    if (playing || stoped) return;
-    playing = true;
-    playAfterSeek = true;
-    thread->start();
-}
-
-void MidiPlayer::stop()
-{
-    if (stoped) return;;
-
-    playing = false;
-    stoped = true;
-    playAfterSeek = false;
-    sendAllNotesOff();
-    QThread::msleep(50);
-    sendAllNotesOff();
-    QThread::msleep(50);
-    startEventTime = 0;
-    playedIndex = 0;
-    midi_position = 0;
-    midi_position_ms = 0;
-
-    resetAllControllers();
-    synth->reset();
+    if (resetPos) {
+        _stopped = true;
+        _startPlayTime = 0;
+        _playedIndex = 0;
+        _positionMs = 0;
+        _positionTick = 0;
+    }
 }
 
 void MidiPlayer::setVolume(int v)
 {
-    if (v < 0) midi_volume = 0;
-    else if (v > 100) midi_volume = 100;
-    else midi_volume = v;
+    if (v < 0) _volume = 0;
+    else if (v > 100) _volume = 100;
+    else _volume = v;
 
-    synth->setVolume(midi_volume / 100.0f);
+    _midiOut->setVolume(_volume / 100.0f);
+    _midiSynth->setVolume(_volume / 100.0f);
+}
 
-    for (MidiOut *o : midi_mapper) {
-        if (o->isPortOpen())
-            o->setVolume(midi_volume / 100.0f);
+void MidiPlayer::setPositionTick(int t)
+{
+    bool playAfterSeek = _playing;
+    if (_playing)
+        stop();
+
+    int index = 0;
+    for (MidiEvent *e :_midi->events()) {
+        if (e->tick() > t)
+            break;
+
+        if (e->eventType() == MidiEventType::Controller
+            || e->eventType() == MidiEventType::ProgramChange) {
+            sendEvent(e);
+        }
+
+        index++;
+    }
+
+    _playedIndex = index;
+    if (playAfterSeek)
+        start();
+}
+
+int MidiPlayer::positionTick()
+{
+    if (_playing) {
+        //float time = (_eTimer->elapsedMs() + _startPlayTime) / 1000;
+        float time = _eTimer->elapsed()  + _startPlayTime;
+        return _midi->tickFromTimeMs(time);
+    } else {
+        return _positionTick;
     }
 }
 
-void MidiPlayer::setPosition(int tick)
+void MidiPlayer::run()
 {
-    if (playing) {
-        pause();
-    }
+    if (_playing)
+        return;
 
-    for (int i=0; i<midi->events().size(); i++) {
-        if (midi->events()[i]->eventType() == MidiEventType::Controller
-            || midi->events()[i]->eventType() == MidiEventType::ProgramChange) {
-            sendEvent(midi->events()[i]);
-        }
-        playedIndex = i;
-        midi_position = midi->events()[i]->tick();
-        if (midi->events()[i]->tick() >= tick) break;
-    }
+    _playing = true;
+    _stopped = false;
+    _finished = false;
 
-    midi_position_ms = timeFromTick(midi_position);
-    startEventTime = midi_position_ms;
+    playEvents();
+}
 
-    if (playAfterSeek) resume();
+long MidiPlayer::positionMs()
+{
+    return _playing ? _eTimer->elapsed() + _startPlayTime : _positionMs;
 }
 
 void MidiPlayer::playEvents()
 {
-    if (playedIndex != 0) {
-        startEventTime = timeFromTick(midi->events()[playedIndex]->tick());
+    if (_playedIndex > 0) {
+        uint32_t ti = _midi->events()[_playedIndex]->tick();
+        _startPlayTime = _midi->timeFromTick(ti) * 1000;
     }
 
-    //QElapsedTimer t;
-    //t.start();
-    eTimer->restart();
+    _eTimer->restart();
 
-    for (int i=playedIndex; i<midi->events().size(); i++) {
+    for (int i = _playedIndex; i < _midi->events().size(); i++) {
 
-        if (!playing) break;
+        if (!_playing)
+            break;
 
-        MidiEvent *e = midi->events()[i];
+        MidiEvent *e = _midi->events()[i];
         if (e->eventType() != MidiEventType::Meta) {
 
-            long eventTime = timeFromTick(e->tick());
-            long waitTime = eventTime - startEventTime - eTimer->elapsed();
+            long eventTime = _midi->timeFromTick(e->tick()) * 1000;
+            long waitTime = eventTime - _startPlayTime - _eTimer->elapsed();
 
-            if (waitTime > 0) thread->msleep(waitTime);
+            if (waitTime > 0) {
+                //std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+                msleep(waitTime);
+            }
 
             if (e->eventType() != MidiEventType::SysEx) {
 
@@ -218,9 +188,9 @@ void MidiPlayer::playEvents()
                     || e->eventType() == MidiEventType::ProgramChange) {
                     sendEvent(e);
                 } else {
-                    if (channels[e->channel()]->isMute() == false) {
-                        if (useSolo) {
-                            if (channels[e->channel()]->isSolo()) {
+                    if (_midiChannels[e->channel()].isMute() == false) {
+                        if (_useSolo) {
+                            if (_midiChannels[e->channel()].isSolo()) {
                                 sendEvent(e);
                             }
                         } else {
@@ -231,34 +201,26 @@ void MidiPlayer::playEvents()
 
             }
 
-            midi_position_ms = eventTime;
+            _positionMs = eventTime;
 
         } else { // Meta event
             if (e->metaEventType() == MidiMetaType::SetTempo) {
-                midi_bpm = e->tempoBPM();
+                _midiBpm = e->tempoBpm();
             }
         }
 
-        playedIndex = i;
-        midi_position = e->tick();
+        _playedIndex = i;
+        _positionTick = e->tick();
 
-        emit playingEvent(e);
+        emit playingEvents(e);
 
     } // End for loop
 
-    thread->quit();
-    int count = midi->events().size();
+    sendAllNotesOff();
 
-    if (playedIndex == count - 1) {
-        playing = false;
-        stoped = true;
-        playAfterSeek = false;
-        QThread::msleep(50);
-        startEventTime = 0;
-        playedIndex = 0;
-        midi_position = 0;
-        midi_position_ms = 0;
-        emit finished();
+    // Check finished
+    if (_playedIndex == _midi->events().size() -1 ) {
+        _finished = true;
     }
 }
 
@@ -268,177 +230,82 @@ void MidiPlayer::sendEvent(MidiEvent *e)
 
     switch (e->eventType()) {
     case MidiEventType::NoteOff: {
-        if (channels[ch]->port() == -1) {
-            synth->sendNoteOff(ch, e->data1(), e->data2());
+        if (_midiPortNum == -1) {
+            _midiSynth->sendNoteOff(ch, e->data1(), e->data2());
         } else {
-            midi_mapper[channels[ch]->port()]->sendNoteOff(ch, e->data1(), e->data2());
+            _midiOut->sendNoteOff(ch, e->data1(), e->data2());
         }
         break;
     }
     case MidiEventType::NoteOn: {
-        if (channels[ch]->port() == -1) {
-            synth->sendNoteOn(ch, e->data1(), e->data2());
+        if (_midiPortNum == -1) {
+            _midiSynth->sendNoteOn(ch, e->data1(), e->data2());
         } else {
-            midi_mapper[channels[ch]->port()]->sendNoteOn(ch, e->data1(), e->data2());
+            _midiOut->sendNoteOn(ch, e->data1(), e->data2());
         }
         break;
     }
     case MidiEventType::NoteAftertouch: {
-        if (channels[ch]->port() == -1) {
-            synth->sendNoteAftertouch(ch, e->data1(), e->data2());
+        if (_midiPortNum == -1) {
+            _midiSynth->sendNoteAftertouch(ch, e->data1(), e->data2());
         } else {
-            midi_mapper[channels[ch]->port()]->sendNoteAftertouch(ch, e->data1(), e->data2());
+            _midiOut->sendNoteAftertouch(ch, e->data1(), e->data2());
         }
         break;
     }
     case MidiEventType::Controller: {
-        if (e->data1() == 7) channels[ch]->setVolume(e->data2());
-        if (e->data1() == 10) channels[ch]->setPan(e->data2());
+        if (e->data1() == 7) _midiChannels[ch].setVolume(e->data2());
+        if (e->data1() == 10) _midiChannels[ch].setPan(e->data2());
 
-        if (channels[ch]->port() == -1) {
-            synth->sendController(ch, e->data1(), e->data2());
+        if (_midiPortNum == -1) {
+            _midiSynth->sendController(ch, e->data1(), e->data2());
         } else {
-            midi_mapper[channels[ch]->port()]->sendController(ch, e->data1(), e->data2());
+            _midiOut->sendController(ch, e->data1(), e->data2());
         }
         break;
     }
     case MidiEventType::ProgramChange: {
-        channels[ch]->setInstrument(e->data1());
-        if (channels[ch]->port() == -1) {
-            synth->sendProgramChange(ch, e->data1());
+        _midiChannels[ch].setInstrument(e->data1());
+        if (_midiPortNum == -1) {
+            _midiSynth->sendProgramChange(ch, e->data1());
         } else {
-            midi_mapper[channels[ch]->port()]->sendProgramChange(ch, e->data1());
+            _midiOut->sendProgramChange(ch, e->data1());
         }
         break;
     }
     case MidiEventType::ChannelAftertouch: {
-        if (channels[ch]->port() == -1) {
-            synth->sendChannelAftertouch(ch, e->data1());
+        if (_midiPortNum == -1) {
+            _midiSynth->sendChannelAftertouch(ch, e->data1());
         } else {
-            midi_mapper[channels[ch]->port()]->sendChannelAftertouch(ch, e->data1());
+            _midiOut->sendChannelAftertouch(ch, e->data1());
         }
         break;
     }
     case MidiEventType::PitchBend: {
-        if (channels[ch]->port() == -1) {
-            synth->sendPitchBend(ch, e->data1());
+        if (_midiPortNum == -1) {
+            _midiSynth->sendPitchBend(ch, e->data1());
         } else {
-            midi_mapper[channels[ch]->port()]->sendPitchBend(ch, e->data1());
+            _midiOut->sendPitchBend(ch, e->data1());
         }
         break;
     }
     }
-
 }
 
 void MidiPlayer::sendAllNotesOff(int ch)
 {
-    if (channels[ch]->port() == -1) {
-        synth->sendAllNotesOff(ch);
+    if (_midiPortNum == -1) {
+        _midiSynth->sendAllNotesOff(ch);
     } else {
-        //midi_mapper[channels[ch]->port()]->sendAllSoundOff(ch);
-        midi_mapper[channels[ch]->port()]->sendAllNotesOff(ch);
+        _midiOut->sendAllNotesOff(ch);
     }
 }
 
 void MidiPlayer::sendAllNotesOff()
 {
-    for (int i=0; i<16; i++) {
-        sendAllNotesOff(i);
-    }
-}
-
-void MidiPlayer::resetAllControllers()
-{
-    for (int i=0; i<16; i++) {
-
-        synth->sendResetAllControllers(i);
-
-        for (MidiOut *o : midi_mapper) {
-            o->sendResetAllControllers(i);
-            o->sendProgramChange(i, 0);
-        }
-        channels[i]->setVolume(127);
-        channels[i]->setPan(64);
-        channels[i]->setInstrument(0);
-    }
-}
-
-float MidiPlayer::timeFromTick(uint32_t tick)
-{
-    switch (midi->divisionType()) {
-        case MidiFile::PPQ: {
-            float tempo_event_time = 0.0;
-            qint32 tempo_event_tick = 0;
-            float tempo = 120.0;
-
-            for (MidiEvent* e : midi->tempoEvents()) {
-                if (e->tick() >= tick) {
-                    break;
-                }
-                tempo_event_time +=
-                    (((float)(e->tick() - tempo_event_tick)) / midi->resorution() / (tempo / 60000));
-                tempo_event_tick = e->tick();
-                tempo = e->tempoBPM();
-            }
-
-            float time =
-                tempo_event_time + (((float)(tick - tempo_event_tick)) / midi->resorution() / (tempo / 60000));
-            return time;
-
-            /*const float milliSecondsPerQuarterNote = microsecondsPerQuarterNote / 1000.0f;
-            const float milliSecondsPerTick = milliSecondsPerQuarterNote / midi->getResorution();
-            float deltaTimeMilliInSeconds = tick * milliSecondsPerTick;
-            return deltaTimeMilliInSeconds;*/
-        }
-        case MidiFile::SMPTE24: {
-            return 1000.0f * ((float)(tick) / (midi->resorution() * 24.0));
-        }
-        case MidiFile::SMPTE25: {
-            return 1000.0f * ((float)(tick) / (midi->resorution() * 25.0));
-        }
-        case MidiFile::SMPTE30DROP: {
-            return 1000.0f * ((float)(tick) / (midi->resorution() * 29.97));
-        }
-        case MidiFile::SMPTE30: {
-            return 1000.0f * ((float)(tick) / (midi->resorution() * 30.0));
-        }
-        default: {
-            return -1;
-        }
-    }
-
-}
-
-qint32 MidiPlayer::tickFromTime(float msTime)
-{
-    switch (midi->divisionType()) {
-    case MidiFile::PPQ: {
-        float tempo_event_time = 0.0;
-        qint32 tempo_event_tick = 0;
-        float tempo = 120.0;
-
-        for (MidiEvent* e : midi->tempoEvents()) {
-            float next_tempo_event_time =
-                tempo_event_time +
-                (((float)(e->tick() - tempo_event_tick)) / midi->resorution() / (tempo / 60000));
-            if (next_tempo_event_time >= msTime) break;
-            tempo_event_time = next_tempo_event_time;
-            tempo_event_tick = e->tick();
-            tempo = e->tempoBPM();
-        }
-
-        return tempo_event_tick + (qint32)((msTime - tempo_event_time) * (tempo / 60000) * midi->resorution());
-    }
-    case MidiFile::SMPTE24:
-        return 1000.0f * ((qint32)(msTime * midi->resorution() * 24.0));
-    case MidiFile::SMPTE25:
-        return 1000.0f * ((qint32)(msTime * midi->resorution() * 25.0));
-    case MidiFile::SMPTE30DROP:
-        return 1000.0f * ((qint32)(msTime * midi->resorution() * 29.97));
-    case MidiFile::SMPTE30:
-        return 1000.0f * ((qint32)(msTime * midi->resorution() * 30.0));
-    default:
-        return 0.0f;
+    if (_midiPortNum == -1) {
+        _midiSynth->sendAllNotesOff();
+    } else {
+        _midiOut->sendAllNotesOff();
     }
 }

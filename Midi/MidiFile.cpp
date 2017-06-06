@@ -20,22 +20,40 @@ MidiFile::~MidiFile() {
 int MidiFile::bpm()
 {
     int bpm = 120;
-    if (fTempoEvent.size() > 0) {
-        bpm = fTempoEvent[0]->tempoBPM();
+    if (fTempoEvents.size() > 0) {
+        bpm = fTempoEvents[0]->tempoBpm();
     }
 
     return bpm;
 }
 
+
+bool eventTickCompare(MidiEvent *e1, MidiEvent *e2) {
+    return e1->tick() < e2->tick();
+}
+
+
+std::vector<MidiEvent *> MidiFile::controllerAndProgramEvents()
+{
+    std::vector<MidiEvent*> evnts = fControllerEvents;
+    for (MidiEvent *e : fProgramChangeEvents)
+        evnts.push_back(e);
+
+    std::sort(evnts.begin(), evnts.end(), eventTickCompare);
+    return evnts;
+}
+
 void MidiFile::clear() {
     fFormatType = 1;
     fNumOfTracks = 0;
-    fResorution = 0;
+    fResolution = 0;
     fDivision = PPQ;
     for (MidiEvent *e : fEvents)
         delete e;
     fEvents.clear();
-    fTempoEvent.clear();
+    fTempoEvents.clear();
+    fControllerEvents.clear();
+    fProgramChangeEvents.clear();
 }
 
 bool fileExists(const std::string& filename) {
@@ -67,10 +85,6 @@ uint32_t readVariableLengthQuantity(std::ifstream *in) {
     return value;
 }
 
-bool eventTickCompare(MidiEvent *e1, MidiEvent *e2) {
-    return e1->tick() < e2->tick();
-}
-
 bool MidiFile::read(std::string filename) {
 
     if (!fileExists(filename))
@@ -89,7 +103,7 @@ bool MidiFile::read(std::string filename) {
 
     if (memcmp(chunkID, "MThd", 4) != 0) {
         if (memcmp(chunkID, "Lock", 4) != 0) {
-            std::cout << "File chunk ID is invalid." << std::endl;
+            std::cout << "File chunk ID is invalid. " << chunkID << std::endl;
             return false;
         }
     }
@@ -98,7 +112,7 @@ bool MidiFile::read(std::string filename) {
     chunkStart = in.tellg();
 
     if (chunkSize != 6) {
-        std::cout << "Chunk size is invalid." << std::endl;
+        std::cout << "Chunk size is invalid. " << chunkSize << std::endl;
         return false;
     }
 
@@ -111,23 +125,23 @@ bool MidiFile::read(std::string filename) {
     switch ((signed char)(divResolution[0])) {
         case SMPTE24:
             fDivision = SMPTE24;
-            fResorution = divResolution[1];
+            fResolution = divResolution[1];
             break;
         case SMPTE25:
             fDivision = SMPTE25;
-            fResorution = divResolution[1];
+            fResolution = divResolution[1];
             break;
         case SMPTE30DROP:
             fDivision = SMPTE30DROP;
-            fResorution = divResolution[1];
+            fResolution = divResolution[1];
             break;
         case SMPTE30:
             fDivision = SMPTE30;
-            fResorution = divResolution[1];
+            fResolution = divResolution[1];
             break;
         default:
             fDivision = PPQ;
-            fResorution = divResolution[1] | divResolution[0] << 8;
+            fResolution = divResolution[1] | divResolution[0] << 8;
             break;
     }
 
@@ -139,7 +153,7 @@ bool MidiFile::read(std::string filename) {
 
         if (memcmp(chunkID, "MTrk", 4) != 0) {
             clear();
-            std::cout << "Track " << t << " chunk ID is invalid." << std::endl;
+            std::cout << "Track " << t << " chunk ID is invalid. " << chunkID << std::endl;;
             return false;
         }
 
@@ -189,13 +203,15 @@ bool MidiFile::read(std::string filename) {
                     int ch = status & 0x0F;
                     char d1 = in.get();
                     char d2 = in.get();
-                    createMidiEvent(t, tick, delta, MidiEventType::Controller, ch, d1, d2);
+                    MidiEvent *e = createMidiEvent(t, tick, delta, MidiEventType::Controller, ch, d1, d2);
+                    fControllerEvents.push_back(e);
                     break;
                 }
                 case 0xC0: {
                     int ch = status & 0x0F;
                     char d1 = in.get();
-                    createMidiEvent(t, tick, delta, MidiEventType::ProgramChange, ch, d1, 0);
+                    MidiEvent *e = createMidiEvent(t, tick, delta, MidiEventType::ProgramChange, ch, d1, 0);
+                    fProgramChangeEvents.push_back(e);
                     break;
                 }
                 case 0xD0: {
@@ -241,7 +257,7 @@ bool MidiFile::read(std::string filename) {
     }
 
     std::sort(fEvents.begin(), fEvents.end(), eventTickCompare);
-    std::sort(fTempoEvent.begin(), fTempoEvent.end(), eventTickCompare);
+    std::sort(fTempoEvents.begin(), fTempoEvents.end(), eventTickCompare);
     //fEvents.sort(eventTickCompare);
     //fTempoEvent.sort(eventTickCompare);
     in.close();
@@ -273,7 +289,7 @@ MidiEvent* MidiFile::createMetaEvent(int track, uint32_t tick, uint32_t delta, i
     me->setData(data);
     fEvents.push_back(me);
     if (me->metaEventType() == MidiMetaType::SetTempo)
-        fTempoEvent.push_back(me);
+        fTempoEvents.push_back(me);
 
     return me;
 }
@@ -288,6 +304,125 @@ MidiEvent* MidiFile::createSysExEvent(int track, uint32_t tick, uint32_t delta, 
     fEvents.push_back(e);
 
     return e;
+}
+
+float MidiFile::beatFromTick(uint32_t tick)
+{
+    switch (fDivision) {
+    case PPQ:
+        return (float)(tick) / fResolution;
+    case SMPTE24:
+        return (float)(tick) / 24.0;
+    case SMPTE25:
+        return (float)(tick) / 25.0;
+    case SMPTE30DROP:
+        return (float)(tick) / 29.97;
+    case SMPTE30:
+        return (float)(tick) / 30.0;
+    default:
+        return 0.0f;
+    }
+}
+
+float MidiFile::timeFromTick(uint32_t tick)
+{
+    switch (fDivision) {
+    case PPQ: {
+        float tempo_event_time = 0.0;
+        uint32_t tempo_event_tick = 0;
+        float tempo = 120.0;
+
+        for (MidiEvent* e : fTempoEvents) {
+            if (e->tick() >= tick) {
+                break;
+            }
+            tempo_event_time +=
+                (((float)(e->tick() - tempo_event_tick)) / fResolution / (tempo / 60));
+            tempo_event_tick = e->tick();
+            tempo = e->tempoBpm();
+        }
+
+        float time =
+            tempo_event_time + (((float)(tick - tempo_event_tick)) / fResolution / (tempo / 60));
+        return time;
+    }
+    case SMPTE24:
+        return (float)(tick) / (fResolution * 24.0);
+    case SMPTE25:
+        return (float)(tick) / (fResolution * 25.0);
+    case SMPTE30DROP:
+        return (float)(tick) / (fResolution * 29.97);
+    case SMPTE30:
+        return (float)(tick) / (fResolution * 30.0);
+    default:
+        return 0.0f;
+    }
+}
+
+uint32_t MidiFile::tickFromTime(float time)
+{
+    switch (fDivision) {
+    case PPQ: {
+        float tempo_event_time = 0.0;
+        uint32_t tempo_event_tick = 0;
+        float tempo = 120.0;
+
+        for (MidiEvent* e : fTempoEvents) {
+            float next_tempo_event_time =
+                tempo_event_time +
+                (((float)(e->tick() - tempo_event_tick)) / fResolution / (tempo / 60));
+            if (next_tempo_event_time >= time) break;
+            tempo_event_time = next_tempo_event_time;
+            tempo_event_tick = e->tick();
+            tempo = e->tempoBpm();
+        }
+
+        return tempo_event_tick + (uint32_t)((time - tempo_event_time) * (tempo / 60) * fResolution);
+    }
+    case SMPTE24:
+        return (uint32_t)(time * fResolution * 24.0);
+    case SMPTE25:
+        return (uint32_t)(time * fResolution * 25.0);
+    case SMPTE30DROP:
+        return (uint32_t)(time * fResolution * 29.97);
+    case SMPTE30:
+        return (uint32_t)(time * fResolution * 30.0);
+    default:
+        return 0;
+    }
+}
+
+uint32_t MidiFile::tickFromTimeMs(float msTime)
+{
+    switch (fDivision) {
+    case PPQ: {
+        float tempo_event_time = 0.0;
+        uint32_t tempo_event_tick = 0;
+        float tempo = 120.0;
+
+        for (MidiEvent* e : fTempoEvents) {
+            float next_tempo_event_time =
+                tempo_event_time +
+                (((float)(e->tick() - tempo_event_tick)) / fResolution / (tempo / 60000));
+            if (next_tempo_event_time >= msTime) break;
+            tempo_event_time = next_tempo_event_time;
+            tempo_event_tick = e->tick();
+            tempo = e->tempoBpm();
+        }
+
+        return tempo_event_tick + (uint32_t)((msTime - tempo_event_time) * (tempo / 60000) * fResolution);
+    }
+    case SMPTE24:
+        return (uint32_t)(msTime * fResolution * 24.0) * 1000;
+    case SMPTE25:
+        return (uint32_t)(msTime * fResolution * 25.0) * 1000;
+    case SMPTE30DROP:
+        return (uint32_t)(msTime * fResolution * 29.97) * 1000;
+    case SMPTE30:
+        return (uint32_t)(msTime * fResolution * 30.0) * 1000;
+    default:
+        return 0;
+    }
 }
 
 

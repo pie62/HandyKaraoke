@@ -22,10 +22,11 @@ SOURCES += main.cpp\
     Widgets/LyricsWidget.cpp \
     Midi/MidiFile.cpp \
     Midi/MidiEvent.cpp \
-    Midi/MidiPlayer.cpp \
     Midi/MidiOut.cpp \
     Midi/Channel.cpp \
-    Midi/MidiSynthesizer.cpp
+    Midi/MidiSynthesizer.cpp \
+    Midi/MidiPlayer.cpp \
+    Widgets/ChMx.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -34,13 +35,18 @@ HEADERS  += MainWindow.h \
     Widgets/LyricsWidget.h \
     Midi/MidiFile.h \
     Midi/MidiEvent.h \
-    Midi/MidiPlayer.h \
     Midi/MidiOut.h \
     Midi/Channel.h \
-    Midi/MidiSynthesizer.h
+    Midi/MidiSynthesizer.h \
+    Midi/MidiPlayer.h \
+    Midi/nanoSignalSlot/nano_function.hpp \
+    Midi/nanoSignalSlot/nano_observer.hpp \
+    Midi/nanoSignalSlot/nano_signal_slot.hpp \
+    Widgets/ChMx.h
 
 FORMS    += MainWindow.ui \
-    SettingsDialog.ui
+    SettingsDialog.ui \
+    Widgets/ChMx.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

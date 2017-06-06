@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer2 = new QTimer(this);
 
     positionTimer = new QTimer();
-    positionTimer->setInterval(10);
+    positionTimer->setInterval(20);
 
     player = new MidiPlayer();
     lyrics = new LyricsWidget(this);
@@ -71,16 +71,23 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
-    int oPort = settings->value("MidiOut", 0).toInt();
-    //player->setMidiOut(oPort);
-    player->setMidiOut(-1);
-    player->setVolume(settings->value("MidiVolume", 50).toInt());
+    { // Player
+        //player->playingEvents.connect<MainWindow, &MainWindow::onPlayerPlayingEvent>(this);
 
-    std::vector<std::string> sfs;
-    sfs.push_back("/home/noob/SOMSAK_2017_V1.SF2");
-    sfs.push_back("/home/noob/SoundFont_2_Drum.sf2");
+        int oPort = settings->value("MidiOut", 0).toInt();
+        player->setMidiOut(oPort);
+        //player->setMidiOut(-1);
+        player->setVolume(settings->value("MidiVolume", 50).toInt());
 
-    player->midiSynthesizer()->setSoundFonts(sfs);
+        std::vector<std::string> sfs;
+        sfs.push_back("/home/noob/SOMSAK_2017_V1.SF2");
+        //sfs.push_back("/home/noob/SoundFont_2_Drum.sf2");
+
+        player->midiSynthesizer()->setSoundFonts(sfs);
+
+        connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
+        connect(player, SIGNAL(playingEvents(MidiEvent*)), this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
+    }
 
 
     //QStringList sfs;
@@ -152,8 +159,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(timer1, SIGNAL(timeout()), this, SLOT(showCurrentTime()));
         connect(positionTimer, SIGNAL(timeout()), this, SLOT(onPositiomTimerTimeOut()));
 
-        connect(player, SIGNAL(finished()), this, SLOT(onPlayerFinished()));
-        connect(player, SIGNAL(playingEvent(MidiEvent*)), this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
         connect(ui->btnPause, SIGNAL(clicked()), this, SLOT(pause()));
         connect(ui->btnStop, SIGNAL(clicked()), this, SLOT(stop()));
         connect(ui->btnNext, SIGNAL(clicked()), this, SLOT(playNext()));
@@ -228,7 +233,7 @@ void MainWindow::play(int index)
     stop();
     if (index == -1 && playingSong.id() != "") {
         lyrics->reset();
-        player->play();
+        player->start();
         lyrics->show();
         positionTimer->start();
         return;
@@ -262,12 +267,12 @@ void MainWindow::play(int index)
         }
     }
 
-    player->load(p);
+    player->load(p.toStdString());
 
-    lyrics->setLyrics(playingSong.lyrics(), curPath, player->resolution());
-    onPlayerDurationTickChanged(player->duration());
-    onPlayerDurationMSChanged(player->durationMS());
-    player->play();
+    lyrics->setLyrics(playingSong.lyrics(), curPath, player->midiFile()->resorution());
+    onPlayerDurationTickChanged(player->durationTick());
+    onPlayerDurationMSChanged(player->durationMs());
+    player->start();
     lyrics->show();
     positionTimer->start();
 }
@@ -275,19 +280,20 @@ void MainWindow::play(int index)
 void MainWindow::pause()
 {
     positionTimer->stop();
-    player->pause();
+    player->stop();
 }
 
 void MainWindow::resume()
 {
-    player->resume();
+    player->start();
     positionTimer->start();
 }
 
 void MainWindow::stop()
 {
     positionTimer->stop();
-    player->stop();
+    player->stop(true);
+
     ui->sliderPosition->setValue(0);
     lyrics->hide();
     lyrics->reset();
@@ -309,12 +315,6 @@ void MainWindow::playPrevious()
     if (playingIndex > 0 && playlist.count() > 0) {
         play(playingIndex - 1);
     }
-}
-
-void MainWindow::onPlayerFinished()
-{
-    if (auto_playnext)
-        playNext();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -459,7 +459,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             *sToAdd = *s;
             playlist.append(sToAdd);
 
-            if (auto_playnext && playlist.count() == 1 && player->isStoped()) {
+            if (auto_playnext && playlist.count() == 1 && player->isPlayerStopped()) {
                 play(0);
             }
         }
@@ -545,11 +545,29 @@ void MainWindow::showFullScreenOrNormal()
     }
 }
 
+int beat = -1;
 void MainWindow::onPositiomTimerTimeOut()
 {
-    onPlayerpositionMSChanged(player->positionMS());
-    ui->sliderPosition->setValue(player->position());
-    lyrics->setCursorPosition(player->position() - 100);
+    int tick = player->positionTick();
+
+    int b = player->midiFile()->beatFromTick(tick);
+    if (b != beat) {
+        qDebug() << "Beat  is : " << b;
+        beat = b;
+    }
+
+    onPlayerpositionMSChanged(player->positionMs());
+    ui->sliderPosition->setValue(tick);
+    lyrics->setCursorPosition(tick - 50);
+
+
+    /*if (player->isFinished()) {
+        QThread::msleep(50);
+        if (auto_playnext)
+            playNext();
+        else
+            stop();
+    }*/
 }
 
 void MainWindow::onPlayerDurationMSChanged(qint64 d)
@@ -571,19 +589,20 @@ void MainWindow::onPlayerDurationTickChanged(int d)
 
 void MainWindow::onSliderPositionPressed()
 {
-    playAfterSeek = player->isPlaying();
+    playAfterSeek = player->isPlayerPlaying();
     pause();
 }
 
 void MainWindow::onSliderPositionReleased()
 {
-    if (player->isStoped()) {
+    if (player->isPlayerStopped()) {
         ui->sliderPosition->setValue(0);
         return;
     }
-    player->setPosition(ui->sliderPosition->value());
+
+    player->setPositionTick(ui->sliderPosition->value());
     lyrics->setSeekPosition(ui->sliderPosition->value());
-    onPlayerpositionMSChanged(player->positionMS());
+    onPlayerpositionMSChanged(player->positionMs());
     if (playAfterSeek) resume();
 }
 
@@ -602,7 +621,7 @@ void MainWindow::on_btnVolumeMute_clicked()
 
 void MainWindow::on_btnPlay_clicked()
 {
-    if (player->isPaused()) {
+    if (player->isPlayerPaused()) {
         resume();
     } else {
         if (playingSong.id() != "")
@@ -616,26 +635,13 @@ void MainWindow::onSliderVolumeValueChanged(int value)
     player->setVolume(value);
 }
 
+void MainWindow::onPlayerThreadFinished()
+{
+    if (player->isPlayerFinished())
+        playNext();
+}
+
 void MainWindow::onPlayerPlayingEvent(MidiEvent *e)
 {
-    switch (e->eventType()) {
-    case MidiEventType::Meta: {
 
-        switch (e->metaEventType()) {
-        case MidiMetaType::TimeSignature:
-            qDebug() << e->data()[0];
-            qDebug() << e->data()[1];
-            qDebug() << e->data()[2];
-            qDebug() << e->data()[3];
-            qDebug() << "=====================";
-            break;
-        default:
-            break;
-        }
-
-        break;
-    }
-    default:
-        break;
-    }
 }

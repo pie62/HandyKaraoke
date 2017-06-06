@@ -1,31 +1,34 @@
 #include "MidiSynthesizer.h"
 
-#include <cstdlib>
 #include <cstring>
 
 #include <QDebug>
-
 
 MidiSynthesizer::MidiSynthesizer()
 {
     BASS_Init(-1, 44100, 0, NULL, NULL);
 
-    stream = BASS_MIDI_StreamCreate(16, BASS_SAMPLE_FLOAT|BASS_MIDI_NOFX, 0);
+    DWORD flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
+    stream = BASS_MIDI_StreamCreate(16, flags, 0);
 
     BASS_SetConfig(
         BASS_CONFIG_UPDATEPERIOD,
         5
     );
 
-    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, 500);
-    BASS_ChannelPlay(stream, FALSE);
+    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, 256);
+    BASS_ChannelPlay(stream, false); 
+
+    //BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_MIXLEVEL, 60);
 }
 
 MidiSynthesizer::~MidiSynthesizer()
 {
     BASS_ChannelStop(stream);
 
-    for (HSOUNDFONT f : synth_HSOUNDFONT) BASS_MIDI_FontFree(f);
+    for (HSOUNDFONT f : synth_HSOUNDFONT)
+        BASS_MIDI_FontFree(f);
+
     synth_HSOUNDFONT.clear();
     synth_BASS_MIDI_FONT.clear();
 
@@ -38,7 +41,7 @@ bool MidiSynthesizer::setOutputDevice(int dv)
     return BASS_SetDevice(dv);
 }
 
-void MidiSynthesizer::setSoundFonts(std::vector<std::__cxx11::string> soundfonts)
+void MidiSynthesizer::setSoundFonts(std::vector<std::__cxx11::string> &soundfonts)
 {
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
         BASS_MIDI_FontFree(f);
@@ -48,7 +51,7 @@ void MidiSynthesizer::setSoundFonts(std::vector<std::__cxx11::string> soundfonts
 
     int count = 0;
     for (int i=0; i<soundfonts.size(); i++) {
-        HSOUNDFONT f = BASS_MIDI_FontInit(soundfonts[i].c_str(), BASS_MIDI_FONT_NOFX|BASS_MIDI_FONT_MMAP);
+        HSOUNDFONT f = BASS_MIDI_FontInit(soundfonts[i].c_str(), BASS_MIDI_FONT_NOFX);
         if (f) {
             count++;
             synth_HSOUNDFONT.push_back(f);
@@ -66,7 +69,10 @@ void MidiSynthesizer::setSoundFonts(std::vector<std::__cxx11::string> soundfonts
         BASS_MIDI_StreamSetFonts(stream, synth_BASS_MIDI_FONT.data(), synth_BASS_MIDI_FONT.size());
     }
 
-    //BASS_MIDI_FontCompact(0);
+    BASS_MIDI_FontCompact(0);
+
+    BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_DRUM_LEVEL, MAKEWORD(38, 40));
+    BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_DRUM_LEVEL, MAKEWORD(40, 40));
 }
 
 void MidiSynthesizer::setVolume(float vol)
@@ -76,7 +82,7 @@ void MidiSynthesizer::setVolume(float vol)
 
 void MidiSynthesizer::reset()
 {
-    float vol, voice;
+    /*float vol, voice;
     BASS_ChannelGetAttribute(stream, BASS_ATTRIB_VOL, &vol);
     BASS_ChannelGetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, &voice);
 
@@ -86,7 +92,11 @@ void MidiSynthesizer::reset()
     stream = BASS_MIDI_StreamCreate(16, BASS_SAMPLE_FLOAT|BASS_MIDI_NOFX, 0);
     BASS_ChannelSetAttribute(stream, BASS_ATTRIB_VOL, vol);
     BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, voice);
-    BASS_ChannelPlay(stream, FALSE);
+    BASS_ChannelPlay(stream, FALSE);*/
+
+
+    //BASS_ChannelStop(stream);
+    //BASS_ChannelPlay(stream, false);
 }
 
 void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)

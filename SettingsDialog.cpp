@@ -145,7 +145,7 @@ void SettingsDialog::initDeviceTab()
 {
     // Midi device
     MidiPlayer *player = mainWin->midiPlayer();
-    int dfd = player->midiOut();
+    int dfd = player->midiOutPortNumber();
     //int select = 0;
     /*for (int i=0; i < player->midiDevices().count(); i++) {
         #ifdef __linux__
@@ -156,7 +156,9 @@ void SettingsDialog::initDeviceTab()
         if (dfd == player->midiDevices().keys()[i])
             select = i;
     }*/
-    ui->cbMidiOut->addItems(player->midiDevices());
+    for (std::string d : MidiPlayer::midiDevices()) {
+        ui->cbMidiOut->addItem(QString::fromStdString(d));
+    }
     ui->cbMidiOut->addItem("SoundFont");
     if (dfd == -1)
         ui->cbMidiOut->setCurrentIndex( ui->cbMidiOut->count() - 1 );

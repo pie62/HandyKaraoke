@@ -21,7 +21,7 @@ SongDatabase::SongDatabase(QObject *parent) : QObject(parent)
     connect(thread, SIGNAL(started()), this, SLOT(update()));
     connect(this, SIGNAL(updateFinished()), thread, SLOT(quit()));
 
-    QString path = QDir::toNativeSeparators("/home/noob/Projects/QtProjects/HandyKaraoke/Data/Database.db3"); // Test
+    QString path = QDir::toNativeSeparators("/home/noob/Projects/QtProjects/Database.db3"); // Test
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(path);
     if (db.open()) {

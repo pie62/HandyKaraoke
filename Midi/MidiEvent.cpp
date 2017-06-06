@@ -50,7 +50,7 @@ int32_t MidiEvent::message() {
     }
 }
 
-float MidiEvent::tempoBPM()
+float MidiEvent::tempoBpm()
 {
     int32_t midi_tempo = 0;
 
