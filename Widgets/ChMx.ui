@@ -6,13 +6,32 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>305</width>
-    <height>256</height>
+    <width>307</width>
+    <height>261</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QSlider::handle {
+background-image: url(:/Icons/slider.jpg);
+height: 200px;
+}</string>
+  </property>
+  <widget class="QSlider" name="verticalSlider">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>50</y>
+     <width>29</width>
+     <height>160</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Vertical</enum>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

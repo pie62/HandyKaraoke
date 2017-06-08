@@ -7,5 +7,6 @@
         <file>Icons/video-player-stop-button.png</file>
         <file>Icons/volume-adjustment-mute.png</file>
         <file>Icons/volume-up-interface-symbol.png</file>
+        <file>Icons/slider.jpg</file>
     </qresource>
 </RCC>

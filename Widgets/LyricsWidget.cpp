@@ -313,7 +313,7 @@ void LyricsWidget::setCursorPosition(int tick)
         animation->setStartValue(current_Cur);
         animation->setEndValue(percent);
         animation->start();
-        timer->start(50);
+        timer->start(45);
     } else {
         setCurrentCur(percent);
     }

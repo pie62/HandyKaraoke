@@ -72,15 +72,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     { // Player
-        //player->playingEvents.connect<MainWindow, &MainWindow::onPlayerPlayingEvent>(this);
-
         int oPort = settings->value("MidiOut", 0).toInt();
         player->setMidiOut(oPort);
         //player->setMidiOut(-1);
         player->setVolume(settings->value("MidiVolume", 50).toInt());
 
         std::vector<std::string> sfs;
-        sfs.push_back("/home/noob/SOMSAK_2017_V1.SF2");
+        sfs.push_back("/home/noob/agkavach 31.sf2");
         //sfs.push_back("/home/noob/SoundFont_2_Drum.sf2");
 
         player->midiSynthesizer()->setSoundFonts(sfs);
@@ -545,16 +543,15 @@ void MainWindow::showFullScreenOrNormal()
     }
 }
 
-int beat = -1;
 void MainWindow::onPositiomTimerTimeOut()
 {
     int tick = player->positionTick();
 
-    int b = player->midiFile()->beatFromTick(tick);
+    /*int b = player->midiFile()->beatFromTick(tick);
     if (b != beat) {
         qDebug() << "Beat  is : " << b;
         beat = b;
-    }
+    }*/
 
     onPlayerpositionMSChanged(player->positionMs());
     ui->sliderPosition->setValue(tick);

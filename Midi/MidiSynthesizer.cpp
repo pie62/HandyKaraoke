@@ -1,7 +1,7 @@
 #include "MidiSynthesizer.h"
 
 #include <cstring>
-
+#include <thread>
 #include <QDebug>
 
 MidiSynthesizer::MidiSynthesizer()
@@ -16,9 +16,16 @@ MidiSynthesizer::MidiSynthesizer()
         5
     );
 
-    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, 256);
+    auto concurentThreadsSupported = std::thread::hardware_concurrency();
+    float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
+    qDebug() << concurentThreadsSupported;
+
+    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, nVoices);
     BASS_ChannelPlay(stream, false); 
 
+    float v;
+    BASS_ChannelGetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, &v);
+    qDebug() << v;
     //BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_MIXLEVEL, 60);
 }
 
