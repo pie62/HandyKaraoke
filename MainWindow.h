@@ -3,7 +3,7 @@
 
 #include "SongDatabase.h"
 #include "Midi/MidiPlayer.h"
-#include <LyricsWidget.h>
+#include <LyrManager.h>
 
 #include <QMainWindow>
 #include <QTimer>
@@ -24,7 +24,7 @@ public:
 
     SongDatabase* database() { return db; }
     MidiPlayer* midiPlayer() { return player; }
-    LyricsWidget* lyricsWidget() { return lyrics; }
+    LyrManager* lyrManager() { return lyrMng; }
 
     bool removeFromPlaylist() { return remove_playlist; }
     bool autoPlayNext() { return auto_playnext; }
@@ -45,6 +45,9 @@ public slots:
     void playNext();
     void playPrevious();
 
+signals:
+    void resized(const QSize &s);
+
 protected:
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
@@ -57,10 +60,14 @@ private:
 
     QList<Song*> playlist;
     MidiPlayer *player;
-    LyricsWidget *lyrics;
     Song playingSong;
     int playingIndex = -1;
     bool playAfterSeek = false;
+
+    LyrManager *lyrMng;
+    LyrWidget *line1;
+    LyrWidget *line2;
+    LyrWidget *curLine;
 
     int bgType = 0;
     QString bgImg = "";

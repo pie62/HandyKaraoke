@@ -15,6 +15,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    line1 = new LyrWidget(this);
+    line2 = new LyrWidget(this);
+    curLine = new LyrWidget(this);
+
+
     ui->setupUi(this);
 
     settings = new QSettings();
@@ -26,9 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     positionTimer->setInterval(20);
 
     player = new MidiPlayer();
-    lyrics = new LyricsWidget(this);
-
-    ui->verticalLayout_4->insertWidget(3, lyrics, 1);
+    lyrMng = new LyrManager(this, line1, line2, curLine);
 
     { // UI
         int sTime = settings->value("SearchTimeout", 5).toInt();
@@ -127,6 +130,9 @@ MainWindow::MainWindow(QWidget *parent) :
         QString cbColor = settings->value("LyricsCurBorderColor", "#ffffff").toString();
         int     cbWidth = settings->value("LyricsCurBorderWidth", 2).toInt();
 
+        int     line1Y  = settings->value("LyricsLine1Y", 320).toInt();
+        int     line2Y  = settings->value("LyricsLine2Y", 170).toInt();
+
         QFont f;
         f.setFamily(family);
         f.setPointSize(size);
@@ -135,15 +141,20 @@ MainWindow::MainWindow(QWidget *parent) :
         f.setStrikeOut(strikeOut);
         f.setUnderline(underline);
 
-        lyrics->setTextFont(f);
+        lyrMng->setTextFont(f);
+        lyrMng->setTextColor(QColor(tColor));
+        lyrMng->setTextBorderColor(QColor(tbColor));
+        lyrMng->setTextBorderWidth(tbWidth);
 
-        lyrics->setTextColor(QColor(tColor));
-        lyrics->setTextBorderColor(QColor(tbColor));
-        lyrics->setTextBorderWidth(tbWidth);
+        lyrMng->setCurColor(QColor(cColor));
+        lyrMng->setCurBorderColor(QColor(cbColor));
+        lyrMng->setCurBorderWidth(cbWidth);
 
-        lyrics->setCurColor(QColor(cColor));
-        lyrics->setCurBorderColor(QColor(cbColor));
-        lyrics->setCurBorderWidth(cbWidth);
+        lyrMng->setLine1Y(line1Y);
+        lyrMng->setLine2Y(line2Y);
+        lyrMng->onMainWindowResized(this->size());
+
+        connect(this, SIGNAL(resized(QSize)), lyrMng, SLOT(onMainWindowResized(QSize)));
     }
 
 
@@ -196,7 +207,7 @@ MainWindow::~MainWindow()
         delete s;
     }
 
-    delete lyrics;
+    delete lyrMng;
     delete player;
     delete positionTimer;
     delete timer2;
@@ -204,6 +215,10 @@ MainWindow::~MainWindow()
     delete db;
     delete settings;
     delete ui;
+
+    delete curLine;
+    delete line2;
+    delete line1;
 }
 
 void MainWindow::setBackgroundColor(QString colorName)
@@ -230,9 +245,9 @@ void MainWindow::play(int index)
 {
     stop();
     if (index == -1 && playingSong.id() != "") {
-        lyrics->reset();
+        lyrMng->reset();
         player->start();
-        lyrics->show();
+        lyrMng->show();
         positionTimer->start();
         return;
     }
@@ -267,11 +282,12 @@ void MainWindow::play(int index)
 
     player->load(p.toStdString());
 
-    lyrics->setLyrics(playingSong.lyrics(), curPath, player->midiFile()->resorution());
+    QFile f(curPath);
+    lyrMng->setLyrics(playingSong.lyrics(), &f, player->midiFile()->resorution());
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
     player->start();
-    lyrics->show();
+    lyrMng->show();
     positionTimer->start();
 }
 
@@ -293,8 +309,8 @@ void MainWindow::stop()
     player->stop(true);
 
     ui->sliderPosition->setValue(0);
-    lyrics->hide();
-    lyrics->reset();
+    lyrMng->hide();
+    lyrMng->reset();
     ui->sliderPosition->setValue(0);
     onPlayerpositionMSChanged(0);
 }
@@ -321,6 +337,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         setBackgroundImage(bgImg);
         QMainWindow::resizeEvent(event);
     }
+    emit resized(event->size());
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -555,7 +572,7 @@ void MainWindow::onPositiomTimerTimeOut()
 
     onPlayerpositionMSChanged(player->positionMs());
     ui->sliderPosition->setValue(tick);
-    lyrics->setCursorPosition(tick - 50);
+    lyrMng->setPositionCursor(tick - 40);
 
 
     /*if (player->isFinished()) {
@@ -598,7 +615,7 @@ void MainWindow::onSliderPositionReleased()
     }
 
     player->setPositionTick(ui->sliderPosition->value());
-    lyrics->setSeekPosition(ui->sliderPosition->value());
+    lyrMng->setSeekPositionCursor(ui->sliderPosition->value());
     onPlayerpositionMSChanged(player->positionMs());
     if (playAfterSeek) resume();
 }

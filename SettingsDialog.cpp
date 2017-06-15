@@ -62,12 +62,17 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
     // Lyrics
     {
-        QFont font = mainWin->lyricsWidget()->textFont();
+        QFont font = mainWin->lyrManager()->textFont();
         setLabelFontInfo(&font);
 
-        QString textColor =  mainWin->lyricsWidget()->textColor().name();
-        QString textBorderColor = mainWin->lyricsWidget()->textBorderColor().name();
-        int tW = mainWin->lyricsWidget()->textBorderWidth();
+        int l1y = mainWin->lyrManager()->line1Y();
+        int l2y = mainWin->lyrManager()->line2Y();
+        ui->spinLint1Y->setValue(l1y);
+        ui->spinLint2Y->setValue(l2y);
+
+        QString textColor =  mainWin->lyrManager()->textColor().name();
+        QString textBorderColor = mainWin->lyrManager()->textBorderColor().name();
+        int tW = mainWin->lyrManager()->textBorderWidth();
         ui->lbTextColor->setText(textColor);
         ui->lbTextColor->setStyleSheet("background-color : " + textColor);
         ui->lbTextBorderColor->setText(textBorderColor);
@@ -75,20 +80,24 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         ui->spinTextBorderWidth->setValue(tW);
 
 
-        QString curColor =  mainWin->lyricsWidget()->curColor().name();
+        QString curColor =  mainWin->lyrManager()->curColor().name();
         ui->lbCurColor->setStyleSheet("background-color : " + curColor);
         ui->lbCurColor->setText(curColor);
 
-        QString curBorderColor =  mainWin->lyricsWidget()->curBorderColor().name();
+        QString curBorderColor =  mainWin->lyrManager()->curBorderColor().name();
         ui->lbCurBorderColor->setStyleSheet("background-color : " + curBorderColor);
         ui->lbCurBorderColor->setText(curBorderColor);
 
-        int w = mainWin->lyricsWidget()->curBorderWidth();
+        int w = mainWin->lyrManager()->curBorderWidth();
         ui->spinCurBorderWidth->setValue(w);
+
+        connect(ui->spinLint1Y, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinLine1YValueChanged(int)));
+        connect(ui->spinLint2Y, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinLine2YValueChanged(int)));
 
         connect(ui->spinTextBorderWidth, SIGNAL(valueChanged(int)), this, SLOT(onSpinTextBorderWidthValueChanged(int)));
         connect(ui->spinCurBorderWidth, SIGNAL(valueChanged(int)), this, SLOT(onSpinCurBorderWidthValueChanged(int)));
-
     }
 
 
@@ -365,7 +374,7 @@ void SettingsDialog::on_cbAudioOut_activated(int index)
 void SettingsDialog::on_btnFont_clicked()
 {
     bool ok;
-    QFont f = QFontDialog::getFont(&ok, mainWin->lyricsWidget()->textFont(),
+    QFont f = QFontDialog::getFont(&ok, mainWin->lyrManager()->textFont(),
                                    this, "Select Font", QFontDialog::DontUseNativeDialog);
     if (ok) {
         settings->setValue("LyricsFamily", f.family());
@@ -377,13 +386,25 @@ void SettingsDialog::on_btnFont_clicked()
 
         setLabelFontInfo(&f);
 
-        mainWin->lyricsWidget()->setTextFont(f);
+        mainWin->lyrManager()->setTextFont(f);
     }
+}
+
+void SettingsDialog::onSpinLine1YValueChanged(int v)
+{
+    mainWin->lyrManager()->setLine1Y(v);
+    settings->setValue("LyricsLine1Y", v);
+}
+
+void SettingsDialog::onSpinLine2YValueChanged(int v)
+{
+    mainWin->lyrManager()->setLine2Y(v);
+    settings->setValue("LyricsLine2Y", v);
 }
 
 void SettingsDialog::on_btnTextColor_clicked()
 {
-    QColor lC = mainWin->lyricsWidget()->textColor();
+    QColor lC = mainWin->lyrManager()->textColor();
     QColor color = QColorDialog::getColor(lC, this, "Select Color",
                                           QColorDialog::DontUseNativeDialog);
 
@@ -393,13 +414,13 @@ void SettingsDialog::on_btnTextColor_clicked()
         ui->lbTextColor->setStyleSheet("background-color : " + cn);
         ui->lbTextColor->setText(cn);
 
-        mainWin->lyricsWidget()->setTextColor(color);
+        mainWin->lyrManager()->setTextColor(color);
     }
 }
 
 void SettingsDialog::on_btnTextBorderColor_clicked()
 {
-    QColor lC = mainWin->lyricsWidget()->textBorderColor();
+    QColor lC = mainWin->lyrManager()->textBorderColor();
     QColor color = QColorDialog::getColor(lC, this, "Select Color",
                                           QColorDialog::DontUseNativeDialog);
 
@@ -409,19 +430,19 @@ void SettingsDialog::on_btnTextBorderColor_clicked()
         ui->lbTextBorderColor->setStyleSheet("background-color : " + cn);
         ui->lbTextBorderColor->setText(cn);
 
-        mainWin->lyricsWidget()->setTextBorderColor(color);
+        mainWin->lyrManager()->setTextBorderColor(color);
     }
 }
 
 void SettingsDialog::onSpinTextBorderWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsTextBorderWidth", arg1);
-    mainWin->lyricsWidget()->setTextBorderWidth(arg1);
+    mainWin->lyrManager()->setTextBorderWidth(arg1);
 }
 
 void SettingsDialog::on_btnCurColor_clicked()
 {
-    QColor lC = mainWin->lyricsWidget()->curColor();
+    QColor lC = mainWin->lyrManager()->curColor();
     QColor color = QColorDialog::getColor(lC, this, "Select Color",
                                           QColorDialog::DontUseNativeDialog);
 
@@ -431,13 +452,13 @@ void SettingsDialog::on_btnCurColor_clicked()
         ui->lbCurColor->setStyleSheet("background-color : " + cn);
         ui->lbCurColor->setText(cn);
 
-        mainWin->lyricsWidget()->setCurColor(color);
+        mainWin->lyrManager()->setCurColor(color);
     }
 }
 
 void SettingsDialog::on_btnCurBorderColor_clicked()
 {
-    QColor lC = mainWin->lyricsWidget()->curBorderColor();
+    QColor lC = mainWin->lyrManager()->curBorderColor();
     QColor color = QColorDialog::getColor(lC, this, "Select Color",
                                           QColorDialog::DontUseNativeDialog);
 
@@ -447,12 +468,12 @@ void SettingsDialog::on_btnCurBorderColor_clicked()
         ui->lbCurBorderColor->setStyleSheet("background-color : " + cn);
         ui->lbCurBorderColor->setText(cn);
 
-        mainWin->lyricsWidget()->setCurBorderColor(color);
+        mainWin->lyrManager()->setCurBorderColor(color);
     }
 }
 
 void SettingsDialog::onSpinCurBorderWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsCurBorderWidth", arg1);
-    mainWin->lyricsWidget()->setCurBorderWidth(arg1);
+    mainWin->lyrManager()->setCurBorderWidth(arg1);
 }

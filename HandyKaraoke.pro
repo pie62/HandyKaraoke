@@ -19,20 +19,19 @@ SOURCES += main.cpp\
     SettingsDialog.cpp \
     SongDatabase.cpp \
     Song.cpp \
-    Widgets/LyricsWidget.cpp \
     Midi/MidiFile.cpp \
     Midi/MidiEvent.cpp \
     Midi/MidiOut.cpp \
     Midi/Channel.cpp \
     Midi/MidiSynthesizer.cpp \
     Midi/MidiPlayer.cpp \
-    Widgets/ChMx.cpp
+    Widgets/ChMx.cpp \
+    Widgets/LyrManager.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
     SongDatabase.h \
     Song.h \
-    Widgets/LyricsWidget.h \
     Midi/MidiFile.h \
     Midi/MidiEvent.h \
     Midi/MidiOut.h \
@@ -42,7 +41,9 @@ HEADERS  += MainWindow.h \
     Midi/nanoSignalSlot/nano_function.hpp \
     Midi/nanoSignalSlot/nano_observer.hpp \
     Midi/nanoSignalSlot/nano_signal_slot.hpp \
-    Widgets/ChMx.h
+    Widgets/ChMx.h \
+    Widgets/LyrManager.h \
+    Widgets/Lyrwidget.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
