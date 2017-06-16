@@ -26,7 +26,7 @@ MidiSynthesizer::MidiSynthesizer()
     float v;
     BASS_ChannelGetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, &v);
     qDebug() << v;
-    BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_MIXLEVEL, 50);
+    //BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_MIXLEVEL, 50);
 }
 
 MidiSynthesizer::~MidiSynthesizer()

@@ -67,8 +67,10 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
         int l1y = mainWin->lyrManager()->line1Y();
         int l2y = mainWin->lyrManager()->line2Y();
+        int anmtTime = mainWin->lyrManager()->animationTime();
         ui->spinLint1Y->setValue(l1y);
         ui->spinLint2Y->setValue(l2y);
+        ui->spinAnmtTime->setValue(anmtTime);
 
         QString textColor =  mainWin->lyrManager()->textColor().name();
         QString textBorderColor = mainWin->lyrManager()->textBorderColor().name();
@@ -95,9 +97,13 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
                 this, SLOT(onSpinLine1YValueChanged(int)));
         connect(ui->spinLint2Y, SIGNAL(valueChanged(int)),
                 this, SLOT(onSpinLine2YValueChanged(int)));
+        connect(ui->spinAnmtTime, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinAnmtTimeValueChanged(int)));
 
-        connect(ui->spinTextBorderWidth, SIGNAL(valueChanged(int)), this, SLOT(onSpinTextBorderWidthValueChanged(int)));
-        connect(ui->spinCurBorderWidth, SIGNAL(valueChanged(int)), this, SLOT(onSpinCurBorderWidthValueChanged(int)));
+        connect(ui->spinTextBorderWidth, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinTextBorderWidthValueChanged(int)));
+        connect(ui->spinCurBorderWidth, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinCurBorderWidthValueChanged(int)));
     }
 
 
@@ -400,6 +406,12 @@ void SettingsDialog::onSpinLine2YValueChanged(int v)
 {
     mainWin->lyrManager()->setLine2Y(v);
     settings->setValue("LyricsLine2Y", v);
+}
+
+void SettingsDialog::onSpinAnmtTimeValueChanged(int v)
+{
+    mainWin->lyrManager()->setAnimationTime(v);
+    settings->setValue("LyricsAnimationTime", v);
 }
 
 void SettingsDialog::on_btnTextColor_clicked()

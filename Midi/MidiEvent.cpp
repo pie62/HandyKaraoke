@@ -19,6 +19,23 @@ MidiEvent::~MidiEvent() {
     mData.clear();
 }
 
+MidiEvent &MidiEvent::operator =(const MidiEvent &e)
+{
+    mData.clear();
+
+    eTick       = e.tick();
+    eDelta      = e.delta();
+    eTrack      = e.track();
+    eChannel    = e.channel();
+    eData1      = e.data1();
+    eData2      = e.data2();
+    eType       = e.eventType();
+    mType       = e.metaEventType();
+    mData       = e.data();
+
+    return *this;
+}
+
 void MidiEvent::setMetaType(int mNumber) {
     switch (mNumber) {
         case 0:   mType = MidiMetaType::SequenceNumber; break;

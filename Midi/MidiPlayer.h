@@ -70,6 +70,7 @@ private:
     void sendEvent(MidiEvent *e);
     void sendAllNotesOff(int ch);
     void sendAllNotesOff();
+    void sendResetAllControllers();
 };
 
 #endif // MIDIPLAYER_H

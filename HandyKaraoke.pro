@@ -38,9 +38,6 @@ HEADERS  += MainWindow.h \
     Midi/Channel.h \
     Midi/MidiSynthesizer.h \
     Midi/MidiPlayer.h \
-    Midi/nanoSignalSlot/nano_function.hpp \
-    Midi/nanoSignalSlot/nano_observer.hpp \
-    Midi/nanoSignalSlot/nano_signal_slot.hpp \
     Widgets/ChMx.h \
     Widgets/LyrManager.h \
     Widgets/Lyrwidget.h

@@ -46,6 +46,11 @@ public:
     int line1Y() { return line1_y; }
     int line2Y() { return line2_y; }
 
+    int animationTime() { return animation->duration(); }
+    void setAnimationTime(int t) { animation->setDuration(t); }
+
+    void stopAnimation() { animation->stop(); }
+
 public slots:
     void show();
     void hide();

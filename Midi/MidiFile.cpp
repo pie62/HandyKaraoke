@@ -168,7 +168,8 @@ bool MidiFile::read(std::string filename) {
 
             if ((status & 0x80) == 0) {
                 status = runningStatus;
-                in.seekg(in.tellg() - 1);
+                std::fstream::pos_type p = 1;
+                in.seekg(in.tellg() - p);
             } else {
                 runningStatus = status;
             }

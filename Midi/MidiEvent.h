@@ -45,6 +45,8 @@ class MidiEvent {
 public:
     MidiEvent();
     ~MidiEvent();
+    MidiEvent &operator = (const MidiEvent &e);
+
     void setTick(uint32_t t)        { eTick = t; }
     void setDelta(uint32_t d)       { eDelta = d; }
     void setTrack(int t)            { eTrack = t; }
@@ -57,15 +59,15 @@ public:
     void setMetaType(int mNumber);
 
     int32_t         message();
-    uint32_t        tick()           { return eTick; }
-    uint32_t        delta()          { return eDelta; }
-    int             track()          { return eTrack; }
-    int             channel()        { return eChannel; }
-    int             data1()          { return eData1; }
-    int             data2()          { return eData2; }
-    MidiEventType   eventType()      { return eType; }
-    MidiMetaType    metaEventType()  { return mType; }
-    std::vector<unsigned char> data(){ return mData; }
+    uint32_t        tick() const           { return eTick; }
+    uint32_t        delta() const          { return eDelta; }
+    int             track() const          { return eTrack; }
+    int             channel() const        { return eChannel; }
+    int             data1() const          { return eData1; }
+    int             data2() const          { return eData2; }
+    MidiEventType   eventType() const      { return eType; }
+    MidiMetaType    metaEventType() const  { return mType; }
+    std::vector<unsigned char> data() const{ return mData; }
 
     float tempoBpm();
 

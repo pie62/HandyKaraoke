@@ -301,16 +301,19 @@
     <attribute name="title">
      <string>เนื้อเพลง</string>
     </attribute>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>9</x>
        <y>9</y>
        <width>475</width>
-       <height>65</height>
+       <height>109</height>
       </rect>
      </property>
      <layout class="QFormLayout" name="formLayout_7">
+      <property name="verticalSpacing">
+       <number>12</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
@@ -351,7 +354,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_14">
         <property name="text">
-         <string>ตำแหน่งเนื้อร้อง:</string>
+         <string>ตำแหน่งเนื้อเพลง:</string>
         </property>
        </widget>
       </item>
@@ -362,6 +365,9 @@
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <property name="spacing">
+           <number>2</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_15">
             <property name="text">
@@ -392,6 +398,9 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <property name="spacing">
+           <number>2</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_16">
             <property name="text">
@@ -435,15 +444,41 @@
         </item>
        </layout>
       </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_17">
+        <property name="text">
+         <string>ระยะเวลาปาดเนื้อ (ms):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="spinAnmtTime">
+        <property name="minimumSize">
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>9</x>
-       <y>80</y>
+       <x>10</x>
+       <y>160</y>
        <width>519</width>
-       <height>252</height>
+       <height>161</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -630,6 +665,13 @@
          <string>ตำแหน่งเนื้อร้อง</string>
         </property>
         <layout class="QFormLayout" name="formLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>สีตัวอักษร:</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
@@ -791,27 +833,16 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>สีตัวอักษร:</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
      </layout>
     </widget>
+    <zorder>layoutWidget</zorder>
+    <zorder>layoutWidget</zorder>
     <zorder>groupBox_4</zorder>
+    <zorder>label_18</zorder>
     <zorder></zorder>
-    <zorder>label_4</zorder>
-    <zorder>groupBox_5</zorder>
-    <zorder>horizontalSpacer_6</zorder>
-    <zorder>label_15</zorder>
-    <zorder>spinLint1Y</zorder>
-    <zorder>label_16</zorder>
-    <zorder>spinLint2Y</zorder>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
@@ -1025,7 +1056,7 @@
         <x>30</x>
         <y>30</y>
         <width>341</width>
-        <height>95</height>
+        <height>101</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_3">

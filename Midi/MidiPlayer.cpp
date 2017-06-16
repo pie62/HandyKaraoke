@@ -145,6 +145,9 @@ void MidiPlayer::run()
     if (_playing)
         return;
 
+    if (_stopped)
+        sendResetAllControllers();
+
     _playing = true;
     _stopped = false;
     _finished = false;
@@ -171,10 +174,10 @@ void MidiPlayer::playEvents()
         if (!_playing)
             break;
 
-        MidiEvent *e = _midi->events()[i];
-        if (e->eventType() != MidiEventType::Meta) {
+        MidiEvent e = *_midi->events()[i];
+        if (e.eventType() != MidiEventType::Meta) {
 
-            long eventTime = _midi->timeFromTick(e->tick()) * 1000;
+            long eventTime = _midi->timeFromTick(e.tick()) * 1000;
             long waitTime = eventTime - _startPlayTime - _eTimer->elapsed();
 
             if (waitTime > 0) {
@@ -182,19 +185,19 @@ void MidiPlayer::playEvents()
                 msleep(waitTime);
             }
 
-            if (e->eventType() != MidiEventType::SysEx) {
+            if (e.eventType() != MidiEventType::SysEx) {
 
-                if (e->eventType() == MidiEventType::Controller
-                    || e->eventType() == MidiEventType::ProgramChange) {
-                    sendEvent(e);
+                if (e.eventType() == MidiEventType::Controller
+                    || e.eventType() == MidiEventType::ProgramChange) {
+                    sendEvent(&e);
                 } else {
-                    if (_midiChannels[e->channel()].isMute() == false) {
+                    if (_midiChannels[e.channel()].isMute() == false) {
                         if (_useSolo) {
-                            if (_midiChannels[e->channel()].isSolo()) {
-                                sendEvent(e);
+                            if (_midiChannels[e.channel()].isSolo()) {
+                                sendEvent(&e);
                             }
                         } else {
-                            sendEvent(e);
+                            sendEvent(&e);
                         }
                     }
                 }
@@ -204,15 +207,15 @@ void MidiPlayer::playEvents()
             _positionMs = eventTime;
 
         } else { // Meta event
-            if (e->metaEventType() == MidiMetaType::SetTempo) {
-                _midiBpm = e->tempoBpm();
+            if (e.metaEventType() == MidiMetaType::SetTempo) {
+                _midiBpm = e.tempoBpm();
             }
         }
 
         _playedIndex = i;
-        _positionTick = e->tick();
+        _positionTick = e.tick();
 
-        emit playingEvents(e);
+        emit playingEvents(&e);
 
     } // End for loop
 
@@ -307,5 +310,18 @@ void MidiPlayer::sendAllNotesOff()
         _midiSynth->sendAllNotesOff();
     } else {
         _midiOut->sendAllNotesOff();
+    }
+}
+
+void MidiPlayer::sendResetAllControllers()
+{
+    if (_midiPortNum == -1) {
+        for (int i=0; i<16; i++) {
+            _midiSynth->sendController(i, 121, 0);
+        }
+    } else {
+        for (int i=0; i<16; i++) {
+            _midiOut->sendController(i, 121, 0);
+        }
     }
 }

@@ -1,6 +1,5 @@
 #include "LyrManager.h"
 
-
 LyrManager::LyrManager(QObject *parent, LyrWidget *line1, LyrWidget *line2, LyrWidget *curLine)
     : QObject(parent)
 {
@@ -124,9 +123,7 @@ void LyrManager::setPositionCursor(int tick)
 
     cursor_index++;
 
-    if (animation->state() == QPropertyAnimation::Running) {
-        animation->stop();
-    }
+    animation->stop();
     animation->setStartValue(curLine->size());
     animation->setEndValue(QSize(cursor_toEnd, curLine->height()));
     animation->start();
@@ -244,6 +241,13 @@ void LyrManager::setTextFont(const QFont &f)
     line1->setTextFont(f);
     line2->setTextFont(f);
     curLine->setTextFont(f);
+
+    calculateLinesPosition();
+
+    /*if (char_index != -1 && char_index != chars_width.count())
+        curLine->resize(chars_width[char_index], curLine->height());
+    */
+
 }
 
 void LyrManager::setTextColor(const QColor &c)

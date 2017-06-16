@@ -42,6 +42,7 @@ private slots:
     void on_btnFont_clicked();
     void onSpinLine1YValueChanged(int v);
     void onSpinLine2YValueChanged(int v);
+    void onSpinAnmtTimeValueChanged(int v);
     void on_btnTextColor_clicked();
     void on_btnTextBorderColor_clicked();
     void onSpinTextBorderWidthValueChanged(int arg1);

@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
         player->setVolume(settings->value("MidiVolume", 50).toInt());
 
         std::vector<std::string> sfs;
-        sfs.push_back("/home/noob/agkavach 31.sf2");
+        sfs.push_back("/home/noob/SOMSAK_2017_V1.SF2");
         //sfs.push_back("/home/noob/SoundFont_2_Drum.sf2");
 
         player->midiSynthesizer()->setSoundFonts(sfs);
@@ -132,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         int     line1Y  = settings->value("LyricsLine1Y", 320).toInt();
         int     line2Y  = settings->value("LyricsLine2Y", 170).toInt();
+        int     aTime   = settings->value("LyricsAnimationTime", 250).toInt();
 
         QFont f;
         f.setFamily(family);
@@ -152,6 +153,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         lyrMng->setLine1Y(line1Y);
         lyrMng->setLine2Y(line2Y);
+        lyrMng->setAnimationTime(aTime);
         lyrMng->onMainWindowResized(this->size());
 
         connect(this, SIGNAL(resized(QSize)), lyrMng, SLOT(onMainWindowResized(QSize)));
@@ -286,6 +288,7 @@ void MainWindow::play(int index)
     lyrMng->setLyrics(playingSong.lyrics(), &f, player->midiFile()->resorution());
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
+
     player->start();
     lyrMng->show();
     positionTimer->start();
@@ -294,6 +297,7 @@ void MainWindow::play(int index)
 void MainWindow::pause()
 {
     positionTimer->stop();
+    lyrMng->stopAnimation();
     player->stop();
 }
 

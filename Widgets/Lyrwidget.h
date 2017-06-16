@@ -1,6 +1,7 @@
 #ifndef LYRWIDGET_H
 #define LYRWIDGET_H
 
+#include <QFrame>
 #include <QWidget>
 #include <QPainter>
 #include <QFontMetrics>
@@ -46,7 +47,8 @@ public:
     void setTextFont(const QFont &f) {
         this->setFont(f);
         ly = f.pointSize() * 2;
-        resize(width(), f.pointSize() * 2.5);
+        QFontMetrics fm(f);
+        resize(fm.width(lText), f.pointSize() * 2.5);
         update();
     }
 
