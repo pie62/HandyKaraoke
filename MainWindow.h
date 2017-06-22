@@ -76,6 +76,8 @@ private:
     int search_timeout = 5000;
     int playlist_timeout = 5000;
 
+    QLocale locale;
+
 private slots:
     void showCurrentTime();
     void setFrameSearch(Song* s);
@@ -86,7 +88,7 @@ private slots:
 
     void onPositiomTimerTimeOut();
     void onPlayerDurationMSChanged(qint64 d);
-    void onPlayerpositionMSChanged(qint64 p);
+    void onPlayerPositionMSChanged(qint64 p);
     void onPlayerDurationTickChanged(int d);
 
     void onSliderPositionPressed();

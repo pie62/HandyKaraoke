@@ -8,7 +8,7 @@ LyrManager::LyrManager(QObject *parent, LyrWidget *line1, LyrWidget *line2, LyrW
     this->curLine = curLine;
 
     animation = new QPropertyAnimation(curLine, "size");
-    animation->setDuration(250);
+    animation->setDuration(400);
 
     QFont f;
     f.setBold(true);

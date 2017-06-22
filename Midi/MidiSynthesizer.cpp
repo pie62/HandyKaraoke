@@ -58,7 +58,8 @@ void MidiSynthesizer::setSoundFonts(std::vector<std::__cxx11::string> &soundfont
 
     int count = 0;
     for (int i=0; i<soundfonts.size(); i++) {
-        HSOUNDFONT f = BASS_MIDI_FontInit(soundfonts[i].c_str(), BASS_MIDI_FONT_NOFX);
+        HSOUNDFONT f = BASS_MIDI_FontInit(soundfonts[i].c_str(),
+                                          BASS_MIDI_FONT_MMAP);
         if (f) {
             count++;
             synth_HSOUNDFONT.push_back(f);

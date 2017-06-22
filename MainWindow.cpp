@@ -28,10 +28,12 @@ MainWindow::MainWindow(QWidget *parent) :
     timer2 = new QTimer(this);
 
     positionTimer = new QTimer();
-    positionTimer->setInterval(20);
+    positionTimer->setInterval(30);
 
     player = new MidiPlayer();
     lyrMng = new LyrManager(this, line1, line2, curLine);
+
+    locale = QLocale(QLocale::English, QLocale::UnitedStates);
 
     { // UI
         int sTime = settings->value("SearchTimeout", 5).toInt();
@@ -63,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
         bool max  = settings->value("WindowMaximized", false).toBool();
         bool full = settings->value("WindowFullScreen", false).toBool();
 
-        this->setGeometry(this->x(), this->y(), w, h);
+        this->resize(w, h);
         if (max) {
             this->showMaximized();
         } else {
@@ -81,8 +83,8 @@ MainWindow::MainWindow(QWidget *parent) :
         player->setVolume(settings->value("MidiVolume", 50).toInt());
 
         std::vector<std::string> sfs;
-        sfs.push_back("/home/noob/SOMSAK_2017_V1.SF2");
-        //sfs.push_back("/home/noob/SoundFont_2_Drum.sf2");
+        sfs.push_back("/home/noob/SoundFont/อำนาจสเตอริโอซาวด์.sf2");
+        //sfs.push_back("/home/noob/SoundFont/SoundFont_2_Drum.sf2");
 
         player->midiSynthesizer()->setSoundFonts(sfs);
 
@@ -132,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         int     line1Y  = settings->value("LyricsLine1Y", 320).toInt();
         int     line2Y  = settings->value("LyricsLine2Y", 170).toInt();
-        int     aTime   = settings->value("LyricsAnimationTime", 250).toInt();
+        int     aTime   = settings->value("LyricsAnimationTime", 400).toInt();
 
         QFont f;
         f.setFamily(family);
@@ -316,7 +318,7 @@ void MainWindow::stop()
     lyrMng->hide();
     lyrMng->reset();
     ui->sliderPosition->setValue(0);
-    onPlayerpositionMSChanged(0);
+    onPlayerPositionMSChanged(0);
 }
 
 void MainWindow::playNext()
@@ -509,7 +511,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::showCurrentTime()
 {
     QTime time = QTime::currentTime();
-    QString currentTime = time.toString("hh:mm:ss");
+    QString currentTime = locale.toString(time, "hh:mm:ss");
     ui->lcdTime->display(currentTime);
 }
 
@@ -574,7 +576,7 @@ void MainWindow::onPositiomTimerTimeOut()
         beat = b;
     }*/
 
-    onPlayerpositionMSChanged(player->positionMs());
+    onPlayerPositionMSChanged(player->positionMs());
     ui->sliderPosition->setValue(tick);
     lyrMng->setPositionCursor(tick - 40);
 
@@ -591,13 +593,13 @@ void MainWindow::onPositiomTimerTimeOut()
 void MainWindow::onPlayerDurationMSChanged(qint64 d)
 {
     QDateTime t = QDateTime::fromMSecsSinceEpoch(d);
-    ui->lbDuration->setText(t.toString("mm:ss"));
+    ui->lbDuration->setText( locale.toString(t, "mm:ss") );
 }
 
-void MainWindow::onPlayerpositionMSChanged(qint64 p)
+void MainWindow::onPlayerPositionMSChanged(qint64 p)
 {
     QDateTime t = QDateTime::fromMSecsSinceEpoch(p);
-    ui->lbPosition->setText(t.toString("mm:ss"));
+    ui->lbPosition->setText( locale.toString(t, "mm:ss") );
 }
 
 void MainWindow::onPlayerDurationTickChanged(int d)
@@ -620,7 +622,7 @@ void MainWindow::onSliderPositionReleased()
 
     player->setPositionTick(ui->sliderPosition->value());
     lyrMng->setSeekPositionCursor(ui->sliderPosition->value());
-    onPlayerpositionMSChanged(player->positionMs());
+    onPlayerPositionMSChanged(player->positionMs());
     if (playAfterSeek) resume();
 }
 
