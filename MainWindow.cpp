@@ -15,10 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    line1 = new LyrWidget(this);
-    line2 = new LyrWidget(this);
-    curLine = new LyrWidget(this);
-
+    lyrWidget = new LyricsWidget(this);
 
     ui->setupUi(this);
 
@@ -31,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent) :
     positionTimer->setInterval(30);
 
     player = new MidiPlayer();
-    lyrMng = new LyrManager(this, line1, line2, curLine);
 
     locale = QLocale(QLocale::English, QLocale::UnitedStates);
 
@@ -144,21 +140,18 @@ MainWindow::MainWindow(QWidget *parent) :
         f.setStrikeOut(strikeOut);
         f.setUnderline(underline);
 
-        lyrMng->setTextFont(f);
-        lyrMng->setTextColor(QColor(tColor));
-        lyrMng->setTextBorderColor(QColor(tbColor));
-        lyrMng->setTextBorderWidth(tbWidth);
+        lyrWidget->setTextFont(f);
+        lyrWidget->setTextColor(QColor(tColor));
+        lyrWidget->setTextBorderColor(QColor(tbColor));
+        lyrWidget->setTextBorderWidth(tbWidth);
 
-        lyrMng->setCurColor(QColor(cColor));
-        lyrMng->setCurBorderColor(QColor(cbColor));
-        lyrMng->setCurBorderWidth(cbWidth);
+        lyrWidget->setCurColor(QColor(cColor));
+        lyrWidget->setCurBorderColor(QColor(cbColor));
+        lyrWidget->setCurBorderWidth(cbWidth);
 
-        lyrMng->setLine1Y(line1Y);
-        lyrMng->setLine2Y(line2Y);
-        lyrMng->setAnimationTime(aTime);
-        lyrMng->onMainWindowResized(this->size());
-
-        connect(this, SIGNAL(resized(QSize)), lyrMng, SLOT(onMainWindowResized(QSize)));
+        lyrWidget->setLine1Y(line1Y);
+        lyrWidget->setLine2Y(line2Y);
+        lyrWidget->setAnimationTime(aTime);
     }
 
 
@@ -211,7 +204,6 @@ MainWindow::~MainWindow()
         delete s;
     }
 
-    delete lyrMng;
     delete player;
     delete positionTimer;
     delete timer2;
@@ -220,9 +212,7 @@ MainWindow::~MainWindow()
     delete settings;
     delete ui;
 
-    delete curLine;
-    delete line2;
-    delete line1;
+    delete lyrWidget;
 }
 
 void MainWindow::setBackgroundColor(QString colorName)
@@ -245,13 +235,30 @@ void MainWindow::setBackgroundImage(QString img)
     }
 }
 
+QList<long> readCurFile(QFile *curFile, uint32_t resolution) {
+    QList<long> curs;
+    if (!curFile->isOpen()) {
+        curFile->open(QIODevice::ReadOnly);
+    }
+    QDataStream in(curFile);
+    while (!in.atEnd()) {
+        quint8 b1 = 0;
+        quint8 b2 = 0;
+        in >> b1;
+        in >> b2;
+        long cs = (b1 + (b2 << 8)) * resolution / 24;
+        curs.append(cs);
+    }
+    return curs;
+}
+
 void MainWindow::play(int index)
 {
     stop();
     if (index == -1 && playingSong.id() != "") {
-        lyrMng->reset();
+        lyrWidget->reset();
         player->start();
-        lyrMng->show();
+        lyrWidget->show();
         positionTimer->start();
         return;
     }
@@ -287,19 +294,19 @@ void MainWindow::play(int index)
     player->load(p.toStdString());
 
     QFile f(curPath);
-    lyrMng->setLyrics(playingSong.lyrics(), &f, player->midiFile()->resorution());
+    lyrWidget->setLyrics(playingSong.lyrics(), readCurFile(&f, player->midiFile()->resorution()));
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
 
     player->start();
-    lyrMng->show();
+    lyrWidget->show();
     positionTimer->start();
 }
 
 void MainWindow::pause()
 {
     positionTimer->stop();
-    lyrMng->stopAnimation();
+    lyrWidget->stopAnimation();
     player->stop();
 }
 
@@ -315,8 +322,8 @@ void MainWindow::stop()
     player->stop(true);
 
     ui->sliderPosition->setValue(0);
-    lyrMng->hide();
-    lyrMng->reset();
+    lyrWidget->hide();
+    lyrWidget->reset();
     ui->sliderPosition->setValue(0);
     onPlayerPositionMSChanged(0);
 }
@@ -343,6 +350,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         setBackgroundImage(bgImg);
         QMainWindow::resizeEvent(event);
     }
+    lyrWidget->resize(ui->centralWidget->size());
     emit resized(event->size());
 }
 
@@ -578,7 +586,7 @@ void MainWindow::onPositiomTimerTimeOut()
 
     onPlayerPositionMSChanged(player->positionMs());
     ui->sliderPosition->setValue(tick);
-    lyrMng->setPositionCursor(tick - 40);
+    lyrWidget->setPositionCursor(tick - 40);
 
 
     /*if (player->isFinished()) {
@@ -621,7 +629,7 @@ void MainWindow::onSliderPositionReleased()
     }
 
     player->setPositionTick(ui->sliderPosition->value());
-    lyrMng->setSeekPositionCursor(ui->sliderPosition->value());
+    lyrWidget->setSeekPositionCursor(ui->sliderPosition->value());
     onPlayerPositionMSChanged(player->positionMs());
     if (playAfterSeek) resume();
 }

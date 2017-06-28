@@ -3,11 +3,12 @@
 
 #include "SongDatabase.h"
 #include "Midi/MidiPlayer.h"
-#include <LyrManager.h>
+#include <LyricsWidget.h>
 
 #include <QMainWindow>
 #include <QTimer>
 #include <QKeyEvent>
+#include <QLocale>
 #include <QSettings>
 
 namespace Ui {
@@ -24,7 +25,7 @@ public:
 
     SongDatabase* database() { return db; }
     MidiPlayer* midiPlayer() { return player; }
-    LyrManager* lyrManager() { return lyrMng; }
+    LyricsWidget* lyricsWidget() { return lyrWidget; }
 
     bool removeFromPlaylist() { return remove_playlist; }
     bool autoPlayNext() { return auto_playnext; }
@@ -64,10 +65,7 @@ private:
     int playingIndex = -1;
     bool playAfterSeek = false;
 
-    LyrManager *lyrMng;
-    LyrWidget *line1;
-    LyrWidget *line2;
-    LyrWidget *curLine;
+    LyricsWidget *lyrWidget;
 
     int bgType = 0;
     QString bgImg = "";

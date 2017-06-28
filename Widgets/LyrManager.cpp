@@ -1,12 +1,7 @@
 #include "LyrManager.h"
 
-LyrManager::LyrManager(QObject *parent, LyrWidget *line1, LyrWidget *line2, LyrWidget *curLine)
-    : QObject(parent)
+LyrManager::LyrManager(QObject *parent) : QObject(parent)
 {
-    this->line1 = line1;
-    this->line2 = line2;
-    this->curLine = curLine;
-
     animation = new QPropertyAnimation(curLine, "size");
     animation->setDuration(400);
 
@@ -283,28 +278,6 @@ void LyrManager::setCurBorderWidth(int w)
     curLine->setTextBorderWidth(w);
 }
 
-void LyrManager::setCursorWidth(int w)
-{
-    if (w == cursor_width)
-        return;
-    cursor_width = w;
-    curLine->resize(w, curLine->height());
-}
-
-void LyrManager::show()
-{
-    line1->show();
-    line2->show();
-    curLine->show();
-}
-
-void LyrManager::hide()
-{
-    line1->hide();
-    line2->hide();
-    curLine->hide();
-}
-
 void LyrManager::setLine1Y(int y)
 {
     line1->setY(mainWinSize.height() - y);
@@ -334,6 +307,16 @@ void LyrManager::onMainWindowResized(const QSize &s)
     //curLine->setX((s.width() - curLine->width()) / 2);
 }
 
+void LyrManager::resizeEvent(QResizeEvent *event)
+{
+
+}
+
+void LyrManager::paintEvent(QPaintEvent *event)
+{
+
+}
+
 void LyrManager::calculateLinesPosition()
 {
     line1->setX((mainWinSize.width() - line1->width()) / 2);
@@ -355,4 +338,12 @@ void LyrManager::calculateLinesPosition()
         curLine->show();
         chars_width = line2->charsWidth();
     }
+}
+
+QSize LyrManager::calculateLineSize(const QString &t)
+{
+    QSize s;
+    s.setWidth( fontMetrics().width(t) + (tbWidth *2) );
+    s.setHeight( font().pointSize() * 2.5 );
+    return s;
 }

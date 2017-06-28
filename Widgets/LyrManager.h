@@ -3,18 +3,15 @@
 
 #include "Lyrwidget.h"
 
-#include <QObject>
+#include <QWidget>
 #include <QFile>
 #include <QPropertyAnimation>
 
-class LyrManager : public QObject
+class LyrManager : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
-
 public:
-    explicit LyrManager(QObject *parent = 0,
-                        LyrWidget *line1 = 0, LyrWidget *line2 = 0, LyrWidget *curLine = 0);
+    explicit LyrManager(QObject *parent = nullptr);
     ~LyrManager();
 
     void setLyrics(const QString &lyr, QFile *curFile, uint32_t resolution);
@@ -40,9 +37,6 @@ public:
     void setCurBorderColor(const QColor &c);
     void setCurBorderWidth(int w);
 
-    int cursorWidth() { return cursor_width; }
-    void setCursorWidth(int w);
-
     int line1Y() { return line1_y; }
     int line2Y() { return line2_y; }
 
@@ -52,25 +46,24 @@ public:
     void stopAnimation() { animation->stop(); }
 
 public slots:
-    void show();
-    void hide();
     void setLine1Y(int y);
     void setLine2Y(int y);
-    void onMainWindowResized(const QSize &s);
 
 signals:
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 private slots:
     void calculateLinesPosition();
 
 private:
-    LyrWidget *line1;
-    LyrWidget *line2;
-    LyrWidget *curLine;
+    QPixmap pixLine1, pixLine2;
+    QString tLine1, tLine2;
 
     int line1_y = 220;  // from bottom
     int line2_y = 100;  // from bottom
-    QSize mainWinSize;
 
     QStringList lyrics;
     QList<long> cursors;
@@ -85,6 +78,10 @@ private:
     bool at_end_line = false;
 
     QPropertyAnimation *animation;
+
+    QSize calculateLineSize(const QString &t);
+    void drawTextToPixmap(QPixmap *pix, const QString &text);
+    void drawCursorTextToPixmap(QPixmap *pix, const QString &text);
 };
 
 #endif // LYRMANAGER_H

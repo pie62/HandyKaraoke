@@ -26,7 +26,7 @@ SOURCES += main.cpp\
     Midi/MidiSynthesizer.cpp \
     Midi/MidiPlayer.cpp \
     Widgets/ChMx.cpp \
-    Widgets/LyrManager.cpp
+    Widgets/LyricsWidget.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -39,8 +39,7 @@ HEADERS  += MainWindow.h \
     Midi/MidiSynthesizer.h \
     Midi/MidiPlayer.h \
     Widgets/ChMx.h \
-    Widgets/LyrManager.h \
-    Widgets/Lyrwidget.h
+    Widgets/LyricsWidget.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
