@@ -73,19 +73,39 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     { // Player
-        int oPort = settings->value("MidiOut", 0).toInt();
+        int oPort   = settings->value("MidiOut", 0).toInt();
+        int vl      = settings->value("MidiVolume", 50).toInt();
+        bool lDrum  = settings->value("MidiLockDrum", false).toBool();
+        bool lSnare = settings->value("MidiLockSnare", false).toBool();
+        bool lBass  = settings->value("MidiLockBass", false).toBool();
+
         player->setMidiOut(oPort);
-        //player->setMidiOut(-1);
-        player->setVolume(settings->value("MidiVolume", 50).toInt());
+        player->setVolume(vl);
+
+        if (lDrum) {
+            int ldNum = settings->value("MidiLockDrumNumber", 0).toInt();
+            player->setLockDrum(true, ldNum);
+        }
+        if (lSnare) {
+            int lsNum = settings->value("MidiLockSnareNumber", 38).toInt();
+            player->setLockSnare(true, lsNum);
+        }
+        if (lBass) {
+            int lbNum = settings->value("MidiLockBassNumber", 32).toInt();
+            player->setLockBass(true, lbNum);
+        }
 
         std::vector<std::string> sfs;
-        sfs.push_back("/home/noob/SoundFont/อำนาจสเตอริโอซาวด์.sf2");
+        sfs.push_back("D:/eXtreme Karaoke/SoundFont/god.sf2");
         //sfs.push_back("/home/noob/SoundFont/SoundFont_2_Drum.sf2");
 
         player->midiSynthesizer()->setSoundFonts(sfs);
 
         connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
         connect(player, SIGNAL(playingEvents(MidiEvent*)), this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
+        connect(player, SIGNAL(bpmChanged(int)), ui->rhmWidget, SLOT(setBpm(int)));
+        connect(player, SIGNAL(beatCountChanged(int)), ui->rhmWidget, SLOT(setBeatCount(int)));
+        connect(player, SIGNAL(beatInBarChanged(int)), ui->rhmWidget, SLOT(setBeatInBar(int)));
     }
 
 
@@ -122,15 +142,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
         QString tColor  = settings->value("LyricsTextColor", "#f3f378").toString();
         QString tbColor = settings->value("LyricsTextBorderColor", "#000000").toString();
-        int     tbWidth = settings->value("LyricsTextBorderWidth", 1).toInt();
+        int     tbWidth = settings->value("LyricsTextBorderWidth", 2).toInt();
 
         QString cColor  = settings->value("LyricsCurColor", "#ff0000").toString();
         QString cbColor = settings->value("LyricsCurBorderColor", "#ffffff").toString();
-        int     cbWidth = settings->value("LyricsCurBorderWidth", 2).toInt();
+        int     cbWidth = settings->value("LyricsCurBorderWidth", 3).toInt();
 
         int     line1Y  = settings->value("LyricsLine1Y", 320).toInt();
         int     line2Y  = settings->value("LyricsLine2Y", 170).toInt();
-        int     aTime   = settings->value("LyricsAnimationTime", 400).toInt();
+        int     aTime   = settings->value("LyricsAnimationTime", 300).toInt();
 
         QFont f;
         f.setFamily(family);
@@ -583,11 +603,11 @@ void MainWindow::onPositiomTimerTimeOut()
         qDebug() << "Beat  is : " << b;
         beat = b;
     }*/
+    ui->rhmWidget->setCurrentBeat( player->midiFile()->beatFromTick(tick) );
 
     onPlayerPositionMSChanged(player->positionMs());
     ui->sliderPosition->setValue(tick);
     lyrWidget->setPositionCursor(tick - 40);
-
 
     /*if (player->isFinished()) {
         QThread::msleep(50);
@@ -671,5 +691,15 @@ void MainWindow::onPlayerThreadFinished()
 
 void MainWindow::onPlayerPlayingEvent(MidiEvent *e)
 {
-
+    /*if (e->eventType() == MidiEventType::Meta) {
+        //qDebug() << "This is Meta";
+        switch (e->metaEventType()) {
+        case MidiMetaType::TimeSignature:
+            qDebug() << "BPM is " << e->tempoBpm();
+            //ui->rhmWidget->setBpm(e->tempoBpm());
+            break;
+        default:
+            break;
+        }
+    }*/
 }

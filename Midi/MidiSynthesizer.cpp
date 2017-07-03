@@ -48,7 +48,7 @@ bool MidiSynthesizer::setOutputDevice(int dv)
     return BASS_SetDevice(dv);
 }
 
-void MidiSynthesizer::setSoundFonts(std::vector<std::__cxx11::string> &soundfonts)
+void MidiSynthesizer::setSoundFonts(std::vector<std::string> &soundfonts)
 {
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
         BASS_MIDI_FontFree(f);
@@ -109,16 +109,22 @@ void MidiSynthesizer::reset()
 
 void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)
 {
+    if (note < 0 || note > 127)
+        return;
     BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTE, note);
 }
 
 void MidiSynthesizer::sendNoteOn(int ch, int note, int velocity)
 {
+    if (note < 0 || note > 127)
+        return;
     BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTE, MAKEWORD(note, velocity));
 }
 
 void MidiSynthesizer::sendNoteAftertouch(int ch, int note, int value)
 {
+    if (note < 0 || note > 127)
+        return;
     BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
 }
 

@@ -33,6 +33,7 @@ public:
     std::vector<MidiEvent*> tempoEvents() { return fTempoEvents; }
     std::vector<MidiEvent*> controllerEvents() { return fControllerEvents; }
     std::vector<MidiEvent*> programChangeEvents() { return fProgramChangeEvents; }
+    std::vector<MidiEvent*> timeSignatureEvents() { return fTimeSignatureEvents; }
     std::vector<MidiEvent*> controllerAndProgramEvents();
 
     void clear();
@@ -57,6 +58,7 @@ private:
     std::vector<MidiEvent*> fTempoEvents;
     std::vector<MidiEvent*> fControllerEvents;
     std::vector<MidiEvent*> fProgramChangeEvents;
+    std::vector<MidiEvent*> fTimeSignatureEvents;
 };
 
 

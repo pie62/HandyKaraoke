@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     Midi/MidiSynthesizer.cpp \
     Midi/MidiPlayer.cpp \
     Widgets/ChMx.cpp \
-    Widgets/LyricsWidget.cpp
+    Widgets/LyricsWidget.cpp \
+    Widgets/RhythmWidget.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -39,18 +40,35 @@ HEADERS  += MainWindow.h \
     Midi/MidiSynthesizer.h \
     Midi/MidiPlayer.h \
     Widgets/ChMx.h \
-    Widgets/LyricsWidget.h
+    Widgets/LyricsWidget.h \
+    Widgets/RhythmWidget.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
-    Widgets/ChMx.ui
+    Widgets/ChMx.ui \
+    Widgets/RhythmWidget.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
 
 
 win32 {
-    #LIBS += -lwinmm
+    LIBS += -lwinmm
+    SOURCES += Midi/rtmidi/RtMidi.cpp
+    HEADERS  += Midi/rtmidi/RtMidi.h
+    INCLUDEPATH += $$PWD/Midi/rtmidi
+
+    contains(QT_ARCH, i386) {
+        message("32-bit")
+        LIBS += -L$$PWD/BASS/bass24/ -lbass
+        LIBS += -L$$PWD/BASS/bassmidi24/ -lbassmidi
+    } else {
+        message("64-bit")
+        LIBS += -L$$PWD/BASS/bass24/x64/ -lbass
+        LIBS += -L$$PWD/BASS/bassmidi24/x64/ -lbassmidi
+    }
+    INCLUDEPATH += $$PWD/BASS/bass24
+    INCLUDEPATH += $$PWD/BASS/bassmidi24
 }
 
 unix:!macx {

@@ -36,11 +36,32 @@ public:
     long positionMs();
     int positionTick();
 
+    int currentBpm() { return _midiBpm; }
+    int beatCount() { return _midiBeatCount; }
+
+    static bool isSnareNumber(int num);
+    static bool isBassInstrument(int ints);
+
+    int  lockDrumBumber()  { return _lockDrumNumber; }
+    int  lockSnareNumber() { return _lockSnareNumber; }
+    int  lockBassNumber()  { return _lockBassBumber; }
+
+    bool isLockDrum()   { return _lockDrum; }
+    bool isLockSnare()  { return _lockSnare; }
+    bool isLockBass()   { return _lockBass; }
+
+    void setLockDrum(bool lock, int number = 0);
+    void setLockSnare(bool lock, int number = 38);
+    void setLockBass(bool lock, int number = 32);
+
 protected:
     void run();
 
 signals:
     void playingEvents(MidiEvent *e);
+    void bpmChanged(int bpm);
+    void beatCountChanged(int bc);
+    void beatInBarChanged(int bb);
 
 private:
     MidiFile            *_midi;
@@ -50,6 +71,8 @@ private:
     int                 _midiPortNum = 0;
     int                 _midiBpm = 120;
     int                 _midiSpeed = 0;
+    int                 _midiTranspose = 0;
+    int                 _midiBeatCount = 0;
 
     int     _volume = 100;
     int     _durationTick = 0;
@@ -64,6 +87,13 @@ private:
     bool    _playing = false;
     bool    _useSolo = false;
 
+    bool    _lockDrum  = false;
+    bool    _lockSnare = false;
+    bool    _lockBass  = false;
+    int     _lockDrumNumber  = 0;
+    int     _lockSnareNumber = 38;
+    int     _lockBassBumber  = 32;
+
     QElapsedTimer *_eTimer;
 
     void playEvents();
@@ -71,6 +101,8 @@ private:
     void sendAllNotesOff(int ch);
     void sendAllNotesOff();
     void sendResetAllControllers();
+
+    int getNoteNumberToPlay(int ch, int defaultNote);
 };
 
 #endif // MIDIPLAYER_H

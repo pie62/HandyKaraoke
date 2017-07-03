@@ -32,6 +32,8 @@ void MidiOut::setVolume(float vol)
 
 void MidiOut::sendNoteOff(int ch, int note, int velocity)
 {
+    if (note < 0 || note > 127)
+        return;
     message.clear();
     message.push_back(0x80 + ch);
     message.push_back(note);
@@ -41,6 +43,8 @@ void MidiOut::sendNoteOff(int ch, int note, int velocity)
 
 void MidiOut::sendNoteOn(int ch, int note, int velocity)
 {
+    if (note < 0 || note > 127)
+        return;
     message.clear();
     message.push_back(0x90 + ch);
     message.push_back(note);
@@ -50,6 +54,8 @@ void MidiOut::sendNoteOn(int ch, int note, int velocity)
 
 void MidiOut::sendNoteAftertouch(int ch, int note, int value)
 {
+    if (note < 0 || note > 127)
+        return;
     message.clear();
     message.push_back(0xA0 + ch);
     message.push_back(note);

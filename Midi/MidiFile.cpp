@@ -54,6 +54,7 @@ void MidiFile::clear() {
     fTempoEvents.clear();
     fControllerEvents.clear();
     fProgramChangeEvents.clear();
+    fTimeSignatureEvents.clear();
 }
 
 bool fileExists(const std::string& filename) {
@@ -291,6 +292,8 @@ MidiEvent* MidiFile::createMetaEvent(int track, uint32_t tick, uint32_t delta, i
     fEvents.push_back(me);
     if (me->metaEventType() == MidiMetaType::SetTempo)
         fTempoEvents.push_back(me);
+    if (me->metaEventType() == MidiMetaType::TimeSignature)
+        fTimeSignatureEvents.push_back(me);
 
     return me;
 }

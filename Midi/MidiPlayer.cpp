@@ -19,7 +19,7 @@ MidiPlayer::~MidiPlayer()
     delete _midi;
 }
 
-std::vector<std::__cxx11::string> MidiPlayer::midiDevices()
+std::vector<std::string> MidiPlayer::midiDevices()
 {
     std::vector<std::string> outName;
     MidiOut o;
@@ -58,7 +58,7 @@ bool MidiPlayer::setMidiOut(int portNumer)
     return result;
 }
 
-bool MidiPlayer::load(std::__cxx11::string file)
+bool MidiPlayer::load(std::string file)
 {
     if (!_stopped)
         stop();
@@ -71,6 +71,19 @@ bool MidiPlayer::load(std::__cxx11::string file)
     _durationMs = _midi->timeFromTick(e->tick()) * 1000;
 
     _finished = false;
+
+    { // Calculate beat count
+        int beatInBar = 0;
+        _midiBeatCount = 0;
+        for (MidiEvent *evt : _midi->timeSignatureEvents()) {
+            int nBeat = _midi->beatFromTick(evt->tick());
+            if (beatInBar != 0)
+                _midiBeatCount += nBeat / beatInBar;
+            beatInBar = evt->data()[0];
+        }
+        _midiBeatCount += _midi->beatFromTick(_midi->events().back()->tick()) / beatInBar;
+        emit beatCountChanged(_midiBeatCount);
+    } // End calculate beat count
 
     return true;
 }
@@ -140,13 +153,94 @@ int MidiPlayer::positionTick()
     }
 }
 
+bool MidiPlayer::isSnareNumber(int num) {
+    if ( (num != 38) || (num != 49) )
+        return false;
+    else
+        return true;
+}
+
+bool MidiPlayer::isBassInstrument(int ints) {
+    if ( (ints < 32) || (ints > 39) )
+        return false;
+    else
+        return true;
+}
+
+void MidiPlayer::setLockDrum(bool lock, int number)
+{
+    if (lock == _lockDrum)
+        return;
+
+    _lockDrum = lock;
+    _lockDrumNumber = number;
+
+    if (lock && !_stopped) {
+        MidiEvent ev;
+        ev.setEventType(MidiEventType::ProgramChange);
+        ev.setChannel(9);
+        ev.setData1(number);
+        sendEvent(&ev);
+        emit playingEvents(&ev);
+    }
+}
+
+void MidiPlayer::setLockSnare(bool lock, int number)
+{
+    if (lock == _lockSnare)
+        return;
+
+    if ( !isSnareNumber(number) )
+        return;
+
+    _lockSnare = lock;
+    _lockSnareNumber = number;
+}
+
+void MidiPlayer::setLockBass(bool lock, int number)
+{
+    if (lock == _lockBass)
+        return;
+
+    if ( !isBassInstrument(number) )
+        return;
+
+    _lockBass = lock;
+    _lockBassBumber = number;
+
+    if (_stopped)
+        return;
+
+    for (int i=0; i<16; i++) {
+        if (!isBassInstrument(_midiChannels[i].instrument()))
+            return;
+        if (lock) {
+            MidiEvent ev;
+            ev.setEventType(MidiEventType::ProgramChange);
+            ev.setChannel(i);
+            ev.setData1(number);
+            sendEvent(&ev);
+            emit playingEvents(&ev);
+        }
+    }
+}
+
 void MidiPlayer::run()
 {
     if (_playing)
         return;
 
-    if (_stopped)
+    if (_stopped) {
         sendResetAllControllers();
+        if (_lockDrum) {
+            MidiEvent ev;
+            ev.setEventType(MidiEventType::ProgramChange);
+            ev.setChannel(9);
+            ev.setData1(_lockDrumNumber);
+            sendEvent(&ev);
+            emit playingEvents(&ev);
+        }
+    }
 
     _playing = true;
     _stopped = false;
@@ -174,10 +268,10 @@ void MidiPlayer::playEvents()
         if (!_playing)
             break;
 
-        MidiEvent e = *_midi->events()[i];
-        if (e.eventType() != MidiEventType::Meta) {
+        //e = *_midi->events()[i];
+        if (_midi->events()[i]->eventType() != MidiEventType::Meta) {
 
-            long eventTime = _midi->timeFromTick(e.tick()) * 1000;
+            long eventTime = _midi->timeFromTick(_midi->events()[i]->tick()) * 1000;
             long waitTime = eventTime - _startPlayTime - _eTimer->elapsed();
 
             if (waitTime > 0) {
@@ -185,19 +279,19 @@ void MidiPlayer::playEvents()
                 msleep(waitTime);
             }
 
-            if (e.eventType() != MidiEventType::SysEx) {
+            if (_midi->events()[i]->eventType() != MidiEventType::SysEx) {
 
-                if (e.eventType() == MidiEventType::Controller
-                    || e.eventType() == MidiEventType::ProgramChange) {
-                    sendEvent(&e);
+                if (_midi->events()[i]->eventType() == MidiEventType::Controller
+                    || _midi->events()[i]->eventType() == MidiEventType::ProgramChange) {
+                    sendEvent(_midi->events()[i]);
                 } else {
-                    if (_midiChannels[e.channel()].isMute() == false) {
+                    if (_midiChannels[_midi->events()[i]->channel()].isMute() == false) {
                         if (_useSolo) {
-                            if (_midiChannels[e.channel()].isSolo()) {
-                                sendEvent(&e);
+                            if (_midiChannels[_midi->events()[i]->channel()].isSolo()) {
+                                sendEvent(_midi->events()[i]);
                             }
                         } else {
-                            sendEvent(&e);
+                            sendEvent(_midi->events()[i]);
                         }
                     }
                 }
@@ -207,15 +301,20 @@ void MidiPlayer::playEvents()
             _positionMs = eventTime;
 
         } else { // Meta event
-            if (e.metaEventType() == MidiMetaType::SetTempo) {
-                _midiBpm = e.tempoBpm();
+            if (_midi->events()[i]->metaEventType() == MidiMetaType::SetTempo) {
+                _midiBpm = _midi->events()[i]->tempoBpm();
+                emit bpmChanged(_midiBpm);
+            }
+            if (_midi->events()[i]->metaEventType() == MidiMetaType::TimeSignature) {
+                MidiEvent *ee = _midi->events()[i];
+                emit beatInBarChanged(ee->data().at(0));
             }
         }
 
         _playedIndex = i;
-        _positionTick = e.tick();
+        _positionTick = _midi->events()[i]->tick();
 
-        emit playingEvents(&e);
+        emit playingEvents(_midi->events()[i]);
 
     } // End for loop
 
@@ -233,26 +332,29 @@ void MidiPlayer::sendEvent(MidiEvent *e)
 
     switch (e->eventType()) {
     case MidiEventType::NoteOff: {
+        int n = getNoteNumberToPlay(ch, e->data1());
         if (_midiPortNum == -1) {
-            _midiSynth->sendNoteOff(ch, e->data1(), e->data2());
+            _midiSynth->sendNoteOff(ch, n, e->data2());
         } else {
-            _midiOut->sendNoteOff(ch, e->data1(), e->data2());
+            _midiOut->sendNoteOff(ch, n, e->data2());
         }
         break;
     }
     case MidiEventType::NoteOn: {
+        int n = getNoteNumberToPlay(ch, e->data1());
         if (_midiPortNum == -1) {
-            _midiSynth->sendNoteOn(ch, e->data1(), e->data2());
+            _midiSynth->sendNoteOn(ch, n, e->data2());
         } else {
-            _midiOut->sendNoteOn(ch, e->data1(), e->data2());
+            _midiOut->sendNoteOn(ch, n, e->data2());
         }
         break;
     }
     case MidiEventType::NoteAftertouch: {
+        int n = getNoteNumberToPlay(ch, e->data1());
         if (_midiPortNum == -1) {
-            _midiSynth->sendNoteAftertouch(ch, e->data1(), e->data2());
+            _midiSynth->sendNoteAftertouch(ch, n, e->data2());
         } else {
-            _midiOut->sendNoteAftertouch(ch, e->data1(), e->data2());
+            _midiOut->sendNoteAftertouch(ch, n, e->data2());
         }
         break;
     }
@@ -268,7 +370,13 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         break;
     }
     case MidiEventType::ProgramChange: {
+        if (e->channel() == 9 && _lockDrum)
+            e->setData1(_lockDrumNumber);
+        if (isBassInstrument(e->data1()) && _lockBass)
+            e->setData1(_lockBassBumber);
+
         _midiChannels[ch].setInstrument(e->data1());
+
         if (_midiPortNum == -1) {
             _midiSynth->sendProgramChange(ch, e->data1());
         } else {
@@ -324,4 +432,19 @@ void MidiPlayer::sendResetAllControllers()
             _midiOut->sendController(i, 121, 0);
         }
     }
+}
+
+int MidiPlayer::getNoteNumberToPlay(int ch, int defaultNote)
+{
+    int n = 0;
+    if (ch == 9) {
+        if (isSnareNumber(defaultNote) && _lockSnare)
+            n = _lockSnareNumber;
+        else
+            n = defaultNote;
+    }
+    else {
+        n = defaultNote + _midiTranspose;
+    }
+    return n;
 }

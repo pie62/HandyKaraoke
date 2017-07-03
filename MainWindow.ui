@@ -33,6 +33,9 @@
 background-color: rgb(51, 51, 51);
 }*/</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <property name="leftMargin">
@@ -77,18 +80,37 @@ background-color: rgb(51, 51, 51);
          <widget class="QLCDNumber" name="lcdTime">
           <property name="minimumSize">
            <size>
-            <width>0</width>
-            <height>42</height>
+            <width>120</width>
+            <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>42</height>
+            <height>50</height>
            </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);</string>
           </property>
           <property name="digitCount">
            <number>8</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="RhythmWidget" name="rhmWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>170</width>
+            <height>59</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>170</width>
+            <height>59</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -517,7 +539,7 @@ border: none;
 }
 
 QLabel {
-	font: bold 11pt;
+	font: bold 10pt;
 	color: rgb(88, 88, 88);
 }
 
@@ -909,6 +931,14 @@ border-radius: 4px;
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>RhythmWidget</class>
+   <extends>QWidget</extends>
+   <header>RhythmWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>

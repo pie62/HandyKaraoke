@@ -3,12 +3,13 @@
 
 #include <QWidget>
 #include <QVariantAnimation>
+#include <QTimer>
 
 class LyricsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LyricsWidget(QWidget *parent = nullptr);
+    explicit LyricsWidget(QWidget *parent = 0);
     ~LyricsWidget();
 
     void reset();
@@ -49,8 +50,8 @@ public:
 
     QString textLine1() { return tLine1; }
     QString textLine2() { return tLine2; }
-    void setTextLine1(const QString &text);
-    void setTextLine2(const QString &text);
+    void setTextLine1(const QString &text, bool andUpdate = true);
+    void setTextLine2(const QString &text, bool andUpdate = true);
 
     int  animationTime()         { return animation->duration(); }
     void setAnimationTime(int t) { animation->setDuration(t); }
@@ -90,7 +91,7 @@ private:
     bool at_end_line = false;
 
     int tBorderWidth = 2, tBorderOutWidth = 1;
-    int cBorderWidth = 2, cBorderOutWidth = 1;
+    int cBorderWidth = 3, cBorderOutWidth = 1;
 
     QColor tColor, tBorderColor, tBorderOutColor;
     QColor cColor, cBorderColor, cBorderOutColor;

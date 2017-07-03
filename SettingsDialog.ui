@@ -18,6 +18,9 @@
   <property name="windowTitle">
    <string>ตั้งค่า</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
@@ -840,9 +843,6 @@
     </widget>
     <zorder>layoutWidget</zorder>
     <zorder>layoutWidget</zorder>
-    <zorder>groupBox_4</zorder>
-    <zorder>label_18</zorder>
-    <zorder></zorder>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">

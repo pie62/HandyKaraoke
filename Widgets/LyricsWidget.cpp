@@ -2,11 +2,12 @@
 
 #include <QPainter>
 #include <QPainterPathStroker>
+#include <QDebug>
 
 LyricsWidget::LyricsWidget(QWidget *parent) : QWidget(parent)
 {
     animation = new QVariantAnimation(this);
-    animation->setDuration(400);
+    animation->setDuration(300);
 
     QFont f = font();
     f.setBold(true);
@@ -37,6 +38,7 @@ LyricsWidget::~LyricsWidget()
     animation->stop();
     cursors.clear();
     lyrics.clear();
+
     delete animation;
 }
 
@@ -53,6 +55,7 @@ void LyricsWidget::reset()
     if (lyrics.count() > 1) {
         tLine2 = lyrics.at(1);
         setTextLine2(tLine2);
+        //linesIndex++;
     }
 
     isLine1 = true;
@@ -110,7 +113,6 @@ void LyricsWidget::setPositionCursor(int tick)
 
         chars_width.clear();
         chars_width = getCharsWidth();
-
         return;
     }
 
@@ -120,6 +122,7 @@ void LyricsWidget::setPositionCursor(int tick)
         at_end_line = true;
         cursor_index++;
         update();
+
         return;
     }
 
@@ -134,6 +137,9 @@ void LyricsWidget::setPositionCursor(int tick)
             if (isLine1) setTextLine2("");
             else setTextLine1("");
         }
+
+        //update();
+
         chars_width.clear();
         chars_width = getCharsWidth();
         updateArea = calculateUpdateArea();
@@ -152,14 +158,116 @@ void LyricsWidget::setPositionCursor(int tick)
     cursor_index++;
 
     animation->stop();
-    animation->setStartValue(animation->currentValue().toInt());
+    animation->setStartValue(cursor_width);
     animation->setEndValue(cursor_toEnd);
     animation->start();
 }
 
 void LyricsWidget::setSeekPositionCursor(int tick)
 {
+    animation->stop();
 
+    if (tick == 0) {
+        reset();
+        return;
+    }
+
+    if (cursors.count() == 0) {
+        return;
+    }
+
+    reset();
+
+    int round = 0;
+    while (cursors[round] < tick) {
+        round++;
+        if (round == cursors.count())
+            break;
+    }
+
+    for (int i=0; i<round; i++) {
+
+        if (at_end_line) {
+            at_end_line = false;
+            char_index = 0;
+            cursor_width = 0;
+            cursor_toEnd = 0;
+            isLine1 = !isLine1;
+            //updateArea = calculateUpdateArea();
+        }
+
+        if (chars_width.count() == 0 && linesIndex < lyrics.count()) {
+            if (isLine1)
+                tLine2 = lyrics.at(linesIndex);
+            else
+                tLine1 = lyrics.at(linesIndex);
+            linesIndex++;
+            isLine1 = !isLine1;
+            cursor_index++;
+
+            chars_width.clear();
+            chars_width = getCharsWidth();
+            continue;
+        }
+
+        if (char_index == chars_width.count()) {
+            cursor_width = chars_width.last();
+            at_end_line = true;
+            cursor_index++;
+
+            /*if (linesIndex < lyrics.count()) {
+                if (isLine1)
+                    tLine1 = lyrics.at(linesIndex);
+                else
+                    tLine2 = lyrics.at(linesIndex);
+                linesIndex++;
+            } else {
+                if (isLine1) tLine1 = "";
+                else tLine2 = "";
+            }*/
+
+            continue;
+        }
+
+        if (char_index == 0) {
+            if (linesIndex < lyrics.count()) {
+                if (isLine1)
+                    tLine2 = lyrics.at(linesIndex);
+                else
+                    tLine1 = lyrics.at(linesIndex);
+                linesIndex++;
+            } else {
+                if (isLine1) tLine2 = "";
+                else tLine1 = "";
+            }
+            chars_width.clear();
+            chars_width = getCharsWidth();
+        }
+
+        if (char_index >= 0 && chars_width.count() != 0) {
+            cursor_toEnd = chars_width.at(char_index);
+        }
+
+        char_index++;
+
+        if (cursor_index == cursors.count() - 1) {
+            cursor_toEnd = chars_width.count() == 0 ? 0 : chars_width.last();
+        }
+
+        cursor_index++;
+
+    } // end for loop
+
+    at_end_line = (char_index == chars_width.count()) ? true : false;
+    chars_width.clear();
+    chars_width = getCharsWidth();
+
+    setTextLine1(tLine1);
+    setTextLine2(tLine2);
+
+    updateArea = calculateUpdateArea();
+    cursor_width = cursor_toEnd;
+    update();
 }
 
 void LyricsWidget::setTextFont(const QFont &f)
@@ -258,7 +366,7 @@ void LyricsWidget::setLine2Y(int y)
     updateArea = calculateUpdateArea();
 }
 
-void LyricsWidget::setTextLine1(const QString &text)
+void LyricsWidget::setTextLine1(const QString &text, bool andUpdate)
 {
     tLine1 = text;
 
@@ -268,10 +376,11 @@ void LyricsWidget::setTextLine1(const QString &text)
     pixCurLine1 = QPixmap(pixLine1.size());
     drawCursorTextToPixmap(&pixCurLine1, text);
 
-    update();
+    if (andUpdate)
+        update();
 }
 
-void LyricsWidget::setTextLine2(const QString &text)
+void LyricsWidget::setTextLine2(const QString &text, bool andUpdate)
 {
     tLine2 = text;
 
@@ -281,7 +390,8 @@ void LyricsWidget::setTextLine2(const QString &text)
     pixCurLine2 = QPixmap(pixLine2.size());
     drawCursorTextToPixmap(&pixCurLine2, text);
 
-    update();
+    if (andUpdate)
+        update();
 }
 
 void LyricsWidget::resizeEvent(QResizeEvent *event)
@@ -301,10 +411,11 @@ void LyricsWidget::paintEvent(QPaintEvent *event)
         int y = height() - line1_y;
         QRect rect(x, y, pixLine1.width(), pixLine1.height());
         QRect inRect(rect.x(), rect.y(), cursor_width, rect.height());
-        QRegion r(rect);
-        r = r.intersected(inRect);
+        //QRegion r(rect);
+        //r = r.intersected(inRect);
 
-        p.setClipRegion(r);
+        //p.setClipRegion(r);
+        p.setClipRect(inRect);
         p.drawPixmap(x, y, pixCurLine1);
     }
     else {
@@ -312,11 +423,12 @@ void LyricsWidget::paintEvent(QPaintEvent *event)
         int y = height() - line2_y;
         QRect rect(x, y, pixLine2.width(), pixLine2.height());
         QRect inRect(rect.x(), rect.y(), cursor_width, rect.height());
-        QRegion r(rect);
-        r = r.intersected(inRect);
+        //QRegion r(rect);
+        //r = r.intersected(inRect);
 
-        p.setClipRegion(r);
-        p.drawPixmap(x, y, pixLine2);
+        //p.setClipRegion(r);
+        p.setClipRect(inRect);
+        p.drawPixmap(x, y, pixCurLine2);
     }
 
     p.end();
