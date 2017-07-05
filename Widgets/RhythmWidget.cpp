@@ -1,6 +1,7 @@
 #include "RhythmWidget.h"
 #include "ui_RhythmWidget.h"
 
+#include <QPainter>
 #include <QDebug>
 
 RhythmWidget::RhythmWidget(QWidget *parent) :
@@ -33,72 +34,210 @@ void RhythmWidget::setBpm(int bpm)
     ui->lbBpm->setText( QString::number(bpm) );
 }
 
-void RhythmWidget::setBeatCount(int bc)
+void RhythmWidget::reset()
 {
-    _beatCount = bc;
-    ui->lbBeat->setText( QString::number(_currentBar) + ":" + QString::number(_beatCount) );
+    _currentBeat = 0;
+    _barIndex = 0;
+
+    beatBarIndex = 0;
+    timeSingIndex = 0;
+
+    nBeatInBar = 4;
+    lastBeat = 0;
+    if (_beatInBar.count() > 0) {
+        nBeatInBar = _beatInBar.keys().at(0);
+        lastBeat = _beatInBar.values().at(0) * nBeatInBar;
+    }
+
+    _barCount = 0;
+    for (int nb : _beatInBar.values()) {
+        _barCount += nb;
+    }
+
+    ui->lbBeat->setText("0:" + QString::number(_barCount));
+    displayBeats(nBeatInBar);
 }
 
-void RhythmWidget::setBeatInBar(int bb)
+void RhythmWidget::setBeat(const QMap<int, int> &beatInBar, int beatCount)
 {
-    _beatInBar = bb;
+    _beatInBar.clear();
+    _beatInBar = beatInBar;
+    _beatCount = beatCount;
 
-    int i=0;
-    for (QFrame *bt : beats) {
-        if (_beatInBar > i)
-            bt->show();
-        else
-            bt->hide();
-        i++;
+    reset();
+    /*_currentBeat = 0;
+    _barIndex = 0;
+
+    beatBarIndex = 0;
+    timeSingIndex = 0;
+    nBeatInBar = _beatInBar.keys().at(0);
+    lastBeat = _beatInBar.values().at(0) * nBeatInBar;
+
+    _barCount = 0;
+    for (int nb : _beatInBar.values()) {
+        _barCount += nb;
     }
+
+    ui->lbBeat->setText("0:" + QString::number(_barCount));
+    displayBeats(nBeatInBar);
+    */
 }
 
 void RhythmWidget::setCurrentBeat(int b)
 {
-    if (b == _currentBeat)
+    if (b == _currentBeat || b > _beatCount)
         return;
 
     _currentBeat = b;
 
-    int cb = ( (_currentBeat - 1 ) / _beatInBar) + 1;
-    if (_currentBar != cb) {
-        _currentBar = cb;
-        ui->lbBeat->setText( QString::number(_currentBar) + ":" + QString::number(_beatCount) );
-    }
-
-    //ui->lbBeat->setText( QString::number(_currentBar) + ":" + QString::number(_beatCount) );
-
-    /*int i = _currentBeat % _beatInBar;
-    if (i == 1) {
-        beats[_beatInBar - 1]->setStyleSheet(defaultStyle);
-        beats[i-1]->setStyleSheet(beatStyle);
-        ui->lbBeat->setText( QString::number(_currentBar) + ":" + QString::number(_beatCount) );
-    }
-    else if (i == 0) {
-        beats[_beatInBar - 2]->setStyleSheet(defaultStyle);
-        beats[_beatInBar - 1]->setStyleSheet(beatStyle);
+    if (beatBarIndex == 0) {
+        if (changeBeatInBar && timeSingIndex < _beatInBar.count()) {
+            nBeatInBar = _beatInBar.keys().at(timeSingIndex);
+            lastBeat += _beatInBar.values().at(timeSingIndex) * nBeatInBar;
+            changeBeatInBar = false;
+            displayBeats(nBeatInBar);
+        }
+        ui->lbBeat->setText(QString::number(_barIndex+1)  + ":" + QString::number(_barCount));
+        beats[nBeatInBar-1]->off();
+        beats[0]->on();
     }
     else {
-        beats[i - 2]->setStyleSheet(defaultStyle);
-        beats[i-1]->setStyleSheet(beatStyle);
-    }*/
+        beats[beatBarIndex-1]->off();
+        beats[beatBarIndex]->on();
+        qDebug() << "Beat " << beatBarIndex;
 
-    int i = _currentBeat % _beatInBar;
+    }
+    beatBarIndex++;
 
-    switch (i) {
-    case 0:
-        beats[_beatInBar - 2]->setStyleSheet(defaultStyle);
-        beats[_beatInBar - 1]->setStyleSheet(beatStyle);
-        break;
-    case 1:
-        beats[_beatInBar-1]->setStyleSheet(defaultStyle);
-        beats[0]->setStyleSheet(beatStyle);
-        break;
-    default:
-        beats[i-2]->setStyleSheet(defaultStyle);
-        beats[i-1]->setStyleSheet(beatStyle);
-        break;
+
+    if (beatBarIndex == nBeatInBar) {
+        beatBarIndex = 0;
+        _barIndex++;
     }
 
-    qDebug() << "beat in bar " << i;
+
+    if (_currentBeat == lastBeat) {
+        timeSingIndex++;
+        changeBeatInBar = true;
+        /*if (timeSingIndex < _beatInBar.count()) {
+            nBeatInBar = _beatInBar.keys().at(timeSingIndex);
+            lastBeat += _beatInBar.values().at(timeSingIndex) * nBeatInBar;
+            displayBeats(nBeatInBar);
+        }*/
+    }
+}
+
+void RhythmWidget::setSeekBeat(int b)
+{
+    if (b == _currentBeat || b < 0 || b > _beatCount)
+        return;
+
+    reset();
+
+    for (int i=1; i<=b; i++) {
+        _currentBeat = i;
+
+        if (beatBarIndex == 0) {
+            if (changeBeatInBar && timeSingIndex < _beatInBar.count()) {
+                nBeatInBar = _beatInBar.keys().at(timeSingIndex);
+                lastBeat += _beatInBar.values().at(timeSingIndex) * nBeatInBar;
+                changeBeatInBar = false;
+            }
+        }
+        else {
+
+        }
+        beatBarIndex++;
+
+
+        if (beatBarIndex == nBeatInBar) {
+            beatBarIndex = 0;
+            _barIndex++;
+        }
+
+
+        if (_currentBeat == lastBeat) {
+            timeSingIndex++;
+            changeBeatInBar = true;
+        }
+    } // end for loop
+
+    displayBeats(nBeatInBar);
+    beats[beatBarIndex]->on();
+    ui->lbBeat->setText(QString::number(_barIndex+1)  + ":" + QString::number(_barCount));
+}
+
+void RhythmWidget::offAllBeats()
+{
+    for (RhythmRectangle *rr : beats) {
+        rr->off();
+    }
+}
+
+void RhythmWidget::displayBeats(int n)
+{
+    for (int i=0; i<5; i++) {
+        if (i < n) {
+           beats[i]->show();
+        }
+        else {
+            beats[i]->hide();
+        }
+        beats[i]->off();
+    }
+}
+
+RhythmRectangle::RhythmRectangle(QWidget *parent) : QWidget(parent)
+{
+    _offColor = Qt::white;
+    _onColor = QColor(0, 184, 169);
+}
+
+void RhythmRectangle::on()
+{
+    if (_isOn)
+        return;
+
+    _isOn = true;
+    update();
+}
+
+void RhythmRectangle::off()
+{
+    if (!_isOn)
+        return;
+
+    _isOn = false;
+    update();
+}
+
+void RhythmRectangle::setOnColor(const QColor &c)
+{
+    _onColor = c;
+    update();
+}
+
+void RhythmRectangle::setOffColor(const QColor &c)
+{
+    _offColor = c;
+    update();
+}
+
+void RhythmRectangle::paintEvent(QPaintEvent *event)
+{
+    QPainter p(this);
+    p.setRenderHints(QPainter::Antialiasing);
+
+    p.setPen(QPen(Qt::black, 2));
+
+    if (_isOn) {
+        p.setBrush(_onColor);
+        p.drawRect(0, 0, width(), height());
+    }
+    else {
+        p.setBrush(_offColor);
+        p.drawRect(0, 0, width(), height());
+    }
+
+    p.end();
 }

@@ -1,6 +1,7 @@
 #include "MidiPlayer.h"
 
 #include <QTimer>
+#include <QtMath>
 #include <QDebug>
 
 MidiPlayer::MidiPlayer(QObject *parent) : QThread(parent)
@@ -73,16 +74,24 @@ bool MidiPlayer::load(std::string file)
     _finished = false;
 
     { // Calculate beat count
-        int beatInBar = 0;
-        _midiBeatCount = 0;
+        uint32_t t = _midi->events().back()->tick();
+        _midiBeatCount = _midi->beatFromTick(t);
+
+        _beatInBar.clear();
+        int beatCalculed = 0;
+        int nBeatInBar = 0;
         for (MidiEvent *evt : _midi->timeSignatureEvents()) {
-            int nBeat = _midi->beatFromTick(evt->tick());
-            if (beatInBar != 0)
-                _midiBeatCount += nBeat / beatInBar;
-            beatInBar = evt->data()[0];
+            if (nBeatInBar > 0) {
+                int nBeat = _midi->beatFromTick(evt->tick()) - beatCalculed;
+                int nBar = nBeat / nBeatInBar;
+                beatCalculed += nBeat;
+                _beatInBar.insertMulti(nBeatInBar, nBar);
+            }
+            nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
         }
-        _midiBeatCount += _midi->beatFromTick(_midi->events().back()->tick()) / beatInBar;
-        emit beatCountChanged(_midiBeatCount);
+        int nBeat = _midiBeatCount - beatCalculed;
+        int nBar = nBeat / nBeatInBar;
+        _beatInBar.insertMulti(nBeatInBar, nBar);
     } // End calculate beat count
 
     return true;
@@ -305,10 +314,6 @@ void MidiPlayer::playEvents()
                 _midiBpm = _midi->events()[i]->tempoBpm();
                 emit bpmChanged(_midiBpm);
             }
-            if (_midi->events()[i]->metaEventType() == MidiMetaType::TimeSignature) {
-                MidiEvent *ee = _midi->events()[i];
-                emit beatInBarChanged(ee->data().at(0));
-            }
         }
 
         _playedIndex = i;
@@ -447,4 +452,16 @@ int MidiPlayer::getNoteNumberToPlay(int ch, int defaultNote)
         n = defaultNote + _midiTranspose;
     }
     return n;
+}
+
+int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
+{
+    int d = qPow(2, denominator);
+    switch (d) {
+    case 2:
+    case 4:
+        return numerator * 1;
+    case 8:
+        return numerator * 0.5;
+    }
 }

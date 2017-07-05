@@ -96,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
 
         std::vector<std::string> sfs;
-        sfs.push_back("D:/eXtreme Karaoke/SoundFont/god.sf2");
+        sfs.push_back("/home/noob/SoundFont/อำนาจสเตอริโอซาวด์.sf2");
         //sfs.push_back("/home/noob/SoundFont/SoundFont_2_Drum.sf2");
 
         player->midiSynthesizer()->setSoundFonts(sfs);
@@ -104,8 +104,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
         connect(player, SIGNAL(playingEvents(MidiEvent*)), this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
         connect(player, SIGNAL(bpmChanged(int)), ui->rhmWidget, SLOT(setBpm(int)));
-        connect(player, SIGNAL(beatCountChanged(int)), ui->rhmWidget, SLOT(setBeatCount(int)));
-        connect(player, SIGNAL(beatInBarChanged(int)), ui->rhmWidget, SLOT(setBeatInBar(int)));
     }
 
 
@@ -318,6 +316,9 @@ void MainWindow::play(int index)
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
 
+    // RHM
+    ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
+
     player->start();
     lyrWidget->show();
     positionTimer->start();
@@ -346,6 +347,8 @@ void MainWindow::stop()
     lyrWidget->reset();
     ui->sliderPosition->setValue(0);
     onPlayerPositionMSChanged(0);
+
+    ui->rhmWidget->reset();
 }
 
 void MainWindow::playNext()
@@ -603,6 +606,7 @@ void MainWindow::onPositiomTimerTimeOut()
         qDebug() << "Beat  is : " << b;
         beat = b;
     }*/
+
     ui->rhmWidget->setCurrentBeat( player->midiFile()->beatFromTick(tick) );
 
     onPlayerPositionMSChanged(player->positionMs());
@@ -651,6 +655,11 @@ void MainWindow::onSliderPositionReleased()
     player->setPositionTick(ui->sliderPosition->value());
     lyrWidget->setSeekPositionCursor(ui->sliderPosition->value());
     onPlayerPositionMSChanged(player->positionMs());
+
+    // Seek beat
+    int b = player->midiFile()->beatFromTick(ui->sliderPosition->value());
+    ui->rhmWidget->setSeekBeat(b);
+
     if (playAfterSeek) resume();
 }
 

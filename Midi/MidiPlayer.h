@@ -8,6 +8,7 @@
 
 #include <QThread>
 #include <QElapsedTimer>
+#include <QMap>
 
 class MidiPlayer : public QThread
 {
@@ -38,6 +39,7 @@ public:
 
     int currentBpm() { return _midiBpm; }
     int beatCount() { return _midiBeatCount; }
+    QMap<int, int> beatInBar() { return _beatInBar; }
 
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
@@ -54,14 +56,14 @@ public:
     void setLockSnare(bool lock, int number = 38);
     void setLockBass(bool lock, int number = 32);
 
+    static int getNumberBeatInBar(int numerator, int denominator);
+
 protected:
     void run();
 
 signals:
     void playingEvents(MidiEvent *e);
     void bpmChanged(int bpm);
-    void beatCountChanged(int bc);
-    void beatInBarChanged(int bb);
 
 private:
     MidiFile            *_midi;
@@ -94,6 +96,8 @@ private:
     int     _lockSnareNumber = 38;
     int     _lockBassBumber  = 32;
 
+    // number beat in 1 bar , number bar
+    QMap<int, int> _beatInBar;
     QElapsedTimer *_eTimer;
 
     void playEvents();
