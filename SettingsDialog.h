@@ -35,8 +35,20 @@ private slots:
     void on_btnNCNPath_clicked();
     void on_btnUpdateSongs_clicked();
     void on_upDbUpdateFinished();
+
+
+    // Output tab
     void on_cbMidiOut_activated(int index);
     void on_cbAudioOut_activated(int index);
+
+    void onChbLockDrumToggled(bool checked);
+    void onChbLockSnareToggled(bool checked);
+    void onChbLockBassToggled(bool checked);
+
+    void on_cbLockDrum_activated(int index);
+    void on_cbLockSnare_activated(int index);
+    void on_cbLockBass_activated(int index);
+
 
     // Lyrics tab
     void on_btnFont_clicked();

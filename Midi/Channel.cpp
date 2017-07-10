@@ -6,6 +6,8 @@ Channel::Channel()
     cNumber = 0;
     cVolume = 127;
     cPan = 64;
+    cReverb = 0;
+    cChorus = 0;
     cInstrument = 0;
     cMute = false;
     cSolo = false;

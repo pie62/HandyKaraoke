@@ -4,6 +4,7 @@
 #include "SongDatabase.h"
 #include "Midi/MidiPlayer.h"
 #include <LyricsWidget.h>
+#include <ChannelMixer.h>
 
 #include <QMainWindow>
 #include <QTimer>
@@ -50,6 +51,7 @@ signals:
     void resized(const QSize &s);
 
 protected:
+    void mouseMoveEvent(QMouseEvent *event);
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
@@ -82,6 +84,7 @@ private slots:
 
     void showContextMenu(const QPoint &pos);
     void showSettingsDialog();
+    void showHideChMix();
     void showFullScreenOrNormal();
 
     void onPositiomTimerTimeOut();

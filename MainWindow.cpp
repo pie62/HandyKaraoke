@@ -31,7 +31,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     locale = QLocale(QLocale::English, QLocale::UnitedStates);
 
-    { // UI
+    { // Channel Mixer
+
+        ui->chMix->setPlayer(player);
+
+        bool s = settings->value("ChMixShow", false).toBool();
+
+        if (s) {
+            ui->chMix->show();
+            ui->expandChMix->show();
+        }
+        else {
+            ui->chMix->hide();
+            ui->expandChMix->hide();
+        }
+
+        connect(ui->chMix, SIGNAL(buttonCloseClicked()), this, SLOT(showHideChMix()));
+    }
+
+    { // UI window size
         int sTime = settings->value("SearchTimeout", 5).toInt();
         int pTime = settings->value("PlaylistTimeout", 5).toInt();
         setSearchTimeout(sTime);
@@ -367,6 +385,11 @@ void MainWindow::playPrevious()
     }
 }
 
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+
+}
+
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     if (bgType == 1) {
@@ -565,14 +588,18 @@ void MainWindow::showContextMenu(const QPoint &pos)
     QMenu menu(tr("Context menu"), this);
 
     QAction actionSettings("ตั้งค่า", this);
+    QAction actionShowHideChMix("ช่องสัญญาณมิกเซอร์ (แสดง/ซ่อน)", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
     QAction actionExit("ออกจากโปรแกรม", this);
 
     connect(&actionSettings, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
+    connect(&actionShowHideChMix, SIGNAL(triggered()), this, SLOT(showHideChMix()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
     connect(&actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     menu.addAction(&actionSettings);
+    menu.addSeparator();
+    menu.addAction(&actionShowHideChMix);
     menu.addSeparator();
     menu.addAction(&actionFullScreen);
     menu.addSeparator();
@@ -588,6 +615,20 @@ void MainWindow::showSettingsDialog()
     d.exec();
 }
 
+void MainWindow::showHideChMix()
+{
+    if (ui->chMix->isVisible()) {
+        ui->chMix->hide();
+        ui->expandChMix->hide();
+        settings->setValue("ChMixShow", false);
+    }
+    else {
+        ui->chMix->show();
+        ui->expandChMix->show();
+        settings->setValue("ChMixShow", true);
+    }
+}
+
 void MainWindow::showFullScreenOrNormal()
 {
     if (this->isFullScreen()) {
@@ -600,26 +641,14 @@ void MainWindow::showFullScreenOrNormal()
 void MainWindow::onPositiomTimerTimeOut()
 {
     int tick = player->positionTick();
-
-    /*int b = player->midiFile()->beatFromTick(tick);
-    if (b != beat) {
-        qDebug() << "Beat  is : " << b;
-        beat = b;
-    }*/
-
-    ui->rhmWidget->setCurrentBeat( player->midiFile()->beatFromTick(tick) );
+    ui->sliderPosition->setValue(tick);
+    lyrWidget->setPositionCursor(tick);
 
     onPlayerPositionMSChanged(player->positionMs());
-    ui->sliderPosition->setValue(tick);
-    lyrWidget->setPositionCursor(tick - 40);
 
-    /*if (player->isFinished()) {
-        QThread::msleep(50);
-        if (auto_playnext)
-            playNext();
-        else
-            stop();
-    }*/
+    ui->rhmWidget->setCurrentBeat( player->currentBeat());
+
+    onPlayerPositionMSChanged(player->positionMs());
 }
 
 void MainWindow::onPlayerDurationMSChanged(qint64 d)
@@ -657,8 +686,7 @@ void MainWindow::onSliderPositionReleased()
     onPlayerPositionMSChanged(player->positionMs());
 
     // Seek beat
-    int b = player->midiFile()->beatFromTick(ui->sliderPosition->value());
-    ui->rhmWidget->setSeekBeat(b);
+    ui->rhmWidget->setSeekBeat(player->currentBeat());
 
     if (playAfterSeek) resume();
 }

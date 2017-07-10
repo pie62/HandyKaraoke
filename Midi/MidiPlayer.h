@@ -22,10 +22,18 @@ public:
     bool load(std::string file);
     void stop(bool resetPos = false);
     void setVolume(int v);
+    void setVolume(int ch, int v);
+    void setInstrument(int ch, int i);
+    void setMute(int ch, bool mute);
+    void setSolo(int ch, bool solo);
+    void setPan(int ch, int v);
+    void setReverb(int ch, int v);
+    void setChorus(int ch, int v);
     void setPositionTick(int t);
 
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
     MidiFile* midiFile() { return _midi; }
+    Channel* midiChannel() { return _midiChannels; }
     int midiOutPortNumber() { return _midiPortNum; }
     int volume() { return _volume; }
     int durationTick() { return _durationTick; }
@@ -36,6 +44,7 @@ public:
     bool isPlayerPaused() { return (!_playing && !_stopped) ? true : false; }
     long positionMs();
     int positionTick();
+    int currentBeat();
 
     int currentBpm() { return _midiBpm; }
     int beatCount() { return _midiBeatCount; }
@@ -44,7 +53,7 @@ public:
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
 
-    int  lockDrumBumber()  { return _lockDrumNumber; }
+    int  lockDrumNumber()  { return _lockDrumNumber; }
     int  lockSnareNumber() { return _lockSnareNumber; }
     int  lockBassNumber()  { return _lockBassBumber; }
 
@@ -62,6 +71,7 @@ protected:
     void run();
 
 signals:
+    void loaded();
     void playingEvents(MidiEvent *e);
     void bpmChanged(int bpm);
 

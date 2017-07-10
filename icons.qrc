@@ -8,5 +8,7 @@
         <file>Icons/volume-adjustment-mute.png</file>
         <file>Icons/volume-up-interface-symbol.png</file>
         <file>Icons/slider.jpg</file>
+        <file>Icons/delete.png</file>
+        <file>Icons/settings.png</file>
     </qresource>
 </RCC>

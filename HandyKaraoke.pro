@@ -27,7 +27,11 @@ SOURCES += main.cpp\
     Midi/MidiPlayer.cpp \
     Widgets/ChMx.cpp \
     Widgets/LyricsWidget.cpp \
-    Widgets/RhythmWidget.cpp
+    Widgets/RhythmWidget.cpp \
+    Widgets/ChannelMixer.cpp \
+    Midi/MidiHelper.cpp \
+    Widgets/LEDVu.cpp \
+    Widgets/WidgetDialogs/SettingVuDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -41,12 +45,18 @@ HEADERS  += MainWindow.h \
     Midi/MidiPlayer.h \
     Widgets/ChMx.h \
     Widgets/LyricsWidget.h \
-    Widgets/RhythmWidget.h
+    Widgets/RhythmWidget.h \
+    Widgets/ChannelMixer.h \
+    Midi/MidiHelper.h \
+    Widgets/LEDVu.h \
+    Widgets/WidgetDialogs/SettingVuDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
     Widgets/ChMx.ui \
-    Widgets/RhythmWidget.ui
+    Widgets/RhythmWidget.ui \
+    Widgets/ChannelMixer.ui \
+    Widgets/WidgetDialogs/SettingVuDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

@@ -13,10 +13,12 @@ public:
     MidiSynthesizer();
     ~MidiSynthesizer();
 
+    bool open();
+    void close();
+
     bool setOutputDevice(int dv);
     void setSoundFonts(std::vector<std::string> &soundfonts);
     void setVolume(float vol);
-    void reset();
 
     void sendNoteOff(int ch, int note, int velocity);
     void sendNoteOn(int ch, int note, int velocity);
@@ -37,6 +39,9 @@ private:
     std::vector<BASS_MIDI_FONT> synth_BASS_MIDI_FONT;
 
     float synth_volume = 1.0f;
+    bool openned = false;
+
+    void setSfToStream();
 };
 
 #endif // MIDISYNTHESIZER_H

@@ -10,37 +10,53 @@ MidiSynthesizer::MidiSynthesizer()
 
     DWORD flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
     stream = BASS_MIDI_StreamCreate(16, flags, 0);
-
-    BASS_SetConfig(
-        BASS_CONFIG_UPDATEPERIOD,
-        5
-    );
-
-    auto concurentThreadsSupported = std::thread::hardware_concurrency();
-    float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
-    qDebug() << concurentThreadsSupported;
-
-    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, nVoices);
-    BASS_ChannelPlay(stream, false); 
-
-    float v;
-    BASS_ChannelGetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, &v);
-    qDebug() << v;
-    //BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_MIXLEVEL, 50);
 }
 
 MidiSynthesizer::~MidiSynthesizer()
 {
+    if (openned)
+        close();
+
+    synth_BASS_MIDI_FONT.clear();
+
+    BASS_StreamFree(stream);
+    BASS_Free();
+}
+
+bool MidiSynthesizer::open()
+{
+    if (openned)
+        return true;
+
+    BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
+    //BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
+
+    auto concurentThreadsSupported = std::thread::hardware_concurrency();
+    float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
+    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, nVoices);
+
+    setSfToStream();
+
+    BASS_ChannelPlay(stream, false);
+
+    openned = true;
+    return true;
+}
+
+void MidiSynthesizer::close()
+{
+    if (!openned)
+        return;
+
     BASS_ChannelStop(stream);
 
     for (HSOUNDFONT f : synth_HSOUNDFONT)
         BASS_MIDI_FontFree(f);
 
     synth_HSOUNDFONT.clear();
-    synth_BASS_MIDI_FONT.clear();
 
-    BASS_StreamFree(stream);
-    BASS_Free();
+    openned = false;
 }
 
 bool MidiSynthesizer::setOutputDevice(int dv)
@@ -54,7 +70,6 @@ void MidiSynthesizer::setSoundFonts(std::vector<std::string> &soundfonts)
         BASS_MIDI_FontFree(f);
     }
     synth_HSOUNDFONT.clear();
-    synth_BASS_MIDI_FONT.clear();
 
     int count = 0;
     for (int i=0; i<soundfonts.size(); i++) {
@@ -63,48 +78,16 @@ void MidiSynthesizer::setSoundFonts(std::vector<std::string> &soundfonts)
         if (f) {
             count++;
             synth_HSOUNDFONT.push_back(f);
-
-            BASS_MIDI_FONT font;
-            font.font = f;
-            font.preset = -1;
-            font.bank = 0;
-            synth_BASS_MIDI_FONT.push_back(font);
         }
     }
 
-    if (synth_BASS_MIDI_FONT.size() > 0) {
-        BASS_MIDI_StreamSetFonts(0, &synth_BASS_MIDI_FONT[0], 1);
-        BASS_MIDI_StreamSetFonts(stream, synth_BASS_MIDI_FONT.data(), synth_BASS_MIDI_FONT.size());
-    }
-
-    BASS_MIDI_FontCompact(0);
-
-    BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_DRUM_LEVEL, MAKEWORD(38, 40));
-    BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_DRUM_LEVEL, MAKEWORD(40, 40));
+    if (openned)
+        setSfToStream();
 }
 
 void MidiSynthesizer::setVolume(float vol)
 {
     BASS_ChannelSetAttribute(stream, BASS_ATTRIB_VOL, vol);
-}
-
-void MidiSynthesizer::reset()
-{
-    /*float vol, voice;
-    BASS_ChannelGetAttribute(stream, BASS_ATTRIB_VOL, &vol);
-    BASS_ChannelGetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, &voice);
-
-    BASS_ChannelStop(stream);
-    BASS_StreamFree(stream);
-
-    stream = BASS_MIDI_StreamCreate(16, BASS_SAMPLE_FLOAT|BASS_MIDI_NOFX, 0);
-    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_VOL, vol);
-    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, voice);
-    BASS_ChannelPlay(stream, FALSE);*/
-
-
-    //BASS_ChannelStop(stream);
-    //BASS_ChannelPlay(stream, false);
 }
 
 void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)
@@ -245,5 +228,23 @@ void MidiSynthesizer::sendResetAllControllers()
 {
     for (int i=0; i<16; i++) {
         sendResetAllControllers(i);
+    }
+}
+
+void MidiSynthesizer::setSfToStream()
+{
+    synth_BASS_MIDI_FONT.clear();
+
+    for (HSOUNDFONT f : synth_HSOUNDFONT) {
+        BASS_MIDI_FONT font;
+        font.font = f;
+        font.preset = -1;
+        font.bank = 0;
+        synth_BASS_MIDI_FONT.push_back(font);
+    }
+
+    if (synth_BASS_MIDI_FONT.size() > 0) {
+        BASS_MIDI_StreamSetFonts(0, &synth_BASS_MIDI_FONT[0], 1);
+        BASS_MIDI_StreamSetFonts(stream, synth_BASS_MIDI_FONT.data(), synth_BASS_MIDI_FONT.size());
     }
 }

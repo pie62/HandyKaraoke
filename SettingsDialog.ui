@@ -31,7 +31,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -88,7 +88,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_12">
         <property name="text">
-         <string>การค้นหา (วินาที):</string>
+         <string>การค้นหา (วินาที) :</string>
         </property>
        </widget>
       </item>
@@ -114,7 +114,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_13">
         <property name="text">
-         <string>รายการเล่น (วินาที):</string>
+         <string>รายการเล่น (วินาที) :</string>
         </property>
        </widget>
       </item>
@@ -320,7 +320,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>แบบตัวอักษร:</string>
+         <string>แบบตัวอักษร :</string>
         </property>
        </widget>
       </item>
@@ -357,7 +357,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_14">
         <property name="text">
-         <string>ตำแหน่งเนื้อเพลง:</string>
+         <string>ตำแหน่งเนื้อเพลง :</string>
         </property>
        </widget>
       </item>
@@ -450,7 +450,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_17">
         <property name="text">
-         <string>ระยะเวลาปาดเนื้อ (ms):</string>
+         <string>ระยะเวลาปาดเนื้อ (ms) :</string>
         </property>
        </widget>
       </item>
@@ -494,7 +494,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>สีตัวอักษร:</string>
+            <string>สีตัวอักษร :</string>
            </property>
           </widget>
          </item>
@@ -565,7 +565,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>สีเส้นขอบ:</string>
+            <string>สีเส้นขอบ :</string>
            </property>
           </widget>
          </item>
@@ -636,7 +636,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_11">
            <property name="text">
-            <string>ขนาดเส้นขอบ:</string>
+            <string>ขนาดเส้นขอบ :</string>
            </property>
           </widget>
          </item>
@@ -671,7 +671,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>สีตัวอักษร:</string>
+            <string>สีตัวอักษร :</string>
            </property>
           </widget>
          </item>
@@ -742,7 +742,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>สีเส้นขอบ:</string>
+            <string>สีเส้นขอบ :</string>
            </property>
           </widget>
          </item>
@@ -813,7 +813,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>ขนาดเส้นขอบ:</string>
+            <string>ขนาดเส้นขอบ :</string>
            </property>
           </widget>
          </item>
@@ -841,8 +841,6 @@
       </item>
      </layout>
     </widget>
-    <zorder>layoutWidget</zorder>
-    <zorder>layoutWidget</zorder>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
@@ -873,7 +871,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>NCN:</string>
+          <string>NCN :</string>
          </property>
         </widget>
        </item>
@@ -927,7 +925,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>ความคืบหน้า:</string>
+          <string>ความคืบหน้า :</string>
          </property>
         </widget>
        </item>
@@ -959,7 +957,7 @@
        <item>
         <widget class="QLabel" name="lbUpdateText">
          <property name="text">
-          <string>กำลังอ่านไฟล์:</string>
+          <string>กำลังอ่านไฟล์ :</string>
          </property>
         </widget>
        </item>
@@ -998,7 +996,7 @@
       <rect>
        <x>20</x>
        <y>250</y>
-       <width>207</width>
+       <width>210</width>
        <height>29</height>
       </rect>
      </property>
@@ -1013,7 +1011,7 @@
          </font>
         </property>
         <property name="text">
-         <string>จำนวนเพลงทั้งหมด:</string>
+         <string>จำนวนเพลงทั้งหมด :</string>
         </property>
        </widget>
       </item>
@@ -1061,9 +1059,9 @@
       </property>
       <layout class="QFormLayout" name="formLayout_3">
        <item row="0" column="0">
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="chbLockDrum">
          <property name="text">
-          <string>ล็อกเสียงกลอง</string>
+          <string>ล็อกเสียงกลอง :</string>
          </property>
         </widget>
        </item>
@@ -1071,9 +1069,9 @@
         <widget class="QComboBox" name="cbLockDrum"/>
        </item>
        <item row="1" column="0">
-        <widget class="QCheckBox" name="checkBox_2">
+        <widget class="QCheckBox" name="chbLockSnare">
          <property name="text">
-          <string>ล็อกเสียงสแนร์</string>
+          <string>ล็อกเสียงสแนร์ :</string>
          </property>
         </widget>
        </item>
@@ -1081,9 +1079,9 @@
         <widget class="QComboBox" name="cbLockSnare"/>
        </item>
        <item row="2" column="0">
-        <widget class="QCheckBox" name="checkBox_3">
+        <widget class="QCheckBox" name="chbLockBass">
          <property name="text">
-          <string>ล็อกเสียงเบส</string>
+          <string>ล็อกเสียงเบส :</string>
          </property>
         </widget>
        </item>
@@ -1118,7 +1116,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>MIDI ขาออก:</string>
+          <string>MIDI ขาออก :</string>
          </property>
         </widget>
        </item>
@@ -1128,7 +1126,7 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>เสียงขาออก:</string>
+          <string>เสียงขาออก :</string>
          </property>
         </widget>
        </item>

@@ -54,7 +54,7 @@ private:
     QList<RhythmRectangle*> beats;
 
     int _beatCount = 0;
-    int _currentBeat = 0;
+    int _currentBeat = -1;
     int _barCount = 0;
     int _barIndex = 0;
 

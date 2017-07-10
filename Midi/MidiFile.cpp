@@ -260,8 +260,13 @@ bool MidiFile::read(std::string filename) {
 
     std::sort(fEvents.begin(), fEvents.end(), eventTickCompare);
     std::sort(fTempoEvents.begin(), fTempoEvents.end(), eventTickCompare);
+
+    std::sort(fControllerEvents.begin(), fControllerEvents.end(), eventTickCompare);
+    std::sort(fProgramChangeEvents.begin(), fProgramChangeEvents.end(), eventTickCompare);
+    std::sort(fTimeSignatureEvents.begin(), fTimeSignatureEvents.end(), eventTickCompare);
     //fEvents.sort(eventTickCompare);
     //fTempoEvent.sort(eventTickCompare);
+
     in.close();
 
     return true;

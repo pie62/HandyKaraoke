@@ -2,7 +2,6 @@
 #include "ui_RhythmWidget.h"
 
 #include <QPainter>
-#include <QDebug>
 
 RhythmWidget::RhythmWidget(QWidget *parent) :
     QWidget(parent),
@@ -17,11 +16,6 @@ RhythmWidget::RhythmWidget(QWidget *parent) :
     beats.append(ui->b5);
 
     beats[4]->hide();
-
-    defaultStyle = "background-color: rgb(255, 255, 255);"
-                   "border: 2px solid  rgb(0, 0, 0);";
-    beatStyle = "background-color: #00B8A9;"
-                "border: 2px solid  rgb(0, 0, 0);";
 }
 
 RhythmWidget::~RhythmWidget()
@@ -36,7 +30,7 @@ void RhythmWidget::setBpm(int bpm)
 
 void RhythmWidget::reset()
 {
-    _currentBeat = 0;
+    _currentBeat = -1;
     _barIndex = 0;
 
     beatBarIndex = 0;
@@ -104,8 +98,6 @@ void RhythmWidget::setCurrentBeat(int b)
     else {
         beats[beatBarIndex-1]->off();
         beats[beatBarIndex]->on();
-        qDebug() << "Beat " << beatBarIndex;
-
     }
     beatBarIndex++;
 
@@ -116,7 +108,7 @@ void RhythmWidget::setCurrentBeat(int b)
     }
 
 
-    if (_currentBeat == lastBeat) {
+    if (_currentBeat == (lastBeat-1)) {
         timeSingIndex++;
         changeBeatInBar = true;
         /*if (timeSingIndex < _beatInBar.count()) {
@@ -134,7 +126,7 @@ void RhythmWidget::setSeekBeat(int b)
 
     reset();
 
-    for (int i=1; i<=b; i++) {
+    for (int i=0; i<b; i++) {
         _currentBeat = i;
 
         if (beatBarIndex == 0) {
@@ -143,9 +135,6 @@ void RhythmWidget::setSeekBeat(int b)
                 lastBeat += _beatInBar.values().at(timeSingIndex) * nBeatInBar;
                 changeBeatInBar = false;
             }
-        }
-        else {
-
         }
         beatBarIndex++;
 
@@ -156,7 +145,7 @@ void RhythmWidget::setSeekBeat(int b)
         }
 
 
-        if (_currentBeat == lastBeat) {
+        if (_currentBeat == (lastBeat-1)) {
             timeSingIndex++;
             changeBeatInBar = true;
         }

@@ -43,10 +43,12 @@ bool MidiPlayer::setMidiOut(int portNumer)
         _midiOut->closePort();
 
     if (portNumer == -1) {
+        _midiSynth->open();
         _midiSynth->setVolume(_volume / 100.0f);
         _midiPortNum = -1;
         result = true;
     } else {
+        _midiSynth->close();
         _midiOut->openPort(portNumer);
         _midiOut->setVolume(_volume / 100.0f);
         result = _midiOut->isPortOpen();
@@ -94,6 +96,15 @@ bool MidiPlayer::load(std::string file)
         _beatInBar.insertMulti(nBeatInBar, nBar);
     } // End calculate beat count
 
+    for (int i=0; i<16; i++) {
+        _midiChannels[i].setInstrument(0);
+        _midiChannels[i].setVolume(100);
+        _midiChannels[i].setPan(64);
+        _midiChannels[i].setReverb(0);
+        _midiChannels[i].setChorus(0);
+    }
+    emit loaded();
+
     return true;
 }
 
@@ -127,6 +138,143 @@ void MidiPlayer::setVolume(int v)
     _midiSynth->setVolume(_volume / 100.0f);
 }
 
+void MidiPlayer::setVolume(int ch, int v)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    int vl = 0;
+    if (v > 127) vl = 127;
+    else if (v < 0) vl = 0;
+    else vl = v;
+
+    MidiEvent evt;
+    evt.setChannel(ch);
+    evt.setEventType(MidiEventType::Controller);
+    evt.setData1(7);
+    evt.setData2(vl);
+
+    sendEvent(&evt);
+}
+
+void MidiPlayer::setInstrument(int ch, int i)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    int v = 0;
+    if (i > 127) v = 127;
+    else if (i < 0) v = 0;
+    else v = i;
+
+    MidiEvent evt;
+    evt.setChannel(ch);
+    evt.setEventType(MidiEventType::ProgramChange);
+    evt.setData1(v);
+
+    sendEvent(&evt);
+}
+
+void MidiPlayer::setMute(int ch, bool mute)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    if (mute == _midiChannels[ch].isMute())
+        return;
+
+    _midiChannels[ch].setMute(mute);
+    if (mute)
+        sendAllNotesOff(ch);
+}
+
+void MidiPlayer::setSolo(int ch, bool solo)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    if (solo == _midiChannels[ch].isSolo())
+        return;
+
+    _midiChannels[ch].setSolo(solo);
+
+    bool us = false;
+    for (int i=0; i<16; i++) {
+        if (_midiChannels[i].isSolo())
+            us = true;
+        else {
+            sendAllNotesOff(i);
+        }
+    }
+
+    _useSolo = us;
+
+    if (_playing) {
+        for (int i=0; i<16; i++) {
+            if (_midiChannels[i].isSolo())
+                continue;
+            sendAllNotesOff(i);
+        }
+    }
+}
+
+void MidiPlayer::setPan(int ch, int v)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    int vl = 0;
+    if (v > 127) vl = 127;
+    else if (v < 0) vl = 0;
+    else vl = v;
+
+    MidiEvent evt;
+    evt.setChannel(ch);
+    evt.setEventType(MidiEventType::Controller);
+    evt.setData1(10);
+    evt.setData2(vl);
+
+    sendEvent(&evt);
+}
+
+void MidiPlayer::setReverb(int ch, int v)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    int vl = 0;
+    if (v > 127) vl = 127;
+    else if (v < 0) vl = 0;
+    else vl = v;
+
+    MidiEvent evt;
+    evt.setChannel(ch);
+    evt.setEventType(MidiEventType::Controller);
+    evt.setData1(91);
+    evt.setData2(vl);
+
+    sendEvent(&evt);
+}
+
+void MidiPlayer::setChorus(int ch, int v)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    int vl = 0;
+    if (v > 127) vl = 127;
+    else if (v < 0) vl = 0;
+    else vl = v;
+
+    MidiEvent evt;
+    evt.setChannel(ch);
+    evt.setEventType(MidiEventType::Controller);
+    evt.setData1(93);
+    evt.setData2(vl);
+
+    sendEvent(&evt);
+}
+
 void MidiPlayer::setPositionTick(int t)
 {
     bool playAfterSeek = _playing;
@@ -142,7 +290,7 @@ void MidiPlayer::setPositionTick(int t)
             || e->eventType() == MidiEventType::ProgramChange) {
             sendEvent(e);
         }
-
+        _positionTick = e->tick();
         index++;
     }
 
@@ -160,6 +308,11 @@ int MidiPlayer::positionTick()
     } else {
         return _positionTick;
     }
+}
+
+int MidiPlayer::currentBeat()
+{
+    return _midi->beatFromTick(positionTick());
 }
 
 bool MidiPlayer::isSnareNumber(int num) {
@@ -364,8 +517,13 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         break;
     }
     case MidiEventType::Controller: {
-        if (e->data1() == 7) _midiChannels[ch].setVolume(e->data2());
-        if (e->data1() == 10) _midiChannels[ch].setPan(e->data2());
+        switch (e->data1()) {
+        case 7: _midiChannels[ch].setVolume(e->data2()); break;
+        case 10: _midiChannels[ch].setPan(e->data2()); break;
+        case 91: _midiChannels[ch].setReverb(e->data2()); break;
+        case 93: _midiChannels[ch].setChorus(e->data2()); break;
+        default: break;
+        }
 
         if (_midiPortNum == -1) {
             _midiSynth->sendController(ch, e->data1(), e->data2());
@@ -463,5 +621,7 @@ int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
         return numerator * 1;
     case 8:
         return numerator * 0.5;
+    case 16:
+        return numerator * 0.25;
     }
 }

@@ -1,6 +1,8 @@
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 
+#include "Midi/MidiHelper.h"
+
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>
@@ -161,16 +163,8 @@ void SettingsDialog::initDeviceTab()
     // Midi device
     MidiPlayer *player = mainWin->midiPlayer();
     int dfd = player->midiOutPortNumber();
-    //int select = 0;
-    /*for (int i=0; i < player->midiDevices().count(); i++) {
-        #ifdef __linux__
-            ui->cbMidiOut->addItem( player->midiDevices().values()[i] + " " + player->midiDevices().keys()[i] );
-        #else
-            ui->cbMidiOut->addItem( player->midiDevices().values()[i] );
-        #endif
-        if (dfd == player->midiDevices().keys()[i])
-            select = i;
-    }*/
+
+
     for (std::string d : MidiPlayer::midiDevices()) {
         ui->cbMidiOut->addItem(QString::fromStdString(d));
     }
@@ -194,11 +188,44 @@ void SettingsDialog::initDeviceTab()
         }
     }
     ui->cbAudioOut->setCurrentIndex(aSelected);
-    // Get default using audio device and set to selected
-    /*BASS_DEVICEINFO dInfo;
-    BASS_GetDeviceInfo(BASS_GetDevice(), &dInfo);
-    QString dName = QString::fromStdString(dInfo.name);
-    if (ui->cbAudioOut->ite)*/
+
+
+    { // lock drum, snare, bass
+        ui->cbLockDrum->addItems(MidiHelper::drumKitNumberNames());
+        ui->cbLockSnare->addItems(MidiHelper::snareNumberName());
+
+        QStringList intsNames = MidiHelper::GMInstrumentNumberNames();
+        for (int i=32; i<40; i++) {
+            ui->cbLockBass->addItem(intsNames[i]);
+        }
+
+        ui->cbLockDrum->setCurrentIndex( player->lockDrumNumber() );
+        ui->cbLockBass->setCurrentIndex( player->lockBassNumber() - 32 );
+        if (player->lockSnareNumber() == 38)
+            ui->cbLockSnare->setCurrentIndex(0);
+        else
+            ui->cbLockSnare->setCurrentIndex(1);
+
+        // check lock or not
+        if (player->isLockDrum())
+            ui->chbLockDrum->setChecked(true);
+        else
+            ui->cbLockDrum->setEnabled(false);
+
+        if (player->isLockSnare())
+            ui->chbLockSnare->setChecked(true);
+        else
+            ui->cbLockSnare->setEnabled(false);
+
+        if (player->isLockBass())
+            ui->chbLockBass->setChecked(true);
+        else
+            ui->cbLockBass->setEnabled(false);
+    }
+
+    connect(ui->chbLockDrum, SIGNAL(toggled(bool)), this, SLOT(onChbLockDrumToggled(bool)));
+    connect(ui->chbLockSnare, SIGNAL(toggled(bool)), this, SLOT(onChbLockSnareToggled(bool)));
+    connect(ui->chbLockBass, SIGNAL(toggled(bool)), this, SLOT(onChbLockBassToggled(bool)));
 }
 
 void SettingsDialog::on_chbRemoveFromList_toggled(bool checked)
@@ -335,9 +362,6 @@ void SettingsDialog::on_upDbUpdateFinished()
 
 void SettingsDialog::on_cbMidiOut_activated(int index)
 {
-    //bool playAfterChange = mainWin->midiPlayer()->isPlaying();
-
-    //if (playAfterChange) mainWin->stop();
     mainWin->stop();
 
     if (ui->cbMidiOut->currentText() == "SoundFont") {
@@ -351,8 +375,6 @@ void SettingsDialog::on_cbMidiOut_activated(int index)
         settings->setValue("MidiOut", index);
         mainWin->midiPlayer()->setMidiOut(index);
     }
-
-    //if (playAfterChange) mainWin->play(-1);
 }
 
 void SettingsDialog::on_cbAudioOut_activated(int index)
@@ -375,6 +397,36 @@ void SettingsDialog::on_cbAudioOut_activated(int index)
         BASS_SetDevice(-1);
         ui->cbAudioOut->setCurrentIndex( BASS_GetDevice() );
     }*/
+}
+
+void SettingsDialog::onChbLockDrumToggled(bool checked)
+{
+
+}
+
+void SettingsDialog::onChbLockSnareToggled(bool checked)
+{
+
+}
+
+void SettingsDialog::onChbLockBassToggled(bool checked)
+{
+
+}
+
+void SettingsDialog::on_cbLockDrum_activated(int index)
+{
+
+}
+
+void SettingsDialog::on_cbLockSnare_activated(int index)
+{
+
+}
+
+void SettingsDialog::on_cbLockBass_activated(int index)
+{
+
 }
 
 void SettingsDialog::on_btnFont_clicked()

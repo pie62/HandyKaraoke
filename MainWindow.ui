@@ -22,6 +22,9 @@
     <height>670</height>
    </size>
   </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::CustomContextMenu</enum>
   </property>
@@ -37,6 +40,9 @@ background-color: rgb(51, 51, 51);
    <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <property name="leftMargin">
      <number>0</number>
@@ -64,6 +70,22 @@ background-color: rgb(51, 51, 51);
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_13">
         <item>
+         <widget class="ChannelMixer" name="chMix" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>157</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>157</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -77,42 +99,68 @@ background-color: rgb(51, 51, 51);
          </spacer>
         </item>
         <item>
-         <widget class="QLCDNumber" name="lcdTime">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(255, 255, 255);</string>
-          </property>
-          <property name="digitCount">
-           <number>8</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="RhythmWidget" name="rhmWidget" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>52</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>150</width>
-            <height>52</height>
-           </size>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLCDNumber" name="lcdTime">
+              <property name="minimumSize">
+               <size>
+                <width>120</width>
+                <height>52</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>120</width>
+                <height>52</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(62, 62, 62, 200);
+border: 1px solid rgb(255, 255, 255);</string>
+              </property>
+              <property name="digitCount">
+               <number>8</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="RhythmWidget" name="rhmWidget" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>52</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>150</width>
+                <height>52</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QWidget" name="expandChMix" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>96</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -936,6 +984,12 @@ border-radius: 4px;
    <class>RhythmWidget</class>
    <extends>QWidget</extends>
    <header>RhythmWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ChannelMixer</class>
+   <extends>QWidget</extends>
+   <header>ChannelMixer.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
