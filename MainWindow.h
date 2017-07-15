@@ -6,6 +6,8 @@
 #include <LyricsWidget.h>
 #include <ChannelMixer.h>
 
+#include "Dialogs/Equalizer31BandDialog.h"
+
 #include <QMainWindow>
 #include <QTimer>
 #include <QKeyEvent>
@@ -38,6 +40,9 @@ public:
     void setPlaylistTimeout(int s) { playlist_timeout = s*1000; }
     void setBackgroundColor(QString colorName);
     void setBackgroundImage(QString img);
+
+    // Synth effect dialog
+    Equalizer31BandDialog* equalizer31BandDialog() { return eq31Dlg; }
 
 public slots:
     void play(int index);
@@ -77,6 +82,10 @@ private:
     int playlist_timeout = 5000;
 
     QLocale locale;
+
+    // Synth effect dialog
+    Equalizer31BandDialog *eq31Dlg;
+
 
 private slots:
     void showCurrentTime();

@@ -86,6 +86,9 @@ private:
     int                 _midiTranspose = 0;
     int                 _midiBeatCount = 0;
 
+    MidiEvent   _tempEvent;
+    MidiEvent   *_playingEventPtr = nullptr;
+
     int     _volume = 100;
     int     _durationTick = 0;
     int     _positionTick = 0;

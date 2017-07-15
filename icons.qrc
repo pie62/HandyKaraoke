@@ -10,5 +10,15 @@
         <file>Icons/slider.jpg</file>
         <file>Icons/delete.png</file>
         <file>Icons/settings.png</file>
+        <file>Icons/add.png</file>
+        <file>Icons/chevron-arrow-down.png</file>
+        <file>Icons/chevron-arrow-up.png</file>
+        <file>Icons/remove.png</file>
+        <file>Icons/list.png</file>
+        <file>Icons/correct-symbol.png</file>
+        <file>Icons/circle_black.png</file>
+        <file>Icons/circle_green.png</file>
+        <file>Icons/circle_red.png</file>
+        <file>Icons/pencil_yellow.png</file>
     </qresource>
 </RCC>

@@ -1,8 +1,20 @@
 #ifndef MIDISYNTHESIZER_H
 #define MIDISYNTHESIZER_H
 
+/*
+    Midi stream custom to use 32 channel
+
+        channel 0  - 15 is default intruments
+        channel 16 - 31 is a custom drum.
+
+*/
+
 #include <bass.h>
 #include <bassmidi.h>
+
+#include "BASSFX/Equalizer31BandFX.h"
+#include <BASSFX/ReverbFX.h>
+
 #include <vector>
 #include <string>
 
@@ -13,12 +25,26 @@ public:
     MidiSynthesizer();
     ~MidiSynthesizer();
 
+    bool isOpened() { return openned; }
+    std::vector<std::string> soundfontFiles() { return sfFiles; }
+
     bool open();
     void close();
 
+    int outPutDevice();
     bool setOutputDevice(int dv);
-    void setSoundFonts(std::vector<std::string> &soundfonts);
+    void setSoundFonts(std::vector<std::string> &soundfonsFiles);
     void setVolume(float vol);
+    float volume() { return synth_volume; }
+
+    float soundfontVolume(int sfIndex);
+    void setSoundfontVolume(int sfIndex, float sfvl);
+
+    // std::vector<int> size 129
+    //      1-128 all intrument
+    //      129 is drum
+    bool setMapSoundfontIndex(const std::vector<int> &intrumentSfIndex);
+    std::vector<int> getMapSoundfontIndex() { return intmSf; }
 
     void sendNoteOff(int ch, int note, int velocity);
     void sendNoteOn(int ch, int note, int velocity);
@@ -32,16 +58,32 @@ public:
     void sendResetAllControllers(int ch);
     void sendResetAllControllers();
 
+    static std::vector<std::string> audioDevices();
+    static bool isSoundFontFile(std::string sfile);
+
+    // Fx ----------------------
+    Equalizer31BandFX* equalizer31BandFX() { return eq; }
+    ReverbFX* reverbFX() { return reverb; }
+    // ------------------------------------------
+
 private:
     HSTREAM stream;
-    HSTREAM _bassDrum, _snareDrum, _tom1Drum, _tom2Drum;
     std::vector<HSOUNDFONT> synth_HSOUNDFONT;
-    std::vector<BASS_MIDI_FONT> synth_BASS_MIDI_FONT;
+    std::vector<std::string> sfFiles;
+    std::vector<int> intmSf;
+
+    // FX
+    Equalizer31BandFX *eq;
+    ReverbFX *reverb;
+    // ---------------------------
 
     float synth_volume = 1.0f;
     bool openned = false;
 
+    int ourtDev = -1;
+
     void setSfToStream();
+    int getDrumChannelFromNote(int drumNote);
 };
 
 #endif // MIDISYNTHESIZER_H

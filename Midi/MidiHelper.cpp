@@ -226,3 +226,15 @@ QStringList MidiHelper::snareName()
     slist.append("Electric Snare");
     return slist;
 }
+
+QStringList MidiHelper::instrumentGroupNames()
+{
+    QStringList gn;
+
+    gn << "Piano" << "Chromatic Percussion" << "Organ" << "Guitar" << "Bass"
+       << "Strings" << "Ensemble" << "Brass" << "Reed" << "Pipe" << "Synth Lead"
+       << "Synth Pad" << "Synth Effects" << "Ethnic" << "Percussive"
+       << "Sound effects";
+
+    return gn;
+}

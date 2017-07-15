@@ -31,7 +31,15 @@ SOURCES += main.cpp\
     Widgets/ChannelMixer.cpp \
     Midi/MidiHelper.cpp \
     Widgets/LEDVu.cpp \
-    Widgets/WidgetDialogs/SettingVuDialog.cpp
+    Widgets/WidgetDialogs/SettingVuDialog.cpp \
+    Dialogs/MapSoundfontDialog.cpp \
+    Widgets/Slider.cpp \
+    BASSFX/Equalizer15BandFX.cpp \
+    Widgets/SwitchButton.cpp \
+    BASSFX/Equalizer31BandFX.cpp \
+    Dialogs/Equalizer31BandDialog.cpp \
+    BASSFX/ReverbFX.cpp \
+    Dialogs/ReverbDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -49,14 +57,26 @@ HEADERS  += MainWindow.h \
     Widgets/ChannelMixer.h \
     Midi/MidiHelper.h \
     Widgets/LEDVu.h \
-    Widgets/WidgetDialogs/SettingVuDialog.h
+    Widgets/WidgetDialogs/SettingVuDialog.h \
+    Dialogs/MapSoundfontDialog.h \
+    Dialogs/ComboBoxItem.h \
+    Widgets/Slider.h \
+    BASSFX/Equalizer15BandFX.h \
+    Widgets/SwitchButton.h \
+    BASSFX/Equalizer31BandFX.h \
+    Dialogs/Equalizer31BandDialog.h \
+    BASSFX/ReverbFX.h \
+    Dialogs/ReverbDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
     Widgets/ChMx.ui \
     Widgets/RhythmWidget.ui \
     Widgets/ChannelMixer.ui \
-    Widgets/WidgetDialogs/SettingVuDialog.ui
+    Widgets/WidgetDialogs/SettingVuDialog.ui \
+    Dialogs/MapSoundfontDialog.ui \
+    Dialogs/Equalizer31BandDialog.ui \
+    Dialogs/ReverbDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -88,13 +108,16 @@ unix:!macx {
         message("32-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bassmix24-linux/ -lbassmix
     } else {
         message("64-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bassmix24-linux/x64/ -lbassmix
     }
     INCLUDEPATH += $$PWD/BASS/bass24-linux
     INCLUDEPATH += $$PWD/BASS/bassmidi24-linux
+    INCLUDEPATH += $$PWD/BASS/bassmix24-linux
 }
 
 macx {

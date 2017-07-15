@@ -113,17 +113,72 @@ MainWindow::MainWindow(QWidget *parent) :
             player->setLockBass(true, lbNum);
         }
 
-        std::vector<std::string> sfs;
-        sfs.push_back("/home/noob/SoundFont/อำนาจสเตอริโอซาวด์.sf2");
-        //sfs.push_back("/home/noob/SoundFont/SoundFont_2_Drum.sf2");
-
-        player->midiSynthesizer()->setSoundFonts(sfs);
-
         connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
         connect(player, SIGNAL(playingEvents(MidiEvent*)), this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
         connect(player, SIGNAL(bpmChanged(int)), ui->rhmWidget, SLOT(setBpm(int)));
     }
 
+
+    { // Synth
+        MidiSynthesizer *synth = player->midiSynthesizer();
+        // Synth soundfont
+        std::vector<std::string> sfs;
+        QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
+
+        // Synth soundfont volume
+        QList<int> sfvl;
+        int idx=0;
+        settings->beginReadArray("SynthSoundfontsVolume");
+        for (const QString &s : sfList) {
+            sfs.push_back(s.toStdString());
+
+            settings->setArrayIndex(idx);
+            sfvl.append(settings->value("SoundfontVolume", 100).toInt());
+            idx++;
+        }
+        settings->endArray();
+
+        synth->setSoundFonts(sfs);
+        for (int i=0; i<sfvl.size(); i++) {
+            synth->setSoundfontVolume(i, sfvl.at(i) / 100.0f);
+        }
+        // -----------
+
+        // Synth Map soundfont
+        std::vector<int> sfMap = synth->getMapSoundfontIndex();
+        settings->beginReadArray("SynthSoundfontsMap");
+        for (int i=0; i<129; i++) {
+            settings->setArrayIndex(i);
+            sfMap[i] = settings->value("mapTo", 0).toInt();
+        }
+        settings->endArray();
+
+        synth->setMapSoundfontIndex(sfMap);
+
+
+        // Synth EQ
+        Equalizer31BandFX *eq = synth->equalizer31BandFX();
+        std::map<EQFrequency31Range, float> eqgain = eq->gain();
+
+        bool eqon = settings->value("SynthFXEQOn", false).toBool();
+        if (eqon)
+            eq->on();
+
+        int gi =0;
+        settings->beginReadArray("SynthFXEQGain");
+        for (const auto& g : eqgain) {
+            settings->setArrayIndex(gi);
+            float gain = settings->value("gain", 0.0f).toFloat();
+            eq->setGain(g.first, gain);
+            gi++;
+        }
+        settings->endArray();
+
+
+        // Create Synth effect dialog
+        eq31Dlg = new Equalizer31BandDialog(this, eq);
+        eq31Dlg->setWindowTitle("อีควอไลเซอร์");
+    }
 
     //QStringList sfs;
     //sfs << "/home/noob/SOMSAK_2017_V1.SF2";
@@ -221,6 +276,27 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     stop();
+
+    { // Write synth eq settings
+        // Synth EQ
+        Equalizer31BandFX *eq = player->midiSynthesizer()->equalizer31BandFX();
+        std::map<EQFrequency31Range, float> eqgain = eq->gain();
+
+        settings->setValue("SynthFXEQOn", eq->isOn());
+
+        int gi =0;
+        settings->beginWriteArray("SynthFXEQGain");
+        for (const auto& g : eqgain) {
+            settings->setArrayIndex(gi);
+            settings->setValue("gain", g.second);
+            gi++;
+        }
+        settings->endArray();
+    }
+
+    // Delete Synth effect dialog
+    delete eq31Dlg;
+
 
     settings->setValue("MidiVolume", ui->sliderVolume->value());
     if (this->isFullScreen()) {
@@ -728,15 +804,5 @@ void MainWindow::onPlayerThreadFinished()
 
 void MainWindow::onPlayerPlayingEvent(MidiEvent *e)
 {
-    /*if (e->eventType() == MidiEventType::Meta) {
-        //qDebug() << "This is Meta";
-        switch (e->metaEventType()) {
-        case MidiMetaType::TimeSignature:
-            qDebug() << "BPM is " << e->tempoBpm();
-            //ui->rhmWidget->setBpm(e->tempoBpm());
-            break;
-        default:
-            break;
-        }
-    }*/
+
 }

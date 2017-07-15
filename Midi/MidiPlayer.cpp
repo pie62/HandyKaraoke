@@ -167,12 +167,18 @@ void MidiPlayer::setInstrument(int ch, int i)
     else if (i < 0) v = 0;
     else v = i;
 
-    MidiEvent evt;
+    /*MidiEvent evt;
     evt.setChannel(ch);
     evt.setEventType(MidiEventType::ProgramChange);
     evt.setData1(v);
 
-    sendEvent(&evt);
+    sendEvent(&evt);*/
+    if (_midiPortNum == -1) {
+        _midiSynth->sendProgramChange(ch, v);
+    } else {
+        _midiOut->sendProgramChange(ch, v);
+    }
+    _midiChannels[ch].setInstrument(v);
 }
 
 void MidiPlayer::setMute(int ch, bool mute)
@@ -316,10 +322,10 @@ int MidiPlayer::currentBeat()
 }
 
 bool MidiPlayer::isSnareNumber(int num) {
-    if ( (num != 38) || (num != 49) )
-        return false;
-    else
+    if ( (num == 38) || (num == 40) )
         return true;
+    else
+        return false;
 }
 
 bool MidiPlayer::isBassInstrument(int ints) {
@@ -331,9 +337,6 @@ bool MidiPlayer::isBassInstrument(int ints) {
 
 void MidiPlayer::setLockDrum(bool lock, int number)
 {
-    if (lock == _lockDrum)
-        return;
-
     _lockDrum = lock;
     _lockDrumNumber = number;
 
@@ -349,21 +352,19 @@ void MidiPlayer::setLockDrum(bool lock, int number)
 
 void MidiPlayer::setLockSnare(bool lock, int number)
 {
-    if (lock == _lockSnare)
-        return;
-
     if ( !isSnareNumber(number) )
         return;
 
     _lockSnare = lock;
     _lockSnareNumber = number;
+
+    if (_playing) {
+        sendAllNotesOff(9);
+    }
 }
 
 void MidiPlayer::setLockBass(bool lock, int number)
 {
-    if (lock == _lockBass)
-        return;
-
     if ( !isBassInstrument(number) )
         return;
 
@@ -373,10 +374,10 @@ void MidiPlayer::setLockBass(bool lock, int number)
     if (_stopped)
         return;
 
-    for (int i=0; i<16; i++) {
-        if (!isBassInstrument(_midiChannels[i].instrument()))
-            return;
-        if (lock) {
+    if (lock) {
+        for (int i=0; i<16; i++) {
+            if (!isBassInstrument(_midiChannels[i].instrument()))
+                continue;
             MidiEvent ev;
             ev.setEventType(MidiEventType::ProgramChange);
             ev.setChannel(i);
@@ -394,14 +395,16 @@ void MidiPlayer::run()
 
     if (_stopped) {
         sendResetAllControllers();
+        MidiEvent ev;
+        ev.setEventType(MidiEventType::ProgramChange);
+        ev.setChannel(9);
         if (_lockDrum) {
-            MidiEvent ev;
-            ev.setEventType(MidiEventType::ProgramChange);
-            ev.setChannel(9);
             ev.setData1(_lockDrumNumber);
-            sendEvent(&ev);
-            emit playingEvents(&ev);
+        } else {
+            ev.setData1(0);
         }
+        sendEvent(&ev);
+        emit playingEvents(&ev);
     }
 
     _playing = true;
@@ -430,7 +433,8 @@ void MidiPlayer::playEvents()
         if (!_playing)
             break;
 
-        //e = *_midi->events()[i];
+        _playingEventPtr = _midi->events()[i];
+
         if (_midi->events()[i]->eventType() != MidiEventType::Meta) {
 
             long eventTime = _midi->timeFromTick(_midi->events()[i]->tick()) * 1000;
@@ -472,7 +476,7 @@ void MidiPlayer::playEvents()
         _playedIndex = i;
         _positionTick = _midi->events()[i]->tick();
 
-        emit playingEvents(_midi->events()[i]);
+        emit playingEvents(_playingEventPtr);
 
     } // End for loop
 
@@ -533,17 +537,26 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         break;
     }
     case MidiEventType::ProgramChange: {
-        if (e->channel() == 9 && _lockDrum)
-            e->setData1(_lockDrumNumber);
-        if (isBassInstrument(e->data1()) && _lockBass)
-            e->setData1(_lockBassBumber);
+        int programe = e->data1();
+        if (ch == 9 && _lockDrum) {
+            programe = _lockDrumNumber;
+            _tempEvent = *e;
+            _tempEvent.setData1(programe);
+            _playingEventPtr = &_tempEvent;
+        }
+        if (isBassInstrument(e->data1()) && _lockBass) {
+            programe = _lockBassBumber;
+            _tempEvent = *e;
+            _tempEvent.setData1(programe);
+            _playingEventPtr = &_tempEvent;
+        }
 
-        _midiChannels[ch].setInstrument(e->data1());
+        _midiChannels[ch].setInstrument(programe);
 
         if (_midiPortNum == -1) {
-            _midiSynth->sendProgramChange(ch, e->data1());
+            _midiSynth->sendProgramChange(ch, programe);
         } else {
-            _midiOut->sendProgramChange(ch, e->data1());
+            _midiOut->sendProgramChange(ch, programe);
         }
         break;
     }

@@ -4,9 +4,18 @@
 #include "Midi/MidiHelper.h"
 #include "WidgetDialogs/SettingVuDialog.h"
 
+#include <QPainter>
 #include <QToolTip>
 #include <QCursor>
 #include <QSettings>
+
+void BackgroundChMx::paintEvent(QPaintEvent *event)
+{
+    QPainter p(this);
+    p.setBrush(palette().color(QPalette::Text));
+    p.drawRect(rect());
+    p.end();
+}
 
 ChannelMixer::ChannelMixer(QWidget *parent) :
     QWidget(parent),
@@ -78,7 +87,7 @@ ChannelMixer::ChannelMixer(QWidget *parent) :
     connect(ui->cbCh, SIGNAL(currentIndexChanged(int)), this, SLOT(showDeTail(int)));
     connect(ui->chbMuteVoice, SIGNAL(toggled(bool)), this, SLOT(onChbMuteVoiceToggled(bool)));
 
-    connect(ui->cbInts, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIntsCurrentIndexChanged(int)));
+    connect(ui->cbInts, SIGNAL(activated(int)), this, SLOT(onCbIntsActivated(int)));
     connect(ui->dialPan, SIGNAL(valueChanged(int)), this, SLOT(onDialPanValueChanged(int)));
     connect(ui->dialReverb, SIGNAL(valueChanged(int)), this, SLOT(onDialReverbValueChanged(int)));
     connect(ui->dialChorus, SIGNAL(valueChanged(int)), this, SLOT(onDialChorusValueChanged(int)));
@@ -130,7 +139,7 @@ void ChannelMixer::peak(int ch, int value)
 
 void ChannelMixer::showDeTail(int ch)
 {
-    disconnect(ui->cbInts, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIntsCurrentIndexChanged(int)));
+    disconnect(ui->cbInts, SIGNAL(activated(int)), this, SLOT(onCbIntsActivated(int)));
     disconnect(ui->dialPan, SIGNAL(valueChanged(int)), this, SLOT(onDialPanValueChanged(int)));
     disconnect(ui->dialReverb, SIGNAL(valueChanged(int)), this, SLOT(onDialReverbValueChanged(int)));
     disconnect(ui->dialChorus, SIGNAL(valueChanged(int)), this, SLOT(onDialChorusValueChanged(int)));
@@ -158,7 +167,7 @@ void ChannelMixer::showDeTail(int ch)
     ui->dialReverb->setToolTip("เสียงก้อง  " + QString::number(r));
     ui->dialChorus->setToolTip("เสียงประสาน  " + QString::number(c));
 
-    connect(ui->cbInts, SIGNAL(currentIndexChanged(int)), this, SLOT(onCbIntsCurrentIndexChanged(int)));
+    connect(ui->cbInts, SIGNAL(activated(int)), this, SLOT(onCbIntsActivated(int)));
     connect(ui->dialPan, SIGNAL(valueChanged(int)), this, SLOT(onDialPanValueChanged(int)));
     connect(ui->dialReverb, SIGNAL(valueChanged(int)), this, SLOT(onDialReverbValueChanged(int)));
     connect(ui->dialChorus, SIGNAL(valueChanged(int)), this, SLOT(onDialChorusValueChanged(int)));
@@ -233,7 +242,7 @@ void ChannelMixer::onChSoloChanged(int ch, bool s)
     player->setSolo(ch, s);
 }
 
-void ChannelMixer::onCbIntsCurrentIndexChanged(int index)
+void ChannelMixer::onCbIntsActivated(int index)
 {
     if (player == nullptr)
         return;

@@ -6,6 +6,16 @@
 #include "Midi/MidiPlayer.h"
 #include "ChMx.h"
 
+class BackgroundChMx : public QFrame
+{
+    Q_OBJECT
+public:
+    explicit BackgroundChMx(QWidget *parent = 0) : QFrame(parent) {}
+
+protected:
+    void paintEvent(QPaintEvent *event);
+};
+
 namespace Ui {
 class ChannelMixer;
 }
@@ -35,7 +45,7 @@ private slots:
     void onChSliderValueChanged(int ch, int v);
     void onChMuteChanged(int ch, bool m);
     void onChSoloChanged(int ch, bool s);
-    void onCbIntsCurrentIndexChanged(int index);
+    void onCbIntsActivated(int index);
     void onDialPanValueChanged(int value);
     void onDialReverbValueChanged(int value);
     void onDialChorusValueChanged(int value);

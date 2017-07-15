@@ -13,11 +13,6 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">#frame {
-background-color: rgb(62, 65, 73);
-}</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>2</number>
@@ -35,7 +30,7 @@ background-color: rgb(62, 65, 73);
     <number>2</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="BackgroundChMx" name="frame">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -84,6 +79,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -99,6 +97,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -116,6 +117,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -131,6 +135,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -148,6 +155,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -163,6 +173,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -180,6 +193,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -195,6 +211,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -212,6 +231,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -227,6 +249,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -244,6 +269,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -259,6 +287,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -276,6 +307,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -291,6 +325,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -308,6 +345,9 @@ background-color: rgb(62, 65, 73);
           <height>16777215</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -323,6 +363,9 @@ background-color: rgb(62, 65, 73);
           <width>45</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -717,6 +760,12 @@ background-color: rgb(62, 65, 73);
    <class>ChMx</class>
    <extends>QWidget</extends>
    <header>ChMx.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BackgroundChMx</class>
+   <extends>QFrame</extends>
+   <header>ChannelMixer.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

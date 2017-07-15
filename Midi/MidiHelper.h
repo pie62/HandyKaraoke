@@ -15,6 +15,8 @@ public:
     static QStringList GMInstrumentNames();
     static QStringList drumKitNames();
     static QStringList snareName();
+
+    static QStringList instrumentGroupNames();
 };
 
 #endif // MIDIHELPER_H

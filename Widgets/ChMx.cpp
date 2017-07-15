@@ -4,6 +4,7 @@
 #include <QToolTip>
 #include <QCursor>
 
+
 ChMx::ChMx(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ChMx)
@@ -12,10 +13,13 @@ ChMx::ChMx(QWidget *parent) :
 
     ui->vuBar->setMaximumLevel(127);
 
-    btnDefault      = "color: rgb(24, 24, 24);font: bold 10pt;"
+    /*btnDefault      = "color: rgb(24, 24, 24);font: bold 10pt;"
                       "border-radius: 2px;"
                       "border: 1px solid rgb(158, 158, 158);"
-                      "background-color: rgb(245, 245, 245);";
+                      "background-color: rgb(245, 245, 245);";*/
+
+    btnDefault      = "font: bold 10pt; border-radius: 2px;"
+                      "border: 1px solid rgb(158, 158, 158);";
 
     btnMuteStyle    = "color: rgb(255, 255, 255);font: bold 10pt;"
                       "border-radius: 2px;"
@@ -32,10 +36,13 @@ ChMx::ChMx(QWidget *parent) :
     ui->btnMute->setStyleSheet(btnDefault);
     ui->btnSolo->setStyleSheet(btnDefault);
 
+    ui->slider->setMaximumLevel(127);
+    ui->slider->setLevel(100);
+
     connect(ui->lbNumber, SIGNAL(mouseHover()), this, SLOT(onChLabelMouseHover()));
     connect(ui->btnMute, SIGNAL(clicked()), this, SLOT(onBtnMuteClicked()));
     connect(ui->btnSolo, SIGNAL(clicked()), this, SLOT(onBtnSoloClicked()));
-    connect(ui->slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
+    connect(ui->slider, SIGNAL(levelChanged(int)), this, SLOT(onSliderValueChanged(int)));
 }
 
 ChMx::~ChMx()
@@ -73,10 +80,10 @@ void ChMx::setChannelNumber(int ch)
 
 void ChMx::setSliderValue(int v)
 {
-    disconnect(ui->slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
-    ui->slider->setValue(v);
+    disconnect(ui->slider, SIGNAL(levelChanged(int)), this, SLOT(onSliderValueChanged(int)));
+    ui->slider->setLevel(v);
     ui->slider->setToolTip(QString::number(v));
-    connect(ui->slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
+    connect(ui->slider, SIGNAL(levelChanged(int)), this, SLOT(onSliderValueChanged(int)));
 }
 
 void ChMx::peak(int v)
