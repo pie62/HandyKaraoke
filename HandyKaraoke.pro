@@ -31,7 +31,6 @@ SOURCES += main.cpp\
     Widgets/ChannelMixer.cpp \
     Midi/MidiHelper.cpp \
     Widgets/LEDVu.cpp \
-    Widgets/WidgetDialogs/SettingVuDialog.cpp \
     Dialogs/MapSoundfontDialog.cpp \
     Widgets/Slider.cpp \
     BASSFX/Equalizer15BandFX.cpp \
@@ -39,7 +38,12 @@ SOURCES += main.cpp\
     BASSFX/Equalizer31BandFX.cpp \
     Dialogs/Equalizer31BandDialog.cpp \
     BASSFX/ReverbFX.cpp \
-    Dialogs/ReverbDialog.cpp
+    Dialogs/ReverbDialog.cpp \
+    BASSFX/ChorusFX.cpp \
+    Dialogs/ChorusDialog.cpp \
+    Widgets/InstCh.cpp \
+    Dialogs/SynthMixerDialog.cpp \
+    Dialogs/SettingVuDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -57,7 +61,6 @@ HEADERS  += MainWindow.h \
     Widgets/ChannelMixer.h \
     Midi/MidiHelper.h \
     Widgets/LEDVu.h \
-    Widgets/WidgetDialogs/SettingVuDialog.h \
     Dialogs/MapSoundfontDialog.h \
     Dialogs/ComboBoxItem.h \
     Widgets/Slider.h \
@@ -66,17 +69,25 @@ HEADERS  += MainWindow.h \
     BASSFX/Equalizer31BandFX.h \
     Dialogs/Equalizer31BandDialog.h \
     BASSFX/ReverbFX.h \
-    Dialogs/ReverbDialog.h
+    Dialogs/ReverbDialog.h \
+    BASSFX/ChorusFX.h \
+    Dialogs/ChorusDialog.h \
+    Widgets/InstCh.h \
+    Dialogs/SynthMixerDialog.h \
+    Dialogs/SettingVuDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
     Widgets/ChMx.ui \
     Widgets/RhythmWidget.ui \
     Widgets/ChannelMixer.ui \
-    Widgets/WidgetDialogs/SettingVuDialog.ui \
     Dialogs/MapSoundfontDialog.ui \
     Dialogs/Equalizer31BandDialog.ui \
-    Dialogs/ReverbDialog.ui
+    Dialogs/ReverbDialog.ui \
+    Dialogs/ChorusDialog.ui \
+    Widgets/InstCh.ui \
+    Dialogs/SynthMixerDialog.ui \
+    Dialogs/SettingVuDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

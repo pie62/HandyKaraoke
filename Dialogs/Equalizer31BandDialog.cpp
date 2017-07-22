@@ -41,6 +41,9 @@ Equalizer31BandDialog::~Equalizer31BandDialog()
     delete signalUserLevelMapper;
     delete signalLevelMapper;
 
+    sliderMap.clear();
+    lbdbMap.clear();
+
     delete ui;
 }
 
@@ -146,6 +149,8 @@ void Equalizer31BandDialog::onBtnSwitchUserSwitchChanged(bool switchOn)
         eqfx->on();
     else
         eqfx->off();
+
+    emit switchChanged(switchOn);
 }
 
 void Equalizer31BandDialog::onSliderLevelChanged(int sliderIndex)

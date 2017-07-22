@@ -102,7 +102,9 @@ bool MidiPlayer::load(std::string file)
         _midiChannels[i].setPan(64);
         _midiChannels[i].setReverb(0);
         _midiChannels[i].setChorus(0);
+        _midiChannels[i].setInstrumentType(InstrumentType::Piano);
     }
+    _midiChannels[9].setInstrumentType(InstrumentType::PercussionEtc);
     emit loaded();
 
     return true;
@@ -179,6 +181,7 @@ void MidiPlayer::setInstrument(int ch, int i)
         _midiOut->sendProgramChange(ch, v);
     }
     _midiChannels[ch].setInstrument(v);
+    _midiChannels[ch].setInstrumentType(MidiHelper::getInstrumentType(v));
 }
 
 void MidiPlayer::setMute(int ch, bool mute)
@@ -552,6 +555,8 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         }
 
         _midiChannels[ch].setInstrument(programe);
+        if (ch != 9)
+            _midiChannels[ch].setInstrumentType(MidiHelper::getInstrumentType(programe));
 
         if (_midiPortNum == -1) {
             _midiSynth->sendProgramChange(ch, programe);

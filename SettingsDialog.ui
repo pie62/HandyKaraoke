@@ -1316,25 +1316,29 @@
       <rect>
        <x>20</x>
        <y>220</y>
-       <width>131</width>
+       <width>171</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>Map Soundfonts</string>
+      <string>การเลือกใช้ซาวด์ฟ้อนท์</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/Icons/list.png</normaloff>:/Icons/list.png</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="btnEq">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>220</y>
-       <width>88</width>
+       <x>80</x>
+       <y>280</y>
+       <width>111</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>Equalizer</string>
+      <string>อีควอไลเซอร์</string>
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
@@ -1347,17 +1351,17 @@
       </size>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_3">
+    <widget class="QPushButton" name="btnReverb">
      <property name="geometry">
       <rect>
-       <x>300</x>
-       <y>220</y>
-       <width>88</width>
+       <x>210</x>
+       <y>280</y>
+       <width>131</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>Reverb</string>
+      <string>เอฟเฟ็กต์เสียงก้อง</string>
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">
@@ -1370,17 +1374,17 @@
       </size>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="btnChorus">
      <property name="geometry">
       <rect>
-       <x>400</x>
-       <y>220</y>
-       <width>88</width>
+       <x>360</x>
+       <y>280</y>
+       <width>161</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>Chorus</string>
+      <string>เอฟเฟ็กต์เสียงประสาน</string>
      </property>
      <property name="icon">
       <iconset resource="icons.qrc">

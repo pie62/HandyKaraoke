@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Equalizer</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_37">
    <property name="leftMargin">
@@ -2312,15 +2312,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Slider</class>
-   <extends>QFrame</extends>
-   <header>Slider.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>SwitchButton</class>
    <extends>QWidget</extends>
    <header>SwitchButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Slider</class>
+   <extends>QFrame</extends>
+   <header>Slider.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

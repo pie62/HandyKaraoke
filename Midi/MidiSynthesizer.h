@@ -13,10 +13,24 @@
 #include <bassmidi.h>
 
 #include "BASSFX/Equalizer31BandFX.h"
-#include <BASSFX/ReverbFX.h>
+#include "BASSFX/ReverbFX.h"
+#include "BASSFX/ChorusFX.h"
+
+#include "Midi/MidiHelper.h"
 
 #include <vector>
 #include <string>
+#include <map>
+
+
+struct Instrument
+{
+    InstrumentType type;
+    bool mute;
+    bool solo;
+    bool enable;
+    int mixlevel;
+};
 
 
 class MidiSynthesizer
@@ -46,6 +60,7 @@ public:
     bool setMapSoundfontIndex(const std::vector<int> &intrumentSfIndex);
     std::vector<int> getMapSoundfontIndex() { return intmSf; }
 
+
     void sendNoteOff(int ch, int note, int velocity);
     void sendNoteOn(int ch, int note, int velocity);
     void sendNoteAftertouch(int ch, int note, int value);
@@ -58,12 +73,24 @@ public:
     void sendResetAllControllers(int ch);
     void sendResetAllControllers();
 
+
+    // Instrument Maper
+    std::map<InstrumentType, Instrument> instrumentMap() { return instMap; }
+    int mixLevel(InstrumentType t);
+    bool isMute(InstrumentType t);
+    bool isSolo(InstrumentType t);
+    void setMixLevel(InstrumentType t, int level);
+    void setMute(InstrumentType t, bool m);
+    void setSolo(InstrumentType t, bool s);
+
+
     static std::vector<std::string> audioDevices();
     static bool isSoundFontFile(std::string sfile);
 
     // Fx ----------------------
     Equalizer31BandFX* equalizer31BandFX() { return eq; }
     ReverbFX* reverbFX() { return reverb; }
+    ChorusFX* chorusFX() { return chorus; }
     // ------------------------------------------
 
 private:
@@ -71,19 +98,25 @@ private:
     std::vector<HSOUNDFONT> synth_HSOUNDFONT;
     std::vector<std::string> sfFiles;
     std::vector<int> intmSf;
+    std::map<InstrumentType, Instrument> instMap;
+    InstrumentType chInstType[16];
 
     // FX
     Equalizer31BandFX *eq;
     ReverbFX *reverb;
+    ChorusFX *chorus;
     // ---------------------------
 
     float synth_volume = 1.0f;
     bool openned = false;
+    bool useSolo = false;
 
     int ourtDev = -1;
 
     void setSfToStream();
+    void calculateEnable();
     int getDrumChannelFromNote(int drumNote);
+    std::vector<int> getChannelsFromType(InstrumentType t);
 };
 
 #endif // MIDISYNTHESIZER_H

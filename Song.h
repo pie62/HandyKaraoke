@@ -20,14 +20,14 @@ public:
     QString lyrics()    { return sLyrics; }
     QString path()      { return sPath; }
 
-    void setId          (QString id)        { sId = id; }
-    void setName        (QString name)      { sName = name; }
-    void setArtist      (QString artist)    { sArtist = artist; }
-    void setKey         (QString key)       { sKey = key; }
-    void setTempo       (int tempo)         { sTempo = tempo; }
-    void setSongType    (QString type)      { sSongType = type; }
-    void setLyrics      (QString lyr)       { sLyrics = lyr; }
-    void setPath        (QString path)      { sPath = path; }
+    void setId          (const QString &id)     { sId = id; }
+    void setName        (const QString &name)   { sName = name; }
+    void setArtist      (const QString &artist) { sArtist = artist; }
+    void setKey         (const QString &key)    { sKey = key; }
+    void setTempo       (int tempo)             { sTempo = tempo; }
+    void setSongType    (const QString &type)   { sSongType = type; }
+    void setLyrics      (const QString &lyr)    { sLyrics = lyr; }
+    void setPath        (const QString &path)   { sPath = path; }
 
 signals:
 

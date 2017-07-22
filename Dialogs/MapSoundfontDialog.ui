@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Map multiple soundfonts</string>
+   <string>การเลือกใช้ซาวด์ฟ้อนท์</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

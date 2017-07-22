@@ -62,27 +62,21 @@ private slots:
     void on_btnCurBorderColor_clicked();
     void onSpinCurBorderWidthValueChanged(int arg1);
 
+
+    // Synth tab
     void on_btnSfEdit_clicked();
-
     void on_btnSfFinish_clicked();
-
     void on_btnSfAdd_clicked();
-
     void on_btnSfRemove_clicked();
-
     void on_btnSfUp_clicked();
-
     void on_btnSfDown_clicked();
-
     void on_btnSfCancel_clicked();
-
     void onSliderSfValueChanged(int value);
-
     void onListSfCurrentRowChanged(int currentRow);
-
     void on_btnSfMap_clicked();
-
     void on_btnEq_clicked();
+    void on_btnReverb_clicked();
+    void on_btnChorus_clicked();
 
 private:
     Ui::SettingsDialog *ui;

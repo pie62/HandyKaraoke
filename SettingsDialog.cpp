@@ -149,6 +149,16 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         else
             ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
 
+        if (synth->reverbFX()->isOn())
+            ui->btnReverb->setIcon(QIcon(":/Icons/circle_green.png"));
+        else
+            ui->btnReverb->setIcon(QIcon(":/Icons/circle_red.png"));
+
+        if (synth->chorusFX()->isOn())
+            ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
+        else
+            ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));
+
 
         connect(ui->sliderSfVolume, SIGNAL(valueChanged(int)),
                    this, SLOT(onSliderSfValueChanged(int)));
@@ -200,7 +210,7 @@ void SettingsDialog::initDeviceTab()
     for (std::string d : MidiPlayer::midiDevices()) {
         ui->cbMidiOut->addItem(QString::fromStdString(d));
     }
-    ui->cbMidiOut->addItem("MIDI synthesizer (SoundFont)");
+    ui->cbMidiOut->addItem("MIDI Synthesizer (SoundFont)");
     if (dfd == -1)
         ui->cbMidiOut->setCurrentIndex( ui->cbMidiOut->count() - 1 );
     else
@@ -392,7 +402,7 @@ void SettingsDialog::on_cbMidiOut_activated(int index)
 {
     mainWin->stop();
 
-    if (ui->cbMidiOut->currentText() == "SoundFont") {
+    if (index == (ui->cbMidiOut->count() - 1)) {
         settings->setValue("MidiOut", -1);
         mainWin->midiPlayer()->setMidiOut(-1);
     } else {
@@ -808,6 +818,7 @@ void SettingsDialog::on_btnEq_clicked()
         return;
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+
     Equalizer31BandDialog eqdlg(this, synth->equalizer31BandFX());
     eqdlg.setModal(true);
     eqdlg.adjustSize();
@@ -819,4 +830,44 @@ void SettingsDialog::on_btnEq_clicked()
         ui->btnEq->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
+}
+
+void SettingsDialog::on_btnReverb_clicked()
+{
+    if (mainWin->reverbDialog()->isVisible())
+        return;
+
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+
+    ReverbDialog rvDlg(this, synth->reverbFX());
+    rvDlg.setModal(true);
+    rvDlg.adjustSize();
+    rvDlg.setFixedSize(rvDlg.size());
+    rvDlg.setWindowTitle(mainWin->reverbDialog()->windowTitle());
+    rvDlg.exec();
+
+    if (synth->reverbFX()->isOn())
+        ui->btnReverb->setIcon(QIcon(":/Icons/circle_green.png"));
+    else
+        ui->btnReverb->setIcon(QIcon(":/Icons/circle_red.png"));
+}
+
+void SettingsDialog::on_btnChorus_clicked()
+{
+    if (mainWin->chorusDialog()->isVisible())
+        return;
+
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+
+    ChorusDialog crDlg(this, synth->chorusFX());
+    crDlg.setModal(true);
+    crDlg.adjustSize();
+    crDlg.setFixedSize(crDlg.size());
+    crDlg.setWindowTitle(mainWin->chorusDialog()->windowTitle());
+    crDlg.exec();
+
+    if (synth->chorusFX()->isOn())
+        ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
+    else
+        ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));
 }

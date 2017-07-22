@@ -238,3 +238,202 @@ QStringList MidiHelper::instrumentGroupNames()
 
     return gn;
 }
+
+InstrumentType MidiHelper::getInstrumentDrumType(int drumNote)
+{
+    InstrumentType t;
+
+    switch (drumNote) {
+
+    // Bass drum
+    case 35:
+    case 36: t = InstrumentType::BassDrum; break;
+
+    // snare
+    case 38:
+    case 40: t = InstrumentType::Snare; break;
+
+    // Side Stick/Rimshot
+    case 37: t = InstrumentType::SideStick; break;
+
+    // Low Tom
+    case 41:
+    case 43: t = InstrumentType::LowTom; break;
+
+    // Mid Tom
+    case 45:
+    case 47: t = InstrumentType::MidTom; break;
+
+    // High Tom
+    case 48:
+    case 50: t = InstrumentType::HighTom; break;
+
+    // Hi-hat
+    case 42:
+    case 44:
+    case 46: t = InstrumentType::Hihat; break;
+
+    // Cowbell
+    case 56: t = InstrumentType::Cowbell; break;
+
+    // Crash Cymbal ( 55 = Splash Cymbal )
+    case 49:
+    case 55:
+    case 57: t = InstrumentType::CrashCymbal; break;
+
+    // Ride Cymbal
+    case 51:
+    case 59: t = InstrumentType::RideCymbal; break;
+
+    // Bongo
+    case 60:
+    case 61: t = InstrumentType::Bongo; break;
+
+    // Conga
+    case 62:
+    case 63:
+    case 64: t = InstrumentType::Conga; break;
+
+    // Timbale
+    case 65:
+    case 66: t = InstrumentType::Timbale; break;
+
+    // ฉิ่ง
+    case 80:
+    case 81: t = InstrumentType::SmallCupShapedCymbals; break;
+
+    // Chinese Cymbal ( ฉาบ )
+    case 52: t = InstrumentType::ChineseCymbal; break;
+
+    default:
+        t = InstrumentType::PercussionEtc;
+        break;
+    }
+
+    return t;
+}
+
+InstrumentType MidiHelper::getInstrumentType(int instNumber)
+{
+    InstrumentType t;
+
+    switch (instNumber) {
+
+    case 0: case 1: case 2: case 3:
+    case 4: case 5: case 6: case 7:
+        t = InstrumentType::Piano;
+        break;
+
+    case 8: case 9: case 10: case 11:
+    case 12: case 13: case 14: case 15:
+        t = InstrumentType::ChromaticPercussion;
+        break;
+
+    case 16: case 17: case 18: case 19: case 20:
+        t = InstrumentType::Organ;
+        break;
+
+    case 21: case 22: case 23:
+        t = InstrumentType::Accordion;
+        break;
+
+    case 24:
+        t = InstrumentType::AcousticGuitarNylon;
+        break;
+
+    case 25:
+        t= InstrumentType::AcousticGuitarSteel;
+        break;
+
+    case 26:
+        t = InstrumentType::ElectricGuitarJazz;
+        break;
+
+    case 27: case 28:
+        t = InstrumentType::ElectricGuitarClean;
+        break;
+
+    case 29:
+        t = InstrumentType::OverdrivenGuitar;
+        break;
+
+    case 30:
+        t = InstrumentType::DistortionGuitar;
+        break;
+
+    case 31:
+        t = InstrumentType::HarmonicsGuitar;
+        break;
+
+    case 32: case 33: case 34: case 35:
+    case 36: case 37: case 38: case 39:
+        t = InstrumentType::Bass;
+        break;
+
+    case 40: case 41: case 42: case 43:
+    case 44: case 45: case 46: case 47:
+        t = InstrumentType::Strings;
+        break;
+
+    case 48: case 49: case 50: case 51:
+    case 52: case 53: case 54: case 55:
+        t = InstrumentType::Ensemble;
+        break;
+
+    case 56:
+        t = InstrumentType::Trumpet;
+        break;
+
+    case 57: case 58: case 59: case 60: case 61:
+        t = InstrumentType::Brass;
+        break;
+
+    case 62: case 63:
+        t = InstrumentType::SynthBrass;
+        break;
+
+    case 64: case 65: case 66: case 67:
+        t = InstrumentType::Saxophone;
+        break;
+
+    case 68: case 69: case 70: case 71:
+        t = InstrumentType::Reed;
+        break;
+
+    case 72: case 73: case 74: case 75:
+    case 76: case 77: case 78: case 79:
+        t = InstrumentType::Pipe;
+        break;
+
+    case 80: case 81: case 82: case 83:
+    case 84: case 85: case 86: case 87:
+        t= InstrumentType::SynthLead;
+        break;
+
+    case 88: case 89: case 90: case 91:
+    case 92: case 93: case 94: case 95:
+        t= InstrumentType::SynthPad;
+        break;
+
+    case 96: case 97: case 98: case 99:
+    case 100: case 101: case 102: case 103:
+        t = InstrumentType::SynthEffects;
+        break;
+
+    case 104: case 105: case 106: case 107:
+    case 108: case 109: case 110: case 111:
+        t = InstrumentType::Ethnic;
+        break;
+
+    case 112: case 113: case 114: case 115:
+    case 116: case 117: case 118: case 119:
+        t = InstrumentType::Percussive;
+        break;
+
+    default:
+        t = InstrumentType::SoundEffects;
+        break;
+    }
+
+    return t;
+}

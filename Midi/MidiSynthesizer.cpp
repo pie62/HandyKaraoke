@@ -11,6 +11,28 @@ MidiSynthesizer::MidiSynthesizer()
 
     eq = new Equalizer31BandFX(0);
     reverb = new ReverbFX(0);
+    chorus = new ChorusFX(0);
+
+
+    // Map inst
+    for (int i=0; i<42; i++)
+    {
+        InstrumentType t = static_cast<InstrumentType>(i);
+        Instrument im;
+        im.type = t;
+        im.mute = false;
+        im.solo = false;
+        im.enable = true;
+        im.mixlevel = 100;
+
+        instMap[t] = im;
+    }
+
+    for (int i=0; i<16; i++)
+    {
+        chInstType[i] = InstrumentType::Piano;
+    }
+    chInstType[9] = InstrumentType::PercussionEtc;
 }
 
 MidiSynthesizer::~MidiSynthesizer()
@@ -19,15 +41,13 @@ MidiSynthesizer::~MidiSynthesizer()
         close();
 
     // Fx ------------
-    if (eq->isOn())
-        eq->off();
     delete eq;
-
-    if (reverb->isOn())
-        reverb->off();
     delete reverb;
+    delete chorus;
 
     // --------------
+
+    instMap.clear();
 
     sfFiles.clear();
     intmSf.clear();
@@ -75,6 +95,7 @@ bool MidiSynthesizer::open()
     // Set stream to Fx
     eq->setStreamHandle(stream);
     reverb->setStreamHandle(stream);
+    chorus->setStreamHandle(stream);
 
 
     openned = true;
@@ -89,6 +110,7 @@ void MidiSynthesizer::close()
 
     eq->setStreamHandle(0);
     reverb->setStreamHandle(0);
+    chorus->setStreamHandle(0);
 
 
     BASS_ChannelStop(stream);
@@ -316,8 +338,16 @@ void MidiSynthesizer::sendProgramChange(int ch, int number)
             BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_PROGRAM, number);
         }
     }
-    else
+    else {
+        InstrumentType t = MidiHelper::getInstrumentType(number);
+        chInstType[ch] = t;
         BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_PROGRAM, number);
+
+        if (instMap[t].enable)
+            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[t].mixlevel);
+        else
+            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, 0);
+    }
 }
 
 void MidiSynthesizer::sendChannelAftertouch(int ch, int value)
@@ -375,6 +405,101 @@ void MidiSynthesizer::sendResetAllControllers()
 {
     for (int i=0; i<16; i++) {
         sendResetAllControllers(i);
+    }
+}
+
+int MidiSynthesizer::mixLevel(InstrumentType t)
+{
+    return instMap[t].mixlevel;
+}
+
+bool MidiSynthesizer::isMute(InstrumentType t)
+{
+    return instMap[t].mute;
+}
+
+bool MidiSynthesizer::isSolo(InstrumentType t)
+{
+    return instMap[t].solo;
+}
+
+void MidiSynthesizer::setMixLevel(InstrumentType t, int level)
+{
+    if (level > 200)
+        instMap[t].mixlevel = 200;
+    else if (level < 0)
+        instMap[t].mixlevel = 0;
+    else
+        instMap[t].mixlevel = level;
+
+    if (!openned)
+        return;
+
+    if (!instMap[t].enable)
+        return;
+
+    for (const int &ch : getChannelsFromType(t))
+    {
+        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[t].mixlevel);
+    }
+}
+
+void MidiSynthesizer::setMute(InstrumentType t, bool m)
+{
+    if (m == instMap[t].mute)
+        return;
+
+    instMap[t].mute = m;
+    calculateEnable();
+
+    if (!openned)
+        return;
+
+    for (const int &ch : getChannelsFromType(t))
+    {
+        if (m)
+            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, 0);
+        else
+            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[t].mixlevel);
+    }
+}
+
+void MidiSynthesizer::setSolo(InstrumentType t, bool s)
+{
+    if (s == instMap[t].solo)
+        return;
+
+    instMap[t].solo = s;
+
+    bool us = false;
+    for (const auto &im : instMap) {
+        Instrument i = im.second;
+        if (i.solo) {
+            us = true;
+            break;
+        }
+    }
+    useSolo = us;
+
+    calculateEnable();
+
+    if (!openned)
+        return;
+
+    for (const auto &im : instMap) {
+
+        Instrument i = im.second;
+        //if (i.enable)
+        //    continue;
+
+        for (const int &ch : getChannelsFromType(i.type))
+        {
+            if (i.enable)
+                BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[i.type].mixlevel);
+            else
+                BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, 0);
+        }
+
     }
 }
 
@@ -436,6 +561,27 @@ void MidiSynthesizer::setSfToStream()
     intmSf.clear();
     for (int i=0; i<129; i++) {
         intmSf.push_back(0);
+    }
+}
+
+void MidiSynthesizer::calculateEnable()
+{
+    for (const auto & im : instMap) {
+        Instrument i = im.second;
+        if (useSolo) {
+            if (i.mute)
+                instMap[i.type].enable = false;
+            else if (i.solo)
+                instMap[i.type].enable = true;
+            else
+                instMap[i.type].enable = false;
+        }
+        else {
+            if (i.mute)
+                instMap[i.type].enable = false;
+            else
+                instMap[i.type].enable = true;
+        }
     }
 }
 
@@ -510,4 +656,69 @@ int MidiSynthesizer::getDrumChannelFromNote(int drumNote)
     }
 
     return ch;
+}
+
+std::vector<int> MidiSynthesizer::getChannelsFromType(InstrumentType t)
+{
+    std::vector<int> r;
+
+    switch (t) {
+    case InstrumentType::BassDrum:
+        r.push_back(16);
+        break;
+    case InstrumentType::Snare:
+        r.push_back(17);
+        break;
+    case InstrumentType::SideStick:
+        r.push_back(18);
+        break;
+    case InstrumentType::LowTom:
+        r.push_back(19);
+        break;
+    case InstrumentType::MidTom:
+        r.push_back(20);
+        break;
+    case InstrumentType::HighTom:
+        r.push_back(21);
+        break;
+    case InstrumentType::Hihat:
+        r.push_back(22);
+        break;
+    case InstrumentType::Cowbell:
+        r.push_back(23);
+        break;
+    case InstrumentType::CrashCymbal:
+        r.push_back(24);
+        break;
+    case InstrumentType::RideCymbal:
+        r.push_back(25);
+        break;
+    case InstrumentType::Bongo:
+        r.push_back(26);
+        break;
+    case InstrumentType::Conga:
+        r.push_back(27);
+        break;
+    case InstrumentType::Timbale:
+        r.push_back(28);
+        break;
+    case InstrumentType::SmallCupShapedCymbals:
+        r.push_back(29);
+        break;
+    case InstrumentType::ChineseCymbal:
+        r.push_back(30);
+        break;
+    case InstrumentType::PercussionEtc:
+        r.push_back(31);
+        break;
+    default: {
+        for (int i=0; i<16; i++) {
+            if (chInstType[i] != t)
+                continue;
+            r.push_back(i);
+        }
+    }
+    }
+
+    return r;
 }

@@ -6,7 +6,10 @@
 #include <LyricsWidget.h>
 #include <ChannelMixer.h>
 
+#include "Dialogs/SynthMixerDialog.h"
 #include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/ReverbDialog.h"
+#include "Dialogs/ChorusDialog.h"
 
 #include <QMainWindow>
 #include <QTimer>
@@ -41,8 +44,12 @@ public:
     void setBackgroundColor(QString colorName);
     void setBackgroundImage(QString img);
 
+    // Synth Mixer
+    SynthMixerDialog* synthMixerDialog() { return synthMix; }
     // Synth effect dialog
     Equalizer31BandDialog* equalizer31BandDialog() { return eq31Dlg; }
+    ReverbDialog* reverbDialog() { return reverbDlg; }
+    ChorusDialog* chorusDialog() { return chorusDlg; }
 
 public slots:
     void play(int index);
@@ -83,8 +90,12 @@ private:
 
     QLocale locale;
 
+    // Synth Mixer
+    SynthMixerDialog *synthMix;
     // Synth effect dialog
     Equalizer31BandDialog *eq31Dlg;
+    ReverbDialog *reverbDlg;
+    ChorusDialog *chorusDlg;
 
 
 private slots:

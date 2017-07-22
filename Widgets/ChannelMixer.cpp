@@ -2,7 +2,7 @@
 #include "ui_ChannelMixer.h"
 
 #include "Midi/MidiHelper.h"
-#include "WidgetDialogs/SettingVuDialog.h"
+#include "Dialogs/SettingVuDialog.h"
 
 #include <QPainter>
 #include <QToolTip>

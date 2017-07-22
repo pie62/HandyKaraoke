@@ -1,6 +1,7 @@
 #ifndef CHANNEL_H
 #define CHANNEL_H
 
+#include "Midi/MidiHelper.h"
 
 class Channel
 {
@@ -13,6 +14,7 @@ class Channel
     int cInstrument;
     bool cMute;
     bool cSolo;
+    InstrumentType cInstType;
 
 public:
     Channel();
@@ -27,6 +29,7 @@ public:
     int instrument(){ return cInstrument; }
     bool isMute()   { return cMute; }
     bool isSolo()   { return cSolo; }
+    InstrumentType instrumentType() { return cInstType; }
 
     void setPort(int port)  { cPort = port; }
     void setNumber(int n)   { cNumber = n; }
@@ -37,6 +40,7 @@ public:
     void setInstrument(int i) { cInstrument = i; }
     void setMute(bool m)    { cMute = m; }
     void setSolo(bool s)    { cSolo = s; }
+    void setInstrumentType(InstrumentType t) { cInstType = t; }
 };
 
 #endif // CHANNEL_H

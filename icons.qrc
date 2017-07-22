@@ -20,5 +20,47 @@
         <file>Icons/circle_green.png</file>
         <file>Icons/circle_red.png</file>
         <file>Icons/pencil_yellow.png</file>
+        <file>Icons/Instruments/Accordion.png</file>
+        <file>Icons/Instruments/Bass.png</file>
+        <file>Icons/Instruments/Bongo.png</file>
+        <file>Icons/Instruments/Brass.png</file>
+        <file>Icons/Instruments/Chab.png</file>
+        <file>Icons/Instruments/Ching.png</file>
+        <file>Icons/Instruments/Chromatic Percussion.png</file>
+        <file>Icons/Instruments/Clean.png</file>
+        <file>Icons/Instruments/Conga.png</file>
+        <file>Icons/Instruments/Cowbell.png</file>
+        <file>Icons/Instruments/Crash.png</file>
+        <file>Icons/Instruments/Distortion.png</file>
+        <file>Icons/Instruments/Ensemble.png</file>
+        <file>Icons/Instruments/Ethnic.png</file>
+        <file>Icons/Instruments/FX.png</file>
+        <file>Icons/Instruments/Harmonics.png</file>
+        <file>Icons/Instruments/High Tom.png</file>
+        <file>Icons/Instruments/Hihat.png</file>
+        <file>Icons/Instruments/Jazz.png</file>
+        <file>Icons/Instruments/Kick.png</file>
+        <file>Icons/Instruments/Low Tom.png</file>
+        <file>Icons/Instruments/Mid Tom.png</file>
+        <file>Icons/Instruments/Nylon.png</file>
+        <file>Icons/Instruments/Organ.png</file>
+        <file>Icons/Instruments/Overdriven.png</file>
+        <file>Icons/Instruments/Percussion Etc.png</file>
+        <file>Icons/Instruments/Percussive.png</file>
+        <file>Icons/Instruments/Piano.png</file>
+        <file>Icons/Instruments/Pipe.png</file>
+        <file>Icons/Instruments/Reed.png</file>
+        <file>Icons/Instruments/Ride.png</file>
+        <file>Icons/Instruments/Saxophone.png</file>
+        <file>Icons/Instruments/Side Stick.png</file>
+        <file>Icons/Instruments/Snare.png</file>
+        <file>Icons/Instruments/Steel.png</file>
+        <file>Icons/Instruments/Strings.png</file>
+        <file>Icons/Instruments/Synth Brass.png</file>
+        <file>Icons/Instruments/Synth Effects.png</file>
+        <file>Icons/Instruments/Synth Lead.png</file>
+        <file>Icons/Instruments/Synth Pad.png</file>
+        <file>Icons/Instruments/Timbale.png</file>
+        <file>Icons/Instruments/Trumpet.png</file>
     </qresource>
 </RCC>

@@ -22,6 +22,9 @@ public:
     explicit Equalizer31BandDialog(QWidget *parent = 0, Equalizer31BandFX *eqfx = nullptr);
     ~Equalizer31BandDialog();
 
+signals:
+    void switchChanged(bool s);
+
 private slots:
     void mapLabelDb();
     void mapSlider();
