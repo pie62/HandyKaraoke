@@ -1,7 +1,6 @@
 #include "MidiSynthesizer.h"
 
 #include <thread>
-#include <QDebug>
 
 MidiSynthesizer::MidiSynthesizer()
 {
@@ -68,8 +67,6 @@ bool MidiSynthesizer::open()
 
     //BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
     BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
-
-    qDebug() << "Synth buffer " << BASS_GetConfig(BASS_CONFIG_BUFFER);
 
     auto concurentThreadsSupported = std::thread::hardware_concurrency();
     float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;

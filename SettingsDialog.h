@@ -78,6 +78,8 @@ private slots:
     void on_btnReverb_clicked();
     void on_btnChorus_clicked();
 
+    void on_btnClose_clicked();
+
 private:
     Ui::SettingsDialog *ui;
     MainWindow *mainWin;

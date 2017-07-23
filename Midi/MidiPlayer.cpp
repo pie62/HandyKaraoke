@@ -61,17 +61,18 @@ bool MidiPlayer::setMidiOut(int portNumer)
     return result;
 }
 
-bool MidiPlayer::load(std::string file)
+bool MidiPlayer::load(std::string file, bool seekFileChunkID)
 {
     if (!_stopped)
         stop();
 
-    if (!_midi->read(file))
+    if (!_midi->read(file, seekFileChunkID))
         return false;
 
     MidiEvent *e = _midi->events().back();
     _durationTick = e->tick();
     _durationMs = _midi->timeFromTick(e->tick()) * 1000;
+    _midiTranspose = 0;
 
     _finished = false;
 
@@ -306,6 +307,22 @@ void MidiPlayer::setPositionTick(int t)
     _playedIndex = index;
     if (playAfterSeek)
         start();
+}
+
+void MidiPlayer::setTranspose(int t)
+{
+    if (_midiTranspose == -12 || _midiTranspose == 12)
+        return;
+
+    _midiTranspose = t;
+
+    if (_playing) {
+        for (int i=0; i<16; i++) {
+            if (i == 9)
+                continue;
+            sendAllNotesOff(i);
+        }
+    }
 }
 
 int MidiPlayer::positionTick()

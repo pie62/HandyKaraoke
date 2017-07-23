@@ -86,7 +86,7 @@ uint32_t readVariableLengthQuantity(std::ifstream *in) {
     return value;
 }
 
-bool MidiFile::read(std::string filename) {
+bool MidiFile::read(const std::string &filename, bool seekFileChunkID) {
 
     if (!fileExists(filename))
         return false;
@@ -102,8 +102,8 @@ bool MidiFile::read(std::string filename) {
 
     in.read((char*)chunkID, 4);
 
-    if (memcmp(chunkID, "MThd", 4) != 0) {
-        if (memcmp(chunkID, "Lock", 4) != 0) {
+    if (seekFileChunkID == false) {
+        if (memcmp(chunkID, "MThd", 4) != 0) {
             std::cout << "File chunk ID is invalid. " << chunkID << std::endl;
             return false;
         }

@@ -2,10 +2,13 @@
 #include "ui_MainWindow.h"
 
 #include "SettingsDialog.h"
+#include "Dialogs/AboutDialog.h"
 #include "Midi/MidiFile.h"
 
 #include <QTime>
 #include <QMenu>
+#include <QCloseEvent>
+#include <QMessageBox>
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
@@ -16,16 +19,25 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     lyrWidget = new LyricsWidget(this);
+    updateDetail = new Detail(this);
 
     ui->setupUi(this);
 
     settings = new QSettings();
     db = new SongDatabase();
+
     timer1 = new QTimer(this);
     timer2 = new QTimer(this);
+    timer2->setSingleShot(true);
 
     positionTimer = new QTimer();
     positionTimer->setInterval(30);
+
+    detailTimer = new QTimer(this);
+    detailTimer->setSingleShot(true);
+
+    songDetailTimer = new QTimer(this);
+    songDetailTimer->setSingleShot(true);
 
     player = new MidiPlayer();
 
@@ -114,7 +126,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
 
         connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
-        connect(player, SIGNAL(playingEvents(MidiEvent*)), this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
         connect(player, SIGNAL(bpmChanged(int)), ui->rhmWidget, SLOT(setBpm(int)));
     }
 
@@ -225,38 +236,22 @@ MainWindow::MainWindow(QWidget *parent) :
         // Create Synth effect dialog
         eq31Dlg = new Equalizer31BandDialog(this, eq);
         eq31Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
+        eq31Dlg->adjustSize();
+        eq31Dlg->setFixedSize(eq31Dlg->size());
 
         reverbDlg = new ReverbDialog(this, reverb);
         reverbDlg->setWindowTitle("เอฟเฟ็กต์เสียงก้อง : Reverb");
+        reverbDlg->adjustSize();
+        reverbDlg->setFixedSize(reverbDlg->size());
 
         chorusDlg = new ChorusDialog(this, chorus);
         chorusDlg->setWindowTitle("เอฟเฟ็กต์เสียงประสาน : Chorus");
+        chorusDlg->adjustSize();
+        chorusDlg->setFixedSize(chorusDlg->size());
 
         // Create synth mixer
         synthMix = new SynthMixerDialog(this, this);
     }
-
-    //QStringList sfs;
-    //sfs << "/home/noob/SOMSAK_2017_V1.SF2";
-    //player->setSoundFonts(sfs);
-
-    // Test
-    //connect(player, SIGNAL(positionChanged(int)), ui->sliderPosition, SLOT(setValue(int)));
-    //connect(player, SIGNAL(positionChanged(int)), lyrics, SLOT(setCursorPosition(int)));
-    //connect(player, SIGNAL(durationChanged(int)), this, SLOT(onPlayerDurationTickChanged(int)));
-    //connect(player, SIGNAL(durationMSChanged(qint64)), this, SLOT(onPlayerDurationMSChanged(qint64)));
-    //connect(player, SIGNAL(positionMSChanged(qint64)), this, SLOT(onPlayerpositionMSChanged(qint64)));
-    /*connect(player, SIGNAL(finished()), this, SLOT(onPlayerFinished()));
-    connect(ui->btnPause, SIGNAL(clicked()), this, SLOT(pause()));
-    connect(ui->btnStop, SIGNAL(clicked()), this, SLOT(stop()));
-    connect(ui->btnNext, SIGNAL(clicked()), this, SLOT(playNext()));
-    connect(ui->btnPrevious, SIGNAL(clicked()), this, SLOT(playPrevious()));
-    //connect(ui->sliderPosition, SIGNAL(sliderMoved(int)), player, SLOT(setPosition(int)));
-    connect(ui->sliderPosition, SIGNAL(sliderPressed()), this, SLOT(onSliderPositionPressed()));
-    connect(ui->sliderPosition, SIGNAL(sliderReleased()), this, SLOT(onSliderPositionReleased()));
-
-    connect(ui->sliderVolume, SIGNAL(valueChanged(int)), this, SLOT(onSliderVolumeValueChanged(int)));
-    */
 
 
     { // Lyrics
@@ -277,7 +272,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         int     line1Y  = settings->value("LyricsLine1Y", 320).toInt();
         int     line2Y  = settings->value("LyricsLine2Y", 170).toInt();
-        int     aTime   = settings->value("LyricsAnimationTime", 300).toInt();
+        int     aTime   = settings->value("LyricsAnimationTime", 250).toInt();
 
         QFont f;
         f.setFamily(family);
@@ -303,14 +298,29 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     { // Init UI
+        setWindowIcon(QIcon(":/Icons/App/icon.svg"));
+
+        updateDetail->hide();
+        updateDetail->resize(250, 60);
+        updateDetail->setText("กำลังปรับปรุงฐานข้อมูล");
+
+        ui->detail->hide();
         ui->frameSearch->hide();
         ui->framePlaylist->hide();
+        ui->songDetail->hide();
         ui->sliderVolume->setValue(player->volume());
+
+        connect(db, SIGNAL(updateStarted()), updateDetail, SLOT(show()));
+        connect(db, SIGNAL(updateFinished()), updateDetail, SLOT(hide()));
+        connect(db, SIGNAL(updatePositionChanged(int)), this, SLOT(onDbUpdateChanged(int)));
 
         connect(timer2, SIGNAL(timeout()), ui->frameSearch, SLOT(hide()));
         connect(timer2, SIGNAL(timeout()), ui->framePlaylist, SLOT(hide()));
         connect(timer1, SIGNAL(timeout()), this, SLOT(showCurrentTime()));
         connect(positionTimer, SIGNAL(timeout()), this, SLOT(onPositiomTimerTimeOut()));
+
+        connect(detailTimer, SIGNAL(timeout()), this, SLOT(onDetailTimerTimeout()));
+        connect(songDetailTimer, SIGNAL(timeout()), ui->songDetail, SLOT(hide()));
 
         connect(ui->btnPause, SIGNAL(clicked()), this, SLOT(pause()));
         connect(ui->btnStop, SIGNAL(clicked()), this, SLOT(stop()));
@@ -400,13 +410,19 @@ MainWindow::~MainWindow()
     }
 
     delete player;
+
+    delete songDetailTimer;
+    delete detailTimer;
+
     delete positionTimer;
     delete timer2;
     delete timer1;
+
     delete db;
     delete settings;
     delete ui;
 
+    delete updateDetail;
     delete lyrWidget;
 }
 
@@ -486,7 +502,7 @@ void MainWindow::play(int index)
         }
     }
 
-    player->load(p.toStdString());
+    player->load(p.toStdString(), true);
 
     QFile f(curPath);
     lyrWidget->setLyrics(playingSong.lyrics(), readCurFile(&f, player->midiFile()->resorution()));
@@ -495,6 +511,12 @@ void MainWindow::play(int index)
 
     // RHM
     ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
+
+    // SongDetail
+    ui->songDetail->setDetail(&playingSong);
+    ui->songDetail->adjustSize();
+    ui->songDetail->show();
+    songDetailTimer->start(5000);
 
     player->start();
     lyrWidget->show();
@@ -556,12 +578,91 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         QMainWindow::resizeEvent(event);
     }
     lyrWidget->resize(ui->centralWidget->size());
+    updateDetail->move(width() - 260, 70);
     emit resized(event->size());
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton resBtn = QMessageBox::question(
+                                            this, "ออกจากโปรแกรม",
+                                            "ท่านต้องการออกจากโปรแกรม?",
+                                            QMessageBox::Yes|QMessageBox::No);
+    if (resBtn != QMessageBox::Yes) {
+        event->ignore();
+    } else {
+        event->accept();
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if (event->modifiers() & Qt::ControlModifier) {
+        switch (event->key()) {
+        case Qt::Key_Up:
+            ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
+            break;
+        case Qt::Key_Down:
+            ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
+            break;
+        default:
+            break;
+        }
+        return;
+    }
+
     switch (event->key()) {
+    case Qt::Key_F5: {
+        if (player->isPlayerPaused())
+            resume();
+        else
+            play(-1);
+        break;
+    }
+    case Qt::Key_F6: {
+        pause();
+        break;
+    }
+    case Qt::Key_F7: {
+        stop();
+        break;
+    }
+    case Qt::Key_F8: {
+        playPrevious();
+        break;
+    }
+    case Qt::Key_F9: {
+        playNext();
+        break;
+    }
+    case Qt::Key_Insert: {
+        player->setTranspose(player->transpose()+1);
+        int trp = player->transpose();
+        QString t;
+        if (trp > 0) t = "+" + QString::number(trp);
+        else t = QString::number(trp);
+        ui->detail->setDetail("คีย์เพลง ", t);
+        ui->detail->show();
+        detailTimer->start(3000);
+        if (this->width() < 1150 && ui->chMix->isVisible()) {
+            ui->lcdTime->hide();
+        }
+        break;
+    }
+    case Qt::Key_Delete: {
+        player->setTranspose(player->transpose()-1);
+        int trp = player->transpose();
+        QString t;
+        if (trp > 0) t = "+" + QString::number(trp);
+        else t = QString::number(trp);
+        ui->detail->setDetail("คีย์เพลง ", t);
+        ui->detail->show();
+        detailTimer->start(3000);
+        if (this->width() < 1150 && ui->chMix->isVisible()) {
+            ui->lcdTime->hide();
+        }
+        break;
+    }
     case Qt::Key_PageUp:
         if (ui->playlist->isVisible()) {
             int i = ui->playlist->currentRow();
@@ -702,6 +803,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             play(ui->playlist->currentRow());
         }
         break;
+    case Qt::Key_Space:
+        if (ui->frameSearch->isHidden()) {
+            ui->framePlaylist->hide();
+            ui->songDetail->show();
+            songDetailTimer->start(5000);
+            break;
+        }
     default:
         if (ui->frameSearch->isVisible()) {
             QString s = ui->lbSearch->text();
@@ -748,18 +856,14 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     QAction actionSettings("ตั้งค่า", this);
     QAction actionShowHideChMix("ช่องสัญญาณมิกเซอร์ (แสดง/ซ่อน)", this);
-    QAction actionShowSynthMixDlg("Synth Mixer", this);
+    QAction actionShowSynthMixDlg("Handy Synth Mixer", this);
     QAction actionShowEqDlg("อีควอไลเซอร์", this);
     QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
     QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน", this);
+    //QAction actionMinimize("ยุบหน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
+    QAction actionAbout("เกี่ยวกับ", this);
     QAction actionExit("ออกจากโปรแกรม", this);
-
-   /*eq31Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
-
-    reverbDlg->setWindowTitle("เอฟเฟ็กต์เสียงก้อง : Reverb");
-
-    chorusDlg->setWindowTitle("เอฟเฟ็กต์เสียงประสาน : Chorus");*/
 
     connect(&actionSettings, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
     connect(&actionShowHideChMix, SIGNAL(triggered()), this, SLOT(showHideChMix()));
@@ -767,8 +871,10 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionShowEqDlg, SIGNAL(triggered()), eq31Dlg, SLOT(show()));
     connect(&actionShowReverbDlg, SIGNAL(triggered()), reverbDlg, SLOT(show()));
     connect(&actionShowChorusDlg, SIGNAL(triggered()), chorusDlg, SLOT(show()));
+    //connect(&actionMinimize, SIGNAL(triggered()), this, SLOT(minimizeWindow()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
-    connect(&actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(&actionAbout, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
+    connect(&actionExit, SIGNAL(triggered()), this, SLOT(close()));
 
     menu.addAction(&actionSettings);
     menu.addSeparator();
@@ -779,8 +885,10 @@ void MainWindow::showContextMenu(const QPoint &pos)
     menu.addAction(&actionShowReverbDlg);
     menu.addAction(&actionShowChorusDlg);
     menu.addSeparator();
+    //menu.addAction(&actionMinimize);
     menu.addAction(&actionFullScreen);
     menu.addSeparator();
+    menu.addAction(&actionAbout);
     menu.addAction(&actionExit);
 
     menu.exec(mapToGlobal(pos));
@@ -790,6 +898,7 @@ void MainWindow::showSettingsDialog()
 {
     SettingsDialog d(this, this);
     d.setModal(true);
+    d.setMinimumSize(550, 400);
     d.exec();
 }
 
@@ -807,6 +916,11 @@ void MainWindow::showHideChMix()
     }
 }
 
+void MainWindow::minimizeWindow()
+{
+    setWindowState(Qt::WindowMinimized);
+}
+
 void MainWindow::showFullScreenOrNormal()
 {
     if (this->isFullScreen()) {
@@ -816,15 +930,22 @@ void MainWindow::showFullScreenOrNormal()
     }
 }
 
+void MainWindow::showAboutDialog()
+{
+    AboutDialog d(this);
+    d.setModal(true);
+    d.exec();
+}
+
 void MainWindow::onPositiomTimerTimeOut()
 {
     int tick = player->positionTick();
     ui->sliderPosition->setValue(tick);
-    lyrWidget->setPositionCursor(tick);
+    lyrWidget->setPositionCursor(tick+5);
 
     onPlayerPositionMSChanged(player->positionMs());
 
-    ui->rhmWidget->setCurrentBeat( player->currentBeat());
+    ui->rhmWidget->setCurrentBeat( player->currentBeat() );
 
     onPlayerPositionMSChanged(player->positionMs());
 }
@@ -896,15 +1017,31 @@ void MainWindow::on_btnPlay_clicked()
 void MainWindow::onSliderVolumeValueChanged(int value)
 {
     player->setVolume(value);
+
+    ui->detail->setDetail("ระดับเสียง", QString::number(value));
+    ui->detail->show();
+    detailTimer->start(3000);
+    if (this->width() < 1150 && ui->chMix->isVisible()) {
+        ui->lcdTime->hide();
+    }
 }
 
 void MainWindow::onPlayerThreadFinished()
 {
-    if (player->isPlayerFinished())
+    if (player->isPlayerFinished()) {
         playNext();
+    }
 }
 
-void MainWindow::onPlayerPlayingEvent(MidiEvent *e)
+void MainWindow::onDbUpdateChanged(int v)
 {
+    int p = (100 * v / db->updateCount()) - 1;
+    if (p < 0) p = 0;
+    updateDetail->setValue(QString::number(p) + "%");
+}
 
+void MainWindow::onDetailTimerTimeout()
+{
+     ui->detail->hide();
+     ui->lcdTime->show();
 }

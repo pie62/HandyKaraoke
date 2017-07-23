@@ -62,5 +62,14 @@
         <file>Icons/Instruments/Synth Pad.png</file>
         <file>Icons/Instruments/Timbale.png</file>
         <file>Icons/Instruments/Trumpet.png</file>
+        <file>Icons/App/icon_black.svg</file>
+        <file>Icons/App/icon_blue.svg</file>
+        <file>Icons/App/icon_green.svg</file>
+        <file>Icons/App/icon_red.svg</file>
+        <file>Icons/App/icon_white.svg</file>
+        <file>Icons/App/icon_yellow.svg</file>
+        <file>Icons/App/icon.svg</file>
+        <file>Icons/App/splash.png</file>
+        <file>Icons/App/splash.svg</file>
     </qresource>
 </RCC>

@@ -24,9 +24,13 @@ public:
     Song* currentSong() { return song; }
     static bool isNCNPath(QString path);
 
+    bool isOpenned() { return db.isOpen(); }
+    bool isUpdatting() { return upTing; }
+    int updateCount() { return upCount; }
+
 signals:
     void updateStarted();
-    void updateLengthChanged(int l);
+    void updateCountChanged(int c);
     void updatePositionChanged(int p);
     void updateSongNameChanged(QString n);
     void updateFinished();
@@ -34,9 +38,11 @@ signals:
 public slots:
     void update();
     void updateInThread() { thread->start(); }
+    bool insertNCN(const QString &ncnPath, const QString &songId, const QString &lyrFilePath, const QString &fileName);
+
     void setSearchType(SearchType t) { searchType = t; }
-    Song *nextType(QString s);
-    Song* search(QString s);
+    Song *nextType(const QString &s);
+    Song* search(const QString &s);
     Song* searchNext();
     Song* searchPrevious();
 
@@ -46,6 +52,9 @@ private:
     Song *song;
     SearchType searchType;
     int dCount;
+
+    int upCount = 0;
+    bool upTing = false;
 };
 
 #endif // SONGDATABASE_H

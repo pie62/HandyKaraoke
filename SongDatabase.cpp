@@ -21,7 +21,7 @@ SongDatabase::SongDatabase(QObject *parent) : QObject(parent)
     connect(thread, SIGNAL(started()), this, SLOT(update()));
     connect(this, SIGNAL(updateFinished()), thread, SLOT(quit()));
 
-    QString path = QDir::toNativeSeparators("/home/noob/Projects/QtProjects/Database.db3"); // Test
+    QString path = QDir::toNativeSeparators(QDir::currentPath() + "/Data/Database.db3");
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(path);
     if (db.open()) {
@@ -80,18 +80,19 @@ void SongDatabase::update()
         count++;
     }
 
+    upCount = count;
     emit updateStarted();
-    emit updateLengthChanged(count);
+    emit updateCountChanged(count);
+
+    upTing = true;
 
     db.transaction();
     QSqlQuery q;
-    q.finish();
-    q.clear();
     q.exec("DELETE FROM songs");
-    q.exec("vacuum");
 
     // Update NCN
     int i = 0;
+    int erCount = 0;
     QDirIterator it2(dir.path() ,QStringList() << "*.lyr" ,QDir::Files, QDirIterator::Subdirectories);
     while (it2.hasNext()) {
 
@@ -100,83 +101,94 @@ void SongDatabase::update()
         QString id = it2.fileName();
         id = id.replace(id.length() - 4, 4, "");
 
-        // Read .MID file
-        QString midPath = it2.filePath();
-                midPath = midPath.replace("Lyrics", "Song");
-                midPath = midPath.replace(it2.fileName(), "");
-
-        int bpm = 0;
-        QString path = "";
-        QDirIterator mit(midPath ,QStringList() << id +".mid" ,QDir::Files);
-        if (mit.hasNext()) {
-            mit.next();
-
-            MidiFile *midi = new MidiFile();
-            if (!midi->read(mit.filePath().toStdString())) {
-                delete midi;
-                count--;
-                emit updateLengthChanged(count);
-                qDebug() << mit.filePath() << "  Cound = " << count;
-                continue;
-            }
-            emit updateSongNameChanged(mit.fileName());
-            path = mit.filePath().replace(ncnPath, "");
-            bpm = midi->bpm();
-            delete midi;
-        } else {
-            count--;
-            emit updateLengthChanged(count);
-            continue;
-        }
-
-
-        // Read .LYR file
-        QString lyrPath = it2.filePath();
-        QFile file(lyrPath);
-        if (!file.open(QFile::ReadOnly)) {
-            count--;
-            emit updateLengthChanged(count);
-            continue;
-        }
-        QTextStream textStream(&file);
-        textStream.setCodec("TIS-620");
-
-        QString name = textStream.readLine();
-        QString artist = textStream.readLine();
-        QString key = textStream.readLine();
-        QString type = "NCN";
-        textStream.readLine();
-        QString lyr = textStream.readAll();
-        file.close();
-
-
-        // Insert to database
-        QSqlQuery query;
-        query.prepare("INSERT INTO songs VALUES "
-                      "(?, ?, ?, ?, ?, ?, ?, ?);");
-        query.bindValue(0, id);
-        query.bindValue(1, name);
-        query.bindValue(2, artist);
-        query.bindValue(3, key);
-        query.bindValue(4, bpm);
-        query.bindValue(5, type);
-        query.bindValue(6, lyr);
-        query.bindValue(7, path);
-
-        query.exec();
-        query.finish();
-        query.clear();
+        bool result = insertNCN(ncnPath, id, it2.filePath(), it2.fileName());
+        if (!result)
+            erCount ++;
 
         i++;
         emit updatePositionChanged(i);
     }
 
     db.commit();
-    dCount = i;
+
+    q.exec("vacuum");
+    q.finish();
+    q.clear();
+
+    dCount = i - erCount;
+
+    upTing = false;
+
     emit updateFinished();
 }
 
-Song* SongDatabase::nextType(QString s)
+bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, const QString &lyrFilePath, const QString &fileName)
+{
+    QString id = songId;
+
+    // Read .MID file
+    QString midPath = lyrFilePath;
+            midPath = midPath.replace("Lyrics", "Song");
+            midPath = midPath.replace(fileName, "");
+
+    int bpm = 0;
+    QString path = "";
+    QDirIterator mit(midPath ,QStringList() << id +".mid" ,QDir::Files);
+    if (mit.hasNext()) {
+        mit.next();
+
+        MidiFile *midi = new MidiFile();
+        if (!midi->read(mit.filePath().toStdString(), true)) {
+            delete midi;
+            return false;
+        }
+        emit updateSongNameChanged(mit.fileName());
+        path = mit.filePath().replace(ncnPath, "");
+        bpm = midi->bpm();
+        delete midi;
+    } else {
+        return false;
+    }
+
+
+    // Read .LYR file
+    QFile file(lyrFilePath);
+    if (!file.open(QFile::ReadOnly)) {
+        return false;
+    }
+    QTextStream textStream(&file);
+    textStream.setCodec("TIS-620");
+
+    QString name = textStream.readLine();
+    QString artist = textStream.readLine();
+    QString key = textStream.readLine();
+    QString type = "NCN";
+    textStream.readLine();
+    QString lyr = textStream.readAll();
+    file.close();
+
+
+    // Insert to database
+    QSqlQuery query;
+    query.prepare("INSERT INTO songs VALUES "
+                  "(?, ?, ?, ?, ?, ?, ?, ?);");
+    query.bindValue(0, id);
+    query.bindValue(1, name);
+    query.bindValue(2, artist);
+    query.bindValue(3, key);
+    query.bindValue(4, bpm);
+    query.bindValue(5, type);
+    query.bindValue(6, lyr);
+    query.bindValue(7, path);
+
+    query.exec();
+    query.finish();
+    query.clear();
+
+    return true;
+}
+
+Song* SongDatabase::nextType(const QString &s)
 {
     Song *sg = song;
     switch (searchType) {
@@ -207,7 +219,7 @@ void setSong(Song *s, QSqlQuery *qry) {
     s->setPath(qry->value(7).toString());
 }
 
-Song *SongDatabase::search(QString s)
+Song *SongDatabase::search(const QString &s)
 {
     QString sql = "";
     switch (searchType) {

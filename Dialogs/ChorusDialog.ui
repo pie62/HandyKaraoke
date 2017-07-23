@@ -34,7 +34,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>เปิด / ปิด  อีควอไลเซอร์</string>
+        <string>เปิด / ปิด  เสียงประสาน</string>
        </property>
       </widget>
      </item>

@@ -19,7 +19,7 @@ public:
 
     static std::vector<std::string> midiDevices();
     bool setMidiOut(int portNumer);
-    bool load(std::string file);
+    bool load(std::string file, bool seekFileChunkID = false);
     void stop(bool resetPos = false);
     void setVolume(int v);
     void setVolume(int ch, int v);
@@ -30,6 +30,7 @@ public:
     void setReverb(int ch, int v);
     void setChorus(int ch, int v);
     void setPositionTick(int t);
+    void setTranspose(int t);
 
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
     MidiFile* midiFile() { return _midi; }
@@ -45,6 +46,7 @@ public:
     long positionMs();
     int positionTick();
     int currentBeat();
+    int transpose() { return _midiTranspose; }
 
     int currentBpm() { return _midiBpm; }
     int beatCount() { return _midiBeatCount; }

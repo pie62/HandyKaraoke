@@ -4,6 +4,7 @@
 #include "SongDatabase.h"
 #include "Midi/MidiPlayer.h"
 #include <LyricsWidget.h>
+#include <Detail.h>
 #include <ChannelMixer.h>
 
 #include "Dialogs/SynthMixerDialog.h"
@@ -65,6 +66,7 @@ signals:
 protected:
     void mouseMoveEvent(QMouseEvent *event);
     void resizeEvent(QResizeEvent *event);
+    void closeEvent(QCloseEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
 private:
@@ -72,6 +74,7 @@ private:
     QSettings *settings;
     SongDatabase *db;
     QTimer *timer1, *timer2, *positionTimer;
+    QTimer *songDetailTimer, *detailTimer;
 
     QList<Song*> playlist;
     MidiPlayer *player;
@@ -80,6 +83,7 @@ private:
     bool playAfterSeek = false;
 
     LyricsWidget *lyrWidget;
+    Detail *updateDetail;
 
     int bgType = 0;
     QString bgImg = "";
@@ -105,7 +109,9 @@ private slots:
     void showContextMenu(const QPoint &pos);
     void showSettingsDialog();
     void showHideChMix();
+    void minimizeWindow();
     void showFullScreenOrNormal();
+    void showAboutDialog();
 
     void onPositiomTimerTimeOut();
     void onPlayerDurationMSChanged(qint64 d);
@@ -120,7 +126,9 @@ private slots:
     void onSliderVolumeValueChanged(int value);
 
     void onPlayerThreadFinished();
-    void onPlayerPlayingEvent(MidiEvent *e);
+
+    void onDbUpdateChanged(int v);
+    void onDetailTimerTimeout();
 };
 
 #endif // MAINWINDOW_H

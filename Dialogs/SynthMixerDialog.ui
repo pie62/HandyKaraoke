@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Handy Synth Mixer</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_43">
    <property name="leftMargin">
@@ -156,7 +156,7 @@
      <widget class="QWidget" name="scrollAreaWidgetContents">
       <property name="geometry">
        <rect>
-        <x>-261</x>
+        <x>0</x>
         <y>0</y>
         <width>2436</width>
         <height>238</height>

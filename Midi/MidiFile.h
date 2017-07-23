@@ -37,7 +37,7 @@ public:
     std::vector<MidiEvent*> controllerAndProgramEvents();
 
     void clear();
-    bool read(std::string filename);
+    bool read(const std::string &filename, bool seekFileChunkID = false);
 
     MidiEvent* createMidiEvent(int track, uint32_t tick, uint32_t delta, MidiEventType evType, int ch, int data1, int data2);
     MidiEvent* createMetaEvent(int track, uint32_t tick, uint32_t delta, int number, std::vector<unsigned char> data);

@@ -114,11 +114,22 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     QString appPath = QDir::currentPath();
     QString ncnPath = settings->value("NCNPath", QDir::toNativeSeparators(appPath+"/Songs/NCN")).toString();
     ui->leNCNPath->setText(ncnPath);
-    ui->lbUpdateText->hide();
-    ui->lbUpdateValue->hide();
     ui->lbCountSongsValue->setText(QString::number(db->count()) + " เพลง");
 
-    connect(db, SIGNAL(updateLengthChanged(int)), ui->barUpdateSongs, SLOT(setMaximum(int)));
+    if (db->isUpdatting())
+    {
+        ui->barUpdateSongs->setMaximum(db->updateCount());
+        ui->btnUpdateSongs->setEnabled(false);
+        ui->lbCountSongsText->setEnabled(false);
+        ui->lbCountSongsValue->setEnabled(false);
+    }
+    else
+    {
+        ui->lbUpdateText->hide();
+        ui->lbUpdateValue->hide();
+    }
+
+    connect(db, SIGNAL(updateCountChanged(int)), ui->barUpdateSongs, SLOT(setMaximum(int)));
     connect(db, SIGNAL(updatePositionChanged(int)), ui->barUpdateSongs, SLOT(setValue(int)));
     connect(db, SIGNAL(updateSongNameChanged(QString)), ui->lbUpdateValue, SLOT(setText(QString)));
     connect(db, SIGNAL(updateFinished()), this, SLOT(on_upDbUpdateFinished()));
@@ -870,4 +881,9 @@ void SettingsDialog::on_btnChorus_clicked()
         ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));
+}
+
+void SettingsDialog::on_btnClose_clicked()
+{
+    close();
 }

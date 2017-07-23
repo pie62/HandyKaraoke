@@ -43,7 +43,10 @@ SOURCES += main.cpp\
     Dialogs/ChorusDialog.cpp \
     Widgets/InstCh.cpp \
     Dialogs/SynthMixerDialog.cpp \
-    Dialogs/SettingVuDialog.cpp
+    Dialogs/SettingVuDialog.cpp \
+    Widgets/SongDetail.cpp \
+    Widgets/Detail.cpp \
+    Dialogs/AboutDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -74,7 +77,10 @@ HEADERS  += MainWindow.h \
     Dialogs/ChorusDialog.h \
     Widgets/InstCh.h \
     Dialogs/SynthMixerDialog.h \
-    Dialogs/SettingVuDialog.h
+    Dialogs/SettingVuDialog.h \
+    Widgets/SongDetail.h \
+    Widgets/Detail.h \
+    Dialogs/AboutDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -87,7 +93,10 @@ FORMS    += MainWindow.ui \
     Dialogs/ChorusDialog.ui \
     Widgets/InstCh.ui \
     Dialogs/SynthMixerDialog.ui \
-    Dialogs/SettingVuDialog.ui
+    Dialogs/SettingVuDialog.ui \
+    Widgets/SongDetail.ui \
+    Widgets/Detail.ui \
+    Dialogs/AboutDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -119,16 +128,13 @@ unix:!macx {
         message("32-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
-        LIBS += -L$$PWD/BASS/bassmix24-linux/ -lbassmix
     } else {
         message("64-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
-        LIBS += -L$$PWD/BASS/bassmix24-linux/x64/ -lbassmix
     }
     INCLUDEPATH += $$PWD/BASS/bass24-linux
     INCLUDEPATH += $$PWD/BASS/bassmidi24-linux
-    INCLUDEPATH += $$PWD/BASS/bassmix24-linux
 }
 
 macx {
