@@ -22,6 +22,11 @@
     <height>272</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>9</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>เกี่ยวกับ</string>
   </property>

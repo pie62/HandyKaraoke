@@ -428,15 +428,17 @@ void SettingsDialog::on_cbMidiOut_activated(int index)
 
 void SettingsDialog::on_cbAudioOut_activated(int index)
 {
-    if (ui->cbAudioOut->currentText() == "Default") {
+    /*if (ui->cbAudioOut->currentText() == "Default") {
         BASS_SetDevice(-1);
         settings->setValue("AudioOut", -1);
         return;
-    }
-    if (index != BASS_GetDevice()) {
-        BASS_SetDevice(index);
-        settings->setValue("AudioOut", index);
-    }
+    }*/
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+    if (index == synth->outPutDevice())
+        return;
+
+    synth->setOutputDevice(index);
+    settings->setValue("AudioOut", index);
     /*if (BASS_SetDevice(index) == BASS_OK) {
         settings->setValue("defaultAudioDevice", index);
     } else {

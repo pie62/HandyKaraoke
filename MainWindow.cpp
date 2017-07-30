@@ -132,6 +132,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     { // Synth
         MidiSynthesizer *synth = player->midiSynthesizer();
+
+        // Audio out
+        int aout = settings->value("AudioOut", 1).toInt();
+        synth->setOutputDevice(aout);
+
         // Synth soundfont
         std::vector<std::string> sfs;
         QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
@@ -650,6 +655,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         break;
     }
     case Qt::Key_Delete: {
+        if (ui->framePlaylist->isVisible()) {
+            int i = ui->playlist->currentRow();
+            delete playlist.at(i);
+            playlist.removeAt(i);
+            ui->playlist->takeItem(i);
+            ui->framePlaylist->show();
+            timer2->start(playlist_timeout);
+            break;
+        }
         player->setTranspose(player->transpose()-1);
         int trp = player->transpose();
         QString t;

@@ -16,6 +16,11 @@
     <height>0</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Handy Synth Mixer</string>
   </property>
@@ -159,7 +164,7 @@
         <x>0</x>
         <y>0</y>
         <width>2436</width>
-        <height>238</height>
+        <height>245</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">

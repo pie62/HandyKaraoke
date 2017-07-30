@@ -111,7 +111,7 @@ private:
     bool openned = false;
     bool useSolo = false;
 
-    int ourtDev = -1;
+    int outDev = -1;
 
     void setSfToStream();
     void calculateEnable();

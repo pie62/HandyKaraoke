@@ -119,6 +119,8 @@ win32 {
     }
     INCLUDEPATH += $$PWD/BASS/bass24
     INCLUDEPATH += $$PWD/BASS/bassmidi24
+
+    RC_ICONS = icon.ico
 }
 
 unix:!macx {

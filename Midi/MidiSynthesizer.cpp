@@ -58,15 +58,19 @@ bool MidiSynthesizer::open()
         return true;
 
 
-    BASS_Init(-1, 44100, 0, NULL, NULL);
+    BASS_Init(outDev, 44100, 0, NULL, NULL);
     BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
 
     DWORD flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
     stream = BASS_MIDI_StreamCreate(32, flags, 0);
 
-
+    #ifdef _WIN32
+        BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+    #else
+        BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
+    #endif
     //BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
-    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
+    //BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
 
     auto concurentThreadsSupported = std::thread::hardware_concurrency();
     float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
@@ -125,12 +129,12 @@ void MidiSynthesizer::close()
 
 int MidiSynthesizer::outPutDevice()
 {
-    return BASS_GetDevice();
+    return outDev;
 }
 
 bool MidiSynthesizer::setOutputDevice(int dv)
 {
-    ourtDev = dv;
+    outDev = dv;
 
     if (openned)
         return BASS_SetDevice(dv);
