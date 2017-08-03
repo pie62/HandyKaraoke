@@ -110,15 +110,15 @@ win32 {
 
     contains(QT_ARCH, i386) {
         message("32-bit")
-        LIBS += -L$$PWD/BASS/bass24/ -lbass
-        LIBS += -L$$PWD/BASS/bassmidi24/ -lbassmidi
+        LIBS += -LD:/Projects/QtProjects/BASS/bass24/ -lbass
+        LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/ -lbassmidi
     } else {
         message("64-bit")
-        LIBS += -L$$PWD/BASS/bass24/x64/ -lbass
-        LIBS += -L$$PWD/BASS/bassmidi24/x64/ -lbassmidi
+        LIBS += -LD:/Projects/QtProjects/BASS/bass24/x64/ -lbass
+        LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/x64/ -lbassmidi
     }
-    INCLUDEPATH += $$PWD/BASS/bass24
-    INCLUDEPATH += $$PWD/BASS/bassmidi24
+    INCLUDEPATH += D:/Projects/QtProjects/BASS/bass24
+    INCLUDEPATH += D:/Projects/QtProjects/BASS/bassmidi24
 
     RC_ICONS = icon.ico
 }
