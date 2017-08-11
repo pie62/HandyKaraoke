@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Equalizer31BandDialog</class>
- <widget class="QDialog" name="Equalizer31BandDialog">
+ <class>Equalizer24BandDialog</class>
+ <widget class="QDialog" name="Equalizer24BandDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -82,7 +82,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_7">
        <item>
-        <widget class="QLabel" name="lbdb_7">
+        <widget class="QLabel" name="lbdb_1">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -99,7 +99,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_7">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_7">
+          <widget class="Slider" name="slider_1">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -154,7 +154,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
-        <widget class="QLabel" name="lbdb_8">
+        <widget class="QLabel" name="lbdb_2">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -171,7 +171,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_8">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_8">
+          <widget class="Slider" name="slider_2">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -226,7 +226,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QLabel" name="lbdb_9">
+        <widget class="QLabel" name="lbdb_3">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -243,7 +243,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_9">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_9">
+          <widget class="Slider" name="slider_3">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -298,7 +298,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
-        <widget class="QLabel" name="lbdb_10">
+        <widget class="QLabel" name="lbdb_4">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -315,7 +315,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_10">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_10">
+          <widget class="Slider" name="slider_4">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -370,7 +370,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_11">
        <item>
-        <widget class="QLabel" name="lbdb_11">
+        <widget class="QLabel" name="lbdb_5">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -387,7 +387,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_11">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_11">
+          <widget class="Slider" name="slider_5">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -442,7 +442,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_12">
        <item>
-        <widget class="QLabel" name="lbdb_12">
+        <widget class="QLabel" name="lbdb_6">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -459,7 +459,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_12">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_12">
+          <widget class="Slider" name="slider_6">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -514,7 +514,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_13">
        <item>
-        <widget class="QLabel" name="lbdb_13">
+        <widget class="QLabel" name="lbdb_7">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -531,7 +531,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_13">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_13">
+          <widget class="Slider" name="slider_7">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -586,7 +586,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_14">
        <item>
-        <widget class="QLabel" name="lbdb_14">
+        <widget class="QLabel" name="lbdb_8">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -603,7 +603,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_14">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_14">
+          <widget class="Slider" name="slider_8">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -658,7 +658,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_15">
        <item>
-        <widget class="QLabel" name="lbdb_15">
+        <widget class="QLabel" name="lbdb_9">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -675,7 +675,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_15">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_15">
+          <widget class="Slider" name="slider_9">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -730,7 +730,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_16">
        <item>
-        <widget class="QLabel" name="lbdb_16">
+        <widget class="QLabel" name="lbdb_10">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -747,7 +747,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_16">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_16">
+          <widget class="Slider" name="slider_10">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -802,7 +802,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_17">
        <item>
-        <widget class="QLabel" name="lbdb_17">
+        <widget class="QLabel" name="lbdb_11">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -819,7 +819,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_17">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_17">
+          <widget class="Slider" name="slider_11">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -874,7 +874,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_18">
        <item>
-        <widget class="QLabel" name="lbdb_18">
+        <widget class="QLabel" name="lbdb_12">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -891,7 +891,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_18">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_18">
+          <widget class="Slider" name="slider_12">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -946,7 +946,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_19">
        <item>
-        <widget class="QLabel" name="lbdb_19">
+        <widget class="QLabel" name="lbdb_13">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -963,7 +963,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_19">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_19">
+          <widget class="Slider" name="slider_13">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1018,7 +1018,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_20">
        <item>
-        <widget class="QLabel" name="lbdb_20">
+        <widget class="QLabel" name="lbdb_14">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1035,7 +1035,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_20">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_20">
+          <widget class="Slider" name="slider_14">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1090,7 +1090,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_21">
        <item>
-        <widget class="QLabel" name="lbdb_21">
+        <widget class="QLabel" name="lbdb_15">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1107,7 +1107,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_21">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_21">
+          <widget class="Slider" name="slider_15">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1162,7 +1162,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_22">
        <item>
-        <widget class="QLabel" name="lbdb_22">
+        <widget class="QLabel" name="lbdb_16">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1179,7 +1179,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_22">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_22">
+          <widget class="Slider" name="slider_16">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1234,7 +1234,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_23">
        <item>
-        <widget class="QLabel" name="lbdb_23">
+        <widget class="QLabel" name="lbdb_17">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1251,7 +1251,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_23">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_23">
+          <widget class="Slider" name="slider_17">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1306,7 +1306,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_24">
        <item>
-        <widget class="QLabel" name="lbdb_24">
+        <widget class="QLabel" name="lbdb_18">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1323,7 +1323,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_24">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_24">
+          <widget class="Slider" name="slider_18">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1378,7 +1378,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_25">
        <item>
-        <widget class="QLabel" name="lbdb_25">
+        <widget class="QLabel" name="lbdb_19">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1395,7 +1395,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_25">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_25">
+          <widget class="Slider" name="slider_19">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1450,7 +1450,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_26">
        <item>
-        <widget class="QLabel" name="lbdb_26">
+        <widget class="QLabel" name="lbdb_20">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1467,7 +1467,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_26">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_26">
+          <widget class="Slider" name="slider_20">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1522,7 +1522,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_27">
        <item>
-        <widget class="QLabel" name="lbdb_27">
+        <widget class="QLabel" name="lbdb_21">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1539,7 +1539,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_27">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_27">
+          <widget class="Slider" name="slider_21">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1594,7 +1594,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_28">
        <item>
-        <widget class="QLabel" name="lbdb_28">
+        <widget class="QLabel" name="lbdb_22">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1611,7 +1611,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_28">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_28">
+          <widget class="Slider" name="slider_22">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1666,7 +1666,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_29">
        <item>
-        <widget class="QLabel" name="lbdb_29">
+        <widget class="QLabel" name="lbdb_23">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1683,7 +1683,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_29">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_29">
+          <widget class="Slider" name="slider_23">
            <property name="minimumSize">
             <size>
              <width>19</width>
@@ -1738,7 +1738,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_30">
        <item>
-        <widget class="QLabel" name="lbdb_30">
+        <widget class="QLabel" name="lbdb_24">
          <property name="font">
           <font>
            <pointsize>8</pointsize>
@@ -1755,7 +1755,7 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_30">
          <item row="0" column="0">
-          <widget class="Slider" name="slider_30">
+          <widget class="Slider" name="slider_24">
            <property name="minimumSize">
             <size>
              <width>19</width>

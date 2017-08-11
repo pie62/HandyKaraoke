@@ -11,8 +11,9 @@
 
 #include <bass.h>
 #include <bassmidi.h>
+#include <bass_fx.h>
 
-#include "BASSFX/Equalizer31BandFX.h"
+#include "BASSFX/Equalizer24BandFX.h"
 #include "BASSFX/ReverbFX.h"
 #include "BASSFX/ChorusFX.h"
 
@@ -88,7 +89,7 @@ public:
     static bool isSoundFontFile(std::string sfile);
 
     // Fx ----------------------
-    Equalizer31BandFX* equalizer31BandFX() { return eq; }
+    Equalizer24BandFX* equalizer24BandFX() { return eq; }
     ReverbFX* reverbFX() { return reverb; }
     ChorusFX* chorusFX() { return chorus; }
     // ------------------------------------------
@@ -102,7 +103,7 @@ private:
     InstrumentType chInstType[16];
 
     // FX
-    Equalizer31BandFX *eq;
+    Equalizer24BandFX *eq;
     ReverbFX *reverb;
     ChorusFX *chorus;
     // ---------------------------

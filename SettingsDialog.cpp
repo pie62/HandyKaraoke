@@ -155,7 +155,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         ui->btnSfFinish->setEnabled(false);
         ui->btnSfCancel->setEnabled(false);
 
-        if (synth->equalizer31BandFX()->isOn())
+        if (synth->equalizer24BandFX()->isOn())
             ui->btnEq->setIcon(QIcon(":/Icons/circle_green.png"));
         else
             ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
@@ -184,6 +184,11 @@ SettingsDialog::~SettingsDialog()
 {
     delete settings;
     delete ui;
+}
+
+void SettingsDialog::setOutputFloat(bool lock)
+{
+    _outputFloat = lock;
 }
 
 void SettingsDialog::setLabelFontInfo(QFont *font)
@@ -519,6 +524,7 @@ void SettingsDialog::on_cbLockBass_activated(int index)
     settings->setValue("MidiLockBassNumber", index + 32);
 }
 
+
 void SettingsDialog::on_btnFont_clicked()
 {
     bool ok;
@@ -827,19 +833,19 @@ void SettingsDialog::on_btnSfMap_clicked()
 
 void SettingsDialog::on_btnEq_clicked()
 {
-    if (mainWin->equalizer31BandDialog()->isVisible())
+    if (mainWin->equalizer24BandDialog()->isVisible())
         return;
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
 
-    Equalizer31BandDialog eqdlg(this, synth->equalizer31BandFX());
+    Equalizer24BandDialog eqdlg(this, synth->equalizer24BandFX());
     eqdlg.setModal(true);
     eqdlg.adjustSize();
     eqdlg.setFixedSize(eqdlg.size());
-    eqdlg.setWindowTitle(mainWin->equalizer31BandDialog()->windowTitle());
+    eqdlg.setWindowTitle(mainWin->equalizer24BandDialog()->windowTitle());
     eqdlg.exec();
 
-    if (synth->equalizer31BandFX()->isOn())
+    if (synth->equalizer24BandFX()->isOn())
         ui->btnEq->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
@@ -888,4 +894,11 @@ void SettingsDialog::on_btnChorus_clicked()
 void SettingsDialog::on_btnClose_clicked()
 {
     close();
+}
+
+
+void SettingsDialog::on_chOutputFloat_toggled(bool checked)
+{
+    settings->setValue("OutputFloat", checked);
+    _outputFloat = checked;
 }

@@ -18,7 +18,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     mapChInstUI();
     setChInstDetails();
 
-    setBtnEqIcon(synth->equalizer31BandFX()->isOn());
+    setBtnEqIcon(synth->equalizer24BandFX()->isOn());
     setBtnReverbIcon(synth->reverbFX()->isOn());
     setBtnChorusIcon(synth->chorusFX()->isOn());
 
@@ -76,13 +76,13 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     }
 
     connect(ui->btnEq, SIGNAL(clicked()),
-            mainWin->equalizer31BandDialog(), SLOT(show()));
+            mainWin->equalizer24BandDialog(), SLOT(show()));
     connect(ui->btnReverb, SIGNAL(clicked()),
             mainWin->reverbDialog(), SLOT(show()));
     connect(ui->btnChorus, SIGNAL(clicked()),
             mainWin->chorusDialog(), SLOT(show()));
 
-    connect(mainWin->equalizer31BandDialog(), SIGNAL(switchChanged(bool)),
+    connect(mainWin->equalizer24BandDialog(), SIGNAL(switchChanged(bool)),
             this, SLOT(setBtnEqIcon(bool)));
     connect(mainWin->reverbDialog(), SIGNAL(switchChanged(bool)),
             this, SLOT(setBtnReverbIcon(bool)));

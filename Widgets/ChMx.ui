@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>43</width>
-    <height>110</height>
+    <width>41</width>
+    <height>114</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>41</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>41</width>
+    <height>16777215</height>
+   </size>
   </property>
   <property name="mouseTracking">
    <bool>true</bool>
@@ -19,8 +31,8 @@
   <property name="styleSheet">
    <string notr="true">/*#frame {
 background-color: rgb(238, 238, 238);
-}*/
-
+}
+*/
 #lbNumber {
 background-color: rgb(117, 117, 117);
 color: rgb(238, 238, 238);
@@ -97,13 +109,13 @@ border-radius: 2px;
       <widget class="QPushButton" name="btnMute">
        <property name="minimumSize">
         <size>
-         <width>19</width>
+         <width>18</width>
          <height>17</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>19</width>
+         <width>18</width>
          <height>17</height>
         </size>
        </property>
@@ -119,13 +131,13 @@ border-radius: 2px;
       <widget class="QPushButton" name="btnSolo">
        <property name="minimumSize">
         <size>
-         <width>19</width>
+         <width>18</width>
          <height>17</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>19</width>
+         <width>18</width>
          <height>17</height>
         </size>
        </property>
@@ -141,17 +153,26 @@ border-radius: 2px;
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>3</number>
+     </property>
+     <property name="topMargin">
+      <number>3</number>
+     </property>
+     <property name="bottomMargin">
+      <number>3</number>
+     </property>
      <item>
       <widget class="Slider" name="slider">
        <property name="minimumSize">
         <size>
-         <width>19</width>
+         <width>20</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>19</width>
+         <width>20</width>
          <height>16777215</height>
         </size>
        </property>
@@ -167,13 +188,13 @@ border-radius: 2px;
       <widget class="LEDVu" name="vuBar">
        <property name="minimumSize">
         <size>
-         <width>12</width>
+         <width>8</width>
          <height>60</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>12</width>
+         <width>8</width>
          <height>16777215</height>
         </size>
        </property>

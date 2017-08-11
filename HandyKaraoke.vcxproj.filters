@@ -1,0 +1,770 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{a7a2eca4-2389-489b-a8df-4c3183f4287b}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{38ecbbf1-021c-41cd-bf99-c2ba4d538c45}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Dialogs\AboutDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\ChMx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\Channel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\ChannelMixer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\ChorusDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BASSFX\ChorusFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\Detail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BASSFX\Equalizer15BandFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\Equalizer31BandDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BASSFX\Equalizer31BandFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\InstCh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\LEDVu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\LyricsWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\MapSoundfontDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\MidiEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\MidiFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\MidiHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\MidiOut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\MidiPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\MidiSynthesizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\ReverbDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BASSFX\ReverbFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\RhythmWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi\rtmidi\RtMidi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\SettingVuDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\Slider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Song.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SongDatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\SongDetail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\SwitchButton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\SynthMixerDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_SynthMixerDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_SynthMixerDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_SwitchButton.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_SwitchButton.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_SongDetail.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_SongDetail.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_SongDatabase.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_SongDatabase.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_RhythmWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_RhythmWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_ReverbDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_ReverbDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_MidiPlayer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_MidiPlayer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_MapSoundfontDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_MapSoundfontDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_Detail.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_Detail.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_ComboBoxItem.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_ComboBoxItem.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_ChorusDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_ChorusDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_ChannelMixer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_ChannelMixer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_Song.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_Song.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_Slider.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_Slider.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_SettingsDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_SettingsDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_SettingVuDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_SettingVuDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_MainWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_MainWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_LyricsWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_LyricsWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_LEDVu.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_LEDVu.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_InstCh.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_InstCh.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_Equalizer31BandDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_Equalizer31BandDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_ChMx.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_ChMx.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\moc_AboutDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Release\moc_AboutDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_icons.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Dialogs\AboutDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\ChMx.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="Midi\Channel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Widgets\ChannelMixer.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\ChorusDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="BASSFX\ChorusFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Dialogs\ComboBoxItem.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\Detail.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="BASSFX\Equalizer15BandFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Dialogs\Equalizer31BandDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="BASSFX\Equalizer31BandFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Widgets\InstCh.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\LEDVu.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\LyricsWidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MainWindow.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\MapSoundfontDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="Midi\MidiEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Midi\MidiFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Midi\MidiHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Midi\MidiOut.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Midi\MidiPlayer.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="Midi\MidiSynthesizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Dialogs\ReverbDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="BASSFX\ReverbFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Widgets\RhythmWidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <ClInclude Include="Midi\rtmidi\RtMidi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <CustomBuild Include="Dialogs\SettingVuDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SettingsDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\Slider.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Song.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SongDatabase.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\SongDetail.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\SwitchButton.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\SynthMixerDialog.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Dialogs\AboutDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\ChMx.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\ChannelMixer.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\ChorusDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\Detail.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\Equalizer31BandDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\InstCh.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MainWindow.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\MapSoundfontDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\ReverbDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\RhythmWidget.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\SettingVuDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SettingsDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\SongDetail.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\SynthMixerDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\Instruments\Accordion.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Bass.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Bongo.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Brass.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Brass.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Chab.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Ching.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Chromatic">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Clean.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Conga.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Cowbell.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Crash.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Distortion.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Effects.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Ensemble.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Etc.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Ethnic.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\FX.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Harmonics.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\High">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Hihat.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Jazz.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Kick.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Lead.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Low">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Mid">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Nylon.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Organ.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Overdriven.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Pad.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Percussion.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Percussion">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Percussive.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Piano.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Pipe.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Reed.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Ride.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Saxophone.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Side">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Snare.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Steel.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Stick.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Strings.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Synth">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Timbale.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Tom.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\Instruments\Trumpet.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\add.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\chevron-arrow-down.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\chevron-arrow-up.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\circle_black.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\circle_green.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\circle_red.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\correct-symbol.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\delete.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\icon.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\icon_black.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\icon_blue.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\icon_green.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\icon_red.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\icon_white.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\icon_yellow.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <CustomBuild Include="icons.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <None Include="Icons\list.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\next-track-button.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\pause-button.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\pencil_yellow.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\play-button.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\previous-track.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\remove.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\settings.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\slider.jpg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\splash.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\App\splash.svg">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\video-player-stop-button.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\volume-adjustment-mute.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Icons\volume-up-interface-symbol.png">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="D:\Li-keSing SourceCode\HandyKaraoke\HandyKaraoke_resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GeneratedFiles\ui_AboutDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_ChMx.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_ChannelMixer.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_ChorusDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_Detail.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_Equalizer31BandDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_InstCh.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_MainWindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_MapSoundfontDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_ReverbDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_RhythmWidget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SettingVuDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SettingsDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SongDetail.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SynthMixerDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Icons\Instruments\Chromatic Percussion.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\High Tom.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Low Tom.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Mid Tom.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Percussion Etc.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Side Stick.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Synth Brass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Synth Effects.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Synth Lead.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icons\Instruments\Synth Pad.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

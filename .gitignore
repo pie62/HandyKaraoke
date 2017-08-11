@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+*.pdb
+*.pdb
+*.qm
+*.qm

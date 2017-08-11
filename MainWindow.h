@@ -8,7 +8,7 @@
 #include <ChannelMixer.h>
 
 #include "Dialogs/SynthMixerDialog.h"
-#include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/Equalizer24BandDialog.h"
 #include "Dialogs/ReverbDialog.h"
 #include "Dialogs/ChorusDialog.h"
 
@@ -48,7 +48,7 @@ public:
     // Synth Mixer
     SynthMixerDialog* synthMixerDialog() { return synthMix; }
     // Synth effect dialog
-    Equalizer31BandDialog* equalizer31BandDialog() { return eq31Dlg; }
+    Equalizer24BandDialog* equalizer24BandDialog() { return eq24Dlg; }
     ReverbDialog* reverbDialog() { return reverbDlg; }
     ChorusDialog* chorusDialog() { return chorusDlg; }
 
@@ -97,7 +97,7 @@ private:
     // Synth Mixer
     SynthMixerDialog *synthMix;
     // Synth effect dialog
-    Equalizer31BandDialog *eq31Dlg;
+    Equalizer24BandDialog *eq24Dlg;
     ReverbDialog *reverbDlg;
     ChorusDialog *chorusDlg;
 

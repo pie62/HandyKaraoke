@@ -1,4 +1,5 @@
 #include "MidiSynthesizer.h"
+#include "SettingsDialog.h"
 
 #include <thread>
 
@@ -8,7 +9,7 @@ MidiSynthesizer::MidiSynthesizer()
         intmSf.push_back(0);
     }
 
-    eq = new Equalizer31BandFX(0);
+    eq = new Equalizer24BandFX(0);
     reverb = new ReverbFX(0);
     chorus = new ChorusFX(0);
 
@@ -54,6 +55,8 @@ MidiSynthesizer::~MidiSynthesizer()
 
 bool MidiSynthesizer::open()
 {
+    DWORD flags = 0;
+
     if (openned)
         return true;
 
@@ -61,7 +64,15 @@ bool MidiSynthesizer::open()
     BASS_Init(outDev, 44100, 0, NULL, NULL);
     BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
 
-    DWORD flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
+    // check the correct BASS_FX was loaded
+//    if (HIWORD(BASS_FX_GetVersion())!=BASSVERSION) {
+
+//    }
+//    if (SettingsDialog._outputFloat) {
+//        flags = BASS_MIDI_SINCINTER|BASS_MIDI_NOFX;
+//    } else {
+        flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER|BASS_MIDI_NOFX|BASS_MIDI_DECAYSEEK|BASS_MIDI_DECAYEND;
+//    }
     stream = BASS_MIDI_StreamCreate(32, flags, 0);
 
     #ifdef _WIN32
@@ -536,15 +547,16 @@ bool MidiSynthesizer::isSoundFontFile(std::string sfile)
 void MidiSynthesizer::setSfToStream()
 {
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
+        BASS_MIDI_FontUnload(f,-1,-1);
         BASS_MIDI_FontFree(f);
     }
     synth_HSOUNDFONT.clear();
 
     for (const std::string &sfile : sfFiles) {
-        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.data(),
-                                          BASS_MIDI_FONT_MMAP);
+        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.data(), BASS_MIDI_FONT_MMAP | BASS_MIDI_FONT_NOFX);
         if (f) {
             synth_HSOUNDFONT.push_back(f);
+            BASS_MIDI_FontLoad(f,-1,-1);
         }
     }
 

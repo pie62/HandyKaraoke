@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>724</width>
-    <height>157</height>
+    <width>748</width>
+    <height>171</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="autoFillBackground">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -34,17 +34,29 @@
    </property>
    <item>
     <widget class="BackgroundChMx" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>118</height>
+       <height>120</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>118</height>
+       <height>120</height>
       </size>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -52,10 +64,10 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_8">
-      <property name="spacing">
-       <number>2</number>
-      </property>
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -377,14 +389,20 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <property name="spacing">
-      <number>8</number>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <property name="leftMargin">
       <number>4</number>
      </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
      <property name="rightMargin">
       <number>4</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
      </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -402,7 +420,7 @@
         <widget class="QComboBox" name="cbCh">
          <property name="minimumSize">
           <size>
-           <width>51</width>
+           <width>60</width>
            <height>0</height>
           </size>
          </property>
@@ -512,7 +530,7 @@
         <widget class="QComboBox" name="cbInts">
          <property name="minimumSize">
           <size>
-           <width>201</width>
+           <width>230</width>
            <height>0</height>
           </size>
          </property>

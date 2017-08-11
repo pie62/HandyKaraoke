@@ -33,10 +33,7 @@ SOURCES += main.cpp\
     Widgets/LEDVu.cpp \
     Dialogs/MapSoundfontDialog.cpp \
     Widgets/Slider.cpp \
-    BASSFX/Equalizer15BandFX.cpp \
     Widgets/SwitchButton.cpp \
-    BASSFX/Equalizer31BandFX.cpp \
-    Dialogs/Equalizer31BandDialog.cpp \
     BASSFX/ReverbFX.cpp \
     Dialogs/ReverbDialog.cpp \
     BASSFX/ChorusFX.cpp \
@@ -46,7 +43,9 @@ SOURCES += main.cpp\
     Dialogs/SettingVuDialog.cpp \
     Widgets/SongDetail.cpp \
     Widgets/Detail.cpp \
-    Dialogs/AboutDialog.cpp
+    Dialogs/AboutDialog.cpp \
+    BASSFX/Equalizer24BandFX.cpp \
+    Dialogs/Equalizer24BandDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -69,8 +68,6 @@ HEADERS  += MainWindow.h \
     Widgets/Slider.h \
     BASSFX/Equalizer15BandFX.h \
     Widgets/SwitchButton.h \
-    BASSFX/Equalizer31BandFX.h \
-    Dialogs/Equalizer31BandDialog.h \
     BASSFX/ReverbFX.h \
     Dialogs/ReverbDialog.h \
     BASSFX/ChorusFX.h \
@@ -80,7 +77,9 @@ HEADERS  += MainWindow.h \
     Dialogs/SettingVuDialog.h \
     Widgets/SongDetail.h \
     Widgets/Detail.h \
-    Dialogs/AboutDialog.h
+    Dialogs/AboutDialog.h \
+    BASSFX/Equalizer24BandFX.h \
+    Dialogs/Equalizer24BandDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -88,7 +87,6 @@ FORMS    += MainWindow.ui \
     Widgets/RhythmWidget.ui \
     Widgets/ChannelMixer.ui \
     Dialogs/MapSoundfontDialog.ui \
-    Dialogs/Equalizer31BandDialog.ui \
     Dialogs/ReverbDialog.ui \
     Dialogs/ChorusDialog.ui \
     Widgets/InstCh.ui \
@@ -96,7 +94,8 @@ FORMS    += MainWindow.ui \
     Dialogs/SettingVuDialog.ui \
     Widgets/SongDetail.ui \
     Widgets/Detail.ui \
-    Dialogs/AboutDialog.ui
+    Dialogs/AboutDialog.ui \
+    Dialogs/Equalizer24BandDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -112,13 +111,16 @@ win32 {
         message("32-bit")
         LIBS += -LD:/Projects/QtProjects/BASS/bass24/ -lbass
         LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/ -lbassmidi
+        LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/ -lbass_fx
     } else {
         message("64-bit")
         LIBS += -LD:/Projects/QtProjects/BASS/bass24/x64/ -lbass
         LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/x64/ -lbassmidi
+        LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/x64/ -lbass_fx
     }
     INCLUDEPATH += D:/Projects/QtProjects/BASS/bass24
     INCLUDEPATH += D:/Projects/QtProjects/BASS/bassmidi24
+    INCLUDEPATH += D:/Projects/QtProjects/BASS/bass_fx24
 
     RC_ICONS = icon.ico
 }
@@ -130,13 +132,16 @@ unix:!macx {
         message("32-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24-linux/ -lbass_fx
     } else {
         message("64-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24-linux/x64/ -lbass_fx
     }
     INCLUDEPATH += $$PWD/BASS/bass24-linux
     INCLUDEPATH += $$PWD/BASS/bassmidi24-linux
+    INCLUDEPATH += $$PWD/BASS/bass_fx24-linux
 }
 
 macx {
@@ -149,3 +154,5 @@ RESOURCES += \
 #DEFINES += _ATL_XP_TARGETING
 #DEFINES += PSAPI_VERSION=1
 #QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+
+

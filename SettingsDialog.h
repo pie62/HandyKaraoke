@@ -18,7 +18,8 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(QWidget *parent = 0, MainWindow *m = 0);
     ~SettingsDialog();
-
+    bool    _outputFloat = false;
+    void setOutputFloat(bool lock);
 private slots:
     void setLabelFontInfo(QFont *font);
     void initDeviceTab();
@@ -80,6 +81,8 @@ private slots:
 
     void on_btnClose_clicked();
 
+    void on_chOutputFloat_toggled(bool checked);
+    
 private:
     Ui::SettingsDialog *ui;
     MainWindow *mainWin;

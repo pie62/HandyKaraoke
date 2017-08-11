@@ -55,6 +55,7 @@ private:
 
     int upCount = 0;
     bool upTing = false;
+
 };
 
 #endif // SONGDATABASE_H

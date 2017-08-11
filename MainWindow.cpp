@@ -109,6 +109,10 @@ MainWindow::MainWindow(QWidget *parent) :
         bool lSnare = settings->value("MidiLockSnare", false).toBool();
         bool lBass  = settings->value("MidiLockBass", false).toBool();
 
+//        bool lOutputFloat = settings->value("OutputFloat", false).toBool();
+//        if (lOutputFloat) {
+//            settings->setOutputFloat(true, ldNum);
+//        }
         player->setMidiOut(oPort);
         player->setVolume(vl);
 
@@ -173,15 +177,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
         // Synth EQ
-        Equalizer31BandFX *eq = synth->equalizer31BandFX();
-        std::map<EQFrequency31Range, float> eqgain = eq->gain();
+        Equalizer24BandFX *eq = synth->equalizer24BandFX();
+        std::map<EQFrequency24Range, float> eqgain = eq->gain();
 
-        bool eqon = settings->value("SynthFXEQOn", false).toBool();
+        bool eqon = settings->value("SynthFX24EQOn", false).toBool();
         if (eqon)
             eq->on();
 
         int gi =0;
-        settings->beginReadArray("SynthFXEQGain");
+        settings->beginReadArray("SynthFX24EQGain");
         for (const auto& g : eqgain) {
             settings->setArrayIndex(gi);
             float gain = settings->value("gain", 0.0f).toFloat();
@@ -239,10 +243,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
         // Create Synth effect dialog
-        eq31Dlg = new Equalizer31BandDialog(this, eq);
-        eq31Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
-        eq31Dlg->adjustSize();
-        eq31Dlg->setFixedSize(eq31Dlg->size());
+        eq24Dlg = new Equalizer24BandDialog(this, eq);
+        eq24Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
+        eq24Dlg->adjustSize();
+        eq24Dlg->setFixedSize(eq24Dlg->size());
 
         reverbDlg = new ReverbDialog(this, reverb);
         reverbDlg->setWindowTitle("เอฟเฟ็กต์เสียงก้อง : Reverb");
@@ -350,13 +354,13 @@ MainWindow::~MainWindow()
 
     { // Write synth FX settings
         // Synth EQ
-        Equalizer31BandFX *eq = player->midiSynthesizer()->equalizer31BandFX();
-        std::map<EQFrequency31Range, float> eqgain = eq->gain();
+        Equalizer24BandFX *eq = player->midiSynthesizer()->equalizer24BandFX();
+        std::map<EQFrequency24Range, float> eqgain = eq->gain();
 
-        settings->setValue("SynthFXEQOn", eq->isOn());
+        settings->setValue("SynthFX24EQOn", eq->isOn());
 
         int gi =0;
-        settings->beginWriteArray("SynthFXEQGain");
+        settings->beginWriteArray("SynthFX24EQGain");
         for (const auto& g : eqgain) {
             settings->setArrayIndex(gi);
             settings->setValue("gain", g.second);
@@ -391,7 +395,7 @@ MainWindow::~MainWindow()
 
     delete synthMix;
     // Delete Synth effect dialog
-    delete eq31Dlg;
+    delete eq24Dlg;
     delete reverbDlg;
     delete chorusDlg;
 
@@ -882,7 +886,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionSettings, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
     connect(&actionShowHideChMix, SIGNAL(triggered()), this, SLOT(showHideChMix()));
     connect(&actionShowSynthMixDlg, SIGNAL(triggered()), synthMix, SLOT(show()));
-    connect(&actionShowEqDlg, SIGNAL(triggered()), eq31Dlg, SLOT(show()));
+    connect(&actionShowEqDlg, SIGNAL(triggered()), eq24Dlg, SLOT(show()));
     connect(&actionShowReverbDlg, SIGNAL(triggered()), reverbDlg, SLOT(show()));
     connect(&actionShowChorusDlg, SIGNAL(triggered()), chorusDlg, SLOT(show()));
     //connect(&actionMinimize, SIGNAL(triggered()), this, SLOT(minimizeWindow()));
