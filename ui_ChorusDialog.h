@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ChorusDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -354,31 +354,31 @@ public:
 
     void retranslateUi(QDialog *ChorusDialog)
     {
-        ChorusDialog->setWindowTitle(QApplication::translate("ChorusDialog", "Chorus", 0));
+        ChorusDialog->setWindowTitle(QApplication::translate("ChorusDialog", "Chorus", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        btnSwitch->setToolTip(QApplication::translate("ChorusDialog", "\340\271\200\340\270\233\340\270\264\340\270\224 / \340\270\233\340\270\264\340\270\224  \340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231", 0));
+        btnSwitch->setToolTip(QApplication::translate("ChorusDialog", "\340\271\200\340\270\233\340\270\264\340\270\224 / \340\270\233\340\270\264\340\270\224  \340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        btnReset->setText(QApplication::translate("ChorusDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", 0));
-        label_6->setText(QApplication::translate("ChorusDialog", "Waveform", 0));
+        btnReset->setText(QApplication::translate("ChorusDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", Q_NULLPTR));
+        label_6->setText(QApplication::translate("ChorusDialog", "Waveform", Q_NULLPTR));
         cbWaveform->clear();
         cbWaveform->insertItems(0, QStringList()
-         << QApplication::translate("ChorusDialog", "Triangle", 0)
-         << QApplication::translate("ChorusDialog", "Sine", 0)
+         << QApplication::translate("ChorusDialog", "Triangle", Q_NULLPTR)
+         << QApplication::translate("ChorusDialog", "Sine", Q_NULLPTR)
         );
-        label_7->setText(QApplication::translate("ChorusDialog", "Phase", 0));
+        label_7->setText(QApplication::translate("ChorusDialog", "Phase", Q_NULLPTR));
         cbPhase->clear();
         cbPhase->insertItems(0, QStringList()
-         << QApplication::translate("ChorusDialog", "-180", 0)
-         << QApplication::translate("ChorusDialog", "-90", 0)
-         << QApplication::translate("ChorusDialog", "0", 0)
-         << QApplication::translate("ChorusDialog", "90", 0)
-         << QApplication::translate("ChorusDialog", "180", 0)
+         << QApplication::translate("ChorusDialog", "-180", Q_NULLPTR)
+         << QApplication::translate("ChorusDialog", "-90", Q_NULLPTR)
+         << QApplication::translate("ChorusDialog", "0", Q_NULLPTR)
+         << QApplication::translate("ChorusDialog", "90", Q_NULLPTR)
+         << QApplication::translate("ChorusDialog", "180", Q_NULLPTR)
         );
-        label_3->setText(QApplication::translate("ChorusDialog", "Feedback", 0));
-        label->setText(QApplication::translate("ChorusDialog", "WetDryMix", 0));
-        label_4->setText(QApplication::translate("ChorusDialog", "Frequency", 0));
-        label_2->setText(QApplication::translate("ChorusDialog", "Depth", 0));
-        label_5->setText(QApplication::translate("ChorusDialog", "Delay", 0));
+        label_3->setText(QApplication::translate("ChorusDialog", "Feedback", Q_NULLPTR));
+        label->setText(QApplication::translate("ChorusDialog", "WetDryMix", Q_NULLPTR));
+        label_4->setText(QApplication::translate("ChorusDialog", "Frequency", Q_NULLPTR));
+        label_2->setText(QApplication::translate("ChorusDialog", "Depth", Q_NULLPTR));
+        label_5->setText(QApplication::translate("ChorusDialog", "Delay", Q_NULLPTR));
     } // retranslateUi
 
 };

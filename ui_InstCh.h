@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'InstCh.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -125,11 +125,11 @@ public:
 
     void retranslateUi(QWidget *InstCh)
     {
-        InstCh->setWindowTitle(QApplication::translate("InstCh", "Form", 0));
-        btnMute->setText(QApplication::translate("InstCh", "M", 0));
-        btnSolo->setText(QApplication::translate("InstCh", "S", 0));
+        InstCh->setWindowTitle(QApplication::translate("InstCh", "Form", Q_NULLPTR));
+        btnMute->setText(QApplication::translate("InstCh", "M", Q_NULLPTR));
+        btnSolo->setText(QApplication::translate("InstCh", "S", Q_NULLPTR));
         lbImage->setText(QString());
-        lbName->setText(QApplication::translate("InstCh", "Text", 0));
+        lbName->setText(QApplication::translate("InstCh", "Text", Q_NULLPTR));
     } // retranslateUi
 
 };

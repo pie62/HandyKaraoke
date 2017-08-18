@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ChMx.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -141,10 +141,10 @@ public:
 
     void retranslateUi(QWidget *ChMx)
     {
-        ChMx->setWindowTitle(QApplication::translate("ChMx", "Form", 0));
-        lbNumber->setText(QApplication::translate("ChMx", "1", 0));
-        btnMute->setText(QApplication::translate("ChMx", "M", 0));
-        btnSolo->setText(QApplication::translate("ChMx", "S", 0));
+        ChMx->setWindowTitle(QApplication::translate("ChMx", "Form", Q_NULLPTR));
+        lbNumber->setText(QApplication::translate("ChMx", "1", Q_NULLPTR));
+        btnMute->setText(QApplication::translate("ChMx", "M", Q_NULLPTR));
+        btnSolo->setText(QApplication::translate("ChMx", "S", Q_NULLPTR));
     } // retranslateUi
 
 };

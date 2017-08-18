@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ChannelMixer.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -383,47 +383,47 @@ public:
 
     void retranslateUi(QWidget *ChannelMixer)
     {
-        ChannelMixer->setWindowTitle(QApplication::translate("ChannelMixer", "Form", 0));
-        label->setText(QApplication::translate("ChannelMixer", "\340\270\212\340\271\210\340\270\255\340\270\207:", 0));
+        ChannelMixer->setWindowTitle(QApplication::translate("ChannelMixer", "Form", Q_NULLPTR));
+        label->setText(QApplication::translate("ChannelMixer", "\340\270\212\340\271\210\340\270\255\340\270\207:", Q_NULLPTR));
         cbCh->clear();
         cbCh->insertItems(0, QStringList()
-         << QApplication::translate("ChannelMixer", "1", 0)
-         << QApplication::translate("ChannelMixer", "2", 0)
-         << QApplication::translate("ChannelMixer", "3", 0)
-         << QApplication::translate("ChannelMixer", "4", 0)
-         << QApplication::translate("ChannelMixer", "5", 0)
-         << QApplication::translate("ChannelMixer", "6", 0)
-         << QApplication::translate("ChannelMixer", "7", 0)
-         << QApplication::translate("ChannelMixer", "8", 0)
-         << QApplication::translate("ChannelMixer", "9", 0)
-         << QApplication::translate("ChannelMixer", "10", 0)
-         << QApplication::translate("ChannelMixer", "11", 0)
-         << QApplication::translate("ChannelMixer", "12", 0)
-         << QApplication::translate("ChannelMixer", "13", 0)
-         << QApplication::translate("ChannelMixer", "14", 0)
-         << QApplication::translate("ChannelMixer", "15", 0)
-         << QApplication::translate("ChannelMixer", "16", 0)
+         << QApplication::translate("ChannelMixer", "1", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "2", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "3", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "4", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "5", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "6", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "7", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "8", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "9", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "10", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "11", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "12", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "13", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "14", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "15", Q_NULLPTR)
+         << QApplication::translate("ChannelMixer", "16", Q_NULLPTR)
         );
-        label_2->setText(QApplication::translate("ChannelMixer", "\340\271\200\340\270\204\340\270\243\340\270\267\340\271\210\340\270\255\340\270\207\340\270\224\340\270\231\340\270\225\340\270\243\340\270\265:", 0));
-        label_3->setText(QApplication::translate("ChannelMixer", "P.", 0));
+        label_2->setText(QApplication::translate("ChannelMixer", "\340\271\200\340\270\204\340\270\243\340\270\267\340\271\210\340\270\255\340\270\207\340\270\224\340\270\231\340\270\225\340\270\243\340\270\265:", Q_NULLPTR));
+        label_3->setText(QApplication::translate("ChannelMixer", "P.", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        dialPan->setToolTip(QApplication::translate("ChannelMixer", "\340\270\201\340\270\266\340\271\210\340\270\207\340\270\201\340\270\245\340\270\262\340\270\207", 0));
+        dialPan->setToolTip(QApplication::translate("ChannelMixer", "\340\270\201\340\270\266\340\271\210\340\270\207\340\270\201\340\270\245\340\270\262\340\270\207", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        label_4->setText(QApplication::translate("ChannelMixer", "R.", 0));
+        label_4->setText(QApplication::translate("ChannelMixer", "R.", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        dialReverb->setToolTip(QApplication::translate("ChannelMixer", "\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207  0", 0));
+        dialReverb->setToolTip(QApplication::translate("ChannelMixer", "\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207  0", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        label_5->setText(QApplication::translate("ChannelMixer", "C.", 0));
+        label_5->setText(QApplication::translate("ChannelMixer", "C.", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        dialChorus->setToolTip(QApplication::translate("ChannelMixer", "\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231  0", 0));
+        dialChorus->setToolTip(QApplication::translate("ChannelMixer", "\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231  0", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        chbMuteVoice->setText(QApplication::translate("ChannelMixer", "\340\270\233\340\270\264\340\270\224\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\243\340\271\211\340\270\255\340\270\207", 0));
+        chbMuteVoice->setText(QApplication::translate("ChannelMixer", "\340\270\233\340\270\264\340\270\224\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\243\340\271\211\340\270\255\340\270\207", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        btnSettingVu->setToolTip(QApplication::translate("ChannelMixer", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262 LED Meter", 0));
+        btnSettingVu->setToolTip(QApplication::translate("ChannelMixer", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262 LED Meter", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         btnSettingVu->setText(QString());
 #ifndef QT_NO_TOOLTIP
-        btnClose->setToolTip(QApplication::translate("ChannelMixer", "\340\270\233\340\270\264\340\270\224", 0));
+        btnClose->setToolTip(QApplication::translate("ChannelMixer", "\340\270\233\340\270\264\340\270\224", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
     } // retranslateUi
 

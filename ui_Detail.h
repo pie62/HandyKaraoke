@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Detail.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -85,7 +85,7 @@ public:
 
     void retranslateUi(QWidget *Detail)
     {
-        Detail->setWindowTitle(QApplication::translate("Detail", "Form", 0));
+        Detail->setWindowTitle(QApplication::translate("Detail", "Form", Q_NULLPTR));
         lbText->setText(QString());
         lbValue->setText(QString());
     } // retranslateUi

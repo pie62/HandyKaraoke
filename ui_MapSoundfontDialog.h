@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MapSoundfontDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -75,12 +75,12 @@ public:
 
     void retranslateUi(QDialog *MapSoundfontDialog)
     {
-        MapSoundfontDialog->setWindowTitle(QApplication::translate("MapSoundfontDialog", "\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\270\267\340\270\255\340\270\201\340\271\203\340\270\212\340\271\211\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", 0));
+        MapSoundfontDialog->setWindowTitle(QApplication::translate("MapSoundfontDialog", "\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\270\267\340\270\255\340\270\201\340\271\203\340\270\212\340\271\211\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", Q_NULLPTR));
         QTreeWidgetItem *___qtreewidgetitem = treeWidget->headerItem();
-        ___qtreewidgetitem->setText(1, QApplication::translate("MapSoundfontDialog", "\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", 0));
-        ___qtreewidgetitem->setText(0, QApplication::translate("MapSoundfontDialog", "\340\271\200\340\270\204\340\270\243\340\270\267\340\271\210\340\270\255\340\270\207\340\270\224\340\270\231\340\270\225\340\270\243\340\270\265", 0));
-        btnOk->setText(QApplication::translate("MapSoundfontDialog", "\340\270\225\340\270\201\340\270\245\340\270\207", 0));
-        btnCancel->setText(QApplication::translate("MapSoundfontDialog", "\340\270\242\340\270\201\340\271\200\340\270\245\340\270\264\340\270\201", 0));
+        ___qtreewidgetitem->setText(1, QApplication::translate("MapSoundfontDialog", "\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", Q_NULLPTR));
+        ___qtreewidgetitem->setText(0, QApplication::translate("MapSoundfontDialog", "\340\271\200\340\270\204\340\270\243\340\270\267\340\271\210\340\270\255\340\270\207\340\270\224\340\270\231\340\270\225\340\270\243\340\270\265", Q_NULLPTR));
+        btnOk->setText(QApplication::translate("MapSoundfontDialog", "\340\270\225\340\270\201\340\270\245\340\270\207", Q_NULLPTR));
+        btnCancel->setText(QApplication::translate("MapSoundfontDialog", "\340\270\242\340\270\201\340\271\200\340\270\245\340\270\264\340\270\201", Q_NULLPTR));
     } // retranslateUi
 
 };

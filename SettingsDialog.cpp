@@ -186,11 +186,6 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
-void SettingsDialog::setOutputFloat(bool lock)
-{
-    _outputFloat = lock;
-}
-
 void SettingsDialog::setLabelFontInfo(QFont *font)
 {
     QString fFamily = font->family();
@@ -896,9 +891,3 @@ void SettingsDialog::on_btnClose_clicked()
     close();
 }
 
-
-void SettingsDialog::on_chOutputFloat_toggled(bool checked)
-{
-    settings->setValue("OutputFloat", checked);
-    _outputFloat = checked;
-}

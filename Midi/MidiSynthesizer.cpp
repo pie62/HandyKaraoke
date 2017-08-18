@@ -60,23 +60,17 @@ bool MidiSynthesizer::open()
     if (openned)
         return true;
 
+    settings = new QSettings();
 
-    BASS_Init(outDev, 44100, 0, NULL, NULL);
-    BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
+    BASS_SetConfig(BASS_CONFIG_DEV_DEFAULT, 1);
+    BASS_Init(outDev, 44100, BASS_DEVICE_LATENCY|BASS_DEVICE_FREQ, NULL, NULL);
+    BASS_SetConfig(BASS_CONFIG_BUFFER, 300);
 
-    // check the correct BASS_FX was loaded
-//    if (HIWORD(BASS_FX_GetVersion())!=BASSVERSION) {
-
-//    }
-//    if (SettingsDialog._outputFloat) {
-//        flags = BASS_MIDI_SINCINTER|BASS_MIDI_NOFX;
-//    } else {
-        flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER|BASS_MIDI_NOFX|BASS_MIDI_DECAYSEEK|BASS_MIDI_DECAYEND;
-//    }
+    flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER|BASS_MIDI_NOFX|BASS_MIDI_DECAYSEEK|BASS_MIDI_DECAYEND;
     stream = BASS_MIDI_StreamCreate(32, flags, 0);
 
     #ifdef _WIN32
-        BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+        BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 20);
     #else
         BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
     #endif
@@ -103,12 +97,10 @@ bool MidiSynthesizer::open()
         BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_DRUMS, 1);
     }
 
-
     // Set stream to Fx
     eq->setStreamHandle(stream);
     reverb->setStreamHandle(stream);
     chorus->setStreamHandle(stream);
-
 
     openned = true;
     return true;
@@ -237,7 +229,10 @@ bool MidiSynthesizer::setMapSoundfontIndex(const std::vector<int> &intrumentSfIn
 
 
     // set to stream
-    BASS_MIDI_StreamSetFonts(stream, mFonts.data(), mFonts.size()|BASS_MIDI_FONT_EX);
+    BASS_MIDI_StreamSetFonts(0, mFonts.data(), mFonts.size());
+    BASS_MIDI_StreamSetFonts(stream, mFonts.data(), mFonts.size());
+
+    BASS_MIDI_StreamLoadSamples(stream);
 
     return true;
 }
@@ -248,9 +243,9 @@ void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)
         return;
 
     if (ch == 9)
-        BASS_MIDI_StreamEvent(stream, getDrumChannelFromNote(note), MIDI_EVENT_NOTE, note);
+        BASS_MIDI_StreamEvent(stream, getDrumChannelFromNote(note), MIDI_EVENT_NOTE, MAKEWORD(note, 0));
     else
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTE, note);
+        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTE, MAKEWORD(note, 0));
 }
 
 void MidiSynthesizer::sendNoteOn(int ch, int note, int velocity)
@@ -547,16 +542,16 @@ bool MidiSynthesizer::isSoundFontFile(std::string sfile)
 void MidiSynthesizer::setSfToStream()
 {
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
-        BASS_MIDI_FontUnload(f,-1,-1);
+        BASS_MIDI_FontUnload(f,-1,0);
         BASS_MIDI_FontFree(f);
     }
     synth_HSOUNDFONT.clear();
 
     for (const std::string &sfile : sfFiles) {
-        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.data(), BASS_MIDI_FONT_MMAP | BASS_MIDI_FONT_NOFX);
+        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.data(), BASS_MIDI_FONT_MMAP);
         if (f) {
             synth_HSOUNDFONT.push_back(f);
-            BASS_MIDI_FontLoad(f,-1,-1);
+            BASS_MIDI_FontLoad(f,-1,0);
         }
     }
 
@@ -566,8 +561,10 @@ void MidiSynthesizer::setSfToStream()
         font.preset = -1;
         font.bank = 0;
 
-        //BASS_MIDI_StreamSetFonts(0, &font, 1); // set sf to default stream
+        BASS_MIDI_StreamSetFonts(0, &font, 1); // set sf to default stream
         BASS_MIDI_StreamSetFonts(stream, &font, 1); // set to stream to
+
+        BASS_MIDI_StreamLoadSamples(stream);
     }
 
     // Reset map intrument sf

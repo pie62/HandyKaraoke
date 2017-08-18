@@ -459,18 +459,24 @@ void MidiPlayer::playEvents()
 
             long eventTime = _midi->timeFromTick(_midi->events()[i]->tick()) * 1000;
             long waitTime = eventTime - _startPlayTime - _eTimer->elapsed();
-
             if (waitTime > 0) {
-                //std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
                 msleep(waitTime);
             }
 
+//            qint32 waitTime;
+//            do {
+//                waitTime = eventTime - _eTimer->elapsed();
+//                if (waitTime > 0) {
+//                    msleep(waitTime);
+//                }
+//            } while (waitTime > 0);
+
             if (_midi->events()[i]->eventType() != MidiEventType::SysEx) {
 
-                if (_midi->events()[i]->eventType() == MidiEventType::Controller
-                    || _midi->events()[i]->eventType() == MidiEventType::ProgramChange) {
-                    sendEvent(_midi->events()[i]);
-                } else {
+//                if (_midi->events()[i]->eventType() == MidiEventType::Controller
+//                    || _midi->events()[i]->eventType() == MidiEventType::ProgramChange) {
+//                    sendEvent(_midi->events()[i]);
+//                } else {
                     if (_midiChannels[_midi->events()[i]->channel()].isMute() == false) {
                         if (_useSolo) {
                             if (_midiChannels[_midi->events()[i]->channel()].isSolo()) {
@@ -480,7 +486,7 @@ void MidiPlayer::playEvents()
                             sendEvent(_midi->events()[i]);
                         }
                     }
-                }
+//                }
 
             }
 
@@ -591,6 +597,7 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         break;
     }
     case MidiEventType::PitchBend: {
+//        int n = getNoteNumberToPlay(ch, e->data1());
         if (_midiPortNum == -1) {
             _midiSynth->sendPitchBend(ch, e->data1());
         } else {
@@ -599,6 +606,8 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         break;
     }
     }
+
+//    qDebug("%d",e->eventType());
 }
 
 void MidiPlayer::sendAllNotesOff(int ch)

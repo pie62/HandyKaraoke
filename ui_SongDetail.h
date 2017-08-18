@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'SongDetail.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -142,18 +142,18 @@ public:
 
     void retranslateUi(QWidget *SongDetail)
     {
-        SongDetail->setWindowTitle(QApplication::translate("SongDetail", "Form", 0));
-        label->setText(QApplication::translate("SongDetail", "\340\270\243\340\270\253\340\270\261\340\270\252\340\271\200\340\270\236\340\270\245\340\270\207 :", 0));
+        SongDetail->setWindowTitle(QApplication::translate("SongDetail", "Form", Q_NULLPTR));
+        label->setText(QApplication::translate("SongDetail", "\340\270\243\340\270\253\340\270\261\340\270\252\340\271\200\340\270\236\340\270\245\340\270\207 :", Q_NULLPTR));
         lbId->setText(QString());
-        label_2->setText(QApplication::translate("SongDetail", "\340\270\212\340\270\267\340\271\210\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207 :", 0));
+        label_2->setText(QApplication::translate("SongDetail", "\340\270\212\340\270\267\340\271\210\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207 :", Q_NULLPTR));
         lbName->setText(QString());
-        label_3->setText(QApplication::translate("SongDetail", "\340\270\212\340\270\267\340\271\210\340\270\255\340\270\250\340\270\264\340\270\245\340\270\233\340\270\264\340\270\231 :", 0));
+        label_3->setText(QApplication::translate("SongDetail", "\340\270\212\340\270\267\340\271\210\340\270\255\340\270\250\340\270\264\340\270\245\340\270\233\340\270\264\340\270\231 :", Q_NULLPTR));
         lbArtist->setText(QString());
-        label_4->setText(QApplication::translate("SongDetail", "\340\270\204\340\270\247\340\270\262\340\270\241\340\271\200\340\270\243\340\271\207\340\270\247 :", 0));
+        label_4->setText(QApplication::translate("SongDetail", "\340\270\204\340\270\247\340\270\262\340\270\241\340\271\200\340\270\243\340\271\207\340\270\247 :", Q_NULLPTR));
         lbBpm->setText(QString());
-        label_5->setText(QApplication::translate("SongDetail", "\340\270\212\340\270\231\340\270\264\340\270\224\340\271\200\340\270\236\340\270\245\340\270\207 :", 0));
+        label_5->setText(QApplication::translate("SongDetail", "\340\270\212\340\270\231\340\270\264\340\270\224\340\271\200\340\270\236\340\270\245\340\270\207 :", Q_NULLPTR));
         lbType->setText(QString());
-        label_6->setText(QApplication::translate("SongDetail", "\340\270\204\340\270\265\340\270\242\340\271\214\340\271\200\340\270\236\340\270\245\340\270\207 :", 0));
+        label_6->setText(QApplication::translate("SongDetail", "\340\270\204\340\270\265\340\270\242\340\271\214\340\271\200\340\270\236\340\270\245\340\270\207 :", Q_NULLPTR));
         lbKey->setText(QString());
     } // retranslateUi
 

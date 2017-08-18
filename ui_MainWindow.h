@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -654,8 +654,8 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Handy Karaoke", 0));
-        lbSearch->setText(QApplication::translate("MainWindow", "_", 0));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Handy Karaoke", Q_NULLPTR));
+        lbSearch->setText(QApplication::translate("MainWindow", "_", Q_NULLPTR));
         lbLyrics->setText(QString());
         lbId->setText(QString());
         lbName->setText(QString());
@@ -663,30 +663,30 @@ public:
         lbArtist->setText(QString());
         lbTempoKey->setText(QString());
         lbType->setText(QString());
-        label->setText(QApplication::translate("MainWindow", "\340\270\243\340\270\262\340\270\242\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\271\210\340\270\231", 0));
+        label->setText(QApplication::translate("MainWindow", "\340\270\243\340\270\262\340\270\242\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\271\210\340\270\231", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        btnPlay->setToolTip(QApplication::translate("MainWindow", "\340\271\200\340\270\245\340\271\210\340\270\231 (F5)", 0));
+        btnPlay->setToolTip(QApplication::translate("MainWindow", "\340\271\200\340\270\245\340\271\210\340\270\231 (F5)", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         btnPlay->setText(QString());
 #ifndef QT_NO_TOOLTIP
-        btnPause->setToolTip(QApplication::translate("MainWindow", "\340\270\253\340\270\242\340\270\270\340\270\224\340\270\212\340\270\261\340\271\210\340\270\247\340\270\204\340\270\243\340\270\262\340\270\247 (F6)", 0));
+        btnPause->setToolTip(QApplication::translate("MainWindow", "\340\270\253\340\270\242\340\270\270\340\270\224\340\270\212\340\270\261\340\271\210\340\270\247\340\270\204\340\270\243\340\270\262\340\270\247 (F6)", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         btnPause->setText(QString());
 #ifndef QT_NO_TOOLTIP
-        btnStop->setToolTip(QApplication::translate("MainWindow", "\340\270\253\340\270\242\340\270\270\340\270\224 (F7)", 0));
+        btnStop->setToolTip(QApplication::translate("MainWindow", "\340\270\253\340\270\242\340\270\270\340\270\224 (F7)", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         btnStop->setText(QString());
 #ifndef QT_NO_TOOLTIP
-        btnPrevious->setToolTip(QApplication::translate("MainWindow", "\340\271\200\340\270\236\340\270\245\340\270\207\340\270\201\340\271\210\340\270\255\340\270\231\340\270\253\340\270\231\340\271\211\340\270\262 (F8)", 0));
+        btnPrevious->setToolTip(QApplication::translate("MainWindow", "\340\271\200\340\270\236\340\270\245\340\270\207\340\270\201\340\271\210\340\270\255\340\270\231\340\270\253\340\270\231\340\271\211\340\270\262 (F8)", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         btnPrevious->setText(QString());
 #ifndef QT_NO_TOOLTIP
-        btnNext->setToolTip(QApplication::translate("MainWindow", "\340\271\200\340\270\236\340\270\245\340\270\207\340\270\226\340\270\261\340\270\224\340\271\204\340\270\233 (F9)", 0));
+        btnNext->setToolTip(QApplication::translate("MainWindow", "\340\271\200\340\270\236\340\270\245\340\270\207\340\270\226\340\270\261\340\270\224\340\271\204\340\270\233 (F9)", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         btnNext->setText(QString());
-        lbPosition->setText(QApplication::translate("MainWindow", "00:00", 0));
-        label_4->setText(QApplication::translate("MainWindow", "/", 0));
-        lbDuration->setText(QApplication::translate("MainWindow", "00:00", 0));
+        lbPosition->setText(QApplication::translate("MainWindow", "00:00", Q_NULLPTR));
+        label_4->setText(QApplication::translate("MainWindow", "/", Q_NULLPTR));
+        lbDuration->setText(QApplication::translate("MainWindow", "00:00", Q_NULLPTR));
         btnVolumeMute->setText(QString());
     } // retranslateUi
 

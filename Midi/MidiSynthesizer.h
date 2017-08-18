@@ -19,10 +19,10 @@
 
 #include "Midi/MidiHelper.h"
 
+#include <QSettings>
 #include <vector>
 #include <string>
 #include <map>
-
 
 struct Instrument
 {
@@ -118,6 +118,8 @@ private:
     void calculateEnable();
     int getDrumChannelFromNote(int drumNote);
     std::vector<int> getChannelsFromType(InstrumentType t);
+
+    QSettings *settings;
 };
 
 #endif // MIDISYNTHESIZER_H

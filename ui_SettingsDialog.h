@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'SettingsDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -152,8 +152,6 @@ public:
     QComboBox *cbMidiOut;
     QLabel *label_7;
     QComboBox *cbAudioOut;
-    QCheckBox *chOutputFloat;
-    QLabel *label_19;
     QGroupBox *groupBox_3;
     QFormLayout *formLayout_3;
     QCheckBox *chbLockDrum;
@@ -222,6 +220,7 @@ public:
         verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
         chbRemoveFromList = new QCheckBox(groupBox_6);
         chbRemoveFromList->setObjectName(QStringLiteral("chbRemoveFromList"));
+        chbRemoveFromList->setEnabled(true);
         chbRemoveFromList->setChecked(true);
 
         verticalLayout_4->addWidget(chbRemoveFromList);
@@ -787,16 +786,6 @@ public:
 
         formLayout->setWidget(1, QFormLayout::FieldRole, cbAudioOut);
 
-        chOutputFloat = new QCheckBox(groupBox_7);
-        chOutputFloat->setObjectName(QStringLiteral("chOutputFloat"));
-
-        formLayout->setWidget(2, QFormLayout::FieldRole, chOutputFloat);
-
-        label_19 = new QLabel(groupBox_7);
-        label_19->setObjectName(QStringLiteral("label_19"));
-
-        formLayout->setWidget(2, QFormLayout::LabelRole, label_19);
-
 
         verticalLayout_12->addWidget(groupBox_7);
 
@@ -1036,7 +1025,7 @@ public:
 
         retranslateUi(SettingsDialog);
 
-        tabWidget->setCurrentIndex(3);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(SettingsDialog);
@@ -1044,66 +1033,64 @@ public:
 
     void retranslateUi(QDialog *SettingsDialog)
     {
-        SettingsDialog->setWindowTitle(QApplication::translate("SettingsDialog", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262", 0));
-        groupBox_6->setTitle(QApplication::translate("SettingsDialog", "\340\270\243\340\270\262\340\270\242\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\271\210\340\270\231", 0));
-        chbRemoveFromList->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\270\232\340\271\200\340\270\236\340\270\245\340\270\207\340\270\227\340\270\265\340\271\210\340\271\200\340\270\245\340\271\210\340\270\231", 0));
-        chbAutoPlaynext->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\245\340\271\210\340\270\231\340\271\200\340\270\236\340\270\245\340\270\207\340\270\226\340\270\261\340\270\224\340\271\204\340\270\233\340\270\227\340\270\261\340\270\231\340\270\227\340\270\265", 0));
-        groupBox_8->setTitle(QApplication::translate("SettingsDialog", "\340\270\243\340\270\260\340\270\242\340\270\260\340\271\200\340\270\247\340\270\245\340\270\262\340\271\201\340\270\252\340\270\224\340\270\207\340\270\234\340\270\245", 0));
-        label_12->setText(QApplication::translate("SettingsDialog", "\340\270\201\340\270\262\340\270\243\340\270\204\340\271\211\340\270\231\340\270\253\340\270\262 (\340\270\247\340\270\264\340\270\231\340\270\262\340\270\227\340\270\265) :", 0));
-        label_13->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\262\340\270\242\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\271\210\340\270\231 (\340\270\247\340\270\264\340\270\231\340\270\262\340\270\227\340\270\265) :", 0));
-        groupBox_9->setTitle(QApplication::translate("SettingsDialog", "\340\270\236\340\270\267\340\271\211\340\270\231\340\270\253\340\270\245\340\270\261\340\270\207", 0));
-        radioBgColor->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265", 0));
-        lbBgColorN->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\270\236\340\270\267\340\271\211\340\270\231\340\270\253\340\270\245\340\270\261\340\270\207:", 0));
+        SettingsDialog->setWindowTitle(QApplication::translate("SettingsDialog", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262", Q_NULLPTR));
+        groupBox_6->setTitle(QApplication::translate("SettingsDialog", "\340\270\243\340\270\262\340\270\242\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\271\210\340\270\231", Q_NULLPTR));
+        chbRemoveFromList->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\270\232\340\271\200\340\270\236\340\270\245\340\270\207\340\270\227\340\270\265\340\271\210\340\271\200\340\270\245\340\271\210\340\270\231", Q_NULLPTR));
+        chbAutoPlaynext->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\245\340\271\210\340\270\231\340\271\200\340\270\236\340\270\245\340\270\207\340\270\226\340\270\261\340\270\224\340\271\204\340\270\233\340\270\227\340\270\261\340\270\231\340\270\227\340\270\265", Q_NULLPTR));
+        groupBox_8->setTitle(QApplication::translate("SettingsDialog", "\340\270\243\340\270\260\340\270\242\340\270\260\340\271\200\340\270\247\340\270\245\340\270\262\340\271\201\340\270\252\340\270\224\340\270\207\340\270\234\340\270\245", Q_NULLPTR));
+        label_12->setText(QApplication::translate("SettingsDialog", "\340\270\201\340\270\262\340\270\243\340\270\204\340\271\211\340\270\231\340\270\253\340\270\262 (\340\270\247\340\270\264\340\270\231\340\270\262\340\270\227\340\270\265) :", Q_NULLPTR));
+        label_13->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\262\340\270\242\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\271\210\340\270\231 (\340\270\247\340\270\264\340\270\231\340\270\262\340\270\227\340\270\265) :", Q_NULLPTR));
+        groupBox_9->setTitle(QApplication::translate("SettingsDialog", "\340\270\236\340\270\267\340\271\211\340\270\231\340\270\253\340\270\245\340\270\261\340\270\207", Q_NULLPTR));
+        radioBgColor->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265", Q_NULLPTR));
+        lbBgColorN->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\270\236\340\270\267\340\271\211\340\270\231\340\270\253\340\270\245\340\270\261\340\270\207:", Q_NULLPTR));
         lbBgColor->setText(QString());
-        btnBgColor->setText(QApplication::translate("SettingsDialog", "...", 0));
-        radioBgImg->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\271\340\270\233\340\270\240\340\270\262\340\270\236", 0));
-        lbBgImgN->setText(QApplication::translate("SettingsDialog", "\340\271\204\340\270\237\340\270\245\340\271\214\340\270\243\340\270\271\340\270\233\340\270\240\340\270\262\340\270\236:", 0));
-        btnBgImg->setText(QApplication::translate("SettingsDialog", "...", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("SettingsDialog", "\340\270\227\340\270\261\340\271\210\340\270\247\340\271\204\340\270\233", 0));
-        label_4->setText(QApplication::translate("SettingsDialog", "\340\271\201\340\270\232\340\270\232\340\270\225\340\270\261\340\270\247\340\270\255\340\270\261\340\270\201\340\270\251\340\270\243 :", 0));
-        btnFont->setText(QApplication::translate("SettingsDialog", "...", 0));
-        label_14->setText(QApplication::translate("SettingsDialog", "\340\270\225\340\270\263\340\271\201\340\270\253\340\270\231\340\271\210\340\270\207\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207 :", 0));
-        label_15->setText(QApplication::translate("SettingsDialog", "\340\270\232\340\270\243\340\270\243\340\270\227\340\270\261\340\270\224\340\270\227\340\270\265\340\271\210 1: ", 0));
-        label_16->setText(QApplication::translate("SettingsDialog", "\340\270\232\340\270\243\340\270\243\340\270\227\340\270\261\340\270\224\340\270\227\340\270\265\340\271\210 2: ", 0));
-        label_17->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\260\340\270\242\340\270\260\340\271\200\340\270\247\340\270\245\340\270\262\340\270\233\340\270\262\340\270\224\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255 (ms) :", 0));
-        groupBox_4->setTitle(QApplication::translate("SettingsDialog", "\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207", 0));
-        label_8->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\270\225\340\270\261\340\270\247\340\270\255\340\270\261\340\270\201\340\270\251\340\270\243 :", 0));
+        btnBgColor->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        radioBgImg->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\271\340\270\233\340\270\240\340\270\262\340\270\236", Q_NULLPTR));
+        lbBgImgN->setText(QApplication::translate("SettingsDialog", "\340\271\204\340\270\237\340\270\245\340\271\214\340\270\243\340\270\271\340\270\233\340\270\240\340\270\262\340\270\236:", Q_NULLPTR));
+        btnBgImg->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("SettingsDialog", "\340\270\227\340\270\261\340\271\210\340\270\247\340\271\204\340\270\233", Q_NULLPTR));
+        label_4->setText(QApplication::translate("SettingsDialog", "\340\271\201\340\270\232\340\270\232\340\270\225\340\270\261\340\270\247\340\270\255\340\270\261\340\270\201\340\270\251\340\270\243 :", Q_NULLPTR));
+        btnFont->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        label_14->setText(QApplication::translate("SettingsDialog", "\340\270\225\340\270\263\340\271\201\340\270\253\340\270\231\340\271\210\340\270\207\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207 :", Q_NULLPTR));
+        label_15->setText(QApplication::translate("SettingsDialog", "\340\270\232\340\270\243\340\270\243\340\270\227\340\270\261\340\270\224\340\270\227\340\270\265\340\271\210 1: ", Q_NULLPTR));
+        label_16->setText(QApplication::translate("SettingsDialog", "\340\270\232\340\270\243\340\270\243\340\270\227\340\270\261\340\270\224\340\270\227\340\270\265\340\271\210 2: ", Q_NULLPTR));
+        label_17->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\260\340\270\242\340\270\260\340\271\200\340\270\247\340\270\245\340\270\262\340\270\233\340\270\262\340\270\224\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255 (ms) :", Q_NULLPTR));
+        groupBox_4->setTitle(QApplication::translate("SettingsDialog", "\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207", Q_NULLPTR));
+        label_8->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\270\225\340\270\261\340\270\247\340\270\255\340\270\261\340\270\201\340\270\251\340\270\243 :", Q_NULLPTR));
         lbTextColor->setText(QString());
-        btnTextColor->setText(QApplication::translate("SettingsDialog", "...", 0));
-        label_10->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", 0));
+        btnTextColor->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        label_10->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", Q_NULLPTR));
         lbTextBorderColor->setText(QString());
-        btnTextBorderColor->setText(QApplication::translate("SettingsDialog", "...", 0));
-        label_11->setText(QApplication::translate("SettingsDialog", "\340\270\202\340\270\231\340\270\262\340\270\224\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", 0));
-        groupBox_5->setTitle(QApplication::translate("SettingsDialog", "\340\270\225\340\270\263\340\271\201\340\270\253\340\270\231\340\271\210\340\270\207\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\270\243\340\271\211\340\270\255\340\270\207", 0));
-        label_5->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\270\225\340\270\261\340\270\247\340\270\255\340\270\261\340\270\201\340\270\251\340\270\243 :", 0));
+        btnTextBorderColor->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        label_11->setText(QApplication::translate("SettingsDialog", "\340\270\202\340\270\231\340\270\262\340\270\224\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", Q_NULLPTR));
+        groupBox_5->setTitle(QApplication::translate("SettingsDialog", "\340\270\225\340\270\263\340\271\201\340\270\253\340\270\231\340\271\210\340\270\207\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\270\243\340\271\211\340\270\255\340\270\207", Q_NULLPTR));
+        label_5->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\270\225\340\270\261\340\270\247\340\270\255\340\270\261\340\270\201\340\270\251\340\270\243 :", Q_NULLPTR));
         lbCurColor->setText(QString());
-        btnCurColor->setText(QApplication::translate("SettingsDialog", "...", 0));
-        label_6->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", 0));
+        btnCurColor->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        label_6->setText(QApplication::translate("SettingsDialog", "\340\270\252\340\270\265\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", Q_NULLPTR));
         lbCurBorderColor->setText(QString());
-        btnCurBorderColor->setText(QApplication::translate("SettingsDialog", "...", 0));
-        label_9->setText(QApplication::translate("SettingsDialog", "\340\270\202\340\270\231\340\270\262\340\270\224\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("SettingsDialog", "\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207", 0));
-        groupBox->setTitle(QApplication::translate("SettingsDialog", "\340\270\227\340\270\265\340\271\210\340\271\200\340\270\201\340\271\207\340\270\232\340\271\200\340\270\236\340\270\245\340\270\207", 0));
-        label->setText(QApplication::translate("SettingsDialog", "NCN :", 0));
-        btnNCNPath->setText(QApplication::translate("SettingsDialog", "...", 0));
-        groupBox_2->setTitle(QApplication::translate("SettingsDialog", "\340\270\233\340\270\243\340\270\261\340\270\232\340\270\233\340\270\243\340\270\270\340\270\207\340\270\220\340\270\262\340\270\231\340\270\202\340\271\211\340\270\255\340\270\241\340\270\271\340\270\245\340\271\200\340\270\236\340\270\245\340\270\207", 0));
-        label_2->setText(QApplication::translate("SettingsDialog", "\340\270\204\340\270\247\340\270\262\340\270\241\340\270\204\340\270\267\340\270\232\340\270\253\340\270\231\340\271\211\340\270\262 :", 0));
-        lbUpdateText->setText(QApplication::translate("SettingsDialog", "\340\270\201\340\270\263\340\270\245\340\270\261\340\270\207\340\270\255\340\271\210\340\270\262\340\270\231\340\271\204\340\270\237\340\270\245\340\271\214 :", 0));
+        btnCurBorderColor->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        label_9->setText(QApplication::translate("SettingsDialog", "\340\270\202\340\270\231\340\270\262\340\270\224\340\271\200\340\270\252\340\271\211\340\270\231\340\270\202\340\270\255\340\270\232 :", Q_NULLPTR));
+        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("SettingsDialog", "\340\271\200\340\270\231\340\270\267\340\271\211\340\270\255\340\271\200\340\270\236\340\270\245\340\270\207", Q_NULLPTR));
+        groupBox->setTitle(QApplication::translate("SettingsDialog", "\340\270\227\340\270\265\340\271\210\340\271\200\340\270\201\340\271\207\340\270\232\340\271\200\340\270\236\340\270\245\340\270\207", Q_NULLPTR));
+        label->setText(QApplication::translate("SettingsDialog", "NCN :", Q_NULLPTR));
+        btnNCNPath->setText(QApplication::translate("SettingsDialog", "...", Q_NULLPTR));
+        groupBox_2->setTitle(QApplication::translate("SettingsDialog", "\340\270\233\340\270\243\340\270\261\340\270\232\340\270\233\340\270\243\340\270\270\340\270\207\340\270\220\340\270\262\340\270\231\340\270\202\340\271\211\340\270\255\340\270\241\340\270\271\340\270\245\340\271\200\340\270\236\340\270\245\340\270\207", Q_NULLPTR));
+        label_2->setText(QApplication::translate("SettingsDialog", "\340\270\204\340\270\247\340\270\262\340\270\241\340\270\204\340\270\267\340\270\232\340\270\253\340\270\231\340\271\211\340\270\262 :", Q_NULLPTR));
+        lbUpdateText->setText(QApplication::translate("SettingsDialog", "\340\270\201\340\270\263\340\270\245\340\270\261\340\270\207\340\270\255\340\271\210\340\270\262\340\270\231\340\271\204\340\270\237\340\270\245\340\271\214 :", Q_NULLPTR));
         lbUpdateValue->setText(QString());
-        btnUpdateSongs->setText(QApplication::translate("SettingsDialog", "\340\270\233\340\270\243\340\270\261\340\270\232\340\270\233\340\270\243\340\270\270\340\270\207", 0));
-        lbCountSongsText->setText(QApplication::translate("SettingsDialog", "\340\270\210\340\270\263\340\270\231\340\270\247\340\270\231\340\271\200\340\270\236\340\270\245\340\270\207\340\270\227\340\270\261\340\271\211\340\270\207\340\270\253\340\270\241\340\270\224 :", 0));
-        lbCountSongsValue->setText(QApplication::translate("SettingsDialog", "0 \340\271\200\340\270\236\340\270\245\340\270\207", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab_3), QApplication::translate("SettingsDialog", "\340\270\220\340\270\262\340\270\231\340\270\202\340\271\211\340\270\255\340\270\241\340\270\271\340\270\245\340\271\200\340\270\236\340\270\245\340\270\207", 0));
-        groupBox_7->setTitle(QApplication::translate("SettingsDialog", "\340\270\255\340\270\270\340\270\233\340\270\201\340\270\243\340\270\223\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\202\340\270\262\340\270\255\340\270\255\340\270\201", 0));
-        label_3->setText(QApplication::translate("SettingsDialog", "MIDI \340\270\202\340\270\262\340\270\255\340\270\255\340\270\201 :", 0));
-        label_7->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\202\340\270\262\340\270\255\340\270\255\340\270\201 :", 0));
-        chOutputFloat->setText(QApplication::translate("SettingsDialog", "32 \340\270\272\340\270\232\340\270\264\340\270\227", 0));
-        label_19->setText(QApplication::translate("SettingsDialog", "Sample", 0));
-        groupBox_3->setTitle(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207", 0));
-        chbLockDrum->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\270\245\340\270\255\340\270\207 :", 0));
-        chbLockSnare->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\252\340\271\201\340\270\231\340\270\243\340\271\214 :", 0));
-        chbLockBass->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\271\200\340\270\232\340\270\252 :", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab_4), QApplication::translate("SettingsDialog", "\340\270\255\340\270\270\340\270\233\340\270\201\340\270\243\340\270\223\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207", 0));
+        btnUpdateSongs->setText(QApplication::translate("SettingsDialog", "\340\270\233\340\270\243\340\270\261\340\270\232\340\270\233\340\270\243\340\270\270\340\270\207", Q_NULLPTR));
+        lbCountSongsText->setText(QApplication::translate("SettingsDialog", "\340\270\210\340\270\263\340\270\231\340\270\247\340\270\231\340\271\200\340\270\236\340\270\245\340\270\207\340\270\227\340\270\261\340\271\211\340\270\207\340\270\253\340\270\241\340\270\224 :", Q_NULLPTR));
+        lbCountSongsValue->setText(QApplication::translate("SettingsDialog", "0 \340\271\200\340\270\236\340\270\245\340\270\207", Q_NULLPTR));
+        tabWidget->setTabText(tabWidget->indexOf(tab_3), QApplication::translate("SettingsDialog", "\340\270\220\340\270\262\340\270\231\340\270\202\340\271\211\340\270\255\340\270\241\340\270\271\340\270\245\340\271\200\340\270\236\340\270\245\340\270\207", Q_NULLPTR));
+        groupBox_7->setTitle(QApplication::translate("SettingsDialog", "\340\270\255\340\270\270\340\270\233\340\270\201\340\270\243\340\270\223\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\202\340\270\262\340\270\255\340\270\255\340\270\201", Q_NULLPTR));
+        label_3->setText(QApplication::translate("SettingsDialog", "MIDI \340\270\202\340\270\262\340\270\255\340\270\255\340\270\201 :", Q_NULLPTR));
+        label_7->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\202\340\270\262\340\270\255\340\270\255\340\270\201 :", Q_NULLPTR));
+        groupBox_3->setTitle(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207", Q_NULLPTR));
+        chbLockDrum->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\270\245\340\270\255\340\270\207 :", Q_NULLPTR));
+        chbLockSnare->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\252\340\271\201\340\270\231\340\270\243\340\271\214 :", Q_NULLPTR));
+        chbLockBass->setText(QApplication::translate("SettingsDialog", "\340\270\245\340\271\207\340\270\255\340\270\201\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\271\200\340\270\232\340\270\252 :", Q_NULLPTR));
+        tabWidget->setTabText(tabWidget->indexOf(tab_4), QApplication::translate("SettingsDialog", "\340\270\255\340\270\270\340\270\233\340\270\201\340\270\243\340\270\223\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207", Q_NULLPTR));
         btnSfAdd->setText(QString());
         btnSfRemove->setText(QString());
         btnSfUp->setText(QString());
@@ -1111,14 +1098,14 @@ public:
         btnSfFinish->setText(QString());
         btnSfCancel->setText(QString());
         btnSfEdit->setText(QString());
-        lbSfVolume->setText(QApplication::translate("SettingsDialog", "100", 0));
-        label_18->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\260\340\270\224\340\270\261\340\270\232\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207", 0));
-        btnSfMap->setText(QApplication::translate("SettingsDialog", "\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\270\267\340\270\255\340\270\201\340\271\203\340\270\212\340\271\211\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", 0));
-        btnEq->setText(QApplication::translate("SettingsDialog", "\340\270\255\340\270\265\340\270\204\340\270\247\340\270\255\340\271\204\340\270\245\340\271\200\340\270\213\340\270\255\340\270\243\340\271\214", 0));
-        btnReverb->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207", 0));
-        btnChorus->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab_5), QApplication::translate("SettingsDialog", "\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", 0));
-        btnClose->setText(QApplication::translate("SettingsDialog", "\340\270\233\340\270\264\340\270\224", 0));
+        lbSfVolume->setText(QApplication::translate("SettingsDialog", "100", Q_NULLPTR));
+        label_18->setText(QApplication::translate("SettingsDialog", "\340\270\243\340\270\260\340\270\224\340\270\261\340\270\232\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207", Q_NULLPTR));
+        btnSfMap->setText(QApplication::translate("SettingsDialog", "\340\270\201\340\270\262\340\270\243\340\271\200\340\270\245\340\270\267\340\270\255\340\270\201\340\271\203\340\270\212\340\271\211\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", Q_NULLPTR));
+        btnEq->setText(QApplication::translate("SettingsDialog", "\340\270\255\340\270\265\340\270\204\340\270\247\340\270\255\340\271\204\340\270\245\340\271\200\340\270\213\340\270\255\340\270\243\340\271\214", Q_NULLPTR));
+        btnReverb->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207", Q_NULLPTR));
+        btnChorus->setText(QApplication::translate("SettingsDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231", Q_NULLPTR));
+        tabWidget->setTabText(tabWidget->indexOf(tab_5), QApplication::translate("SettingsDialog", "\340\270\213\340\270\262\340\270\247\340\270\224\340\271\214\340\270\237\340\271\211\340\270\255\340\270\231\340\270\227\340\271\214", Q_NULLPTR));
+        btnClose->setText(QApplication::translate("SettingsDialog", "\340\270\233\340\270\264\340\270\224", Q_NULLPTR));
     } // retranslateUi
 
 };

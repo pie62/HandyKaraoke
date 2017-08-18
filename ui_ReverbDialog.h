@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ReverbDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -275,15 +275,15 @@ public:
 
     void retranslateUi(QDialog *ReverbDialog)
     {
-        ReverbDialog->setWindowTitle(QApplication::translate("ReverbDialog", "Reverb", 0));
+        ReverbDialog->setWindowTitle(QApplication::translate("ReverbDialog", "Reverb", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        btnSwitch->setToolTip(QApplication::translate("ReverbDialog", "\340\271\200\340\270\233\340\270\264\340\270\224 / \340\270\233\340\270\264\340\270\224  \340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207", 0));
+        btnSwitch->setToolTip(QApplication::translate("ReverbDialog", "\340\271\200\340\270\233\340\270\264\340\270\224 / \340\270\233\340\270\264\340\270\224  \340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        btnReset->setText(QApplication::translate("ReverbDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", 0));
-        label->setText(QApplication::translate("ReverbDialog", "InGain", 0));
-        label_3->setText(QApplication::translate("ReverbDialog", "ReverbTime", 0));
-        label_2->setText(QApplication::translate("ReverbDialog", "ReverbMix", 0));
-        label_4->setText(QApplication::translate("ReverbDialog", "HighFreqRTRatio", 0));
+        btnReset->setText(QApplication::translate("ReverbDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", Q_NULLPTR));
+        label->setText(QApplication::translate("ReverbDialog", "InGain", Q_NULLPTR));
+        label_3->setText(QApplication::translate("ReverbDialog", "ReverbTime", Q_NULLPTR));
+        label_2->setText(QApplication::translate("ReverbDialog", "ReverbMix", Q_NULLPTR));
+        label_4->setText(QApplication::translate("ReverbDialog", "HighFreqRTRatio", Q_NULLPTR));
     } // retranslateUi
 
 };

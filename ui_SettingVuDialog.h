@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'SettingVuDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -361,27 +361,27 @@ public:
 
     void retranslateUi(QDialog *SettingVuDialog)
     {
-        SettingVuDialog->setWindowTitle(QApplication::translate("SettingVuDialog", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262 LED Meter", 0));
-        groupBox->setTitle(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265 LED Meter", 0));
-        label_2->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\271\200\340\270\233\340\270\264\340\270\224 1 :", 0));
-        btnOn1->setText(QApplication::translate("SettingVuDialog", "..", 0));
-        label_3->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\271\200\340\270\233\340\270\264\340\270\224 2 :", 0));
-        btnOn2->setText(QApplication::translate("SettingVuDialog", "..", 0));
-        label_4->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\271\200\340\270\233\340\270\264\340\270\224 3 :", 0));
-        btnOn3->setText(QApplication::translate("SettingVuDialog", "..", 0));
-        label->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\236\340\270\267\340\271\211\340\270\231\340\270\253\340\270\245\340\270\261\340\270\207 :", 0));
-        btnBg->setText(QApplication::translate("SettingVuDialog", "..", 0));
-        label_5->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\233\340\270\264\340\270\224 1 :", 0));
-        btnOff1->setText(QApplication::translate("SettingVuDialog", "..", 0));
-        label_6->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\233\340\270\264\340\270\224 2 :", 0));
-        btnOff2->setText(QApplication::translate("SettingVuDialog", "..", 0));
-        label_7->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\233\340\270\264\340\270\224 3 :", 0));
-        btnOff3->setText(QApplication::translate("SettingVuDialog", "..", 0));
-        groupBox_2->setTitle(QApplication::translate("SettingVuDialog", "Peak hold", 0));
-        chbPh->setText(QApplication::translate("SettingVuDialog", "\340\271\201\340\270\252\340\270\224\340\270\207 Peak hold", 0));
-        lbPh->setText(QApplication::translate("SettingVuDialog", "ms", 0));
-        btnDefault->setText(QApplication::translate("SettingVuDialog", "\340\270\204\340\271\210\340\270\262\340\271\200\340\270\243\340\270\264\340\271\210\340\270\241\340\270\225\340\271\211\340\270\231", 0));
-        btnClose->setText(QApplication::translate("SettingVuDialog", "\340\270\233\340\270\264\340\270\224", 0));
+        SettingVuDialog->setWindowTitle(QApplication::translate("SettingVuDialog", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262 LED Meter", Q_NULLPTR));
+        groupBox->setTitle(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265 LED Meter", Q_NULLPTR));
+        label_2->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\271\200\340\270\233\340\270\264\340\270\224 1 :", Q_NULLPTR));
+        btnOn1->setText(QApplication::translate("SettingVuDialog", "..", Q_NULLPTR));
+        label_3->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\271\200\340\270\233\340\270\264\340\270\224 2 :", Q_NULLPTR));
+        btnOn2->setText(QApplication::translate("SettingVuDialog", "..", Q_NULLPTR));
+        label_4->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\271\200\340\270\233\340\270\264\340\270\224 3 :", Q_NULLPTR));
+        btnOn3->setText(QApplication::translate("SettingVuDialog", "..", Q_NULLPTR));
+        label->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\236\340\270\267\340\271\211\340\270\231\340\270\253\340\270\245\340\270\261\340\270\207 :", Q_NULLPTR));
+        btnBg->setText(QApplication::translate("SettingVuDialog", "..", Q_NULLPTR));
+        label_5->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\233\340\270\264\340\270\224 1 :", Q_NULLPTR));
+        btnOff1->setText(QApplication::translate("SettingVuDialog", "..", Q_NULLPTR));
+        label_6->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\233\340\270\264\340\270\224 2 :", Q_NULLPTR));
+        btnOff2->setText(QApplication::translate("SettingVuDialog", "..", Q_NULLPTR));
+        label_7->setText(QApplication::translate("SettingVuDialog", "\340\270\252\340\270\265\340\270\233\340\270\264\340\270\224 3 :", Q_NULLPTR));
+        btnOff3->setText(QApplication::translate("SettingVuDialog", "..", Q_NULLPTR));
+        groupBox_2->setTitle(QApplication::translate("SettingVuDialog", "Peak hold", Q_NULLPTR));
+        chbPh->setText(QApplication::translate("SettingVuDialog", "\340\271\201\340\270\252\340\270\224\340\270\207 Peak hold", Q_NULLPTR));
+        lbPh->setText(QApplication::translate("SettingVuDialog", "ms", Q_NULLPTR));
+        btnDefault->setText(QApplication::translate("SettingVuDialog", "\340\270\204\340\271\210\340\270\262\340\271\200\340\270\243\340\270\264\340\271\210\340\270\241\340\270\225\340\271\211\340\270\231", Q_NULLPTR));
+        btnClose->setText(QApplication::translate("SettingVuDialog", "\340\270\233\340\270\264\340\270\224", Q_NULLPTR));
     } // retranslateUi
 
 };

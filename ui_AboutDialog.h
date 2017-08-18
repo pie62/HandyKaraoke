@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'AboutDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -137,15 +137,15 @@ public:
 
     void retranslateUi(QDialog *AboutDialog)
     {
-        AboutDialog->setWindowTitle(QApplication::translate("AboutDialog", "\340\271\200\340\270\201\340\270\265\340\271\210\340\270\242\340\270\247\340\270\201\340\270\261\340\270\232", 0));
+        AboutDialog->setWindowTitle(QApplication::translate("AboutDialog", "\340\271\200\340\270\201\340\270\265\340\271\210\340\270\242\340\270\247\340\270\201\340\270\261\340\270\232", Q_NULLPTR));
         label->setText(QString());
-        label_2->setText(QApplication::translate("AboutDialog", "Handy Karaoke", 0));
-        label_3->setText(QApplication::translate("AboutDialog", "1.0.0 beta", 0));
-        label_4->setText(QApplication::translate("AboutDialog", "Using Qt version 5.6.2", 0));
-        label_5->setText(QApplication::translate("AboutDialog", "License", 0));
-        label_6->setText(QApplication::translate("AboutDialog", "LGPLv3 ", 0));
-        label_7->setText(QApplication::translate("AboutDialog", "https://github.com/pie62/HandyKaraoke", 0));
-        label_8->setText(QApplication::translate("AboutDialog", "(C) 2017 pie62", 0));
+        label_2->setText(QApplication::translate("AboutDialog", "Handy Karaoke", Q_NULLPTR));
+        label_3->setText(QApplication::translate("AboutDialog", "1.0.0 beta", Q_NULLPTR));
+        label_4->setText(QApplication::translate("AboutDialog", "Using Qt version 5.6.2", Q_NULLPTR));
+        label_5->setText(QApplication::translate("AboutDialog", "License", Q_NULLPTR));
+        label_6->setText(QApplication::translate("AboutDialog", "LGPLv3 ", Q_NULLPTR));
+        label_7->setText(QApplication::translate("AboutDialog", "https://github.com/pie62/HandyKaraoke", Q_NULLPTR));
+        label_8->setText(QApplication::translate("AboutDialog", "(C) 2017 pie62", Q_NULLPTR));
     } // retranslateUi
 
 };

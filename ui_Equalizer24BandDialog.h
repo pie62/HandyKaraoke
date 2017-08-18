@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Equalizer24BandDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -1044,59 +1044,59 @@ public:
 
     void retranslateUi(QDialog *Equalizer24BandDialog)
     {
-        Equalizer24BandDialog->setWindowTitle(QApplication::translate("Equalizer24BandDialog", "Equalizer", 0));
+        Equalizer24BandDialog->setWindowTitle(QApplication::translate("Equalizer24BandDialog", "Equalizer", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        btnSwitch->setToolTip(QApplication::translate("Equalizer24BandDialog", "\340\271\200\340\270\233\340\270\264\340\270\224 / \340\270\233\340\270\264\340\270\224  \340\270\255\340\270\265\340\270\204\340\270\247\340\270\255\340\271\204\340\270\245\340\271\200\340\270\213\340\270\255\340\270\243\340\271\214", 0));
+        btnSwitch->setToolTip(QApplication::translate("Equalizer24BandDialog", "\340\271\200\340\270\233\340\270\264\340\270\224 / \340\270\233\340\270\264\340\270\224  \340\270\255\340\270\265\340\270\204\340\270\247\340\270\255\340\271\204\340\270\245\340\271\200\340\270\213\340\270\255\340\270\243\340\271\214", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        btnReset->setText(QApplication::translate("Equalizer24BandDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", 0));
-        lbdb_1->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_7->setText(QApplication::translate("Equalizer24BandDialog", "80", 0));
-        lbdb_2->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_8->setText(QApplication::translate("Equalizer24BandDialog", "100", 0));
-        lbdb_3->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_9->setText(QApplication::translate("Equalizer24BandDialog", "125", 0));
-        lbdb_4->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_10->setText(QApplication::translate("Equalizer24BandDialog", "160", 0));
-        lbdb_5->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_11->setText(QApplication::translate("Equalizer24BandDialog", "200", 0));
-        lbdb_6->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_12->setText(QApplication::translate("Equalizer24BandDialog", "250", 0));
-        lbdb_7->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_13->setText(QApplication::translate("Equalizer24BandDialog", "315", 0));
-        lbdb_8->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_14->setText(QApplication::translate("Equalizer24BandDialog", "400", 0));
-        lbdb_9->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_15->setText(QApplication::translate("Equalizer24BandDialog", "500", 0));
-        lbdb_10->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_16->setText(QApplication::translate("Equalizer24BandDialog", "630", 0));
-        lbdb_11->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_17->setText(QApplication::translate("Equalizer24BandDialog", "800", 0));
-        lbdb_12->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_18->setText(QApplication::translate("Equalizer24BandDialog", "1k", 0));
-        lbdb_13->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_19->setText(QApplication::translate("Equalizer24BandDialog", "1.25k", 0));
-        lbdb_14->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_20->setText(QApplication::translate("Equalizer24BandDialog", "1.6k", 0));
-        lbdb_15->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_21->setText(QApplication::translate("Equalizer24BandDialog", "2k", 0));
-        lbdb_16->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_22->setText(QApplication::translate("Equalizer24BandDialog", "2.5k", 0));
-        lbdb_17->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_23->setText(QApplication::translate("Equalizer24BandDialog", "3.15k", 0));
-        lbdb_18->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_24->setText(QApplication::translate("Equalizer24BandDialog", "4k", 0));
-        lbdb_19->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_25->setText(QApplication::translate("Equalizer24BandDialog", "5k", 0));
-        lbdb_20->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_26->setText(QApplication::translate("Equalizer24BandDialog", "6.3k", 0));
-        lbdb_21->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_27->setText(QApplication::translate("Equalizer24BandDialog", "8k", 0));
-        lbdb_22->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_28->setText(QApplication::translate("Equalizer24BandDialog", "10k", 0));
-        lbdb_23->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_29->setText(QApplication::translate("Equalizer24BandDialog", "12.5k", 0));
-        lbdb_24->setText(QApplication::translate("Equalizer24BandDialog", "0.0", 0));
-        label_30->setText(QApplication::translate("Equalizer24BandDialog", "16k", 0));
+        btnReset->setText(QApplication::translate("Equalizer24BandDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", Q_NULLPTR));
+        lbdb_1->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_7->setText(QApplication::translate("Equalizer24BandDialog", "80", Q_NULLPTR));
+        lbdb_2->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_8->setText(QApplication::translate("Equalizer24BandDialog", "100", Q_NULLPTR));
+        lbdb_3->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_9->setText(QApplication::translate("Equalizer24BandDialog", "125", Q_NULLPTR));
+        lbdb_4->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_10->setText(QApplication::translate("Equalizer24BandDialog", "160", Q_NULLPTR));
+        lbdb_5->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_11->setText(QApplication::translate("Equalizer24BandDialog", "200", Q_NULLPTR));
+        lbdb_6->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_12->setText(QApplication::translate("Equalizer24BandDialog", "250", Q_NULLPTR));
+        lbdb_7->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_13->setText(QApplication::translate("Equalizer24BandDialog", "315", Q_NULLPTR));
+        lbdb_8->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_14->setText(QApplication::translate("Equalizer24BandDialog", "400", Q_NULLPTR));
+        lbdb_9->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_15->setText(QApplication::translate("Equalizer24BandDialog", "500", Q_NULLPTR));
+        lbdb_10->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_16->setText(QApplication::translate("Equalizer24BandDialog", "630", Q_NULLPTR));
+        lbdb_11->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_17->setText(QApplication::translate("Equalizer24BandDialog", "800", Q_NULLPTR));
+        lbdb_12->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_18->setText(QApplication::translate("Equalizer24BandDialog", "1k", Q_NULLPTR));
+        lbdb_13->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_19->setText(QApplication::translate("Equalizer24BandDialog", "1.25k", Q_NULLPTR));
+        lbdb_14->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_20->setText(QApplication::translate("Equalizer24BandDialog", "1.6k", Q_NULLPTR));
+        lbdb_15->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_21->setText(QApplication::translate("Equalizer24BandDialog", "2k", Q_NULLPTR));
+        lbdb_16->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_22->setText(QApplication::translate("Equalizer24BandDialog", "2.5k", Q_NULLPTR));
+        lbdb_17->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_23->setText(QApplication::translate("Equalizer24BandDialog", "3.15k", Q_NULLPTR));
+        lbdb_18->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_24->setText(QApplication::translate("Equalizer24BandDialog", "4k", Q_NULLPTR));
+        lbdb_19->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_25->setText(QApplication::translate("Equalizer24BandDialog", "5k", Q_NULLPTR));
+        lbdb_20->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_26->setText(QApplication::translate("Equalizer24BandDialog", "6.3k", Q_NULLPTR));
+        lbdb_21->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_27->setText(QApplication::translate("Equalizer24BandDialog", "8k", Q_NULLPTR));
+        lbdb_22->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_28->setText(QApplication::translate("Equalizer24BandDialog", "10k", Q_NULLPTR));
+        lbdb_23->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_29->setText(QApplication::translate("Equalizer24BandDialog", "12.5k", Q_NULLPTR));
+        lbdb_24->setText(QApplication::translate("Equalizer24BandDialog", "0.0", Q_NULLPTR));
+        label_30->setText(QApplication::translate("Equalizer24BandDialog", "16k", Q_NULLPTR));
     } // retranslateUi
 
 };

@@ -23,7 +23,7 @@ public:
     int count() { return dCount; }
     Song* currentSong() { return song; }
     static bool isNCNPath(QString path);
-
+    static bool isDBPath();
     bool isOpenned() { return db.isOpen(); }
     bool isUpdatting() { return upTing; }
     int updateCount() { return upCount; }

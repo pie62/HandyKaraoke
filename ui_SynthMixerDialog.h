@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'SynthMixerDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -1015,13 +1015,13 @@ public:
 
     void retranslateUi(QDialog *SynthMixerDialog)
     {
-        SynthMixerDialog->setWindowTitle(QApplication::translate("SynthMixerDialog", "Handy Synth Mixer", 0));
-        btnEq->setText(QApplication::translate("SynthMixerDialog", "\340\270\255\340\270\265\340\270\204\340\270\247\340\270\255\340\271\204\340\270\245\340\271\200\340\270\213\340\270\255\340\270\243\340\271\214", 0));
-        btnReverb->setText(QApplication::translate("SynthMixerDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207", 0));
-        btnChorus->setText(QApplication::translate("SynthMixerDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231", 0));
-        btnReset->setText(QApplication::translate("SynthMixerDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", 0));
+        SynthMixerDialog->setWindowTitle(QApplication::translate("SynthMixerDialog", "Handy Synth Mixer", Q_NULLPTR));
+        btnEq->setText(QApplication::translate("SynthMixerDialog", "\340\270\255\340\270\265\340\270\204\340\270\247\340\270\255\340\271\204\340\270\245\340\271\200\340\270\213\340\270\255\340\270\243\340\271\214", Q_NULLPTR));
+        btnReverb->setText(QApplication::translate("SynthMixerDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\201\340\271\211\340\270\255\340\270\207", Q_NULLPTR));
+        btnChorus->setText(QApplication::translate("SynthMixerDialog", "\340\271\200\340\270\255\340\270\237\340\271\200\340\270\237\340\271\207\340\270\201\340\270\225\340\271\214\340\271\200\340\270\252\340\270\265\340\270\242\340\270\207\340\270\233\340\270\243\340\270\260\340\270\252\340\270\262\340\270\231", Q_NULLPTR));
+        btnReset->setText(QApplication::translate("SynthMixerDialog", "\340\270\243\340\270\265\340\271\200\340\270\213\340\271\207\340\270\225", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        btnSettingVu->setToolTip(QApplication::translate("SynthMixerDialog", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262 LED Meter", 0));
+        btnSettingVu->setToolTip(QApplication::translate("SynthMixerDialog", "\340\270\225\340\270\261\340\271\211\340\270\207\340\270\204\340\271\210\340\270\262 LED Meter", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         btnSettingVu->setText(QString());
     } // retranslateUi

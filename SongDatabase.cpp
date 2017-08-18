@@ -13,6 +13,9 @@
 
 SongDatabase::SongDatabase(QObject *parent) : QObject(parent)
 {
+    bool validDB=false;
+    QString sql="";
+
     thread = new QThread();
     song = new Song();
     searchType = ByName;
@@ -21,12 +24,64 @@ SongDatabase::SongDatabase(QObject *parent) : QObject(parent)
     connect(thread, SIGNAL(started()), this, SLOT(update()));
     connect(this, SIGNAL(updateFinished()), thread, SLOT(quit()));
 
+    if (isDBPath()) {
+       validDB = true;
+    }
     QString path = QDir::toNativeSeparators(QDir::currentPath() + "/Data/Database.db3");
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(path);
     if (db.open()) {
+        if (validDB == false){
+            sql = "CREATE TABLE IF NOT EXISTS songs ("
+                  "id TEXT PRIMARY KEY,name TEXT,artist TEXT,keyname TEXT,tempo INTEGER,songtype TEXT,lyrics TEXT,path TEXT); ";
+            QSqlQuery query;
+            query.exec(sql);
+            query.finish();
+            query.clear();
+
+            sql = "CREATE INDEX id_idx ON songs(id); ";
+            query.exec(sql);
+            query.finish();
+            query.clear();
+
+            sql = "CREATE INDEX name_idx ON songs(name); ";
+            query.exec(sql);
+            query.finish();
+            query.clear();
+
+            sql = "CREATE INDEX artist_idx ON songs(artist); ";
+            query.exec(sql);
+            query.finish();
+            query.clear();
+
+            sql = "CREATE INDEX lyrics_idx ON songs(lyrics); ";
+            query.exec(sql);
+            query.finish();
+            query.clear();
+
+            sql = "CREATE INDEX compound_idx ON songs(id,name,artist,lyrics); ";
+            query.exec(sql);
+            query.finish();
+            query.clear();
+            qDebug() << "SongDatabase: create DB";
+        }
+        db.close();
+    }
+    if (db.open()) {
         qDebug() << "SongDatabase: opened";
         QSqlQuery q;
+
+        q.exec("PRAGMA cache_size=32768;");
+        q.finish(); q.clear();
+        q.exec("PRAGMA page_size=65536;");
+        q.finish(); q.clear();
+        q.exec("PRAGMA journal_mode = WAL");
+        q.finish(); q.clear();
+        q.exec("PRAGMA temp_store = MEMORY;");
+        q.finish(); q.clear();
+        q.exec("PRAGMA synchronous=NORMAL;");
+        q.finish(); q.clear();
+
         q.exec("SELECT Count(*) FROM songs");
         if (q.next()) {
             dCount = q.value(0).toInt();
@@ -47,6 +102,24 @@ SongDatabase::~SongDatabase()
     delete thread;
 }
 
+bool SongDatabase::isDBPath()
+{
+    QDir dir;
+    QString DBpath = QDir::toNativeSeparators(QDir::currentPath() + "/Data");
+
+    if (!dir.exists(DBpath)) {
+        dir.mkpath(DBpath);
+    }
+
+    QString DBpathFile = QDir::toNativeSeparators(QDir::currentPath() + "/Data/Database.db3");
+
+    if (dir.exists(DBpathFile)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool SongDatabase::isNCNPath(QString path)
 {
     QDir dir;
@@ -63,6 +136,7 @@ bool SongDatabase::isNCNPath(QString path)
 
 void SongDatabase::update()
 {
+    QString sql = "";
     if (!db.isOpen()) {
         qDebug() << "SongDatabase: Database is't opened";
         return;
@@ -89,6 +163,33 @@ void SongDatabase::update()
     db.transaction();
     QSqlQuery q;
     q.exec("DELETE FROM songs");
+    q.exec("vacuum");
+    q.finish();
+
+    sql = "DROP INDEX id_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "DROP INDEX name_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "DROP INDEX artist_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "DROP INDEX lyrics_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "DROP INDEX compound_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
 
     // Update NCN
     int i = 0;
@@ -112,6 +213,32 @@ void SongDatabase::update()
     db.commit();
 
     q.exec("vacuum");
+    q.finish();
+    q.clear();
+
+
+    sql = "CREATE INDEX id_idx ON songs(id); ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "CREATE INDEX name_idx ON songs(name); ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "CREATE INDEX artist_idx ON songs(artist); ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "CREATE INDEX lyrics_idx ON songs(lyrics); ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "CREATE INDEX compound_idx ON songs(id,name,artist,lyrics); ";
+    q.exec(sql);
     q.finish();
     q.clear();
 

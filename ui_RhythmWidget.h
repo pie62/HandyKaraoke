@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'RhythmWidget.ui'
 **
-** Created by: Qt User Interface Compiler version 5.6.2
+** Created by: Qt User Interface Compiler version 5.9.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -158,9 +158,9 @@ public:
 
     void retranslateUi(QWidget *RhythmWidget)
     {
-        RhythmWidget->setWindowTitle(QApplication::translate("RhythmWidget", "Form", 0));
-        lbBpm->setText(QApplication::translate("RhythmWidget", "120", 0));
-        lbBeat->setText(QApplication::translate("RhythmWidget", "0:0", 0));
+        RhythmWidget->setWindowTitle(QApplication::translate("RhythmWidget", "Form", Q_NULLPTR));
+        lbBpm->setText(QApplication::translate("RhythmWidget", "120", Q_NULLPTR));
+        lbBeat->setText(QApplication::translate("RhythmWidget", "0:0", Q_NULLPTR));
     } // retranslateUi
 
 };

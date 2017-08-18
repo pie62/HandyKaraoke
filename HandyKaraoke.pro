@@ -13,6 +13,7 @@ CONFIG += c++11
 TARGET = HandyKaraoke
 TEMPLATE = app
 
+include(../../src/QMidi.pri)
 
 SOURCES += main.cpp\
         MainWindow.cpp \
@@ -108,12 +109,12 @@ win32 {
     INCLUDEPATH += $$PWD/Midi/rtmidi
 
     contains(QT_ARCH, i386) {
-        message("32-bit")
+        message("win 32-bit")
         LIBS += -LD:/Projects/QtProjects/BASS/bass24/ -lbass
         LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/ -lbassmidi
         LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/ -lbass_fx
     } else {
-        message("64-bit")
+        message("win 64-bit")
         LIBS += -LD:/Projects/QtProjects/BASS/bass24/x64/ -lbass
         LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/x64/ -lbassmidi
         LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/x64/ -lbass_fx
@@ -129,12 +130,12 @@ unix:!macx {
     LIBS +=  -lrtmidi
 
     contains(QT_ARCH, i386) {
-        message("32-bit")
+        message("linux 32-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/ -lbass_fx
     } else {
-        message("64-bit")
+        message("linux 64-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/x64/ -lbass_fx
