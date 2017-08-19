@@ -1,5 +1,6 @@
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
+#include "SongDatabase.h"
 
 #include "Midi/MidiHelper.h"
 #include "Dialogs/MapSoundfontDialog.h"
@@ -111,6 +112,9 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
 
     // Database
+    db->_SkipMIDI = settings->value("SkipMIDIChecked",false).toBool();
+    ui->cbSkipMidi->setChecked(db->_SkipMIDI);
+
     QString appPath = QDir::currentPath();
     QString ncnPath = settings->value("NCNPath", QDir::toNativeSeparators(appPath+"/Songs/NCN")).toString();
     ui->leNCNPath->setText(ncnPath);
@@ -891,3 +895,8 @@ void SettingsDialog::on_btnClose_clicked()
     close();
 }
 
+void SettingsDialog::on_cbSkipMidi_toggled(bool checked)
+{
+    settings->setValue("SkipMIDIChecked", checked);
+    db->_SkipMIDI = checked;
+}

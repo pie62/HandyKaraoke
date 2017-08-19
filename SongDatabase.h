@@ -28,6 +28,8 @@ public:
     bool isUpdatting() { return upTing; }
     int updateCount() { return upCount; }
 
+    bool _SkipMIDI=false;
+
 signals:
     void updateStarted();
     void updateCountChanged(int c);

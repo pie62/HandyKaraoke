@@ -39,28 +39,11 @@ SongDatabase::SongDatabase(QObject *parent) : QObject(parent)
             query.finish();
             query.clear();
 
-            sql = "CREATE INDEX id_idx ON songs(id); ";
-            query.exec(sql);
-            query.finish();
-            query.clear();
-
-            sql = "CREATE INDEX name_idx ON songs(name); ";
-            query.exec(sql);
-            query.finish();
-            query.clear();
-
-            sql = "CREATE INDEX artist_idx ON songs(artist); ";
-            query.exec(sql);
-            query.finish();
-            query.clear();
-
-            sql = "CREATE INDEX lyrics_idx ON songs(lyrics); ";
-            query.exec(sql);
-            query.finish();
-            query.clear();
-
-            sql = "CREATE INDEX compound_idx ON songs(id,name,artist,lyrics); ";
-            query.exec(sql);
+            query.exec("CREATE INDEX id_idx ON songs(id); ");
+            query.exec("CREATE INDEX name_idx ON songs(name); ");
+            query.exec("CREATE INDEX artist_idx ON songs(artist); ");
+//            query.exec("CREATE INDEX lyrics_idx ON songs(substr(lyrics,1,200)); ");
+//            query.exec("CREATE INDEX compound_idx ON songs(id,name,artist,substr(lyrics,1,200)); ");
             query.finish();
             query.clear();
             qDebug() << "SongDatabase: create DB";
@@ -70,18 +53,6 @@ SongDatabase::SongDatabase(QObject *parent) : QObject(parent)
     if (db.open()) {
         qDebug() << "SongDatabase: opened";
         QSqlQuery q;
-
-        q.exec("PRAGMA cache_size=32768;");
-        q.finish(); q.clear();
-        q.exec("PRAGMA page_size=65536;");
-        q.finish(); q.clear();
-        q.exec("PRAGMA journal_mode = WAL");
-        q.finish(); q.clear();
-        q.exec("PRAGMA temp_store = MEMORY;");
-        q.finish(); q.clear();
-        q.exec("PRAGMA synchronous=NORMAL;");
-        q.finish(); q.clear();
-
         q.exec("SELECT Count(*) FROM songs");
         if (q.next()) {
             dCount = q.value(0).toInt();
@@ -136,7 +107,6 @@ bool SongDatabase::isNCNPath(QString path)
 
 void SongDatabase::update()
 {
-    QString sql = "";
     if (!db.isOpen()) {
         qDebug() << "SongDatabase: Database is't opened";
         return;
@@ -159,38 +129,26 @@ void SongDatabase::update()
     emit updateCountChanged(count);
 
     upTing = true;
+    QSqlQuery q;
+
+    q.exec("DROP INDEX id_idx; ");
+    q.exec("DROP INDEX name_idx; ");
+    q.exec("DROP INDEX artist_idx; ");
+    q.exec("DROP INDEX lyrics_idx; ");
+    q.exec("DROP INDEX compound_idx; ");
+
+    q.exec("PRAGMA cache_size=500;");
+    q.exec("PRAGMA page_size=4096;");
+    q.exec("PRAGMA journal_mode = MEMORY");
+    q.exec("PRAGMA temp_store = MEMORY;");
+    q.exec("PRAGMA synchronous=OFF;");
 
     db.transaction();
-    QSqlQuery q;
     q.exec("DELETE FROM songs");
     q.exec("vacuum");
-    q.finish();
+    db.commit();
 
-    sql = "DROP INDEX id_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "DROP INDEX name_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "DROP INDEX artist_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "DROP INDEX lyrics_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "DROP INDEX compound_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
+    db.transaction();
     // Update NCN
     int i = 0;
     int erCount = 0;
@@ -212,33 +170,15 @@ void SongDatabase::update()
 
     db.commit();
 
-    q.exec("vacuum");
-    q.finish();
-    q.clear();
+    q.exec("CREATE INDEX id_idx ON songs(id); ");
+    q.exec("CREATE INDEX name_idx ON songs(name); ");
+    q.exec("CREATE INDEX artist_idx ON songs(artist); ");
+//    q.exec("CREATE INDEX lyrics_idx ON songs(substr(lyrics,1,200); ");
+//    q.exec("CREATE INDEX compound_idx ON songs(id,name,artist,substr(lyrics,1,200)); ");
 
-
-    sql = "CREATE INDEX id_idx ON songs(id); ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "CREATE INDEX name_idx ON songs(name); ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "CREATE INDEX artist_idx ON songs(artist); ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "CREATE INDEX lyrics_idx ON songs(lyrics); ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
-
-    sql = "CREATE INDEX compound_idx ON songs(id,name,artist,lyrics); ";
-    q.exec(sql);
+//    q.exec("PRAGMA journal_mode = DEFAULT");
+//    q.exec("PRAGMA temp_store = DEFAULT;");
+//    q.exec("PRAGMA synchronous=NORMAL;");
     q.finish();
     q.clear();
 
@@ -260,25 +200,29 @@ bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, cons
 
     int bpm = 0;
     QString path = "";
-    QDirIterator mit(midPath ,QStringList() << id +".mid" ,QDir::Files);
-    if (mit.hasNext()) {
-        mit.next();
+    if (_SkipMIDI == false) {
+        QDirIterator mit(midPath ,QStringList() << id +".mid" ,QDir::Files);
+        if (mit.hasNext()) {
+            mit.next();
 
-        MidiFile *midi = new MidiFile();
-        if (!midi->read(mit.filePath().toStdString(), true)) {
+            MidiFile *midi = new MidiFile();
+            if (!midi->read(mit.filePath().toStdString(), true)) {
+                delete midi;
+                return false;
+            }
+            emit updateSongNameChanged(mit.fileName());
+            path = mit.filePath().replace(ncnPath, "");
+            bpm = midi->bpm();
             delete midi;
+        } else {
             return false;
         }
-        emit updateSongNameChanged(mit.fileName());
-        path = mit.filePath().replace(ncnPath, "");
-        bpm = midi->bpm();
-        delete midi;
     } else {
-        return false;
+        path=midPath+id+".mid";
+        path=path.replace(ncnPath, "");
+        // Read .LYR file
+        emit updateSongNameChanged(id+".lyr");
     }
-
-
-    // Read .LYR file
     QFile file(lyrFilePath);
     if (!file.open(QFile::ReadOnly)) {
         return false;
@@ -297,6 +241,7 @@ bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, cons
 
     // Insert to database
     QSqlQuery query;
+//    QString sql;
     query.prepare("INSERT INTO songs VALUES "
                   "(?, ?, ?, ?, ?, ?, ?, ?);");
     query.bindValue(0, id);
@@ -535,3 +480,4 @@ Song *SongDatabase::searchPrevious()
 
     return song;
 }
+

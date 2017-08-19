@@ -76,8 +76,9 @@ private slots:
     void on_btnEq_clicked();
     void on_btnReverb_clicked();
     void on_btnChorus_clicked();
+    void on_btnClose_clicked();       
+    void on_cbSkipMidi_toggled(bool checked);
 
-    void on_btnClose_clicked();
 private:
     Ui::SettingsDialog *ui;
     MainWindow *mainWin;

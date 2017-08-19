@@ -101,7 +101,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
-
     { // Player
         int oPort   = settings->value("MidiOut", 0).toInt();
         int vl      = settings->value("MidiVolume", 50).toInt();
@@ -109,10 +108,6 @@ MainWindow::MainWindow(QWidget *parent) :
         bool lSnare = settings->value("MidiLockSnare", false).toBool();
         bool lBass  = settings->value("MidiLockBass", false).toBool();
 
-//        bool lOutputFloat = settings->value("OutputFloat", false).toBool();
-//        if (lOutputFloat) {
-//            settings->setOutputFloat(true, ldNum);
-//        }
         player->setMidiOut(oPort);
         player->setVolume(vl);
 
@@ -522,6 +517,7 @@ void MainWindow::play(int index)
     ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
 
     // SongDetail
+    ui->songDetail->setBPM(player->midiFile()->bpm());
     ui->songDetail->setDetail(&playingSong);
     ui->songDetail->adjustSize();
     ui->songDetail->show();
@@ -621,29 +617,37 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 
     switch (event->key()) {
-    case Qt::Key_F5: {
+    case Qt::Key_Escape:
+        if (ui->frameSearch->isVisible()) {
+            QString s = "_";
+            ui->lbSearch->setText(s);
+            setFrameSearch( db->search(s) );
+            timer2->start(search_timeout);
+            break;
+        }
+    case Qt::Key_Pause: {
         if (player->isPlayerPaused())
             resume();
         else
             play(-1);
         break;
     }
-    case Qt::Key_F6: {
-        pause();
-        break;
-    }
-    case Qt::Key_F7: {
-        stop();
-        break;
-    }
-    case Qt::Key_F8: {
-        playPrevious();
-        break;
-    }
-    case Qt::Key_F9: {
-        playNext();
-        break;
-    }
+//    case Qt::Key_F6: {
+//        pause();
+//        break;
+//    }
+//    case Qt::Key_F7: {
+//        stop();
+//        break;
+//    }
+//    case Qt::Key_F8: {
+//        playPrevious();
+//        break;
+//    }
+//    case Qt::Key_F9: {
+//        playNext();
+//        break;
+//    }
     case Qt::Key_Insert: {
         player->setTranspose(player->transpose()+1);
         int trp = player->transpose();

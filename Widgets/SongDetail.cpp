@@ -19,6 +19,12 @@ void SongDetail::setDetail(Song *song)
     ui->lbName->setText(song->name());
     ui->lbArtist->setText(song->artist());
     ui->lbKey->setText(song->key());
-    ui->lbBpm->setText(QString::number(song->tempo()) + " BPM");
+//    ui->lbBpm->setText(QString::number(song->tempo()) + " BPM");
+    ui->lbBpm->setText(QString::number(_bpm) + " BPM");
     ui->lbType->setText(song->songType());
+}
+
+void SongDetail::setBPM(int bpm)
+{
+    _bpm = bpm;
 }
