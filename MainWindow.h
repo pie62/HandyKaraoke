@@ -67,7 +67,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void resizeEvent(QResizeEvent *event);
     void closeEvent(QCloseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    bool eventFilter(QObject *object, QEvent *ev) override;
+//    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     Ui::MainWindow *ui;

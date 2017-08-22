@@ -321,3 +321,9 @@ void ChannelMixer::onBtnCloseClicked()
 {
     emit buttonCloseClicked();
 }
+
+
+void ChannelMixer::on_cbFX_clicked(bool checked)
+{
+    player->midiSynthesizer()->setFX(checked);
+}

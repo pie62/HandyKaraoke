@@ -345,14 +345,12 @@ float MidiFile::timeFromTick(uint32_t tick)
             if (e->tick() >= tick) {
                 break;
             }
-            tempo_event_time +=
-                (((float)(e->tick() - tempo_event_tick)) / fResolution / (tempo / 60));
+            tempo_event_time +=(((float)(e->tick() - tempo_event_tick)) / fResolution / (tempo / 60));
             tempo_event_tick = e->tick();
             tempo = e->tempoBpm();
         }
 
-        float time =
-            tempo_event_time + (((float)(tick - tempo_event_tick)) / fResolution / (tempo / 60));
+        float time =tempo_event_time + (((float)(tick - tempo_event_tick)) / fResolution / (tempo / 60));
         return time;
     }
     case SMPTE24:

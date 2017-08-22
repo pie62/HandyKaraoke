@@ -69,6 +69,9 @@ public:
 
     static int getNumberBeatInBar(int numerator, int denominator);
 
+    float GetCurrentTempoScale() const;
+    void SetCurrentTempoScale (float scale);
+
 protected:
     void run();
 
@@ -110,6 +113,8 @@ private:
     int     _lockDrumNumber  = 0;
     int     _lockSnareNumber = 38;
     int     _lockBassBumber  = 32;
+
+    float   tempo_scale;
 
     // number beat in 1 bar , number bar
     QMap<int, int> _beatInBar;

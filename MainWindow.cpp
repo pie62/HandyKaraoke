@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    qApp->installEventFilter(this);
+
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
 
@@ -101,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
+
     { // Player
         int oPort   = settings->value("MidiOut", 0).toInt();
         int vl      = settings->value("MidiVolume", 50).toInt();
@@ -131,11 +134,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     { // Synth
         MidiSynthesizer *synth = player->midiSynthesizer();
-
-        // Audio out
-        int aout = settings->value("AudioOut", 1).toInt();
-        synth->setOutputDevice(aout);
-
         // Synth soundfont
         std::vector<std::string> sfs;
         QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
@@ -352,7 +350,7 @@ MainWindow::~MainWindow()
         Equalizer24BandFX *eq = player->midiSynthesizer()->equalizer24BandFX();
         std::map<EQFrequency24Range, float> eqgain = eq->gain();
 
-        settings->setValue("SynthFX24EQOn", eq->isOn());
+        settings->setValue("SynthFXEQOn", eq->isOn());
 
         int gi =0;
         settings->beginWriteArray("SynthFX24EQGain");
@@ -475,6 +473,7 @@ void MainWindow::play(int index)
         player->start();
         lyrWidget->show();
         positionTimer->start();
+        player->midiSynthesizer()->setFX(player->midiSynthesizer()->getFX());
         return;
     }
 
@@ -517,7 +516,6 @@ void MainWindow::play(int index)
     ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
 
     // SongDetail
-    ui->songDetail->setBPM(player->midiFile()->bpm());
     ui->songDetail->setDetail(&playingSong);
     ui->songDetail->adjustSize();
     ui->songDetail->show();
@@ -600,255 +598,262 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
+bool MainWindow::eventFilter(QObject *object, QEvent *ev)
 {
-    if (event->modifiers() & Qt::ControlModifier) {
-        switch (event->key()) {
-        case Qt::Key_Up:
-            ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
-            break;
-        case Qt::Key_Down:
-            ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
-            break;
-        default:
-            break;
-        }
-        return;
-    }
+ if (ev->type() == QEvent::KeyPress)
+  {
+       QKeyEvent *event = static_cast<QKeyEvent *>(ev);
 
-    switch (event->key()) {
-    case Qt::Key_Escape:
-        if (ui->frameSearch->isVisible()) {
-            QString s = "_";
-            ui->lbSearch->setText(s);
-            setFrameSearch( db->search(s) );
-            timer2->start(search_timeout);
-            break;
-        }
-    case Qt::Key_Pause: {
-        if (player->isPlayerPaused())
-            resume();
-        else
-            play(-1);
-        break;
-    }
-//    case Qt::Key_F6: {
-//        pause();
-//        break;
-//    }
-//    case Qt::Key_F7: {
-//        stop();
-//        break;
-//    }
-//    case Qt::Key_F8: {
-//        playPrevious();
-//        break;
-//    }
-//    case Qt::Key_F9: {
-//        playNext();
-//        break;
-//    }
-    case Qt::Key_Insert: {
-        player->setTranspose(player->transpose()+1);
-        int trp = player->transpose();
-        QString t;
-        if (trp > 0) t = "+" + QString::number(trp);
-        else t = QString::number(trp);
-        ui->detail->setDetail("คีย์เพลง ", t);
-        ui->detail->show();
-        detailTimer->start(3000);
-        if (this->width() < 1150 && ui->chMix->isVisible()) {
-            ui->lcdTime->hide();
-        }
-        break;
-    }
-    case Qt::Key_Delete: {
-        if (ui->framePlaylist->isVisible()) {
-            int i = ui->playlist->currentRow();
-            delete playlist.at(i);
-            playlist.removeAt(i);
-            ui->playlist->takeItem(i);
-            ui->framePlaylist->show();
-            timer2->start(playlist_timeout);
-            break;
-        }
-        player->setTranspose(player->transpose()-1);
-        int trp = player->transpose();
-        QString t;
-        if (trp > 0) t = "+" + QString::number(trp);
-        else t = QString::number(trp);
-        ui->detail->setDetail("คีย์เพลง ", t);
-        ui->detail->show();
-        detailTimer->start(3000);
-        if (this->width() < 1150 && ui->chMix->isVisible()) {
-            ui->lcdTime->hide();
-        }
-        break;
-    }
-    case Qt::Key_PageUp:
-        if (ui->playlist->isVisible()) {
-            int i = ui->playlist->currentRow();
-            if (i == 0)
-                break;
+       if (event->modifiers() & Qt::ControlModifier) {
+           switch (event->key()) {
+           case Qt::Key_Up:
+               ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
+               break;
+           case Qt::Key_Down:
+               ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
+               break;
+           default:
+               break;
+           }
+           return true;
+       }
 
-            playlist.swap(i, i-1);
-            QListWidgetItem *item = ui->playlist->takeItem(i);
-            ui->playlist->insertItem(i-1, item);
-            ui->playlist->setCurrentRow(i-1);
-            ui->playlist->show();
-            timer2->start(playlist_timeout);
-        }
-        break;
-    case Qt::Key_PageDown:
-        if (ui->playlist->isVisible()) {
-            int i = ui->playlist->currentRow();
-            if (i >= ui->playlist->count() -1)
-                break;
+       switch (event->key()) {
+       case Qt::Key_F5: {
+           if (player->isPlayerPaused())
+               resume();
+           else
+               play(-1);
+           break;
+       }
+       case Qt::Key_F6: {
+           pause();
+           break;
+       }
+       case Qt::Key_F7: {
+           stop();
+           break;
+       }
+       case Qt::Key_F8: {
+           playPrevious();
+           break;
+       }
+       case Qt::Key_F9: {
+           playNext();
+           break;
+       }
+       case Qt::Key_Insert: {
+           player->setTranspose(player->transpose()+1);
+           int trp = player->transpose();
+           QString t;
+           if (trp > 0) t = "+" + QString::number(trp);
+           else t = QString::number(trp);
+           ui->detail->setDetail("คีย์เพลง ", t);
+           ui->detail->show();
+           detailTimer->start(3000);
+           if (this->width() < 1150 && ui->chMix->isVisible()) {
+               ui->lcdTime->hide();
+           }
+           break;
+       }
+       case Qt::Key_Delete: {
+           player->setTranspose(player->transpose()-1);
+           int trp = player->transpose();
+           QString t;
+           if (trp > 0) t = "+" + QString::number(trp);
+           else t = QString::number(trp);
+           ui->detail->setDetail("คีย์เพลง ", t);
+           ui->detail->show();
+           detailTimer->start(3000);
+           if (this->width() < 1150 && ui->chMix->isVisible()) {
+               ui->lcdTime->hide();
+           }
+           break;
+       }
+       case Qt::Key_PageUp:
+           if (ui->playlist->isVisible()) {
+               int i = ui->playlist->currentRow();
+               if (i == 0)
+                   break;
 
-            playlist.swap(i, i+1);
-            QListWidgetItem *item = ui->playlist->takeItem(i);
-            ui->playlist->insertItem(i+1, item);
-            ui->playlist->setCurrentRow(i+1);
-            ui->playlist->show();
-            timer2->start(playlist_timeout);
-        }
-        break;
-    case Qt::Key_Home:
-        if (playingSong.id() != "") {
-            play(-1);
-        }
-        break;
-    case Qt::Key_End:
-        if (auto_playnext) {
-            playNext();
-        } else {
-            stop();
-        }
-        break;
-    case Qt::Key_Up:
-        if (ui->framePlaylist->isVisible()) {
-            if (ui->playlist->currentRow() > 0 )
-                ui->playlist->setCurrentRow( ui->playlist->currentRow() - 1 );
-            timer2->start(playlist_timeout);
-        } else {
-            ui->frameSearch->hide();
-            if (ui->playlist->currentRow() == -1)
-                ui->playlist->setCurrentRow(0);
-            ui->framePlaylist->show();
-            timer2->start(playlist_timeout);
-        }
-        break;
-    case Qt::Key_Down:
-        if (ui->framePlaylist->isVisible()) {
-            if (ui->playlist->currentRow() < ui->playlist->count() - 1 )
-                ui->playlist->setCurrentRow( ui->playlist->currentRow() + 1 );
-            timer2->start(playlist_timeout);
-        } else {
-            ui->frameSearch->hide();
-            if (playingIndex == -1)
-                ui->playlist->setCurrentRow(0);
-            else
-                ui->playlist->setCurrentRow(playingIndex);
-            ui->framePlaylist->show();
-            timer2->start(playlist_timeout);
-        }
-        break;
-    case Qt::Key_Right:
-        if (ui->frameSearch->isVisible()) {
-            setFrameSearch( db->searchNext() );
-            timer2->start(search_timeout);
-        } else {
-            ui->framePlaylist->hide();
-            if (ui->lbId->text() == "")
-                setFrameSearch( db->search("") );
-            ui->lbSearch->setText("_");
-            ui->frameSearch->show();
-            timer2->start(search_timeout);
-        }
-        break;
-    case Qt::Key_Left:
-        if (ui->frameSearch->isVisible()) {
-            setFrameSearch( db->searchPrevious() );
-            timer2->start(search_timeout);
-        } else {
-            ui->framePlaylist->hide();
-            if (ui->lbId->text() == "")
-                setFrameSearch( db->search("") );
-            ui->lbSearch->setText("_");
-            ui->frameSearch->show();
-            timer2->start(search_timeout);
-        }
-        break;
-    case Qt::Key_Tab:
-        if (ui->frameSearch->isVisible()) {
-            QString s = ui->lbSearch->text();
-            s = s.replace(s.length() - 1, 1, "");
-            setFrameSearch( db->nextType(s) );
-            timer2->start(search_timeout);
-        }
-        break;
-    case Qt::Key_Backspace:
-        if (ui->frameSearch->isVisible()) {
-            if (ui->lbSearch->text() == "_") {
-                timer2->start(search_timeout);
-                break;
-            }
-            QString s = ui->lbSearch->text();
-            s = s.replace(s.length() - 2, 2, "");
-            setFrameSearch( db->search(s) );
-            ui->lbSearch->setText(s + "_");
-            timer2->start(search_timeout);
-        }
-        break;
-    case Qt::Key_Enter:
-    case Qt::Key_Return:
-        if (ui->frameSearch->isVisible()) {
-            Song *s = db->currentSong();
-            ui->playlist->addItem( " " + s->id() + " " + s->name() +
-                                   " - " + s->artist());
-            QSize size;
-            size.setHeight(41);
-            ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
-            ui->frameSearch->hide();
+               playlist.swap(i, i-1);
+               QListWidgetItem *item = ui->playlist->takeItem(i);
+               ui->playlist->insertItem(i-1, item);
+               ui->playlist->setCurrentRow(i-1);
+               ui->playlist->show();
+               timer2->start(playlist_timeout);
+           } else {
+                float tmp = player->currentBpm();
+                float sc = player->GetCurrentTempoScale()-10/tmp;
+                player->SetCurrentTempoScale(sc);
+           }
+           break;
+       case Qt::Key_PageDown:
+           if (ui->playlist->isVisible()) {
+               int i = ui->playlist->currentRow();
+               if (i >= ui->playlist->count() -1)
+                   break;
 
-            // Test
-            Song *sToAdd = new Song();
-            *sToAdd = *s;
-            playlist.append(sToAdd);
+               playlist.swap(i, i+1);
+               QListWidgetItem *item = ui->playlist->takeItem(i);
+               ui->playlist->insertItem(i+1, item);
+               ui->playlist->setCurrentRow(i+1);
+               ui->playlist->show();
+               timer2->start(playlist_timeout);
+           } else {
+               float tmp = player->currentBpm();
+               float sc = player->GetCurrentTempoScale()+10/tmp;
+               player->SetCurrentTempoScale(sc);
+           }
+           break;
+       case Qt::Key_Home:
+           if (playingSong.id() != "") {
+               play(-1);
+           }
+           break;
+       case Qt::Key_End:
+           if (auto_playnext) {
+               playNext();
+           } else {
+               stop();
+           }
+           break;
+       case Qt::Key_Up:
+           if (ui->framePlaylist->isVisible()) {
+               if (ui->playlist->currentRow() > 0 )
+                   ui->playlist->setCurrentRow( ui->playlist->currentRow() - 1 );
+               timer2->start(playlist_timeout);
+           } else {
+               ui->frameSearch->hide();
+               if (ui->playlist->currentRow() == -1)
+                   ui->playlist->setCurrentRow(0);
+               ui->framePlaylist->show();
+               timer2->start(playlist_timeout);
+           }
+           break;
+       case Qt::Key_Down:
+           if (ui->framePlaylist->isVisible()) {
+               if (ui->playlist->currentRow() < ui->playlist->count() - 1 )
+                   ui->playlist->setCurrentRow( ui->playlist->currentRow() + 1 );
+               timer2->start(playlist_timeout);
+           } else {
+               ui->frameSearch->hide();
+               if (playingIndex == -1)
+                   ui->playlist->setCurrentRow(0);
+               else
+                   ui->playlist->setCurrentRow(playingIndex);
+               ui->framePlaylist->show();
+               timer2->start(playlist_timeout);
+           }
+           break;
+       case Qt::Key_Right:
+           if (ui->frameSearch->isVisible()) {
+               setFrameSearch( db->searchNext() );
+               timer2->start(search_timeout);
+           } else {
+               ui->framePlaylist->hide();
+               if (ui->lbId->text() == "")
+                   setFrameSearch( db->search("") );
+               ui->lbSearch->setText("_");
+               ui->frameSearch->show();
+               timer2->start(search_timeout);
+           }
+           break;
+       case Qt::Key_Left:
+           if (ui->frameSearch->isVisible()) {
+               setFrameSearch( db->searchPrevious() );
+               timer2->start(search_timeout);
+           } else {
+               ui->framePlaylist->hide();
+               if (ui->lbId->text() == "")
+                   setFrameSearch( db->search("") );
+               ui->lbSearch->setText("_");
+               ui->frameSearch->show();
+               timer2->start(search_timeout);
+           }
+           break;
+       case Qt::Key_Tab:
+           if (ui->frameSearch->isVisible()) {
+               QString s = ui->lbSearch->text();
+               s = s.replace(s.length() - 1, 1, "");
+               setFrameSearch( db->nextType(s) );
+               timer2->start(search_timeout);
+           }
+           break;
+       case Qt::Key_Backspace:
+           if (ui->frameSearch->isVisible()) {
+               if (ui->lbSearch->text() == "_") {
+                   timer2->start(search_timeout);
+                   break;
+               }
+               QString s = ui->lbSearch->text();
+               s = s.replace(s.length() - 2, 2, "");
+               setFrameSearch( db->search(s) );
+               ui->lbSearch->setText(s + "_");
+               timer2->start(search_timeout);
+           }
+           break;
+       case Qt::Key_Enter:
+       case Qt::Key_Return:
+           if (ui->frameSearch->isVisible()) {
+               Song *s = db->currentSong();
+               ui->playlist->addItem( " " + s->id() + " " + s->name() +
+                                      " - " + s->artist());
+               QSize size;
+               size.setHeight(41);
+               ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
+               ui->frameSearch->hide();
 
-            if (auto_playnext && playlist.count() == 1 && player->isPlayerStopped()) {
-                play(0);
-            }
-        }
-        if (ui->framePlaylist->isVisible()) {
-            ui->framePlaylist->hide();
-            play(ui->playlist->currentRow());
-        }
-        break;
-    case Qt::Key_Space:
-        if (ui->frameSearch->isHidden()) {
-            ui->framePlaylist->hide();
-            ui->songDetail->show();
-            songDetailTimer->start(5000);
-            break;
-        }
-    default:
-        if (ui->frameSearch->isVisible()) {
-            QString s = ui->lbSearch->text();
-            s = s.replace(s.length() - 1, 1, "");
-            ui->lbSearch->setText(s + event->text() + "_");
-            setFrameSearch( db->search(s + event->text()) );
-            timer2->start(search_timeout);
-        } else {
-            db->setSearchType(SongDatabase::ByName);
-            ui->lbSearch->setText(event->text() + "_");
-            setFrameSearch( db->search(event->text() ));
-            ui->framePlaylist->hide();
-            ui->frameSearch->show();
-            timer2->start(search_timeout);
-        }
-        break;
-    }
+               // Test
+               Song *sToAdd = new Song();
+               *sToAdd = *s;
+               playlist.append(sToAdd);
+
+               if (auto_playnext && playlist.count() == 1 && player->isPlayerStopped()) {
+                   play(0);
+               }
+           }
+           if (ui->framePlaylist->isVisible()) {
+               ui->framePlaylist->hide();
+               play(ui->playlist->currentRow());
+           }
+           break;
+       case Qt::Key_Space:
+           if (ui->frameSearch->isHidden()) {
+               ui->framePlaylist->hide();
+               ui->songDetail->show();
+               songDetailTimer->start(5000);
+           }
+           break;
+       case Qt::Key_Escape:
+           if (ui->frameSearch->isVisible()) {
+               QString s = "_";
+               ui->lbSearch->setText(s);
+               setFrameSearch( db->search(s) );
+               timer2->start(search_timeout);
+           }
+           break;
+       default:
+           if (ui->frameSearch->isVisible()) {
+               QString s = ui->lbSearch->text();
+               s = s.replace(s.length() - 1, 1, "");
+               ui->lbSearch->setText(s + event->text() + "_");
+               setFrameSearch( db->search(s + event->text()) );
+               timer2->start(search_timeout);
+           } else {
+               db->setSearchType(SongDatabase::ByName);
+               ui->lbSearch->setText(event->text() + "_");
+               setFrameSearch( db->search(event->text() ));
+               ui->framePlaylist->hide();
+               ui->frameSearch->show();
+               timer2->start(search_timeout);
+           }
+           break;
+       }
+      return true; //Here the signal was processed and is not going to be handled by QtTabWidget
+  }
+
+ return false;
 }
 
 void MainWindow::showCurrentTime()

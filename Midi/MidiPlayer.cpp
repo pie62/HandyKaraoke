@@ -74,6 +74,8 @@ bool MidiPlayer::load(std::string file, bool seekFileChunkID)
     _durationMs = _midi->timeFromTick(e->tick()) * 1000;
     _midiTranspose = 0;
 
+    tempo_scale = 100;
+
     _finished = false;
 
     { // Calculate beat count
@@ -457,7 +459,7 @@ void MidiPlayer::playEvents()
 
         if (_midi->events()[i]->eventType() != MidiEventType::Meta) {
 
-            long eventTime = _midi->timeFromTick(_midi->events()[i]->tick()) * 1000;
+            long eventTime = _midi->timeFromTick(_midi->events()[i]->tick()) * 1000;//* (tempo_scale * 0.01);
             long waitTime = eventTime - _startPlayTime - _eTimer->elapsed();
             if (waitTime > 0) {
                 msleep(waitTime);
@@ -668,4 +670,14 @@ int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
     case 16:
         return numerator * 0.25;
     }
+}
+
+float MidiPlayer::GetCurrentTempoScale() const
+{
+    return ((float) tempo_scale) * 0.01;
+}
+
+void MidiPlayer::SetCurrentTempoScale (float scale)
+{
+    tempo_scale = (int) (scale * 100);
 }

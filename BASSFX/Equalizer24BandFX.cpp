@@ -68,7 +68,7 @@ void Equalizer24BandFX::on()
     // -------------------------
 
     BASS_DX8_PARAMEQ eq;
-    eq.fBandwidth = 18;
+    eq.fBandwidth = 30;
 
     float eqfreq[24] = { 80, 100, 125, 160,
                          200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600,

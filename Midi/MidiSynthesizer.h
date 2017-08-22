@@ -94,6 +94,8 @@ public:
     ChorusFX* chorusFX() { return chorus; }
     // ------------------------------------------
 
+    bool getFX();
+    void setFX(bool fx);
 private:
     HSTREAM stream;
     std::vector<HSOUNDFONT> synth_HSOUNDFONT;
@@ -120,6 +122,8 @@ private:
     std::vector<int> getChannelsFromType(InstrumentType t);
 
     QSettings *settings;
+
+    bool _fx;
 };
 
 #endif // MIDISYNTHESIZER_H

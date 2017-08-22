@@ -57,6 +57,8 @@ private slots:
     void onBtnSettingVuClicked();
     void onBtnCloseClicked();
 
+    void on_cbFX_clicked(bool checked);
+
 private:
     Ui::ChannelMixer *ui;
 

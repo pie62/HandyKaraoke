@@ -2,6 +2,7 @@
 #include "SettingsDialog.h"
 
 #include <thread>
+#include <QDebug>
 
 MidiSynthesizer::MidiSynthesizer()
 {
@@ -66,7 +67,7 @@ bool MidiSynthesizer::open()
     BASS_Init(outDev, 44100, BASS_DEVICE_LATENCY|BASS_DEVICE_FREQ, NULL, NULL);
     BASS_SetConfig(BASS_CONFIG_BUFFER, 300);
 
-    flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER|BASS_MIDI_NOFX|BASS_MIDI_DECAYSEEK|BASS_MIDI_DECAYEND;
+    flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER|BASS_MIDI_DECAYSEEK|BASS_MIDI_DECAYEND;
     stream = BASS_MIDI_StreamCreate(32, flags, 0);
 
     #ifdef _WIN32
@@ -731,4 +732,18 @@ std::vector<int> MidiSynthesizer::getChannelsFromType(InstrumentType t)
     }
 
     return r;
+}
+
+bool MidiSynthesizer::getFX()
+{
+    return _fx;
+}
+
+void MidiSynthesizer::setFX(bool fx)
+{
+    _fx = fx;
+    if (fx==false)
+        BASS_ChannelFlags(stream,0,BASS_MIDI_NOFX); // enable FX
+    else
+        BASS_ChannelFlags(stream,BASS_MIDI_NOFX,BASS_MIDI_NOFX); // disable FX
 }
