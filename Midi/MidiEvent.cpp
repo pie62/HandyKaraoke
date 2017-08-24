@@ -1,42 +1,38 @@
-//
-// Created by noob on 16/5/2560.
-//
-
 #include "MidiEvent.h"
 
-MidiEvent::MidiEvent() {
-    eTick = 0;
-    eDelta = 0;
-    eTrack = 0;
-    eChannel = -1;
-    eData1 = 0;
-    eData2 = 0;
-    eType = MidiEventType::None;
-    mType = MidiMetaType::Invalid;
+MidiEvent::MidiEvent()
+{
 }
 
-MidiEvent::~MidiEvent() {
-    mData.clear();
-}
-
-MidiEvent &MidiEvent::operator =(const MidiEvent &e)
+MidiEvent::~MidiEvent()
 {
     mData.clear();
-
-    eTick       = e.tick();
-    eDelta      = e.delta();
-    eTrack      = e.track();
-    eChannel    = e.channel();
-    eData1      = e.data1();
-    eData2      = e.data2();
-    eType       = e.eventType();
-    mType       = e.metaEventType();
-    mData       = e.data();
-
-    return *this;
 }
 
-void MidiEvent::setMetaType(int mNumber) {
+int32_t MidiEvent::message()
+{
+    if ((eType != MidiEventType::Invalid)
+            && (eType != MidiEventType::Meta)
+            && (eType != MidiEventType::SysEx) ) {
+        return static_cast<int32_t>(eType) + eChannel | eData1 << 8 | eData2 << 16;
+    } else {
+        return 0;
+    }
+}
+
+float MidiEvent::bpm()
+{
+    if ((eType != MidiEventType::Meta) || (mType != MidiMetaType::SetTempo)) {
+        return 0;
+    }
+
+    unsigned char* buffer = (unsigned char*)mData.constData();
+    int32_t midi_tempo = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
+    return (float)(60000000.0 / midi_tempo);
+}
+
+void MidiEvent::setMetaType(int mNumber)
+{
     switch (mNumber) {
         case 0:   mType = MidiMetaType::SequenceNumber; break;
         case 1:   mType = MidiMetaType::TextEvent; break;
@@ -57,24 +53,19 @@ void MidiEvent::setMetaType(int mNumber) {
     }
 }
 
-int32_t MidiEvent::message() {
-    if ((eType != MidiEventType::None)
-            && (eType != MidiEventType::Meta) &&
-            (eType != MidiEventType::SysEx) ) {
-        return static_cast<int32_t>(eType) + eChannel | eData1 << 8 | eData2 << 16;
-    } else {
-        return 0;
-    }
-}
-
-float MidiEvent::tempoBpm()
+MidiEvent &MidiEvent::operator =(const MidiEvent &e)
 {
-    int32_t midi_tempo = 0;
+    mData.clear();
 
-    if ((eType != MidiEventType::Meta) || (mType != MidiMetaType::SetTempo)) {
-            return 0;
-    }
+    eTick       = e.tick();
+    eDelta      = e.delta();
+    eTrack      = e.track();
+    eChannel    = e.channel();
+    eData1      = e.data1();
+    eData2      = e.data2();
+    eType       = e.eventType();
+    mType       = e.metaEventType();
+    mData       = e.data();
 
-    midi_tempo = (mData[0] << 16) | (mData[1] << 8) | mData[2];
-    return (float)(60000000.0 / midi_tempo);
+    return *this;
 }

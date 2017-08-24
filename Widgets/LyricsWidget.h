@@ -3,7 +3,12 @@
 
 #include <QWidget>
 #include <QVariantAnimation>
-#include <QTimer>
+
+enum class LinePosition {
+    Center,
+    Left,
+    Right
+};
 
 class LyricsWidget : public QWidget
 {
@@ -28,7 +33,7 @@ public:
     QColor  curBorderColor()    { return cBorderColor; }
     QColor  curBorderOutColor() { return cBorderOutColor; }
     int     curBorderWidth()    { return cBorderWidth; }
-    int     curBorderOutWidth() { return tBorderOutWidth; }
+    int     curBorderOutWidth() { return cBorderOutWidth; }
 
     void setTextFont(const QFont &f);
     void setTextColor(const QColor &c);
@@ -42,6 +47,14 @@ public:
     void setCurBorderOutColor(const QColor &c);
     void setCurBorderWidth(int w);
     void setCurBorderOutWidth(int w);
+
+    bool isAutoFontSize() { return autoFontSize; }
+    void setAutoFontSize(bool a) { autoFontSize = a; }
+
+    LinePosition line1Position() { return line1_p; }
+    LinePosition line2Position() { return line2_p; }
+    void setLine1Position(LinePosition p);
+    void setLine2Position(LinePosition p);
 
     int line1Y() { return line1_y; }
     int line2Y() { return line2_y; }
@@ -75,12 +88,16 @@ private:
     QPixmap pixLine1, pixLine2;
     QPixmap pixCurLine1, pixCurLine2;
 
+    LinePosition line1_p = LinePosition::Center;
+    LinePosition line2_p = LinePosition::Center;
+
     int line1_y = 220;  // from bottom
     int line2_y = 100;  // from bottom
 
     QStringList lyrics;
     QList<long> cursors;
     bool isLine1 = true;
+    bool autoFontSize = true;
     int linesIndex = 0;
 
     QList<int> chars_width; // In current line
@@ -102,6 +119,12 @@ private:
     QList<int> getCharsWidth(const QString &text);
     QRect calculateUpdateArea();
     QSize calculateLineSize(const QString &text);
+
+    int getAllBorderSize();
+    QFont getPerfectFont(const QString &text);
+    QPoint getLine1Point();
+    QPoint getLine2Point();
+
     void drawTextToPixmap(QPixmap *pix, const QString &text);
     void drawCursorTextToPixmap(QPixmap *pix, const QString &text);
 };

@@ -158,7 +158,7 @@ void RhythmWidget::displayBeats(int n)
 RhythmRectangle::RhythmRectangle(QWidget *parent) : QWidget(parent)
 {
     _offColor = Qt::white;
-    _onColor = QColor(0, 184, 169);
+    _onColor = QColor(30,144,255);
 }
 
 void RhythmRectangle::on()

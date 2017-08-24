@@ -17,10 +17,9 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiPlayer *player) :
     this->instMap = player->midiSynthesizer()->getMapSoundfontIndex();
 
     QStringList sfNames;
-    for (const std::string &sn : player->midiSynthesizer()->soundfontFiles()) {
-        QString n = QString::fromStdString(sn);
-        n = n.replace(0, n.lastIndexOf("/")+1, "");
-        sfNames.append(n);
+    for (QString sn : player->midiSynthesizer()->soundfontFiles()) {
+        sn = sn.replace(0, sn.lastIndexOf("/")+1, "");
+        sfNames.append(sn);
     }
 
     QStringList instNames = MidiHelper::GMInstrumentNumberNames();

@@ -6,17 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>386</width>
-    <height>266</height>
+    <width>388</width>
+    <height>258</height>
    </rect>
   </property>
   <property name="font">
    <font>
-    <pointsize>11</pointsize>
+    <pointsize>10</pointsize>
    </font>
   </property>
   <property name="windowTitle">
    <string>ตั้งค่า LED Meter</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="topMargin">

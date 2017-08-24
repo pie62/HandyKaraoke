@@ -1,6 +1,6 @@
 #include "SongDatabase.h"
 
-#include <Midi/MidiFile.h>
+#include "Midi/MidiFile.h"
 
 #include <QDebug>
 #include <QDir>
@@ -8,32 +8,64 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QSqlQuery>
-#include <bass.h>
-#include <bassmidi.h>
 
-SongDatabase::SongDatabase(QObject *parent) : QObject(parent)
+
+SongDatabase::SongDatabase()
 {
-    thread = new QThread();
     song = new Song();
-    searchType = ByName;
-    dCount = 0;
-    this->moveToThread(thread);
-    connect(thread, SIGNAL(started()), this, SLOT(update()));
-    connect(this, SIGNAL(updateFinished()), thread, SLOT(quit()));
+    searchType = SearchType::ByAll;
 
-    QString path = QDir::toNativeSeparators(QDir::currentPath() + "/Data/Database.db3");
+    bool hasDb = false;
+    QString path = QDir::currentPath() + "/Data/Database.db3";
+
+    if (QFile::exists(path)) {
+        hasDb = true;
+    } else {
+        QDir dir;
+        if (!dir.exists("Data"))
+            dir.mkdir("Data");
+    }
+
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(path);
+
     if (db.open()) {
-        qDebug() << "SongDatabase: opened";
-        QSqlQuery q;
-        q.exec("SELECT Count(*) FROM songs");
-        if (q.next()) {
-            dCount = q.value(0).toInt();
+
+        if (hasDb == false) {
+            QString sql = "CREATE TABLE IF NOT EXISTS songs ("
+                  "id TEXT,name TEXT,artist TEXT,"
+                  "keyname TEXT,tempo INTEGER,songtype "
+                  "TEXT,lyrics TEXT,path TEXT); ";
+
+            QSqlQuery query;
+            query.exec(sql);
+            query.finish();
+            query.clear();
+
+            createIndex();
+
+            qDebug() << "SongDatabase: create DB";
         }
+        db.close();
+    }
+
+    if (db.open()) {
+
+        qDebug() << "SongDatabase: opened";
+
+        /*
+        QSqlQuery q;
+        q.exec("PRAGMA cache_size=32768;");
         q.finish(); q.clear();
-    } else {
-        qDebug() << "SongDatabase: can't open";
+        q.exec("PRAGMA page_size=65536;");
+        q.finish(); q.clear();
+        q.exec("PRAGMA journal_mode = WAL");
+        q.finish(); q.clear();
+        q.exec("PRAGMA temp_store = MEMORY;");
+        q.finish(); q.clear();
+        q.exec("PRAGMA synchronous=NORMAL;");
+        q.finish(); q.clear();
+        */
     }
 }
 
@@ -44,118 +76,117 @@ SongDatabase::~SongDatabase()
         qDebug() << "SongDatabase: closed";
     }
     delete song;
-    delete thread;
 }
 
-bool SongDatabase::isNCNPath(QString path)
+int SongDatabase::count()
 {
-    QDir dir;
-    QString cur = QDir::toNativeSeparators(path + "/Cursor");
-    QString lyr = QDir::toNativeSeparators(path + "/Lyrics");
-    QString mid = QDir::toNativeSeparators(path + "/Song");
+    if (!db.isOpen())
+        return 0;
 
-    if (dir.exists(cur) && dir.exists(lyr) && dir.exists(mid)) {
+    int c = 0;
+    QSqlQuery q;
+    q.exec("SELECT Count(*) FROM songs");
+    if (q.next()) {
+        c = q.value(0).toInt();
+    }
+    q.finish();
+    q.clear();
+
+    return c;
+}
+
+bool SongDatabase::isNCNPath(const QString &dir)
+{
+    QDir d;
+    QString cur = dir + "/Cursor";
+    QString lyr = dir + "/Lyrics";
+    QString mid = dir + "/Song";
+
+    if (d.exists(cur) && d.exists(lyr) && d.exists(mid)) {
         return true;
     } else {
         return false;
     }
 }
 
-void SongDatabase::update()
+QString SongDatabase::getCurFilePath(const QString &midFilePath)
 {
-    if (!db.isOpen()) {
-        qDebug() << "SongDatabase: Database is't opened";
-        return;
-    }
-    int count = 0;
-    QSettings st;
+    QString cur = midFilePath;
 
-    // Count NCN
-    QString ncnPath = st.value("NCNPath", QDir::toNativeSeparators(QDir::currentPath() + "/Songs/NCN")).toString();
-    QDir dir(QDir::toNativeSeparators(ncnPath + "/Lyrics"));
-    QDirIterator it(dir.path() ,QStringList() << "*lyr" ,QDir::Files, QDirIterator::Subdirectories);
+    cur = cur.replace("/Song/", "/Cursor/");
 
-    while (it.hasNext()) {
-        it.next();
-        count++;
-    }
+    cur = cur.replace(cur.length()-4, 4, ".CUR");
+    if (QFile::exists(cur))
+        return cur;
 
-    upCount = count;
-    emit updateStarted();
-    emit updateCountChanged(count);
+    cur = cur.replace(cur.length()-4, 4, ".cur");
+    if (QFile::exists(cur))
+        return cur;
 
-    upTing = true;
+    cur = cur.replace(cur.length()-4, 4, ".Cur");
+    if (QFile::exists(cur))
+        return cur;
 
-    db.transaction();
-    QSqlQuery q;
-    q.exec("DELETE FROM songs");
-
-    // Update NCN
-    int i = 0;
-    int erCount = 0;
-    QDirIterator it2(dir.path() ,QStringList() << "*.lyr" ,QDir::Files, QDirIterator::Subdirectories);
-    while (it2.hasNext()) {
-
-        it2.next();
-
-        QString id = it2.fileName();
-        id = id.replace(id.length() - 4, 4, "");
-
-        bool result = insertNCN(ncnPath, id, it2.filePath(), it2.fileName());
-        if (!result)
-            erCount ++;
-
-        i++;
-        emit updatePositionChanged(i);
-    }
-
-    db.commit();
-
-    q.exec("vacuum");
-    q.finish();
-    q.clear();
-
-    dCount = i - erCount;
-
-    upTing = false;
-
-    emit updateFinished();
+    return "";
 }
 
-bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, const QString &lyrFilePath, const QString &fileName)
+QString SongDatabase::getLyrFilePath(const QString &midFilePath)
 {
-    QString id = songId;
+    QString lyr = midFilePath;
 
-    // Read .MID file
-    QString midPath = lyrFilePath;
-            midPath = midPath.replace("Lyrics", "Song");
-            midPath = midPath.replace(fileName, "");
+    lyr = lyr.replace("/Song/", "/Lyrics/");
 
-    int bpm = 0;
-    QString path = "";
-    QDirIterator mit(midPath ,QStringList() << id +".mid" ,QDir::Files);
-    if (mit.hasNext()) {
-        mit.next();
+    lyr = lyr.replace(lyr.length()-4, 4, ".LYR");
+    if (QFile::exists(lyr))
+        return lyr;
 
-        MidiFile *midi = new MidiFile();
-        if (!midi->read(mit.filePath().toStdString(), true)) {
-            delete midi;
-            return false;
-        }
-        emit updateSongNameChanged(mit.fileName());
-        path = mit.filePath().replace(ncnPath, "");
-        bpm = midi->bpm();
-        delete midi;
+    lyr = lyr.replace(lyr.length()-4, 4, ".lyr");
+    if (QFile::exists(lyr))
+        return lyr;
+
+    lyr = lyr.replace(lyr.length()-4, 4, ".Lyr");
+    if (QFile::exists(lyr))
+        return lyr;
+
+    return "";
+}
+
+bool SongDatabase::setNcnPath(const QString &dir)
+{
+    if (isNCNPath(dir)) {
+        _ncnPath = dir;
+        return true;
     } else {
         return false;
     }
+}
+
+void SongDatabase::setUpdateType(UpdateType type)
+{
+    upType = type;
+}
+
+bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, const QString &midFilePath)
+{
+    QString id = songId;
+
+    QString curFilePath = getCurFilePath(midFilePath);
+    QString lyrFilePath = getLyrFilePath(midFilePath);
+
+    if (curFilePath == "" || lyrFilePath == "")
+        return false;
+
+    // Check mid file
+    int bpm = MidiFile::firstBpm(midFilePath);
+    if (bpm == 0)
+        return false;
 
 
     // Read .LYR file
     QFile file(lyrFilePath);
-    if (!file.open(QFile::ReadOnly)) {
+    if (!file.open(QFile::ReadOnly))
         return false;
-    }
+
     QTextStream textStream(&file);
     textStream.setCodec("TIS-620");
 
@@ -163,10 +194,18 @@ bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, cons
     QString artist = textStream.readLine();
     QString key = textStream.readLine();
     QString type = "NCN";
+
     textStream.readLine();
-    QString lyr = textStream.readAll();
+
+    QString lyr = textStream.readLine() + " ";
+    lyr += textStream.readLine() + " ";
+    lyr += textStream.readLine() + " ";
+    lyr += textStream.readLine();
+
     file.close();
 
+    QString path = midFilePath;
+    path = path.replace(ncnPath, "");
 
     // Insert to database
     QSqlQuery query;
@@ -192,17 +231,21 @@ Song* SongDatabase::nextType(const QString &s)
 {
     Song *sg = song;
     switch (searchType) {
-    case ById:
-        searchType = ByName;
+    case SearchType::ByAll:
+        searchType = SearchType::ById;
         sg = search(s);
         break;
-    case ByName:
-        searchType = ByArtist;
-        sg = search(s);
+    case SearchType::ById:
+        searchType = SearchType::ByName;
+        sg = search(searchText);
         break;
-    case ByArtist:
-        searchType = ById;
-        sg = search(s);
+    case SearchType::ByName:
+        searchType = SearchType::ByArtist;
+        sg = search(searchText);
+        break;
+    case SearchType::ByArtist:
+        searchType = SearchType::ByAll;
+        sg = search(searchText);
         break;
     }
     return sg;
@@ -223,23 +266,37 @@ Song *SongDatabase::search(const QString &s)
 {
     QString sql = "";
     switch (searchType) {
-    case ById:
+    case SearchType::ByAll:
+        searchText = s;
+        sql = "SELECT * FROM songs "
+              "WHERE id LIKE ? OR name LIKE ? OR artist LIKE ?"
+              "ORDER BY id, name, artist LIMIT 1";
+        break;
+    case SearchType::ById:
         sql = "SELECT * FROM songs WHERE id LIKE ? "
               "ORDER BY id, name, artist LIMIT 1";
         break;
-    case ByName:
+    case SearchType::ByName:
         sql = "SELECT * FROM songs WHERE name LIKE ? "
               "ORDER BY name, artist, id LIMIT 1";
         break;
-    case ByArtist:
+    case SearchType::ByArtist:
         sql = "SELECT * FROM songs WHERE artist LIKE ? "
               "ORDER BY artist, name, id LIMIT 1";
         break;
     }
 
     QSqlQuery query;
-    query.prepare(sql);
-    query.bindValue(0, s+"%");
+    if (searchType == SearchType::ByAll) {
+        query.prepare(sql);
+        query.bindValue(0, s + "%");
+        query.bindValue(1, s + "%");
+        query.bindValue(2, s + "%");
+    } else {
+        query.prepare(sql);
+        query.bindValue(0, s + "%");
+    }
+
     if (query.exec()) {
         if (query.next()) {
             setSong(song, &query);
@@ -256,9 +313,26 @@ Song *SongDatabase::searchNext()
     QSqlQuery q;
     QString sql = "";
     switch (searchType) {
-    case ById:
+    case SearchType::ByAll:
+        sql = "SELECT * FROM songs "
+              "WHERE id LIKE ? OR name LIKE ? OR artist LIKE ?"
+              "ORDER BY id, name, artist";// LIMIT 400";
+        q.prepare(sql);
+        q.bindValue(0, searchText + "%");
+        q.bindValue(1, searchText + "%");
+        q.bindValue(2, searchText + "%");
+        if (q.exec()) {
+            while (q.next()) {
+                if (q.value("id").toString() <= song->id())
+                    continue;
+                setSong(song, &q);
+                break;
+            }
+        }
+        break;
+    case SearchType::ById:
         sql = "SELECT * FROM songs WHERE id >= ? "
-                      "ORDER BY id, name, artist LIMIT 500";
+              "ORDER BY id, name, artist LIMIT 400";
         q.prepare(sql);
         q.bindValue(0, song->id());
         if (q.exec()) {
@@ -278,9 +352,9 @@ Song *SongDatabase::searchNext()
             }
         }
         break;
-    case ByName:
+    case SearchType::ByName:
         sql = "SELECT * FROM songs WHERE name >= ? "
-                      "ORDER BY name, artist, id LIMIT 500";
+              "ORDER BY name, artist, id LIMIT 400";
         q.prepare(sql);
         q.bindValue(0, song->name());
         if (q.exec()) {
@@ -300,9 +374,9 @@ Song *SongDatabase::searchNext()
             }
         }
         break;
-    case ByArtist:
+    case SearchType::ByArtist:
         sql = "SELECT * FROM songs WHERE artist >= ? "
-                      "ORDER BY artist, name, id LIMIT 500";
+              "ORDER BY artist, name, id LIMIT 400";
         q.prepare(sql);
         q.bindValue(0, song->artist());
         if (q.exec()) {
@@ -335,9 +409,26 @@ Song *SongDatabase::searchPrevious()
     QSqlQuery q;
     QString sql = "";
     switch (searchType) {
-    case ById:
+    case SearchType::ByAll:
+        sql = "SELECT * FROM songs "
+              "WHERE id LIKE ? OR name LIKE ? OR artist LIKE ?"
+              "ORDER BY id DESC, name DESC, artist DESC";// LIMIT 400";
+        q.prepare(sql);
+        q.bindValue(0, searchText + "%");
+        q.bindValue(1, searchText + "%");
+        q.bindValue(2, searchText + "%");
+        if (q.exec()) {
+            while (q.next()) {
+                if (q.value("id").toString() >= song->id())
+                    continue;
+                setSong(song, &q);
+                break;
+            }
+        }
+        break;
+    case SearchType::ById:
         sql = "SELECT * FROM songs WHERE id <= ? "
-                      "ORDER BY id DESC, name DESC, artist DESC LIMIT 500";
+                      "ORDER BY id DESC, name DESC, artist DESC LIMIT 400";
         q.prepare(sql);
         q.bindValue(0, song->id());
         if (q.exec()) {
@@ -357,9 +448,9 @@ Song *SongDatabase::searchPrevious()
             }
         }
         break;
-    case ByName:
+    case SearchType::ByName:
         sql = "SELECT * FROM songs WHERE name <= ? "
-                      "ORDER BY name DESC, artist DESC, id DESC LIMIT 500";
+                      "ORDER BY name DESC, artist DESC, id DESC LIMIT 400";
         q.prepare(sql);
         q.bindValue(0, song->name());
         if (q.exec()) {
@@ -379,9 +470,9 @@ Song *SongDatabase::searchPrevious()
             }
         }
         break;
-    case ByArtist:
+    case SearchType::ByArtist:
         sql = "SELECT * FROM songs WHERE artist <= ? "
-                      "ORDER BY artist DESC, name DESC, id DESC LIMIT 500";
+                      "ORDER BY artist DESC, name DESC, id DESC LIMIT 400";
         q.prepare(sql);
         q.bindValue(0, song->artist());
         if (q.exec()) {
@@ -407,4 +498,124 @@ Song *SongDatabase::searchPrevious()
     q.clear();
 
     return song;
+}
+
+void SongDatabase::run()
+{
+    if (!db.isOpen()) {
+        qDebug() << "SongDatabase: Database is't opened";
+        return;
+    }
+
+    if (!isNCNPath(_ncnPath)) {
+        qDebug() << "SongDatabase: Invalid NCN Directory.";
+        return;
+    }
+
+    int count = 0;
+    QSettings st;
+
+    // Count mid file in NCN
+    QDir dir(_ncnPath + "/Song");
+    QDirIterator it(dir.path() ,QStringList() << "*.mid" << "*.MID",
+                    QDir::Files, QDirIterator::Subdirectories);
+
+    while (it.hasNext()) {
+        it.next();
+        count++;
+    }
+
+    upCount = count;
+    emit updateCountChanged(count);
+
+    upTing = true;
+
+    QSqlQuery q;
+    q.exec("DELETE FROM songs");
+    q.exec("vacuum");
+    q.finish();
+    q.clear();
+
+    db.transaction();
+
+    dropIndex();
+
+    // Update NCN
+    int i = 0;
+    int erCount = 0;
+    QDirIterator it2(dir.path() ,QStringList() << "*.mid" << "*.MID",
+                     QDir::Files, QDirIterator::Subdirectories);
+    while (it2.hasNext()) {
+
+        it2.next();
+
+        i++;
+        emit updatePositionChanged(i);
+        emit updateSongNameChanged(it2.fileName());
+
+        QString id = it2.fileName().section(".", 0, 0);
+
+        bool result = insertNCN(_ncnPath, id, it2.filePath());
+
+        if (!result)
+            erCount ++;
+    }
+
+    db.commit();
+
+    createIndex();
+
+    upTing = false;
+}
+
+void SongDatabase::createIndex()
+{
+    QSqlQuery query;
+    QString sql;
+
+    sql = "CREATE INDEX id_idx ON songs(id); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
+
+    sql = "CREATE INDEX name_idx ON songs(name); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
+
+    sql = "CREATE INDEX artist_idx ON songs(artist); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
+
+    sql = "CREATE INDEX compound_idx ON songs(id,name,artist); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
+}
+
+void SongDatabase::dropIndex()
+{
+    QSqlQuery q;
+    QString sql;
+
+    sql = "DROP INDEX id_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "DROP INDEX name_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "DROP INDEX artist_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
+
+    sql = "DROP INDEX compound_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
 }

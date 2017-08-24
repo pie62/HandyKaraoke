@@ -1,12 +1,7 @@
-//
-// Created by noob on 16/5/2560.
-//
+#ifndef MIDIEVENT_H
+#define MIDIEVENT_H
 
-#ifndef MIDI_MIDIEVENT_H
-#define MIDI_MIDIEVENT_H
-
-#include <cstdint>
-#include <vector>
+#include <QByteArray>
 
 enum class MidiEventType {
     NoteOff = 0x80,
@@ -18,7 +13,7 @@ enum class MidiEventType {
     PitchBend = 0xE0,
     Meta = 0xFF,
     SysEx = 0xF7,
-    None = 0
+    Invalid = 0
 };
 
 enum class MidiMetaType {
@@ -40,23 +35,11 @@ enum class MidiMetaType {
     Invalid = 0xFF
 };
 
-
-class MidiEvent {
+class MidiEvent
+{
 public:
     MidiEvent();
     ~MidiEvent();
-    MidiEvent &operator = (const MidiEvent &e);
-
-    void setTick(uint32_t t)        { eTick = t; }
-    void setDelta(uint32_t d)       { eDelta = d; }
-    void setTrack(int t)            { eTrack = t; }
-    void setChannel(int ch)         { eChannel = ch; }
-    void setData1(int d1)           { eData1 = d1; }
-    void setData2(int d2)           { eData2 = d2; }
-    void setEventType(MidiEventType et) { eType = et; }
-    void setData(std::vector<unsigned char> md) { mData = md; }
-    void setMetaType(MidiMetaType t)  { mType = t; }
-    void setMetaType(int mNumber);
 
     int32_t         message();
     uint32_t        tick() const           { return eTick; }
@@ -67,21 +50,33 @@ public:
     int             data2() const          { return eData2; }
     MidiEventType   eventType() const      { return eType; }
     MidiMetaType    metaEventType() const  { return mType; }
-    std::vector<unsigned char> data() const{ return mData; }
+    QByteArray      data() const           { return mData; }
 
-    float tempoBpm();
+    float bpm();
+
+    void setTick(uint32_t t) { eTick = t; }
+    void setDelta(uint32_t d){ eDelta = d; }
+    void setTrack(int t)    { eTrack = t; }
+    void setChannel(int ch) { eChannel = ch; }
+    void setData1(int d1)   { eData1 = d1; }
+    void setData2(int d2)   { eData2 = d2; }
+    void setEventType(MidiEventType et) { eType = et; }
+    void setData(const QByteArray &md)  { mData = md; }
+    void setMetaType(MidiMetaType t)    { mType = t; }
+    void setMetaType(int mNumber);
+
+    MidiEvent &operator = (const MidiEvent &e);
 
 private:
-    uint32_t eTick;
-    uint32_t eDelta;
-    int eTrack;
-    int eChannel;
-    int eData1;
-    int eData2;
-    MidiEventType eType;
-    MidiMetaType mType;
-    std::vector<unsigned char> mData; // Meta, SysEx
+    uint32_t eTick      = 0;
+    uint32_t eDelta     = 0;
+    int     eTrack      = 0;
+    int     eChannel    = -1;
+    int     eData1      = 0;
+    int     eData2      = 0;
+    MidiEventType   eType = MidiEventType::Invalid;
+    MidiMetaType    mType = MidiMetaType::Invalid;
+    QByteArray      mData; // Meta, SysEx
 };
 
-
-#endif //MIDI_MIDIEVENT_H
+#endif // MIDIEVENT_H

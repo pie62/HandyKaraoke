@@ -46,7 +46,10 @@ SOURCES += main.cpp\
     Dialogs/SettingVuDialog.cpp \
     Widgets/SongDetail.cpp \
     Widgets/Detail.cpp \
-    Dialogs/AboutDialog.cpp
+    Dialogs/AboutDialog.cpp \
+    Utils.cpp \
+    Widgets/PlaybackButton.cpp \
+    Widgets/FaderSlider.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -80,7 +83,10 @@ HEADERS  += MainWindow.h \
     Dialogs/SettingVuDialog.h \
     Widgets/SongDetail.h \
     Widgets/Detail.h \
-    Dialogs/AboutDialog.h
+    Dialogs/AboutDialog.h \
+    Utils.h \
+    Widgets/PlaybackButton.h \
+    Widgets/FaderSlider.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -112,13 +118,20 @@ win32 {
         message("32-bit")
         LIBS += -LD:/Projects/QtProjects/BASS/bass24/ -lbass
         LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/ -lbassmidi
+        LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/ -lbass_fx
+
+        DEFINES += _ATL_XP_TARGETING
+        DEFINES += PSAPI_VERSION=1
+        QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
     } else {
         message("64-bit")
         LIBS += -LD:/Projects/QtProjects/BASS/bass24/x64/ -lbass
         LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/x64/ -lbassmidi
+        LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/x64/ -lbass_fx
     }
     INCLUDEPATH += D:/Projects/QtProjects/BASS/bass24
     INCLUDEPATH += D:/Projects/QtProjects/BASS/bassmidi24
+    INCLUDEPATH += D:/Projects/QtProjects/BASS/bass_fx24
 
     RC_ICONS = icon.ico
 }

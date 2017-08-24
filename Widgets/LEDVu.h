@@ -67,7 +67,7 @@ private:
 
     QTimer *_timer;
     QPropertyAnimation *_animation;
-    int _peakUpTime = 100, _peakDownTime = 2500;
+    int _peakUpTime = 80, _peakDownTime = 2500;
     int _peakHoldMs = 500, _peakLevel = 0;
     bool _showPeakHold = true;
 

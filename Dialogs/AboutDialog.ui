@@ -30,6 +30,9 @@
   <property name="windowTitle">
    <string>เกี่ยวกับ</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -51,7 +54,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../icons.qrc">:/Icons/App/icon.svg</pixmap>
+        <pixmap resource="../icons.qrc">:/Icons/App/icon_sm.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -80,7 +83,7 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>1.0.0 beta</string>
+      <string>1.0.0</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -131,7 +134,7 @@
         </font>
        </property>
        <property name="text">
-        <string>LGPLv3 </string>
+        <string>GPL</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

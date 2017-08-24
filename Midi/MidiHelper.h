@@ -5,6 +5,19 @@
 
 enum class InstrumentType;
 
+struct Beat
+{
+    int nBeat;
+    int nBeatInBar;
+    int currentBar;
+    Beat() : nBeat(0), nBeatInBar(0), currentBar(0) {}
+    QString toString() {
+        return QString("nBeat " + QString::number(nBeat) +
+                       " nBeatInBar " + QString::number(nBeatInBar) +
+                       " currentBar " + QString::number(currentBar));
+    }
+};
+
 class MidiHelper
 {
 public:
@@ -56,9 +69,9 @@ enum class InstrumentType
     BassDrum,
     Snare,
     SideStick,
-    LowTom,
-    MidTom,
     HighTom,
+    MidTom,
+    LowTom,
     Hihat,
     Cowbell,
     CrashCymbal,

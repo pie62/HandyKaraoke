@@ -18,6 +18,9 @@
   <property name="windowTitle">
    <string>Equalizer</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_37">
    <property name="leftMargin">
     <number>6</number>

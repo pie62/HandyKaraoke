@@ -1,6 +1,8 @@
 #include "MidiSynthesizer.h"
 
 #include <thread>
+#include <cstring>
+#include <iostream>
 
 MidiSynthesizer::MidiSynthesizer()
 {
@@ -59,17 +61,23 @@ bool MidiSynthesizer::open()
 
 
     BASS_Init(outDev, 44100, 0, NULL, NULL);
-    BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
+    //BASS_PluginLoad("D:\\Projects\\QtProjects\\BASS\\bass_fx24\\x64\\bass_fx.dll", 0);
+    //std::cout << "BASS_PluginLoad " << BASS_ErrorGetCode() << std::endl;
 
-    DWORD flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
+    BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
+    BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+
+    DWORD flags = 0;//BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
+
+    // Check for 32-bit floating-point channel support.
+    DWORD floatsupport = BASS_GetConfig(BASS_CONFIG_FLOAT);
+    if (floatsupport) // / floating-point is supported on this platform/architecture
+        flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
+    else
+        flags = BASS_MIDI_SINCINTER;
+
     stream = BASS_MIDI_StreamCreate(32, flags, 0);
 
-    #ifdef _WIN32
-        BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
-    #else
-        BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
-    #endif
-    //BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
     //BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
 
     auto concurentThreadsSupported = std::thread::hardware_concurrency();
@@ -85,7 +93,7 @@ bool MidiSynthesizer::open()
         }
     }
 
-    BASS_ChannelPlay(stream, false);
+    BASS_ChannelPlay(stream, true);
 
     //BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_DRUMS, 1);
     for (int i=16; i<32; i++) {
@@ -123,6 +131,7 @@ void MidiSynthesizer::close()
 
     BASS_StreamFree(stream);
     BASS_Free();
+    //BASS_PluginFree(0);
 
     openned = false;
 }
@@ -140,7 +149,7 @@ bool MidiSynthesizer::setOutputDevice(int dv)
         return BASS_SetDevice(dv);
 }
 
-void MidiSynthesizer::setSoundFonts(std::vector<std::string> &soundfonsFiles)
+void MidiSynthesizer::setSoundFonts(QList<QString> &soundfonsFiles)
 {
     this->sfFiles.clear();
     this->sfFiles = soundfonsFiles;
@@ -227,6 +236,8 @@ bool MidiSynthesizer::setMapSoundfontIndex(const std::vector<int> &intrumentSfIn
 
     // set to stream
     BASS_MIDI_StreamSetFonts(stream, mFonts.data(), mFonts.size()|BASS_MIDI_FONT_EX);
+
+    BASS_MIDI_StreamLoadSamples(stream);
 
     return true;
 }
@@ -519,11 +530,11 @@ std::vector<std::string> MidiSynthesizer::audioDevices()
     return dvs;
 }
 
-bool MidiSynthesizer::isSoundFontFile(std::string sfile)
+bool MidiSynthesizer::isSoundFontFile(const QString &sfile)
 {
     bool result = true;
 
-    HSOUNDFONT f = BASS_MIDI_FontInit(sfile.data(), 0);
+    HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(), 0);
 
     if (!f)
         result = false;
@@ -536,16 +547,20 @@ bool MidiSynthesizer::isSoundFontFile(std::string sfile)
 void MidiSynthesizer::setSfToStream()
 {
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
+        BASS_MIDI_FontUnload(f, -1, -1);
         BASS_MIDI_FontFree(f);
     }
     synth_HSOUNDFONT.clear();
 
-    for (const std::string &sfile : sfFiles) {
-        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.data(),
-                                          BASS_MIDI_FONT_MMAP);
+    for (const QString &sfile : sfFiles) {
+
+        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
+                                          BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
         if (f) {
+            BASS_MIDI_FontLoad(f, -1, -1);
             synth_HSOUNDFONT.push_back(f);
         }
+
     }
 
     if (synth_HSOUNDFONT.size() > 0) {
@@ -556,6 +571,8 @@ void MidiSynthesizer::setSfToStream()
 
         //BASS_MIDI_StreamSetFonts(0, &font, 1); // set sf to default stream
         BASS_MIDI_StreamSetFonts(stream, &font, 1); // set to stream to
+
+        BASS_MIDI_StreamLoadSamples(stream);
     }
 
     // Reset map intrument sf
@@ -624,6 +641,7 @@ int MidiSynthesizer::getDrumChannelFromNote(int drumNote)
 
     // Crash Cymbal ( 55 = Splash Cymbal )
     case 49:
+    case 52:
     case 55:
     case 57: ch = 24; break;
 
@@ -649,7 +667,8 @@ int MidiSynthesizer::getDrumChannelFromNote(int drumNote)
     case 81: ch = 29; break;
 
     // Chinese Cymbal ( ฉาบ )
-    case 52: ch = 30; break;
+    case 82:
+    case 83: ch = 30; break;
 
     default:
         ch = 31;

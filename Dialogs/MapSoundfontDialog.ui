@@ -18,6 +18,9 @@
   <property name="windowTitle">
    <string>การเลือกใช้ซาวด์ฟ้อนท์</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTreeWidget" name="treeWidget">

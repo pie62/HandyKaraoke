@@ -18,6 +18,9 @@
   <property name="windowTitle">
    <string>Chorus</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_9">
    <property name="spacing">
     <number>12</number>

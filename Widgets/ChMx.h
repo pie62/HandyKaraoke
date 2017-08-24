@@ -14,7 +14,7 @@ signals:
     void mouseHover();
 protected:
     void enterEvent(QEvent *event) {
-        setStyleSheet("background-color: rgb(117, 117, 117); color: rgb(0, 204, 0);");
+        setStyleSheet("background-color: rgb(117, 117, 117); color: rgb(30,144,255);");
         emit mouseHover();
         QLabel::enterEvent(event);
     }

@@ -1,7 +1,10 @@
 #include "Equalizer31BandFX.h"
 
+#include <bass_fx.h>
+
 Equalizer31BandFX::Equalizer31BandFX(HSTREAM streamHandle)
 {
+    BASS_FX_GetVersion();
     this->streamHandle = streamHandle;
 
     fxOn = false;
@@ -74,8 +77,12 @@ void Equalizer31BandFX::on()
 
     // -------------------------
 
-    BASS_DX8_PARAMEQ eq;
-    eq.fBandwidth = 18;
+    BASS_BFX_PEAKEQ eq;
+    //eq.fBandwidth = 18;
+    eq.fQ = 0;
+    eq.lBand = 0;
+    eq.fBandwidth = 4;
+    eq.lChannel = BASS_BFX_CHANALL;
 
     float eqfreq[31] = { 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160,
                          200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600,
@@ -87,7 +94,7 @@ void Equalizer31BandFX::on()
         eq.fCenter = eqfreq[i];
         eq.fGain = x.second;
 
-        HFX fx = BASS_ChannelSetFX(streamHandle, BASS_FX_DX8_PARAMEQ, 1);
+        HFX fx = BASS_ChannelSetFX(streamHandle, BASS_FX_BFX_PEAKEQ, 1);
 
         BASS_FXSetParameters(fx, &eq);
 
@@ -142,7 +149,11 @@ void Equalizer31BandFX::setGain(EQFrequency31Range freq, float gain)
     if (!fxOn || streamHandle == 0)
         return;
 
-    BASS_DX8_PARAMEQ eq;
+    BASS_BFX_PEAKEQ eq;
+    eq.fQ = 0;
+    eq.lBand = 0;
+    eq.fBandwidth = 4;
+    eq.lChannel = BASS_BFX_CHANALL;
     if (BASS_FXGetParameters(fxEQ[freq], &eq))
     {
         eq.fGain = g;

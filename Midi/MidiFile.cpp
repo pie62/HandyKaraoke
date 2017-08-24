@@ -1,49 +1,59 @@
-//
-// Created by noob on 16/5/2560.
-//
-
 #include "MidiFile.h"
 
-#include <iostream>
-#include <fstream>
-#include <cstring>
-#include <algorithm>
+#include <cstdlib>
 
-MidiFile::MidiFile() {
+// ========================================================
+bool isGreaterThan(MidiEvent* e1, MidiEvent* e2)
+{
+    return (e1->tick() < e2->tick());
+}
+quint16 readUInt16(QFile *in) {
+    unsigned char buffer[2];
+    in->read((char*)&buffer, 2);
+    return ((uint16_t)(buffer[0]) << 8) | (uint16_t)(buffer[1]);
+}
+
+quint32 readUInt32(QFile *in) {
+    unsigned char buffer[4];
+    in->read((char*)&buffer, 4);
+    return ((uint32_t)(buffer[0]) << 24) | ((uint32_t)(buffer[1]) << 16) |
+           ((uint32_t)(buffer[2]) << 8) | (uint32_t)(buffer[3]);
+}
+
+quint32 readVariableLengthQuantity(QFile *in) {
+    unsigned char b;
+    uint32_t value = 0;
+    do {
+        in->getChar((char*)&b);
+        value = (value << 7) | (b & 0x7F);
+    } while ((b & 0x80) == 0x80 && !in->atEnd());
+
+    return value;
+}
+// ========================================================
+
+MidiFile::MidiFile()
+{
     clear();
 }
 
-MidiFile::~MidiFile() {
+MidiFile::~MidiFile()
+{
     clear();
 }
 
-int MidiFile::bpm()
+QList<MidiEvent *> MidiFile::controllerAndProgramEvents()
 {
-    int bpm = 120;
-    if (fTempoEvents.size() > 0) {
-        bpm = fTempoEvents[0]->tempoBpm();
-    }
-
-    return bpm;
-}
-
-
-bool eventTickCompare(MidiEvent *e1, MidiEvent *e2) {
-    return e1->tick() < e2->tick();
-}
-
-
-std::vector<MidiEvent *> MidiFile::controllerAndProgramEvents()
-{
-    std::vector<MidiEvent*> evnts = fControllerEvents;
+    QList<MidiEvent*> evnts = fControllerEvents;
     for (MidiEvent *e : fProgramChangeEvents)
-        evnts.push_back(e);
+        evnts.append(e);
 
-    std::sort(evnts.begin(), evnts.end(), eventTickCompare);
+    qStableSort(evnts.begin(), evnts.end(), isGreaterThan);
     return evnts;
 }
 
-void MidiFile::clear() {
+void MidiFile::clear()
+{
     fFormatType = 1;
     fNumOfTracks = 0;
     fResolution = 0;
@@ -57,222 +67,206 @@ void MidiFile::clear() {
     fTimeSignatureEvents.clear();
 }
 
-bool fileExists(const std::string& filename) {
-    std::ifstream ifile(filename.c_str());
-    return (bool)ifile;
-}
-
-uint16_t readUInt16(std::ifstream *in) {
-    unsigned char buffer[2];
-    in->read((char*)buffer, 2);
-    return ((uint16_t)(buffer[0]) << 8) | (uint16_t)(buffer[1]);
-}
-
-uint32_t readUInt32(std::ifstream *in) {
-    unsigned char buffer[4];
-    in->read((char*)&buffer, 4);
-    return ((uint32_t)(buffer[0]) << 24) | ((uint32_t)(buffer[1]) << 16) |
-           ((uint32_t)(buffer[2]) << 8) | (uint32_t)(buffer[3]);
-}
-
-uint32_t readVariableLengthQuantity(std::ifstream *in) {
-    unsigned char b;
-    uint32_t value = 0;
-    do {
-        b = in->get();
-        value = (value << 7) | (b & 0x7F);
-    } while ((b & 0x80) == 0x80 && !in->eof());
-
-    return value;
-}
-
-bool MidiFile::read(const std::string &filename, bool seekFileChunkID) {
-
-    if (!fileExists(filename))
+bool MidiFile::read(const QString &file, bool seekFileChunkID)
+{
+    if (!QFile::exists(file))
         return false;
 
-    std::ifstream in(filename, std::ios::in|std::ios::binary);
-    if (!in.is_open())
+    QFile in(file);
+
+    return read(&in, seekFileChunkID);
+}
+
+bool MidiFile::read(QFile *in, bool seekFileChunkID)
+{
+    if (!in->exists() || !in->open(QFile::ReadOnly))
         return false;
 
     clear();
 
     char chunkID[4];
-    uint32_t chunkSize = 0, chunkStart = 0;
+    qint64 chunkSize = 0, chunkStart = 0;
 
-    in.read((char*)chunkID, 4);
+    in->read((char*)chunkID, 4);
 
     if (seekFileChunkID == false) {
-        if (memcmp(chunkID, "MThd", 4) != 0) {
-            std::cout << "File chunk ID is invalid. " << chunkID << std::endl;
+        if (memcmp(chunkID, "MThd", 4) != 0){
+            in->close();
             return false;
         }
     }
 
-    chunkSize = readUInt32(&in);
-    chunkStart = in.tellg();
+    chunkSize = readUInt32(in);
+    chunkStart = in->pos();
 
     if (chunkSize != 6) {
-        std::cout << "Chunk size is invalid. " << chunkSize << std::endl;
+        in->close();
         return false;
     }
 
-    fFormatType = readUInt16(&in);
-    fNumOfTracks = readUInt16(&in);
+    fFormatType = readUInt16(in);
+    fNumOfTracks = readUInt16(in);
 
     unsigned char divResolution[2];
-    in.read((char*)divResolution, 2);
+    in->read((char*)divResolution, 2);
 
     switch ((signed char)(divResolution[0])) {
-        case SMPTE24:
-            fDivision = SMPTE24;
-            fResolution = divResolution[1];
-            break;
-        case SMPTE25:
-            fDivision = SMPTE25;
-            fResolution = divResolution[1];
-            break;
-        case SMPTE30DROP:
-            fDivision = SMPTE30DROP;
-            fResolution = divResolution[1];
-            break;
-        case SMPTE30:
-            fDivision = SMPTE30;
-            fResolution = divResolution[1];
-            break;
-        default:
-            fDivision = PPQ;
-            fResolution = divResolution[1] | divResolution[0] << 8;
-            break;
+    case SMPTE24:
+        fDivision = SMPTE24;
+        fResolution = divResolution[1];
+        break;
+    case SMPTE25:
+        fDivision = SMPTE25;
+        fResolution = divResolution[1];
+        break;
+    case SMPTE30DROP:
+        fDivision = SMPTE30DROP;
+        fResolution = divResolution[1];
+        break;
+    case SMPTE30:
+        fDivision = SMPTE30;
+        fResolution = divResolution[1];
+        break;
+    default:
+        fDivision = PPQ;
+        fResolution = divResolution[1] | divResolution[0] << 8;
+        break;
     }
 
     for (int t=0; t<fNumOfTracks; t++) {
 
-        in.read((char*)chunkID, 4);
-        chunkSize = readUInt32(&in);
-        chunkStart = in.tellg();
+        in->read((char*)chunkID, 4);
+        chunkSize = readUInt32(in);
+        chunkStart = in->pos();
 
         if (memcmp(chunkID, "MTrk", 4) != 0) {
             clear();
-            std::cout << "Track " << t << " chunk ID is invalid. " << chunkID << std::endl;;
+            in->close();
             return false;
         }
 
         uint32_t tick = 0, delta = 0;
         unsigned char status, runningStatus = 0;
-        bool endOfTrack = false;
+        //bool endOfTrack = false;
 
-        while ((in.tellg() < (chunkStart + chunkSize)) && !in.eof()) {
-            delta = readVariableLengthQuantity(&in);
+        while (in->pos() < (chunkStart + chunkSize) && !in->atEnd()) {
+
+            delta = readVariableLengthQuantity(in);
             tick += delta;
-            status = in.get();
+            in->getChar((char*)&status);
 
             if ((status & 0x80) == 0) {
                 status = runningStatus;
-                std::fstream::pos_type p = 1;
-                in.seekg(in.tellg() - p);
+                in->seek(in->pos() - 1);
             } else {
                 runningStatus = status;
             }
 
             switch (status & 0xF0) {
-                case 0x80: {
-                    int ch = status & 0x0F;
-                    char d1 = in.get();
-                    char d2 = in.get();
-                    createMidiEvent(t, tick, delta, MidiEventType::NoteOff, ch, d1, d2);
-                    break;
-                }
-                case 0x90: {
-                    int ch = status & 0x0F;
-                    char d1 = in.get();
-                    char d2 = in.get();
-                    if (d2 != 0) {
-                        createMidiEvent(t, tick, delta, MidiEventType::NoteOn, ch, d1, d2);
-                    } else {
-                        createMidiEvent(t, tick, delta, MidiEventType::NoteOff, ch, d1, 0);
-                    }
-                    break;
-                }
-                case 0xA0: {
-                    int ch = status & 0x0F;
-                    char d1 = in.get();
-                    char d2 = in.get();
-                    createMidiEvent(t, tick, delta, MidiEventType::NoteAftertouch, ch, d1, d2);
-                    break;
-                }
-                case 0xB0: {
-                    int ch = status & 0x0F;
-                    char d1 = in.get();
-                    char d2 = in.get();
-                    MidiEvent *e = createMidiEvent(t, tick, delta, MidiEventType::Controller, ch, d1, d2);
-                    fControllerEvents.push_back(e);
-                    break;
-                }
-                case 0xC0: {
-                    int ch = status & 0x0F;
-                    char d1 = in.get();
-                    MidiEvent *e = createMidiEvent(t, tick, delta, MidiEventType::ProgramChange, ch, d1, 0);
-                    fProgramChangeEvents.push_back(e);
-                    break;
-                }
-                case 0xD0: {
-                    int ch = status & 0x0F;
-                    char d1 = in.get();
-                    createMidiEvent(t, tick, delta, MidiEventType::ChannelAftertouch, ch, d1, 0);
-                    break;
-                }
-                case 0xE0: {
-                    int ch = status & 0x0F;
-                    char d1 = in.get();
-                    char d2 = in.get();
-                    int pitch = ((d2 & 0x7F) << 7) | (d1 & 0x7F);
-                    createMidiEvent(t, tick, delta, MidiEventType::PitchBend, ch, pitch, 0);
-                    break;
-                }
-                case 0xF0:
-                    std::vector<unsigned char> data;
-                    int lenght = 0;
-                    switch (status) {
-                        case 0xF0:
-                        case 0xF7:
-                            lenght = readVariableLengthQuantity(&in) + 1;
-                            data.push_back(status);
-                            for (int i=0; i<lenght -1; i++) {
-                                data.push_back(in.get());
-                            }
-                            createSysExEvent(t, tick, delta, data);
-                            break;
-                        case 0xFF:
-                            char number = in.get();
-                            lenght = readVariableLengthQuantity(&in);
-                            for (int i=0; i<lenght; i++) {
-                                data.push_back(in.get());
-                            }
-                            createMetaEvent(t, tick, delta, number, data);
-                            break;
-                    }
-                    break;
+            case 0x80: {
+                int ch = status & 0x0F;
+                char d1, d2;
+                in->getChar(&d1);
+                in->getChar(&d2);
+                createMidiEvent(t, tick, delta, MidiEventType::NoteOff, ch, d1, d2);
+                break;
             }
-        }
+            case 0x90: {
+                int ch = status & 0x0F;
+                char d1, d2;
+                in->getChar(&d1);
+                in->getChar(&d2);
+                if (d2 != 0) {
+                    createMidiEvent(t, tick, delta, MidiEventType::NoteOn, ch, d1, d2);
+                } else {
+                    createMidiEvent(t, tick, delta, MidiEventType::NoteOff, ch, d1, 0);
+                }
+                break;
+            }
+            case 0xA0: {
+                int ch = status & 0x0F;
+                char d1, d2;
+                in->getChar(&d1);
+                in->getChar(&d2);
+                createMidiEvent(t, tick, delta, MidiEventType::NoteAftertouch, ch, d1, d2);
+                break;
+            }
+            case 0xB0: {
+                int ch = status & 0x0F;
+                char d1, d2;
+                in->getChar(&d1);
+                in->getChar(&d2);
+                MidiEvent *e = createMidiEvent(t, tick, delta, MidiEventType::Controller, ch, d1, d2);
+                fControllerEvents.append(e);
+                break;
+            }
+            case 0xC0: {
+                int ch = status & 0x0F;
+                char d1;
+                in->getChar(&d1);
+                MidiEvent *e = createMidiEvent(t, tick, delta, MidiEventType::ProgramChange, ch, d1, 0);
+                fProgramChangeEvents.append(e);
+                break;
+            }
+            case 0xD0: {
+                int ch = status & 0x0F;
+                char d1;
+                in->getChar(&d1);
+                createMidiEvent(t, tick, delta, MidiEventType::ChannelAftertouch, ch, d1, 0);
+                break;
+            }
+            case 0xE0: {
+                int ch = status & 0x0F;
+                char d1, d2;
+                in->getChar(&d1);
+                in->getChar(&d2);
+                int pitch = ((d2 & 0x7F) << 7) | (d1 & 0x7F);
+                createMidiEvent(t, tick, delta, MidiEventType::PitchBend, ch, pitch, 0);
+                break;
+            }
+            case 0xF0:
+                QByteArray data;
+                int lenght = 0;
+                switch (status) {
+                    case 0xF0:
+                    case 0xF7:
+                        lenght = readVariableLengthQuantity(in) + 1;
+                        data[0] = status;
+                        data += in->read(lenght - 1);
+                        createSysExEvent(t, tick, delta, data);
+                        break;
+                    case 0xFF:
+                        char number;
+                        in->getChar(&number);
+                        lenght = readVariableLengthQuantity(in);
+                        data = in->read(lenght);
+                        if (number == 0x2F && in->pos() < (chunkStart + chunkSize)
+                                && !in->atEnd()) {
+                            in->read(1);
+                        }
+                        createMetaEvent(t, tick, delta, number, data);
+                        break;
+                }
+                break;
+            } // End Switch
 
-    }
+        } // End while
 
-    std::sort(fEvents.begin(), fEvents.end(), eventTickCompare);
-    std::sort(fTempoEvents.begin(), fTempoEvents.end(), eventTickCompare);
+    } // For loop read tracks
 
-    std::sort(fControllerEvents.begin(), fControllerEvents.end(), eventTickCompare);
-    std::sort(fProgramChangeEvents.begin(), fProgramChangeEvents.end(), eventTickCompare);
-    std::sort(fTimeSignatureEvents.begin(), fTimeSignatureEvents.end(), eventTickCompare);
-    //fEvents.sort(eventTickCompare);
-    //fTempoEvent.sort(eventTickCompare);
+    qStableSort(fEvents.begin(), fEvents.end(), isGreaterThan);
+    qStableSort(fTempoEvents.begin(), fTempoEvents.end(), isGreaterThan);
+    qStableSort(fControllerEvents.begin(), fControllerEvents.end(), isGreaterThan);
+    qStableSort(fProgramChangeEvents.begin(), fProgramChangeEvents.end(), isGreaterThan);
+    qStableSort(fTimeSignatureEvents.begin(), fTimeSignatureEvents.end(), isGreaterThan);
 
-    in.close();
+    in->close();
 
     return true;
 }
 
-MidiEvent* MidiFile::createMidiEvent(int track, uint32_t tick, uint32_t delta, MidiEventType evType, int ch, int data1, int data2) {
+MidiEvent *MidiFile::createMidiEvent(int track, uint32_t tick, uint32_t delta, MidiEventType evType, int ch, int data1, int data2)
+{
     MidiEvent *e = new MidiEvent();
     e->setTrack(track);
     e->setTick(tick);
@@ -281,12 +275,13 @@ MidiEvent* MidiFile::createMidiEvent(int track, uint32_t tick, uint32_t delta, M
     e->setChannel(ch);
     e->setData1(data1);
     e->setData2(data2);
-    fEvents.push_back(e);
+    fEvents.append(e);
 
     return e;
 }
 
-MidiEvent* MidiFile::createMetaEvent(int track, uint32_t tick, uint32_t delta, int number, std::vector<unsigned char> data) {
+MidiEvent *MidiFile::createMetaEvent(int track, uint32_t tick, uint32_t delta, int number, QByteArray data)
+{
     MidiEvent *me = new MidiEvent();
     me->setTrack(track);
     me->setTick(tick);
@@ -294,23 +289,24 @@ MidiEvent* MidiFile::createMetaEvent(int track, uint32_t tick, uint32_t delta, i
     me->setEventType(MidiEventType::Meta);
     me->setMetaType(number);
     me->setData(data);
-    fEvents.push_back(me);
+    fEvents.append(me);
     if (me->metaEventType() == MidiMetaType::SetTempo)
-        fTempoEvents.push_back(me);
+        fTempoEvents.append(me);
     if (me->metaEventType() == MidiMetaType::TimeSignature)
-        fTimeSignatureEvents.push_back(me);
+        fTimeSignatureEvents.append(me);
 
     return me;
 }
 
-MidiEvent* MidiFile::createSysExEvent(int track, uint32_t tick, uint32_t delta, std::vector<unsigned char> data) {
+MidiEvent *MidiFile::createSysExEvent(int track, uint32_t tick, uint32_t delta, QByteArray data)
+{
     MidiEvent *e = new MidiEvent();
     e->setTrack(track);
     e->setTick(tick);
     e->setDelta(delta);
     e->setEventType(MidiEventType::SysEx);
     e->setData(data);
-    fEvents.push_back(e);
+    fEvents.append(e);
 
     return e;
 }
@@ -333,13 +329,13 @@ float MidiFile::beatFromTick(uint32_t tick)
     }
 }
 
-float MidiFile::timeFromTick(uint32_t tick)
+float MidiFile::timeFromTick(uint32_t tick, int bpmSpeed)
 {
     switch (fDivision) {
     case PPQ: {
         float tempo_event_time = 0.0;
         uint32_t tempo_event_tick = 0;
-        float tempo = 120.0;
+        float tempo = 120.0 + bpmSpeed;
 
         for (MidiEvent* e : fTempoEvents) {
             if (e->tick() >= tick) {
@@ -348,7 +344,7 @@ float MidiFile::timeFromTick(uint32_t tick)
             tempo_event_time +=
                 (((float)(e->tick() - tempo_event_tick)) / fResolution / (tempo / 60));
             tempo_event_tick = e->tick();
-            tempo = e->tempoBpm();
+            tempo = e->bpm() + bpmSpeed;
         }
 
         float time =
@@ -368,13 +364,13 @@ float MidiFile::timeFromTick(uint32_t tick)
     }
 }
 
-uint32_t MidiFile::tickFromTime(float time)
+uint32_t MidiFile::tickFromTime(float time, int bpmSpeed)
 {
     switch (fDivision) {
     case PPQ: {
         float tempo_event_time = 0.0;
         uint32_t tempo_event_tick = 0;
-        float tempo = 120.0;
+        float tempo = 120.0 + bpmSpeed;
 
         for (MidiEvent* e : fTempoEvents) {
             float next_tempo_event_time =
@@ -383,7 +379,7 @@ uint32_t MidiFile::tickFromTime(float time)
             if (next_tempo_event_time >= time) break;
             tempo_event_time = next_tempo_event_time;
             tempo_event_tick = e->tick();
-            tempo = e->tempoBpm();
+            tempo = e->bpm() + bpmSpeed;
         }
 
         return tempo_event_tick + (uint32_t)((time - tempo_event_time) * (tempo / 60) * fResolution);
@@ -401,13 +397,13 @@ uint32_t MidiFile::tickFromTime(float time)
     }
 }
 
-uint32_t MidiFile::tickFromTimeMs(float msTime)
+uint32_t MidiFile::tickFromTimeMs(long msTime, int bpmSpeed)
 {
     switch (fDivision) {
     case PPQ: {
         float tempo_event_time = 0.0;
         uint32_t tempo_event_tick = 0;
-        float tempo = 120.0;
+        float tempo = 120.0 + bpmSpeed;
 
         for (MidiEvent* e : fTempoEvents) {
             float next_tempo_event_time =
@@ -416,7 +412,7 @@ uint32_t MidiFile::tickFromTimeMs(float msTime)
             if (next_tempo_event_time >= msTime) break;
             tempo_event_time = next_tempo_event_time;
             tempo_event_tick = e->tick();
-            tempo = e->tempoBpm();
+            tempo = e->bpm() + bpmSpeed;
         }
 
         return tempo_event_tick + (uint32_t)((msTime - tempo_event_time) * (tempo / 60000) * fResolution);
@@ -431,6 +427,89 @@ uint32_t MidiFile::tickFromTimeMs(float msTime)
         return (uint32_t)(msTime * fResolution * 30.0) * 1000;
     default:
         return 0;
+    }
+}
+
+int MidiFile::firstBpm(const QString &file)
+{
+    if (!QFile::exists(file))
+        return 0;
+
+    QFile in(file);
+
+    int bpm = firstBpm(&in);
+    return bpm;
+}
+
+int MidiFile::firstBpm(QFile *in)
+{
+    if (!in->exists() || !in->open(QFile::ReadOnly))
+        return false;
+
+    uchar cId[4];
+    in->read((char*)cId, 4);
+
+    int cSize = readUInt32(in);
+    if (cSize != 6) {
+        in->close();
+        return 0;
+    }
+
+    int fType = readUInt16(in);
+    int nTracks = readUInt16(in);
+
+    if (fType == 2) {
+        in->close();
+        return 0;
+    }
+
+    unsigned char divResolution[2];
+    in->read((char*)divResolution, 2);
+
+    for (int i=0; i<nTracks; i++) {
+
+        in->read((char*)cId, 4);
+        cSize = readUInt32(in);
+
+        if (memcmp(cId, "MTrk", 4) != 0) {
+            in->close();
+            return 0;
+        }
+
+        in->seek(in->pos() + cSize);
+    }
+
+    // End check file
+
+    in->seek(0);
+
+    QByteArray buffer = in->readAll();
+    int index = buffer.indexOf(0xFF51, 0);
+
+    if (index == -1) {
+        in->close();
+        return 120;
+    }
+    else {
+        in->seek(index);
+        char metaNumber;//, lenght;
+        in->getChar(&metaNumber);
+        //in->getChar(&lenght);
+        int lenght = readVariableLengthQuantity(in);
+
+        // wrong
+        if (metaNumber != 0x51 || lenght != 3) {
+            in->close();
+            return 120;
+        }
+
+        unsigned char data[3];
+        in->read((char*)data, 3);
+        int32_t midi_tempo = (data[0] << 16) | (data[1] << 8) | data[2];
+
+        in->close();
+
+        return 60000000 / midi_tempo;
     }
 }
 

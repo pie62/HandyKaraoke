@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>170</width>
-    <height>60</height>
+    <height>61</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,8 @@ border:1px solid rgb(255, 255, 255);
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: #F6416C;</string>
+           <string notr="true">/*color: #F6416C;*/
+color: rgb(255, 0, 127);</string>
           </property>
           <property name="text">
            <string>120</string>
@@ -101,7 +102,7 @@ border:1px solid rgb(255, 255, 255);
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: #00B8A9;</string>
+           <string notr="true">color: rgb(30,144,255);</string>
           </property>
           <property name="text">
            <string>0:0</string>

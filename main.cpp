@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
 
     MainWindow w;
 
-    QThread::msleep(1000);
     w.show();
-    splash->finish(&w);    
+
+    splash->finish(&w);
 
     delete splash;
     delete pixmap;

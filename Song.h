@@ -17,7 +17,7 @@ public:
     QString key()       { return sKey; }
     int     tempo()     { return sTempo; }
     QString songType()  { return sSongType; }
-    QString lyrics()    { return sLyrics; }
+    QString lyrics()    { return sLyrics.replace("\n", " "); }
     QString path()      { return sPath; }
 
     void setId          (const QString &id)     { sId = id; }
@@ -28,6 +28,8 @@ public:
     void setSongType    (const QString &type)   { sSongType = type; }
     void setLyrics      (const QString &lyr)    { sLyrics = lyr; }
     void setPath        (const QString &path)   { sPath = path; }
+
+    QString detail();
 
 signals:
 

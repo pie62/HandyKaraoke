@@ -71,18 +71,30 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         int l1y = mainWin->lyricsWidget()->line1Y();
         int l2y = mainWin->lyricsWidget()->line2Y();
         int anmtTime = mainWin->lyricsWidget()->animationTime();
+        bool autosize = mainWin->lyricsWidget()->isAutoFontSize();
         ui->spinLint1Y->setValue(l1y);
         ui->spinLint2Y->setValue(l2y);
         ui->spinAnmtTime->setValue(anmtTime);
+        ui->chbLyrAutoSize->setChecked(autosize);
+
+        LinePosition l1 = mainWin->lyricsWidget()->line1Position();
+        LinePosition l2 = mainWin->lyricsWidget()->line2Position();
+        ui->cbLine1X->setCurrentIndex(static_cast<int>(l1));
+        ui->cbLine2X->setCurrentIndex(static_cast<int>(l2));
 
         QString textColor =  mainWin->lyricsWidget()->textColor().name();
         QString textBorderColor = mainWin->lyricsWidget()->textBorderColor().name();
+        QString textBorderOutColor = mainWin->lyricsWidget()->textBorderOutColor().name();
         int tW = mainWin->lyricsWidget()->textBorderWidth();
+        int tOW = mainWin->lyricsWidget()->textBorderOutWidth();
         ui->lbTextColor->setText(textColor);
         ui->lbTextColor->setStyleSheet("background-color : " + textColor);
         ui->lbTextBorderColor->setText(textBorderColor);
         ui->lbTextBorderColor->setStyleSheet("background-color : " + textBorderColor);
+        ui->lbTextBorderOutColor->setText(textBorderOutColor);
+        ui->lbTextBorderOutColor->setStyleSheet("background-color : " + textBorderOutColor);
         ui->spinTextBorderWidth->setValue(tW);
+        ui->spinTextBorderOutWidth->setValue(tOW);
 
 
         QString curColor =  mainWin->lyricsWidget()->curColor().name();
@@ -90,11 +102,16 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         ui->lbCurColor->setText(curColor);
 
         QString curBorderColor =  mainWin->lyricsWidget()->curBorderColor().name();
+        QString curBorderOutColor = mainWin->lyricsWidget()->curBorderOutColor().name();
         ui->lbCurBorderColor->setStyleSheet("background-color : " + curBorderColor);
         ui->lbCurBorderColor->setText(curBorderColor);
+        ui->lbCurBorderOutColor->setStyleSheet("background-color : " + curBorderOutColor);
+        ui->lbCurBorderOutColor->setText(curBorderOutColor);
 
         int w = mainWin->lyricsWidget()->curBorderWidth();
+        int w2 = mainWin->lyricsWidget()->curBorderOutWidth();
         ui->spinCurBorderWidth->setValue(w);
+        ui->spinCurBorderOutWidth->setValue(w2);
 
         connect(ui->spinLint1Y, SIGNAL(valueChanged(int)),
                 this, SLOT(onSpinLine1YValueChanged(int)));
@@ -102,24 +119,30 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
                 this, SLOT(onSpinLine2YValueChanged(int)));
         connect(ui->spinAnmtTime, SIGNAL(valueChanged(int)),
                 this, SLOT(onSpinAnmtTimeValueChanged(int)));
+        connect(ui->chbLyrAutoSize, SIGNAL(toggled(bool)),
+                this, SLOT(onChbLyrAutoSizeToggled(bool)));
 
         connect(ui->spinTextBorderWidth, SIGNAL(valueChanged(int)),
                 this, SLOT(onSpinTextBorderWidthValueChanged(int)));
+        connect(ui->spinTextBorderOutWidth, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinTextBorderOutWidthValueChanged(int)));
+
         connect(ui->spinCurBorderWidth, SIGNAL(valueChanged(int)),
                 this, SLOT(onSpinCurBorderWidthValueChanged(int)));
+        connect(ui->spinCurBorderOutWidth, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinCurBorderOutWidthValueChanged(int)));
     }
 
 
     // Database
-    QString appPath = QDir::currentPath();
-    QString ncnPath = settings->value("NCNPath", QDir::toNativeSeparators(appPath+"/Songs/NCN")).toString();
-    ui->leNCNPath->setText(ncnPath);
+    ui->leNCNPath->setText(db->ncnPath());
     ui->lbCountSongsValue->setText(QString::number(db->count()) + " เพลง");
 
-    if (db->isUpdatting())
+    if (db->isRunning())
     {
         ui->barUpdateSongs->setMaximum(db->updateCount());
         ui->btnUpdateSongs->setEnabled(false);
+        ui->btnNCNPath->setEnabled(false);
         ui->lbCountSongsText->setEnabled(false);
         ui->lbCountSongsValue->setEnabled(false);
     }
@@ -132,7 +155,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     connect(db, SIGNAL(updateCountChanged(int)), ui->barUpdateSongs, SLOT(setMaximum(int)));
     connect(db, SIGNAL(updatePositionChanged(int)), ui->barUpdateSongs, SLOT(setValue(int)));
     connect(db, SIGNAL(updateSongNameChanged(QString)), ui->lbUpdateValue, SLOT(setText(QString)));
-    connect(db, SIGNAL(updateFinished()), this, SLOT(on_upDbUpdateFinished()));
+    connect(db, SIGNAL(finished()), this, SLOT(on_upDbUpdateFinished()));
 
 
     // Device
@@ -141,8 +164,8 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
     { // Synth tab
         MidiSynthesizer *synth =  mainWin->midiPlayer()->midiSynthesizer();
-        for (int i=0; i<synth->soundfontFiles().size(); i++) {
-            ui->listsfFiles->addItem(QString::fromStdString(synth->soundfontFiles().at(i)));
+        for (int i=0; i<synth->soundfontFiles().count(); i++) {
+            ui->listsfFiles->addItem(synth->soundfontFiles().at(i));
         }
         if (mainWin->midiPlayer()->midiSynthesizer()->soundfontFiles().size() == 0) {
             ui->sliderSfVolume->setEnabled(false);
@@ -370,6 +393,7 @@ void SettingsDialog::on_btnNCNPath_clicked()
     if (db->isNCNPath(path)) {
         settings->setValue("NCNPath", path);
         ui->leNCNPath->setText(path);
+        db->setNcnPath(path);
     } else {
         QString title = "ที่เก็บเพลงไม่ถูกต้อง";
         QString msg = "ต้องมีโฟลเดอร์ Cursor, Lyrics, และ Song อยู่ในที่เก็บเพลง";
@@ -389,18 +413,22 @@ void SettingsDialog::on_btnUpdateSongs_clicked()
     }
 
     settings->setValue("NCNPath", ui->leNCNPath->text());
-    ui->btnUpdateSongs->setEnabled(false);
+
     ui->lbUpdateText->show();
     ui->lbUpdateValue->show();
 
+    ui->btnUpdateSongs->setEnabled(false);
+    ui->btnNCNPath->setEnabled(false);
     ui->lbCountSongsText->setEnabled(false);
     ui->lbCountSongsValue->setEnabled(false);
 
-    db->updateInThread();
+    db->setUpdateType(UpdateType::UpdateAll);
+    db->start();
 }
 
 void SettingsDialog::on_upDbUpdateFinished()
 { 
+    ui->btnNCNPath->setEnabled(true);
     ui->lbCountSongsText->setEnabled(true);
     ui->lbCountSongsValue->setEnabled(true);
     ui->lbUpdateText->hide();
@@ -556,6 +584,24 @@ void SettingsDialog::onSpinAnmtTimeValueChanged(int v)
     settings->setValue("LyricsAnimationTime", v);
 }
 
+void SettingsDialog::onChbLyrAutoSizeToggled(bool checked)
+{
+    settings->setValue("LyricsAutoFontSize", checked);
+    mainWin->lyricsWidget()->setAutoFontSize(checked);
+}
+
+void SettingsDialog::on_cbLine1X_activated(int index)
+{
+    settings->setValue("LyricsLine1X", index);
+    mainWin->lyricsWidget()->setLine1Position(static_cast<LinePosition>(index));
+}
+
+void SettingsDialog::on_cbLine2X_activated(int index)
+{
+    settings->setValue("LyricsLine2X", index);
+    mainWin->lyricsWidget()->setLine2Position(static_cast<LinePosition>(index));
+}
+
 void SettingsDialog::on_btnTextColor_clicked()
 {
     QColor lC = mainWin->lyricsWidget()->textColor();
@@ -588,10 +634,32 @@ void SettingsDialog::on_btnTextBorderColor_clicked()
     }
 }
 
+void SettingsDialog::on_btnTextBorderOutColor_clicked()
+{
+    QColor lC = mainWin->lyricsWidget()->textBorderOutColor();
+    QColor color = QColorDialog::getColor(lC, this, "Select Color",
+                                          QColorDialog::DontUseNativeDialog);
+
+    if (color.isValid()) {
+        QString cn = color.name();
+        settings->setValue("LyricsTextBorderOutColor", cn);
+        ui->lbTextBorderOutColor->setStyleSheet("background-color : " + cn);
+        ui->lbTextBorderOutColor->setText(cn);
+
+        mainWin->lyricsWidget()->setTextBorderOutColor(color);
+    }
+}
+
 void SettingsDialog::onSpinTextBorderWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsTextBorderWidth", arg1);
     mainWin->lyricsWidget()->setTextBorderWidth(arg1);
+}
+
+void SettingsDialog::onSpinTextBorderOutWidthValueChanged(int arg1)
+{
+    settings->setValue("LyricsTextBorderOutWidth", arg1);
+    mainWin->lyricsWidget()->setTextBorderOutWidth(arg1);
 }
 
 void SettingsDialog::on_btnCurColor_clicked()
@@ -626,10 +694,32 @@ void SettingsDialog::on_btnCurBorderColor_clicked()
     }
 }
 
+void SettingsDialog::on_btnCurBorderOutColor_clicked()
+{
+    QColor lC = mainWin->lyricsWidget()->curBorderOutColor();
+    QColor color = QColorDialog::getColor(lC, this, "Select Color",
+                                          QColorDialog::DontUseNativeDialog);
+
+    if (color.isValid()) {
+        QString cn = color.name();
+        settings->setValue("LyricsCurBorderOutColor", cn);
+        ui->lbCurBorderOutColor->setStyleSheet("background-color : " + cn);
+        ui->lbCurBorderOutColor->setText(cn);
+
+        mainWin->lyricsWidget()->setCurBorderOutColor(color);
+    }
+}
+
 void SettingsDialog::onSpinCurBorderWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsCurBorderWidth", arg1);
     mainWin->lyricsWidget()->setCurBorderWidth(arg1);
+}
+
+void SettingsDialog::onSpinCurBorderOutWidthValueChanged(int arg1)
+{
+    settings->setValue("LyricsCurBorderOutWidth", arg1);
+    mainWin->lyricsWidget()->setCurBorderOutWidth(arg1);
 }
 
 void SettingsDialog::on_btnSfEdit_clicked()
@@ -658,13 +748,13 @@ void SettingsDialog::on_btnSfFinish_clicked()
     }
 
     QStringList sfList;
-    std::vector<std::string> sfs;
+    QList<QString> sfs;
 
     settings->beginWriteArray("SynthSoundfontsVolume");
     for (int i=0; i<ui->listsfFiles->count(); i++) {
         QListWidgetItem *item = ui->listsfFiles->item(i);
         sfList.append(item->text());
-        sfs.push_back(item->text().toStdString());
+        sfs.append(item->text());
 
         settings->setArrayIndex(i);
         settings->setValue("SoundfontVolume", 100);
@@ -714,11 +804,11 @@ void SettingsDialog::on_btnSfAdd_clicked()
 {
     QStringList sfFiles = QFileDialog::getOpenFileNames(this,
                                                         "เลือกไฟล์ซาวด์ฟ้อนท์",
-                                                        QDir::homePath(),
+                                                        QDir::currentPath(),
                                                         "SoundFont (*.sf2 *.SF2 *.sfz *.SFZ)");
 
     for (const QString &sf : sfFiles) {
-        if (MidiSynthesizer::isSoundFontFile(sf.toStdString())) {
+        if (MidiSynthesizer::isSoundFontFile(sf)) {
             ui->listsfFiles->addItem(sf);
         }
         else {
@@ -761,8 +851,8 @@ void SettingsDialog::on_btnSfDown_clicked()
 void SettingsDialog::on_btnSfCancel_clicked()
 {
     ui->listsfFiles->clear();
-    for (const std::string &sf : mainWin->midiPlayer()->midiSynthesizer()->soundfontFiles()) {
-        ui->listsfFiles->addItem(QString::fromStdString(sf));
+    for (const QString &sf : mainWin->midiPlayer()->midiSynthesizer()->soundfontFiles()) {
+        ui->listsfFiles->addItem(sf);
     }
 
     ui->btnSfAdd->setEnabled(false);

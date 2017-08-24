@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include "Utils.h"
 #include "SettingsDialog.h"
 #include "Dialogs/AboutDialog.h"
 #include "Midi/MidiFile.h"
@@ -24,19 +25,26 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     settings = new QSettings();
-    db = new SongDatabase();
+    QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
 
-    timer1 = new QTimer(this);
-    timer2 = new QTimer(this);
+    db = new SongDatabase();
+    db->setNcnPath(ncn);
+
+
+    timer1 = new QTimer();
+    timer2 = new QTimer();
     timer2->setSingleShot(true);
 
-    positionTimer = new QTimer();
+    positionTimer = new QTimer(this);
     positionTimer->setInterval(30);
 
-    detailTimer = new QTimer(this);
+    lyricsTimer = new QTimer(0);
+    lyricsTimer->setInterval(30);
+
+    detailTimer = new QTimer();
     detailTimer->setSingleShot(true);
 
-    songDetailTimer = new QTimer(this);
+    songDetailTimer = new QTimer();
     songDetailTimer->setSingleShot(true);
 
     player = new MidiPlayer();
@@ -138,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent) :
         synth->setOutputDevice(aout);
 
         // Synth soundfont
-        std::vector<std::string> sfs;
+        QList<QString> sfs;
         QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
 
         // Synth soundfont volume
@@ -146,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent) :
         int idx=0;
         settings->beginReadArray("SynthSoundfontsVolume");
         for (const QString &s : sfList) {
-            sfs.push_back(s.toStdString());
+            sfs.append(s);
 
             settings->setArrayIndex(idx);
             sfvl.append(settings->value("SoundfontVolume", 100).toInt());
@@ -269,15 +277,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
         QString tColor  = settings->value("LyricsTextColor", "#f3f378").toString();
         QString tbColor = settings->value("LyricsTextBorderColor", "#000000").toString();
-        int     tbWidth = settings->value("LyricsTextBorderWidth", 2).toInt();
+        QString toColor = settings->value("LyricsTextBorderOutColor", "#000000").toString();
+        int     tbWidth = settings->value("LyricsTextBorderWidth", 3).toInt();
+        int     toWidth = settings->value("LyricsTextBorderOutWidth", 2).toInt();
 
-        QString cColor  = settings->value("LyricsCurColor", "#ff0000").toString();
+        QString cColor  = settings->value("LyricsCurColor", "#0000ff").toString();
         QString cbColor = settings->value("LyricsCurBorderColor", "#ffffff").toString();
-        int     cbWidth = settings->value("LyricsCurBorderWidth", 3).toInt();
+        QString coColor = settings->value("LyricsCurBorderOutColor", "#000000").toString();
+        int     cbWidth = settings->value("LyricsCurBorderWidth", 4).toInt();
+        int     coWidth = settings->value("LyricsCurBorderOutWidth", 2).toInt();
 
+        int     line1X  = settings->value("LyricsLine1X", 0).toInt();
+        int     line2X  = settings->value("LyricsLine2X", 0).toInt();
         int     line1Y  = settings->value("LyricsLine1Y", 320).toInt();
         int     line2Y  = settings->value("LyricsLine2Y", 170).toInt();
         int     aTime   = settings->value("LyricsAnimationTime", 250).toInt();
+        bool   autosize = settings->value("LyricsAutoFontSize", true).toBool();
 
         QFont f;
         f.setFamily(family);
@@ -290,20 +305,27 @@ MainWindow::MainWindow(QWidget *parent) :
         lyrWidget->setTextFont(f);
         lyrWidget->setTextColor(QColor(tColor));
         lyrWidget->setTextBorderColor(QColor(tbColor));
+        lyrWidget->setTextBorderOutColor(QColor(toColor));
         lyrWidget->setTextBorderWidth(tbWidth);
+        lyrWidget->setTextBorderOutWidth(toWidth);
 
         lyrWidget->setCurColor(QColor(cColor));
         lyrWidget->setCurBorderColor(QColor(cbColor));
+        lyrWidget->setCurBorderOutColor(QColor(coColor));
         lyrWidget->setCurBorderWidth(cbWidth);
+        lyrWidget->setCurBorderOutWidth(coWidth);
 
+        lyrWidget->setLine1Position(static_cast<LinePosition>(line1X));
+        lyrWidget->setLine2Position(static_cast<LinePosition>(line2X));
         lyrWidget->setLine1Y(line1Y);
         lyrWidget->setLine2Y(line2Y);
         lyrWidget->setAnimationTime(aTime);
+        lyrWidget->setAutoFontSize(autosize);
     }
 
 
     { // Init UI
-        setWindowIcon(QIcon(":/Icons/App/icon.svg"));
+        setWindowIcon(QIcon(":/Icons/App/icon_sm.png"));
 
         updateDetail->hide();
         updateDetail->resize(250, 60);
@@ -315,14 +337,25 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->songDetail->hide();
         ui->sliderVolume->setValue(player->volume());
 
-        connect(db, SIGNAL(updateStarted()), updateDetail, SLOT(show()));
-        connect(db, SIGNAL(updateFinished()), updateDetail, SLOT(hide()));
+        { // Playback control
+            ui->btnPlay->setIconFiles(":/Icons/play-white", ":/Icons/play-blue");
+            ui->btnPause->setIconFiles(":/Icons/pause-white", ":/Icons/pause-blue");
+            ui->btnStop->setIconFiles(":/Icons/stop-white", ":/Icons/stop-blue");
+            ui->btnPrevious->setIconFiles(":/Icons/previous-white", ":/Icons/previous-blue");
+            ui->btnNext->setIconFiles(":/Icons/next-white", ":/Icons/next-blue");
+
+            ui->btnVolumeMute->setIconFiles(":/Icons/volume-white", ":/Icons/volume-blue");
+        }
+
+        connect(db, SIGNAL(started()), updateDetail, SLOT(show()));
+        connect(db, SIGNAL(finished()), updateDetail, SLOT(hide()));
         connect(db, SIGNAL(updatePositionChanged(int)), this, SLOT(onDbUpdateChanged(int)));
 
         connect(timer2, SIGNAL(timeout()), ui->frameSearch, SLOT(hide()));
         connect(timer2, SIGNAL(timeout()), ui->framePlaylist, SLOT(hide()));
         connect(timer1, SIGNAL(timeout()), this, SLOT(showCurrentTime()));
         connect(positionTimer, SIGNAL(timeout()), this, SLOT(onPositiomTimerTimeOut()));
+        connect(lyricsTimer, SIGNAL(timeout()), this, SLOT(onLyricsTimerTimeOut()));
 
         connect(detailTimer, SIGNAL(timeout()), this, SLOT(onDetailTimerTimeout()));
         connect(songDetailTimer, SIGNAL(timeout()), ui->songDetail, SLOT(hide()));
@@ -419,6 +452,7 @@ MainWindow::~MainWindow()
     delete songDetailTimer;
     delete detailTimer;
 
+    delete lyricsTimer;
     delete positionTimer;
     delete timer2;
     delete timer1;
@@ -451,23 +485,6 @@ void MainWindow::setBackgroundImage(QString img)
     }
 }
 
-QList<long> readCurFile(QFile *curFile, uint32_t resolution) {
-    QList<long> curs;
-    if (!curFile->isOpen()) {
-        curFile->open(QIODevice::ReadOnly);
-    }
-    QDataStream in(curFile);
-    while (!in.atEnd()) {
-        quint8 b1 = 0;
-        quint8 b2 = 0;
-        in >> b1;
-        in >> b2;
-        long cs = (b1 + (b2 << 8)) * resolution / 24;
-        curs.append(cs);
-    }
-    return curs;
-}
-
 void MainWindow::play(int index)
 {
     stop();
@@ -476,41 +493,48 @@ void MainWindow::play(int index)
         player->start();
         lyrWidget->show();
         positionTimer->start();
+        lyricsTimer->start();
         return;
     }
 
-    QString ncnPath = settings->value("NCNPath").toString();
-
     Song *s = playlist[index];
-    QString p = QDir::toNativeSeparators(ncnPath + s->path());
+    QString p = db->ncnPath() + s->path();
     playingSong = *s;
     playingIndex = index;
 
     if (remove_playlist) {
         delete s; // delete playlist in "index"
         playlist.removeAt(index);
-        ui->playlist->takeItem(index);
+        delete ui->playlist->takeItem(index);
         playingIndex = -1;
     }
 
 
-    QString curPath = "";
-    {// Find Cursor file and path
-        curPath = playingSong.path().replace("Song", "Cursor");
-        curPath = QDir::toNativeSeparators(ncnPath + curPath);
-        curPath = curPath.replace(playingSong.id(), "");
-        curPath = curPath.replace(curPath.length() - 4, 4, "");
-        QDirIterator ct(curPath ,QStringList() << playingSong.id() +".cur" ,QDir::Files);
-        if (ct.hasNext()) {
-            ct.next();
-            curPath = ct.filePath();
-        }
+    if (!player->load(p, true)) {
+        QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                             "ไม่มีไฟล์ " + p +
+                             "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+        return;
     }
 
-    player->load(p.toStdString(), true);
+    QString curPath = db->getCurFilePath(p);
+    if (curPath == "" || !QFile::exists(curPath)) {
+        QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                             "ไม่มีไฟล์ Cursor หรัส " + playingSong.id() +
+                             "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+        return;
+    }
 
-    QFile f(curPath);
-    lyrWidget->setLyrics(playingSong.lyrics(), readCurFile(&f, player->midiFile()->resorution()));
+    QString lyrPath = db->getLyrFilePath(p);
+    if (lyrPath == "" || !QFile::exists(lyrPath)) {
+        QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                             "ไม่มีไฟล์ Lyrics รหัส " + playingSong.id() +
+                             "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+        return;
+    }
+
+    lyrWidget->setLyrics(Utils::readLyrics(lyrPath),
+                         Utils::readCurFile(curPath, player->midiFile()->resorution()));
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
 
@@ -526,11 +550,13 @@ void MainWindow::play(int index)
     player->start();
     lyrWidget->show();
     positionTimer->start();
+    lyricsTimer->start();
 }
 
 void MainWindow::pause()
 {
     positionTimer->stop();
+    lyricsTimer->stop();
     lyrWidget->stopAnimation();
     player->stop();
 }
@@ -539,11 +565,13 @@ void MainWindow::resume()
 {
     player->start();
     positionTimer->start();
+    lyricsTimer->start();
 }
 
 void MainWindow::stop()
 {
     positionTimer->stop();
+    lyricsTimer->stop();
     player->stop(true);
 
     ui->sliderPosition->setValue(0);
@@ -610,6 +638,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Down:
             ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
             break;
+        case Qt::Key_X:
+            if (ui->frameSearch->isVisible()) {
+                setFrameSearch( db->search("") );
+                ui->lbSearch->setText("_");
+                ui->frameSearch->show();
+                timer2->start(search_timeout);
+            }
+            break;
         default:
             break;
         }
@@ -617,6 +653,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 
     switch (event->key()) {
+    case Qt::Key_Escape: {
+        ui->frameSearch->hide();
+        ui->framePlaylist->hide();
+        ui->songDetail->hide();
+        break;
+    }
     case Qt::Key_F5: {
         if (player->isPlayerPaused())
             resume();
@@ -659,7 +701,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             int i = ui->playlist->currentRow();
             delete playlist.at(i);
             playlist.removeAt(i);
-            ui->playlist->takeItem(i);
+            delete ui->playlist->takeItem(i);
             ui->framePlaylist->show();
             timer2->start(playlist_timeout);
             break;
@@ -690,6 +732,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             ui->playlist->show();
             timer2->start(playlist_timeout);
         }
+        else {
+            //setBpmSpeed(player->bpmSpeed() + 1);
+            addBpmSpeed(1);
+        }
         break;
     case Qt::Key_PageDown:
         if (ui->playlist->isVisible()) {
@@ -703,6 +749,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             ui->playlist->setCurrentRow(i+1);
             ui->playlist->show();
             timer2->start(playlist_timeout);
+        }
+        else {
+            //setBpmSpeed(player->bpmSpeed() - 1);
+            addBpmSpeed(-1);
         }
         break;
     case Qt::Key_Home:
@@ -796,8 +846,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Return:
         if (ui->frameSearch->isVisible()) {
             Song *s = db->currentSong();
-            ui->playlist->addItem( " " + s->id() + " " + s->name() +
-                                   " - " + s->artist());
+            ui->playlist->addItem(s->detail());
             QSize size;
             size.setHeight(41);
             ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
@@ -832,7 +881,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             setFrameSearch( db->search(s + event->text()) );
             timer2->start(search_timeout);
         } else {
-            db->setSearchType(SongDatabase::ByName);
+            db->setSearchType(SearchType::ByAll);
             ui->lbSearch->setText(event->text() + "_");
             setFrameSearch( db->search(event->text() ));
             ui->framePlaylist->hide();
@@ -953,15 +1002,14 @@ void MainWindow::showAboutDialog()
 
 void MainWindow::onPositiomTimerTimeOut()
 {
-    int tick = player->positionTick();
-    ui->sliderPosition->setValue(tick);
-    lyrWidget->setPositionCursor(tick+5);
-
+    ui->sliderPosition->setValue(player->positionTick());
     onPlayerPositionMSChanged(player->positionMs());
-
     ui->rhmWidget->setCurrentBeat( player->currentBeat() );
+}
 
-    onPlayerPositionMSChanged(player->positionMs());
+void MainWindow::onLyricsTimerTimeOut()
+{
+    lyrWidget->setPositionCursor(player->positionTick()+5);
 }
 
 void MainWindow::onPlayerDurationMSChanged(qint64 d)
@@ -1008,11 +1056,11 @@ void MainWindow::on_btnVolumeMute_clicked()
 {
     if (ui->sliderVolume->isEnabled()) {
         ui->sliderVolume->setEnabled(false);
-        ui->btnVolumeMute->setIcon(QIcon(":/Icons/volume-adjustment-mute.png"));
+        ui->btnVolumeMute->setIconFiles(":/Icons/volume-mute-white", ":/Icons/volume-mute-blue");
         player->setVolume(0);
     } else {
         ui->sliderVolume->setEnabled(true);
-        ui->btnVolumeMute->setIcon(QIcon(":/Icons/volume-up-interface-symbol.png"));
+        ui->btnVolumeMute->setIconFiles(":/Icons/volume-white", ":/Icons/volume-blue");
         player->setVolume(ui->sliderVolume->value());
     }
 }
@@ -1035,7 +1083,7 @@ void MainWindow::onSliderVolumeValueChanged(int value)
     ui->detail->setDetail("ระดับเสียง", QString::number(value));
     ui->detail->show();
     detailTimer->start(3000);
-    if (this->width() < 1150 && ui->chMix->isVisible()) {
+    if (this->width() < 1160 && ui->chMix->isVisible()) {
         ui->lcdTime->hide();
     }
 }
@@ -1049,7 +1097,7 @@ void MainWindow::onPlayerThreadFinished()
 
 void MainWindow::onDbUpdateChanged(int v)
 {
-    int p = (100 * v / db->updateCount()) - 1;
+    int p = (100 * v / db->updateCount());
     if (p < 0) p = 0;
     updateDetail->setValue(QString::number(p) + "%");
 }
@@ -1058,4 +1106,25 @@ void MainWindow::onDetailTimerTimeout()
 {
      ui->detail->hide();
      ui->lcdTime->show();
+}
+
+void MainWindow::addBpmSpeed(int speed)
+{
+    int bpm = player->currentBpm() + speed;
+    int bpmSp = player->bpmSpeed() + speed;
+
+    player->setBpmSpeed(bpmSp);
+
+    QString value = QString::number(bpm);
+    if (bpmSp != 0) {
+        value += bpmSp > 0 ? " (+" : " (";
+        value += QString::number(bpmSp) + ")";
+    }
+
+    ui->detail->setDetail("ความเร็ว", value);
+    ui->detail->show();
+    detailTimer->start(3000);
+    if (this->width() < 1160 && ui->chMix->isVisible()) {
+        ui->lcdTime->hide();
+    }
 }

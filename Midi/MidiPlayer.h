@@ -10,6 +10,7 @@
 #include <QElapsedTimer>
 #include <QMap>
 
+
 class MidiPlayer : public QThread
 {
     Q_OBJECT
@@ -19,7 +20,7 @@ public:
 
     static std::vector<std::string> midiDevices();
     bool setMidiOut(int portNumer);
-    bool load(std::string file, bool seekFileChunkID = false);
+    bool load(const QString &file, bool seekFileChunkID = false);
     void stop(bool resetPos = false);
     void setVolume(int v);
     void setVolume(int ch, int v);
@@ -31,6 +32,7 @@ public:
     void setChorus(int ch, int v);
     void setPositionTick(int t);
     void setTranspose(int t);
+    void setBpmSpeed(int sp);
 
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
     MidiFile* midiFile() { return _midi; }
@@ -47,8 +49,9 @@ public:
     int positionTick();
     int currentBeat();
     int transpose() { return _midiTranspose; }
+    int bpmSpeed() { return _midiSpeed; }
 
-    int currentBpm() { return _midiBpm; }
+    int currentBpm() { return _midiBpm + _midiSpeed; }
     int beatCount() { return _midiBeatCount; }
     QMap<int, int> beatInBar() { return _beatInBar; }
 
@@ -85,8 +88,10 @@ private:
     int                 _midiPortNum = 0;
     int                 _midiBpm = 120;
     int                 _midiSpeed = 0;
+    int                 _midiSpeedTemp = 0;
     int                 _midiTranspose = 0;
     int                 _midiBeatCount = 0;
+    bool                _midiChangeBpmSpeed = false;
 
     MidiEvent   _tempEvent;
     MidiEvent   *_playingEventPtr = nullptr;
@@ -99,6 +104,7 @@ private:
 
     int     _playedIndex = 0;
     long    _startPlayTime = 0;
+    long    _startPlayIndex = 0;
     bool    _finished = false;
     bool    _stopped = true;
     bool    _playing = false;
@@ -122,6 +128,7 @@ private:
     void sendResetAllControllers();
 
     int getNoteNumberToPlay(int ch, int defaultNote);
+    float getSpeedTime(uint32_t tick);
 };
 
 #endif // MIDIPLAYER_H

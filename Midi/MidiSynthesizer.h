@@ -18,8 +18,8 @@
 
 #include "Midi/MidiHelper.h"
 
+#include <QObject>
 #include <vector>
-#include <string>
 #include <map>
 
 
@@ -40,14 +40,14 @@ public:
     ~MidiSynthesizer();
 
     bool isOpened() { return openned; }
-    std::vector<std::string> soundfontFiles() { return sfFiles; }
+    QList<QString> soundfontFiles() { return sfFiles; }
 
     bool open();
     void close();
 
     int outPutDevice();
     bool setOutputDevice(int dv);
-    void setSoundFonts(std::vector<std::string> &soundfonsFiles);
+    void setSoundFonts(QList<QString> &soundfonsFiles);
     void setVolume(float vol);
     float volume() { return synth_volume; }
 
@@ -85,7 +85,7 @@ public:
 
 
     static std::vector<std::string> audioDevices();
-    static bool isSoundFontFile(std::string sfile);
+    static bool isSoundFontFile(const QString &sfile);
 
     // Fx ----------------------
     Equalizer31BandFX* equalizer31BandFX() { return eq; }
@@ -96,7 +96,7 @@ public:
 private:
     HSTREAM stream;
     std::vector<HSOUNDFONT> synth_HSOUNDFONT;
-    std::vector<std::string> sfFiles;
+    QList<QString> sfFiles;
     std::vector<int> intmSf;
     std::map<InstrumentType, Instrument> instMap;
     InstrumentType chInstType[16];

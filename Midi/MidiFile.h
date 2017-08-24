@@ -1,15 +1,14 @@
-//
-// Created by noob on 16/5/2560.
-//
-
-#ifndef MIDI_MIDIFILE_H
-#define MIDI_MIDIFILE_H
+#ifndef MIDIFILE_H
+#define MIDIFILE_H
 
 #include "MidiEvent.h"
-#include <istream>
-#include <list>
 
-class MidiFile {
+#include <QString>
+#include <QList>
+#include <QFile>
+
+class MidiFile
+{
 public:
     enum DivisionType {
         Invalid = -1,
@@ -23,43 +22,43 @@ public:
     MidiFile();
     ~MidiFile();
 
+    void clear();
+    bool read(const QString &file, bool seekFileChunkID = false);
+    bool read(QFile *in, bool seekFileChunkID = false);
+
     int formatType() { return fFormatType; }
     int numberOfTracks() { return fNumOfTracks; }
     int resorution() { return fResolution; }
-    int bpm();
-
     DivisionType divisionType() { return fDivision; }
-    std::vector<MidiEvent*> events() { return fEvents; }
-    std::vector<MidiEvent*> tempoEvents() { return fTempoEvents; }
-    std::vector<MidiEvent*> controllerEvents() { return fControllerEvents; }
-    std::vector<MidiEvent*> programChangeEvents() { return fProgramChangeEvents; }
-    std::vector<MidiEvent*> timeSignatureEvents() { return fTimeSignatureEvents; }
-    std::vector<MidiEvent*> controllerAndProgramEvents();
-
-    void clear();
-    bool read(const std::string &filename, bool seekFileChunkID = false);
+    QList<MidiEvent*> events() { return fEvents; }
+    QList<MidiEvent*> tempoEvents() { return fTempoEvents; }
+    QList<MidiEvent*> controllerEvents() { return fControllerEvents; }
+    QList<MidiEvent*> programChangeEvents() { return fProgramChangeEvents; }
+    QList<MidiEvent*> timeSignatureEvents() { return fTimeSignatureEvents; }
+    QList<MidiEvent*> controllerAndProgramEvents();
 
     MidiEvent* createMidiEvent(int track, uint32_t tick, uint32_t delta, MidiEventType evType, int ch, int data1, int data2);
-    MidiEvent* createMetaEvent(int track, uint32_t tick, uint32_t delta, int number, std::vector<unsigned char> data);
-    MidiEvent* createSysExEvent(int track, uint32_t tick, uint32_t delta, std::vector<unsigned char> data);
+    MidiEvent* createMetaEvent(int track, uint32_t tick, uint32_t delta, int number, QByteArray data);
+    MidiEvent* createSysExEvent(int track, uint32_t tick, uint32_t delta, QByteArray data);
 
     float    beatFromTick(uint32_t tick);
-    float    timeFromTick(uint32_t tick);
-    uint32_t tickFromTime(float time);
-    uint32_t tickFromTimeMs(float msTime);
+    float    timeFromTick(uint32_t tick, int bpmSpeed = 0);
+    uint32_t tickFromTime(float time, int bpmSpeed = 0);
+    uint32_t tickFromTimeMs(long msTime, int bpmSpeed = 0);
 
+    static int firstBpm(const QString &file);
+    static int firstBpm(QFile *in);
 
 private:
     int fFormatType;
     int fNumOfTracks;
     int fResolution;
     DivisionType fDivision;
-    std::vector<MidiEvent*> fEvents;
-    std::vector<MidiEvent*> fTempoEvents;
-    std::vector<MidiEvent*> fControllerEvents;
-    std::vector<MidiEvent*> fProgramChangeEvents;
-    std::vector<MidiEvent*> fTimeSignatureEvents;
+    QList<MidiEvent*> fEvents;
+    QList<MidiEvent*> fTempoEvents;
+    QList<MidiEvent*> fControllerEvents;
+    QList<MidiEvent*> fProgramChangeEvents;
+    QList<MidiEvent*> fTimeSignatureEvents;
 };
 
-
-#endif //MIDI_MIDIFILE_H
+#endif // MIDIFILE_H

@@ -278,6 +278,7 @@ InstrumentType MidiHelper::getInstrumentDrumType(int drumNote)
 
     // Crash Cymbal ( 55 = Splash Cymbal )
     case 49:
+    case 52:
     case 55:
     case 57: t = InstrumentType::CrashCymbal; break;
 
@@ -303,7 +304,8 @@ InstrumentType MidiHelper::getInstrumentDrumType(int drumNote)
     case 81: t = InstrumentType::SmallCupShapedCymbals; break;
 
     // Chinese Cymbal ( ฉาบ )
-    case 52: t = InstrumentType::ChineseCymbal; break;
+    case 82:
+    case 83: t = InstrumentType::ChineseCymbal; break;
 
     default:
         t = InstrumentType::PercussionEtc;

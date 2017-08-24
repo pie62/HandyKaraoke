@@ -7,38 +7,44 @@
 #include <QSqlDatabase>
 #include <QThread>
 
-class SongDatabase : public QObject
+
+enum class SearchType {
+    ByAll,
+    ById,
+    ByName,
+    ByArtist
+};
+
+enum class UpdateType {
+    UpdateAll,
+    ImportNCN
+};
+
+class SongDatabase : public QThread
 {
     Q_OBJECT
 public:
-    enum SearchType {
-        ById,
-        ByName,
-        ByArtist
-    };
-
-    explicit SongDatabase(QObject *parent = 0);
+    SongDatabase();
     ~SongDatabase();
 
-    int count() { return dCount; }
+    int count();
     Song* currentSong() { return song; }
-    static bool isNCNPath(QString path);
-
     bool isOpenned() { return db.isOpen(); }
     bool isUpdatting() { return upTing; }
     int updateCount() { return upCount; }
 
-signals:
-    void updateStarted();
-    void updateCountChanged(int c);
-    void updatePositionChanged(int p);
-    void updateSongNameChanged(QString n);
-    void updateFinished();
+    static bool isNCNPath(const QString &dir);
+    static QString getCurFilePath(const QString &midFilePath);
+    static QString getLyrFilePath(const QString &midFilePath);
+
+    QString ncnPath() { return _ncnPath; }
+    bool setNcnPath(const QString &dir);
+
+    UpdateType updateType() { return upType; }
+    void setUpdateType(UpdateType type);
 
 public slots:
-    void update();
-    void updateInThread() { thread->start(); }
-    bool insertNCN(const QString &ncnPath, const QString &songId, const QString &lyrFilePath, const QString &fileName);
+    bool insertNCN(const QString &ncnPath, const QString &songId, const QString &midFilePath);
 
     void setSearchType(SearchType t) { searchType = t; }
     Song *nextType(const QString &s);
@@ -46,15 +52,29 @@ public slots:
     Song* searchNext();
     Song* searchPrevious();
 
+signals:
+    void updateCountChanged(int c);
+    void updatePositionChanged(int p);
+    void updateSongNameChanged(QString n);
+
+protected:
+    void run();
+
 private:
     QSqlDatabase db;
-    QThread *thread;
     Song *song;
     SearchType searchType;
-    int dCount;
+
+    QString searchText = "";
+
+    UpdateType upType = UpdateType::UpdateAll;
+    QString _ncnPath = "";
 
     int upCount = 0;
     bool upTing = false;
+
+    void createIndex();
+    void dropIndex();
 };
 
 #endif // SONGDATABASE_H

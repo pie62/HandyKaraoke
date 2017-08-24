@@ -114,13 +114,13 @@ background-color: rgb(51, 51, 51);
              <widget class="Detail" name="detail" native="true">
               <property name="minimumSize">
                <size>
-                <width>150</width>
+                <width>160</width>
                 <height>52</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>150</width>
+                <width>160</width>
                 <height>52</height>
                </size>
               </property>
@@ -320,9 +320,17 @@ font: bold 14pt;</string>
                 </size>
                </property>
                <property name="styleSheet">
-                <string notr="true">border: none;
+                <string notr="true">/*
+border: none;
 border-radius: 2px;
 background-color: rgb(41, 128, 185);
+color: rgb(255, 244, 110);
+font: bold 14pt;
+*/
+
+border: none;
+border-radius: 2px;
+background-color: rgb(97, 97, 97);
 color: rgb(255, 244, 110);
 font: bold 14pt;</string>
                </property>
@@ -375,9 +383,17 @@ font: bold 14pt;</string>
               </size>
              </property>
              <property name="styleSheet">
-              <string notr="true">border: none;
+              <string notr="true">/*
+border: none;
 border-radius: 2px;
 background-color: rgb(0, 150, 136);
+color: rgb(238, 238, 238);
+font: bold 16pt;
+*/
+
+border: none;
+border-radius: 2px;
+background-color: /*#1976D2;*/rgb(0, 129, 194);
 color: rgb(238, 238, 238);
 font: bold 16pt;</string>
              </property>
@@ -525,7 +541,8 @@ font: bold 16pt;</string>
            <property name="styleSheet">
             <string notr="true">border: none;
 border-radius: 2px;
-background-color: rgb(41, 128, 185);
+/*background-color: rgb(41, 128, 185);*/
+background-color: /*#1976D2;*/rgb(0, 129, 194);
 color: rgb(255, 244, 110);
 font: bold 16pt;</string>
            </property>
@@ -564,11 +581,32 @@ font: bold 16pt;</string>
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">border: none;
+            <string notr="true">QListView {
+border: none;
 border-radius: 2px;
-background-color: rgb(0, 150, 136);
+/*background-color: rgb(0, 150, 136);*/
+background-color: rgb(97, 97, 97);
 color: rgb(238, 238, 238);
-font: bold 14pt;</string>
+font: bold 14pt;
+}
+
+QListView::item:selected {
+border: none;
+border-radius: 2px;
+/*background-color: rgb(0, 150, 136);*/
+background-color: rgb(218, 218, 218);
+color: rgb(71, 71, 71);
+font: bold 14pt;
+}
+
+QListView::item:hover {
+border: none;
+border-radius: 2px;
+/*background-color: rgb(0, 150, 136);*/
+background-color: rgb(131, 131, 131);
+color: rgb(238, 238, 238);
+font: bold 14pt;
+}</string>
            </property>
           </widget>
          </item>
@@ -622,82 +660,24 @@ font: bold 14pt;</string>
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>41</height>
+        <height>35</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>41</height>
+        <height>35</height>
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">#frameControl {
+       <string notr="true">
+background-color: rgb(34, 40, 49);
+color: rgb(245,245,245;);
+font: bold 9pt;
 border: none;
-	background-color: rgb(229, 229, 229);
-}
+
 QToolTip {
 	color: rgb(14, 14, 14);
-}
-QLabel {
-	font: bold 10pt;
-	color: rgb(88, 88, 88);
-}
-
-QSlider::groove:horizontal {
-border: 1px solid #bbb;
-background: rgb(189, 189, 189);
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal {
-background-color:  rgb(56, 152, 247);
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::add-page:horizontal {
-background:  rgb(189, 189, 189);
-border: 1px solid #777;
-height: 10px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #eee, stop:1 #ccc);
-border: 1px solid #777;
-width: 14px;
-margin-top: -2px;
-margin-bottom: -2px;
-border-radius: 4px;
-}
-
-QSlider::handle:horizontal:hover {
-background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-    stop:0 #fff, stop:1 #ddd);
-border: 1px solid #444;
-border-radius: 4px;
-}
-
-QSlider::sub-page:horizontal:disabled {
-/*background: #bbb;*/
-	background-color: rgb(173, 196, 255);
-border-color: #999;
-}
-
-QSlider::add-page:horizontal:disabled {
-/*background: #eee;*/
-	background-color: rgb(210, 210, 210);
-border-color: #999;
-}
-
-QSlider::handle:horizontal:disabled {
-background: #eee;
-border: 1px solid #aaa;
-border-radius: 4px;
 }</string>
       </property>
       <property name="frameShape">
@@ -725,192 +705,112 @@ border-radius: 4px;
           <number>1</number>
          </property>
          <item>
-          <widget class="QPushButton" name="btnPlay">
+          <widget class="PlaybackButton" name="btnPlay">
            <property name="minimumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
-           <property name="toolTip">
-            <string>เล่น (F5)</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border: none;</string>
-           </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="icons.qrc">
-             <normaloff>:/Icons/play-button.png</normaloff>:/Icons/play-button.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>22</width>
-             <height>22</height>
-            </size>
+            <string>...</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnPause">
+          <widget class="PlaybackButton" name="btnPause">
            <property name="minimumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
-           <property name="toolTip">
-            <string>หยุดชั่วคราว (F6)</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border: none;</string>
-           </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="icons.qrc">
-             <normaloff>:/Icons/pause-button.png</normaloff>:/Icons/pause-button.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>22</width>
-             <height>22</height>
-            </size>
+            <string>...</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnStop">
+          <widget class="PlaybackButton" name="btnStop">
            <property name="minimumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
-           <property name="toolTip">
-            <string>หยุด (F7)</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border: none;</string>
-           </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="icons.qrc">
-             <normaloff>:/Icons/video-player-stop-button.png</normaloff>:/Icons/video-player-stop-button.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>22</width>
-             <height>22</height>
-            </size>
+            <string>...</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnPrevious">
+          <widget class="PlaybackButton" name="btnPrevious">
            <property name="minimumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
-           <property name="toolTip">
-            <string>เพลงก่อนหน้า (F8)</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border: none;</string>
-           </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="icons.qrc">
-             <normaloff>:/Icons/previous-track.png</normaloff>:/Icons/previous-track.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>22</width>
-             <height>22</height>
-            </size>
+            <string>...</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnNext">
+          <widget class="PlaybackButton" name="btnNext">
            <property name="minimumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>43</width>
-             <height>37</height>
+             <width>35</width>
+             <height>31</height>
             </size>
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
-           <property name="toolTip">
-            <string>เพลงถัดไป (F9)</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border: none;</string>
-           </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="icons.qrc">
-             <normaloff>:/Icons/next-track-button.png</normaloff>:/Icons/next-track-button.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>22</width>
-             <height>22</height>
-            </size>
+            <string>...</string>
            </property>
           </widget>
          </item>
@@ -951,6 +851,38 @@ border-radius: 4px;
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
+           <property name="styleSheet">
+            <string notr="true">
+QSlider::groove:horizontal {
+    /*border: 1px solid #999999;*/
+    height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:     1 #c4c4c4);
+    margin: 2px 0;
+	border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: rgb(220,220,220);
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -5px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 9px;
+}
+
+QSlider::add-page:horizontal {
+     height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:     1 #c4c4c4);
+    margin: 2px 0;
+	border-radius: 3px;
+}
+
+QSlider::sub-page:horizontal {
+     height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */
+    background: #1e90ff;
+    margin: 2px 0;
+	border-radius: 3px;
+}</string>
+           </property>
            <property name="maximum">
             <number>100</number>
            </property>
@@ -970,37 +902,24 @@ border-radius: 4px;
           <number>2</number>
          </property>
          <item>
-          <widget class="QPushButton" name="btnVolumeMute">
+          <widget class="PlaybackButton" name="btnVolumeMute">
            <property name="minimumSize">
             <size>
-             <width>31</width>
+             <width>35</width>
              <height>31</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>31</width>
+             <width>35</width>
              <height>31</height>
             </size>
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
-           <property name="styleSheet">
-            <string notr="true">border: none;</string>
-           </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="icons.qrc">
-             <normaloff>:/Icons/volume-up-interface-symbol.png</normaloff>:/Icons/volume-up-interface-symbol.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
+            <string>...</string>
            </property>
           </widget>
          </item>
@@ -1026,6 +945,38 @@ border-radius: 4px;
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">
+QSlider::groove:horizontal {
+    /*border: 1px solid #999999;*/
+    height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:     1 #c4c4c4);
+    margin: 2px 0;
+	border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: rgb(220,220,220);
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -5px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 9px;
+}
+
+QSlider::add-page:horizontal {
+     height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:     1 #c4c4c4);
+    margin: 2px 0;
+	border-radius: 3px;
+}
+
+QSlider::sub-page:horizontal {
+     height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */
+    background: #1e90ff;
+    margin: 2px 0;
+	border-radius: 3px;
+}</string>
            </property>
            <property name="maximum">
             <number>100</number>
@@ -1072,9 +1023,12 @@ border-radius: 4px;
    <header>Detail.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>PlaybackButton</class>
+   <extends>QToolButton</extends>
+   <header>PlaybackButton.h</header>
+  </customwidget>
  </customwidgets>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

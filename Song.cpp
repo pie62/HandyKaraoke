@@ -37,3 +37,12 @@ Song &Song::operator =(const Song &s)
 
     return *this;
 }
+
+QString Song::detail()
+{
+    QString d = sId + "  " + sName + " - " + sArtist;
+    d += "  (" + QString::number(sTempo);
+    d += sKey == "" ? ")" : "-" + sKey + ")";
+    d += "  [" + sSongType + "]";
+    return d;
+}

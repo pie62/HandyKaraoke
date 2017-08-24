@@ -61,7 +61,7 @@ bool MidiPlayer::setMidiOut(int portNumer)
     return result;
 }
 
-bool MidiPlayer::load(std::string file, bool seekFileChunkID)
+bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
 {
     if (!_stopped)
         stop();
@@ -73,6 +73,9 @@ bool MidiPlayer::load(std::string file, bool seekFileChunkID)
     _durationTick = e->tick();
     _durationMs = _midi->timeFromTick(e->tick()) * 1000;
     _midiTranspose = 0;
+    _midiSpeed = 0;
+    _midiSpeedTemp = 0;
+    _midiChangeBpmSpeed = false;
 
     _finished = false;
 
@@ -119,12 +122,14 @@ void MidiPlayer::stop(bool resetPos)
     _playing = false;
     _stopped = false;
     _finished = false;
+    _startPlayIndex = _playedIndex;
 
     while (!isFinished()) {};
 
     if (resetPos) {
         _stopped = true;
         _startPlayTime = 0;
+        _startPlayIndex = 0;
         _playedIndex = 0;
         _positionMs = 0;
         _positionTick = 0;
@@ -325,12 +330,28 @@ void MidiPlayer::setTranspose(int t)
     }
 }
 
+void MidiPlayer::setBpmSpeed(int sp)
+{
+    if (sp == _midiSpeed)
+        return;
+
+    if ((_midiBpm + sp) < 30 || (_midiBpm + sp) > 240)
+        return;
+
+    if (_playing) {
+        _midiSpeedTemp = sp;
+        _midiChangeBpmSpeed = true;
+    } else {
+        _midiSpeed = sp;
+    }
+
+    emit bpmChanged(_midiBpm + sp);
+}
+
 int MidiPlayer::positionTick()
 {
     if (_playing) {
-        //float time = (_eTimer->elapsedMs() + _startPlayTime) / 1000;
-        float time = _eTimer->elapsed()  + _startPlayTime;
-        return _midi->tickFromTimeMs(time);
+        return _midi->tickFromTimeMs(_eTimer->elapsed()  + _startPlayTime, _midiSpeed);
     } else {
         return _positionTick;
     }
@@ -436,14 +457,15 @@ void MidiPlayer::run()
 
 long MidiPlayer::positionMs()
 {
-    return _playing ? _eTimer->elapsed() + _startPlayTime : _positionMs;
+    //return _playing ? _eTimer->elapsed() + _startPlayTime : _positionMs;
+    return _playing ? _midi->timeFromTick(positionTick()) * 1000 : _positionMs;
 }
 
 void MidiPlayer::playEvents()
 {
     if (_playedIndex > 0) {
-        uint32_t ti = _midi->events()[_playedIndex]->tick();
-        _startPlayTime = _midi->timeFromTick(ti) * 1000;
+        uint32_t tick = _midi->events()[_playedIndex]->tick();
+        _startPlayTime = _midi->timeFromTick(tick, _midiSpeed) * 1000;
     }
 
     _eTimer->restart();
@@ -457,8 +479,17 @@ void MidiPlayer::playEvents()
 
         if (_midi->events()[i]->eventType() != MidiEventType::Meta) {
 
-            long eventTime = _midi->timeFromTick(_midi->events()[i]->tick()) * 1000;
-            long waitTime = eventTime - _startPlayTime - _eTimer->elapsed();
+            uint32_t tick = _midi->events()[i]->tick();
+
+            if (_midiChangeBpmSpeed) {
+                _midiChangeBpmSpeed = false;
+                _midiSpeed = _midiSpeedTemp;
+                _startPlayTime = _midi->timeFromTick(_midi->events()[i-1]->tick(), _midiSpeed) * 1000;
+                _eTimer->restart();
+            }
+
+            long eventTime = (_midi->timeFromTick(tick, _midiSpeed)  * 1000);
+            long waitTime = eventTime - _startPlayTime  - _eTimer->elapsed();
 
             if (waitTime > 0) {
                 //std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
@@ -488,8 +519,8 @@ void MidiPlayer::playEvents()
 
         } else { // Meta event
             if (_midi->events()[i]->metaEventType() == MidiMetaType::SetTempo) {
-                _midiBpm = _midi->events()[i]->tempoBpm();
-                emit bpmChanged(_midiBpm);
+                _midiBpm = _midi->events()[i]->bpm();
+                emit bpmChanged(_midiBpm + _midiSpeed);
             }
         }
 
@@ -645,6 +676,17 @@ int MidiPlayer::getNoteNumberToPlay(int ch, int defaultNote)
         n = defaultNote + _midiTranspose;
     }
     return n;
+}
+
+float MidiPlayer::getSpeedTime(uint32_t tick)
+{
+    if (_midiSpeed == 0 || _midi->divisionType() != MidiFile::PPQ)
+        return 0.0f;
+    else {
+        const float kSecondsPerQuarterNote = (60000000 / _midiSpeed) / 1000000.0f;
+        const float kSecondsPerTick = kSecondsPerQuarterNote / _midi->resorution();
+        return tick * kSecondsPerTick;
+    }
 }
 
 int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)

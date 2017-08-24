@@ -1,12 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>Icons/next-track-button.png</file>
-        <file>Icons/pause-button.png</file>
-        <file>Icons/play-button.png</file>
-        <file>Icons/previous-track.png</file>
-        <file>Icons/video-player-stop-button.png</file>
-        <file>Icons/volume-adjustment-mute.png</file>
-        <file>Icons/volume-up-interface-symbol.png</file>
         <file>Icons/slider.jpg</file>
         <file>Icons/delete.png</file>
         <file>Icons/settings.png</file>
@@ -62,14 +55,30 @@
         <file>Icons/Instruments/Synth Pad.png</file>
         <file>Icons/Instruments/Timbale.png</file>
         <file>Icons/Instruments/Trumpet.png</file>
-        <file>Icons/App/icon_black.svg</file>
-        <file>Icons/App/icon_blue.svg</file>
-        <file>Icons/App/icon_green.svg</file>
-        <file>Icons/App/icon_red.svg</file>
-        <file>Icons/App/icon_white.svg</file>
-        <file>Icons/App/icon_yellow.svg</file>
+        <file>Icons/microphone-blue.png</file>
+        <file>Icons/microphone-off-blue.png</file>
+        <file>Icons/microphone-off-white.png</file>
+        <file>Icons/microphone-white.png</file>
+        <file>Icons/next-blue.png</file>
+        <file>Icons/next-white.png</file>
+        <file>Icons/pause-blue.png</file>
+        <file>Icons/pause-white.png</file>
+        <file>Icons/play-blue.png</file>
+        <file>Icons/play-white.png</file>
+        <file>Icons/previous-blue.png</file>
+        <file>Icons/previous-white.png</file>
+        <file>Icons/stop-blue.png</file>
+        <file>Icons/stop-white.png</file>
+        <file>Icons/volume-blue.png</file>
+        <file>Icons/volume-mute-blue.png</file>
+        <file>Icons/volume-mute-white.png</file>
+        <file>Icons/volume-white.png</file>
+        <file>Icons/09B (narrow).png</file>
+        <file>Icons/App/icon.ico</file>
+        <file>Icons/App/icon.png</file>
         <file>Icons/App/icon.svg</file>
-        <file>Icons/App/splash.png</file>
+        <file>Icons/App/icon_sm.png</file>
         <file>Icons/App/splash.svg</file>
+        <file>Icons/App/splash.png</file>
     </qresource>
 </RCC>

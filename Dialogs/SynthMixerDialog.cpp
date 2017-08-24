@@ -173,6 +173,9 @@ void SynthMixerDialog::resetMixLevel(InstrumentType t)
 
 void SynthMixerDialog::onPlayerPlayingEvents(MidiEvent *e)
 {
+    if (player->midiChannel()[e->channel()].port() >= 0)
+        return;
+
     if (e->eventType() == MidiEventType::NoteOn)
     {
         InstrumentType t;
@@ -232,9 +235,16 @@ void SynthMixerDialog::mapChInstUI()
     chInstMap[InstrumentType::BassDrum]     = ui->ch_27;
     chInstMap[InstrumentType::Snare]        = ui->ch_28;
     chInstMap[InstrumentType::SideStick]    = ui->ch_29;
+
+    /*
     chInstMap[InstrumentType::LowTom]       = ui->ch_30;
     chInstMap[InstrumentType::MidTom]       = ui->ch_31;
     chInstMap[InstrumentType::HighTom]      = ui->ch_32;
+    */
+    chInstMap[InstrumentType::HighTom]      = ui->ch_30;
+    chInstMap[InstrumentType::MidTom]       = ui->ch_31;
+    chInstMap[InstrumentType::LowTom]       = ui->ch_32;
+
     chInstMap[InstrumentType::Hihat]        = ui->ch_33;
     chInstMap[InstrumentType::Cowbell]      = ui->ch_34;
     chInstMap[InstrumentType::CrashCymbal]  = ui->ch_35;
@@ -254,8 +264,8 @@ void SynthMixerDialog::setChInstDetails()
                         "Overdrv", "Distrn", "Harmncs", "Trumpet", "Brass",
                         "S.Brass", "Saxphn", "Reed", "Pipe", "Strings",
                         "Ensembl", "SynthL", "SynthP", "SynthE", "Ethnic", "SoundFX",
-                        "Kick", "Snare", "S.Stick", "LowTom", "MidTom",
-                        "HighTom", "Hihat", "Cowbell", "Crash", "Ride",
+                        "Kick", "Snare", "S.Stick", "HighTom", "MidTom",
+                        "LowTom", "Hihat", "Cowbell", "Crash", "Ride",
                         "Bongo", "Conga", "Timbale", "ฉิ่ง", "ฉาบ", "PercEtc" };
 
     QString tooltips[42] = { "Piano", "Organ", "Accordion", "Chromatic Percussion",
@@ -267,7 +277,7 @@ void SynthMixerDialog::setChInstDetails()
                              "Strings", "Ensemble", "Synth Lead", "Synth Pad",
                              "Synth Effects", "Ethnic", "Sound effects",
                              "Kick (Bass Drum)", "Snare", "Side Stick/Rimshot",
-                             "Low Tom", "Mid Tom", "High Tom", "Hi-hat", "Cowbell",
+                             "High Tom", "Mid Tom", "Low Tom", "Hi-hat", "Cowbell",
                              "Crash Cymbal", "Ride Cymbal", "Bongo", "Conga",
                              "Timbale", "ฉิ่ง / Triangle",
                              "ฉาบ / Chinese Cymbal", "Percussion Etc." };
@@ -283,7 +293,7 @@ void SynthMixerDialog::setChInstDetails()
                          "Synth Lead.png", "Synth Pad.png", "Synth Effects.png",
                          "Ethnic.png", "FX.png",
                          "Kick.png", "Snare.png", "Side Stick.png",
-                         "Low Tom.png", "Mid Tom.png", "High Tom.png",
+                         "High Tom.png", "Mid Tom.png", "Low Tom.png",
                          "Hihat.png", "Cowbell.png", "Crash.png", "Ride.png",
                          "Bongo.png", "Conga.png", "Timbale.png", "Ching.png",
                          "Chab.png", "Percussion Etc.png" };

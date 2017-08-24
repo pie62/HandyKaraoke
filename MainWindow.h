@@ -73,7 +73,7 @@ private:
     Ui::MainWindow *ui;
     QSettings *settings;
     SongDatabase *db;
-    QTimer *timer1, *timer2, *positionTimer;
+    QTimer *timer1, *timer2, *positionTimer, *lyricsTimer;
     QTimer *songDetailTimer, *detailTimer;
 
     QList<Song*> playlist;
@@ -81,6 +81,7 @@ private:
     Song playingSong;
     int playingIndex = -1;
     bool playAfterSeek = false;
+    bool changingBpmSpeed = false;
 
     LyricsWidget *lyrWidget;
     Detail *updateDetail;
@@ -114,6 +115,7 @@ private slots:
     void showAboutDialog();
 
     void onPositiomTimerTimeOut();
+    void onLyricsTimerTimeOut();
     void onPlayerDurationMSChanged(qint64 d);
     void onPlayerPositionMSChanged(qint64 p);
     void onPlayerDurationTickChanged(int d);
@@ -129,6 +131,8 @@ private slots:
 
     void onDbUpdateChanged(int v);
     void onDetailTimerTimeout();
+
+    void addBpmSpeed(int speed);
 };
 
 #endif // MAINWINDOW_H

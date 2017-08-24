@@ -50,17 +50,29 @@ private slots:
     void on_cbLockBass_activated(int index);
 
 
+
     // Lyrics tab
     void on_btnFont_clicked();
     void onSpinLine1YValueChanged(int v);
     void onSpinLine2YValueChanged(int v);
     void onSpinAnmtTimeValueChanged(int v);
+    void onChbLyrAutoSizeToggled(bool checked);
+
+    void on_cbLine1X_activated(int index);
+    void on_cbLine2X_activated(int index);
+
     void on_btnTextColor_clicked();
     void on_btnTextBorderColor_clicked();
+    void on_btnTextBorderOutColor_clicked();
     void onSpinTextBorderWidthValueChanged(int arg1);
+    void onSpinTextBorderOutWidthValueChanged(int arg1);
+
     void on_btnCurColor_clicked();
     void on_btnCurBorderColor_clicked();
+    void on_btnCurBorderOutColor_clicked();
     void onSpinCurBorderWidthValueChanged(int arg1);
+    void onSpinCurBorderOutWidthValueChanged(int arg1);
+
 
 
     // Synth tab
@@ -78,7 +90,7 @@ private slots:
     void on_btnReverb_clicked();
     void on_btnChorus_clicked();
 
-    void on_btnClose_clicked();
+    void on_btnClose_clicked(); 
 
 private:
     Ui::SettingsDialog *ui;
