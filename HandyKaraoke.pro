@@ -116,22 +116,22 @@ win32 {
 
     contains(QT_ARCH, i386) {
         message("32-bit")
-        LIBS += -LD:/Projects/QtProjects/BASS/bass24/ -lbass
-        LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/ -lbassmidi
-        LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/ -lbass_fx
+        LIBS += -L$$PWD/BASS/bass24/ -lbass
+        LIBS += -L$$PWD/BASS/bassmidi24/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24/ -lbass_fx
 
         DEFINES += _ATL_XP_TARGETING
         DEFINES += PSAPI_VERSION=1
         QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
     } else {
         message("64-bit")
-        LIBS += -LD:/Projects/QtProjects/BASS/bass24/x64/ -lbass
-        LIBS += -LD:/Projects/QtProjects/BASS/bassmidi24/x64/ -lbassmidi
-        LIBS += -LD:/Projects/QtProjects/BASS/bass_fx24/x64/ -lbass_fx
+        LIBS += -L$$PWD/BASS/bass24/x64/ -lbass
+        LIBS += -L$$PWD/BASS/bassmidi24/x64/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24/x64/ -lbass_fx
     }
-    INCLUDEPATH += D:/Projects/QtProjects/BASS/bass24
-    INCLUDEPATH += D:/Projects/QtProjects/BASS/bassmidi24
-    INCLUDEPATH += D:/Projects/QtProjects/BASS/bass_fx24
+    INCLUDEPATH += $$PWD/BASS/bass24
+    INCLUDEPATH += $$PWD/BASS/bassmidi24
+    INCLUDEPATH += $$PWD/BASS/bass_fx24
 
     RC_ICONS = icon.ico
 }

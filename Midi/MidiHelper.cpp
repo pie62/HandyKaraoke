@@ -305,7 +305,7 @@ InstrumentType MidiHelper::getInstrumentDrumType(int drumNote)
 
     // Chinese Cymbal ( ฉาบ )
     case 82:
-    case 83: t = InstrumentType::ChineseCymbal; break;
+    case 83: t = InstrumentType::ThaiChap; break;
 
     default:
         t = InstrumentType::PercussionEtc;

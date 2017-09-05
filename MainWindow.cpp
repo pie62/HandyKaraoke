@@ -1009,7 +1009,7 @@ void MainWindow::onPositiomTimerTimeOut()
 
 void MainWindow::onLyricsTimerTimeOut()
 {
-    lyrWidget->setPositionCursor(player->positionTick()+5);
+    lyrWidget->setPositionCursor(player->positionTick());
 }
 
 void MainWindow::onPlayerDurationMSChanged(qint64 d)

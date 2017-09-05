@@ -124,8 +124,10 @@ void MidiSynthesizer::close()
 
     BASS_ChannelStop(stream);
 
-    for (HSOUNDFONT f : synth_HSOUNDFONT)
+    for (HSOUNDFONT f : synth_HSOUNDFONT) {
+        BASS_MIDI_FontUnload(f, -1, -1);
         BASS_MIDI_FontFree(f);
+    }
 
     synth_HSOUNDFONT.clear();
 
@@ -554,7 +556,7 @@ void MidiSynthesizer::setSfToStream()
 
     for (const QString &sfile : sfFiles) {
 
-        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
+        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(), //BASS_MIDI_FONT_NOFX);
                                           BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
         if (f) {
             BASS_MIDI_FontLoad(f, -1, -1);
@@ -562,6 +564,8 @@ void MidiSynthesizer::setSfToStream()
         }
 
     }
+
+    //BASS_MIDI_FontCompact(0);
 
     if (synth_HSOUNDFONT.size() > 0) {
         BASS_MIDI_FONT font;
@@ -725,7 +729,7 @@ std::vector<int> MidiSynthesizer::getChannelsFromType(InstrumentType t)
     case InstrumentType::SmallCupShapedCymbals:
         r.push_back(29);
         break;
-    case InstrumentType::ChineseCymbal:
+    case InstrumentType::ThaiChap:
         r.push_back(30);
         break;
     case InstrumentType::PercussionEtc:

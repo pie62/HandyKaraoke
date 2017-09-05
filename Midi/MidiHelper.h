@@ -80,7 +80,7 @@ enum class InstrumentType
     Conga,
     Timbale,
     SmallCupShapedCymbals,
-    ChineseCymbal,
+    ThaiChap,
     PercussionEtc
 };
 

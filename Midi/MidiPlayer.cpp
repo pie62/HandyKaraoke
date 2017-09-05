@@ -111,6 +111,8 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     _midiChannels[9].setInstrumentType(InstrumentType::PercussionEtc);
     emit loaded();
 
+    qDebug() << "MidiPlayer: loaded.";
+
     return true;
 }
 
@@ -601,6 +603,8 @@ void MidiPlayer::sendEvent(MidiEvent *e)
             _tempEvent.setData1(programe);
             _playingEventPtr = &_tempEvent;
         }
+
+        qDebug() << "Ch " << ch << "  programe " << programe;
 
         _midiChannels[ch].setInstrument(programe);
         if (ch != 9)

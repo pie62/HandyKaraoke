@@ -1,0 +1,27 @@
+   ////------------------------\
+-= (: JOBnik! :) BASS_FX v2.4.11 =-
+   \------------------------////
+ * DSP effects:                /
+    Equalizer, Chorus, Filters,/
+    Compressor, Reverb, Echo,  /
+    Auto Wah & much more...    /
+ * Tempo/Pitch/Rate changers   /
+ * Reverse playback            /
+ * BPM detector                /
+ * Beat pos trigger/detector   /
+ * 8 / 16 / 32-bit support     /
+ * All in Real-Time            /
+                               /
+   An extension to the BASS    /
+        Audio Library          /
+    http://www.un4seen.com     /
+                               /
+ C/C++, Delphi, VB, Java APIs  /
+        are included!          /
+\------------------------------/
+   Windows, MacOSX, Linux/ARM
+     iOS, Android & WinCE
+
+   (c) Arthur Aminov, ISRAEL
+     bass_fx @ jobnik .org
+/------------=>!<=-------------\

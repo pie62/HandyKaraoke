@@ -253,7 +253,7 @@ void SynthMixerDialog::mapChInstUI()
     chInstMap[InstrumentType::Conga]        = ui->ch_38;
     chInstMap[InstrumentType::Timbale]      = ui->ch_39;
     chInstMap[InstrumentType::SmallCupShapedCymbals] = ui->ch_40;
-    chInstMap[InstrumentType::ChineseCymbal] = ui->ch_41;
+    chInstMap[InstrumentType::ThaiChap]     = ui->ch_41;
     chInstMap[InstrumentType::PercussionEtc] = ui->ch_42;
 }
 
