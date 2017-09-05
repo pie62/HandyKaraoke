@@ -1,6 +1,6 @@
 /*
 	BASSmix 2.4 C/C++ header file
-	Copyright (c) 2005-2015 Un4seen Developments Ltd.
+	Copyright (c) 2005-2017 Un4seen Developments Ltd.
 
 	See the BASSMIX.CHM file for more detailed documentation
 */
@@ -46,6 +46,11 @@ extern "C" {
 
 // splitter flags
 #define BASS_SPLIT_SLAVE		0x1000	// only read buffered data
+#define BASS_SPLIT_POS			0x2000
+
+// splitter attributes
+#define BASS_ATTRIB_SPLIT_ASYNCBUFFER		0x15010
+#define BASS_ATTRIB_SPLIT_ASYNCPERIOD		0x15011
 
 // envelope node
 typedef struct {
@@ -57,11 +62,14 @@ typedef struct {
 #define BASS_MIXER_ENV_FREQ		1
 #define BASS_MIXER_ENV_VOL		2
 #define BASS_MIXER_ENV_PAN		3
-#define BASS_MIXER_ENV_LOOP		0x10000 // FLAG: loop
+#define BASS_MIXER_ENV_LOOP		0x10000 // flag: loop
 
 // additional sync type
 #define BASS_SYNC_MIXER_ENVELOPE		0x10200
 #define BASS_SYNC_MIXER_ENVELOPE_NODE	0x10201
+
+// additional BASS_Mixer_ChannelSetPosition flag
+#define BASS_POS_MIXER_RESET	0x10000 // flag: clear mixer's playback buffer
 
 // BASS_CHANNELINFO type
 #define BASS_CTYPE_STREAM_MIXER	0x10800
@@ -72,6 +80,7 @@ DWORD BASSMIXDEF(BASS_Mixer_GetVersion)();
 HSTREAM BASSMIXDEF(BASS_Mixer_StreamCreate)(DWORD freq, DWORD chans, DWORD flags);
 BOOL BASSMIXDEF(BASS_Mixer_StreamAddChannel)(HSTREAM handle, DWORD channel, DWORD flags);
 BOOL BASSMIXDEF(BASS_Mixer_StreamAddChannelEx)(HSTREAM handle, DWORD channel, DWORD flags, QWORD start, QWORD length);
+DWORD BASSMIXDEF(BASS_Mixer_StreamGetChannels)(HSTREAM handle, DWORD *channels, DWORD count);
 
 HSTREAM BASSMIXDEF(BASS_Mixer_ChannelGetMixer)(DWORD handle);
 DWORD BASSMIXDEF(BASS_Mixer_ChannelFlags)(DWORD handle, DWORD flags, DWORD mask);
@@ -91,7 +100,7 @@ BOOL BASSMIXDEF(BASS_Mixer_ChannelSetEnvelope)(DWORD handle, DWORD type, const B
 BOOL BASSMIXDEF(BASS_Mixer_ChannelSetEnvelopePos)(DWORD handle, DWORD type, QWORD pos);
 QWORD BASSMIXDEF(BASS_Mixer_ChannelGetEnvelopePos)(DWORD handle, DWORD type, float *value);
 
-HSTREAM BASSMIXDEF(BASS_Split_StreamCreate)(DWORD channel, DWORD flags, int *chanmap);
+HSTREAM BASSMIXDEF(BASS_Split_StreamCreate)(DWORD channel, DWORD flags, const int *chanmap);
 DWORD BASSMIXDEF(BASS_Split_StreamGetSource)(HSTREAM handle);
 DWORD BASSMIXDEF(BASS_Split_StreamGetSplits)(DWORD handle, HSTREAM *splits, DWORD count);
 BOOL BASSMIXDEF(BASS_Split_StreamReset)(DWORD handle);
