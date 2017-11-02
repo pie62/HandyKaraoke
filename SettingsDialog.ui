@@ -1120,13 +1120,6 @@
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>NCN :</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="1">
              <widget class="QLineEdit" name="leNCNPath">
               <property name="readOnly">
@@ -1136,6 +1129,46 @@
             </item>
             <item row="0" column="2">
              <widget class="QPushButton" name="btnNCNPath">
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>NCN :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_22">
+              <property name="text">
+               <string>HNK :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="leHNKPath">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="btnHNKPath">
               <property name="minimumSize">
                <size>
                 <width>40</width>
@@ -1394,6 +1427,32 @@
               <width>300</width>
               <height>16777215</height>
              </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_12">
+         <property name="title">
+          <string>Midi Synthesizer</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="chbSynthFloat">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;การเปลี่ยนแปลงสิ่งนี้ ในขณะที่กำลังเล่นด้วย Midi Synthesizer จะทำให้เพลงหยุดเล่น&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>ใช้งาน 32-bit floating-point</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="chbSynthFx">
+            <property name="text">
+             <string>ใช้งานเสียงเอฟเฟกต์ (reverb &amp;&amp; chorus)</string>
             </property>
            </widget>
           </item>

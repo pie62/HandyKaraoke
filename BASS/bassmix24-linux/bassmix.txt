@@ -1,5 +1,5 @@
 BASSmix 2.4
-Copyright (c) 2005-2015 Un4seen Developments Ltd. All rights reserved.
+Copyright (c) 2005-2017 Un4seen Developments Ltd. All rights reserved.
 
 Files that you should have found in the BASSmix package
 =======================================================
@@ -143,6 +143,20 @@ These are the major (and not so major) changes at each version stage.
 There are of course bug fixes and other little improvements made along
 the way too! To make upgrading simpler, all functions affected by a
 change to the BASSmix interface are listed.
+
+2.4.9 - 30/8/2017
+-----------------
+* Asynchronous buffering for splitters
+	BASS_ATTRIB_SPLIT_ASYNCBUFFER
+	BASS_ATTRIB_SPLIT_ASYNCPERIOD
+* Splitter position/length based on splitter (rather than source) channel count
+	BASS_SPLIT_POS (BASS_Split_StreamCreate flag)
+* Mixer playback buffer flushing when seeking
+	BASS_POS_MIXER_RESET (BASS_Mixer_ChannelSetPosition flag)
+* Retrieval of a mixer's sources
+	BASS_Mixer_StreamGetChannels
+* Removal of 32 channel limit for matix mixing sources
+	BASS_MIXER_MATRIX (BASS_Mixer_StreamAddChannel/Ex flag)
 
 2.4.8 - 13/3/2015
 -----------------

@@ -15,6 +15,7 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiPlayer *player) :
     this->player = player;
 
     this->instMap = player->midiSynthesizer()->getMapSoundfontIndex();
+    this->drumMap = player->midiSynthesizer()->getDrumMapSfIndex();
 
     QStringList sfNames;
     for (QString sn : player->midiSynthesizer()->soundfontFiles()) {
@@ -23,7 +24,6 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiPlayer *player) :
     }
 
     QStringList instNames = MidiHelper::GMInstrumentNumberNames();
-    instNames.append("--- - Percussion (Drum)");
 
     int index = 0;
     for (const QString &instName : instNames) {
@@ -44,13 +44,34 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiPlayer *player) :
         index++;
     }
 
+    // drum
+    for (int i=0; i<16; i++) {
+        ComboBoxItem *cbItem = new ComboBoxItem(this, i);
+        cbItem->addItems(sfNames);
+        cbItem->setCurrentIndex(drumMap.at(i));
+        connect(cbItem, SIGNAL(userActivated(int,int)), this, SLOT(onComboBoxDrumActivated(int,int)));
+        comboBoxDrum.append(cbItem);
+
+        QTreeWidgetItem *item = ui->treeDrum->topLevelItem(i);
+        ui->treeDrum->setItemWidget(item, 1, cbItem);
+    }
+
     for (int col = 0; col < 2; ++col)
         ui->treeWidget->resizeColumnToContents(0);
+
+    for (int col = 0; col < 2; ++col)
+        ui->treeDrum->resizeColumnToContents(0);
 }
 
 MapSoundfontDialog::~MapSoundfontDialog()
 {
     instMap.clear();
+    drumMap.clear();
+
+    for (ComboBoxItem *cb : comboBoxDrum) {
+        delete cb;
+    }
+    comboBoxDrum.clear();
 
     for (ComboBoxItem *cb : comboBoxItems) {
         delete cb;
@@ -70,16 +91,28 @@ void MapSoundfontDialog::onComboBoxItemsActivated(int row, int index)
     instMap[row] = index;
 }
 
+void MapSoundfontDialog::onComboBoxDrumActivated(int row, int index)
+{
+    drumMap[row] = index;
+}
+
 void MapSoundfontDialog::on_btnOk_clicked()
 {
-    player->midiSynthesizer()->setMapSoundfontIndex(instMap);
+    player->midiSynthesizer()->setMapSoundfontIndex(instMap, drumMap);
 
     QSettings settings;
 
     settings.beginWriteArray("SynthSoundfontsMap");
-    for (int i=0; i<129; i++) {
+    for (int i=0; i<128; i++) {
         settings.setArrayIndex(i);
         settings.setValue("mapTo", instMap.at(i));
+    }
+    settings.endArray();
+
+    settings.beginWriteArray("SynthSoundfontsDrumMap");
+    for (int i=0; i<16; i++) {
+        settings.setArrayIndex(i);
+        settings.setValue("mapTo", drumMap.at(i));
     }
     settings.endArray();
 

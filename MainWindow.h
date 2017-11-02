@@ -111,6 +111,7 @@ private slots:
     void showSettingsDialog();
     void showHideChMix();
     void minimizeWindow();
+    void showMapSFDialog();
     void showFullScreenOrNormal();
     void showAboutDialog();
 

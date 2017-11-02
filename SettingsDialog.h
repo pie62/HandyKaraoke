@@ -33,6 +33,7 @@ private slots:
     void on_btnBgImg_clicked();
 
     void on_btnNCNPath_clicked();
+    void on_btnHNKPath_clicked();
     void on_btnUpdateSongs_clicked();
     void on_upDbUpdateFinished();
 
@@ -48,6 +49,9 @@ private slots:
     void on_cbLockDrum_activated(int index);
     void on_cbLockSnare_activated(int index);
     void on_cbLockBass_activated(int index);
+
+    void onChbFloatPointToggled(bool checked);
+    void onChbUseFXToggled(bool checked);
 
 
 
@@ -90,13 +94,15 @@ private slots:
     void on_btnReverb_clicked();
     void on_btnChorus_clicked();
 
-    void on_btnClose_clicked(); 
+    void on_btnClose_clicked();
 
 private:
     Ui::SettingsDialog *ui;
     MainWindow *mainWin;
     QSettings *settings;
     SongDatabase *db;
+
+    QList<int> instSfMap, drumSfMap;
 };
 
 #endif // SETTINGSDIALOG_H

@@ -25,9 +25,9 @@ InstCh::InstCh(QWidget *parent) :
                       "background-color: rgb(46, 184, 114);";
 
 
-    ui->slider->setMaximumLevel(200);
-    ui->slider->setLevel(100);
-    ui->slider->setToolTip("100");
+    ui->slider->setMaximumLevel(100);
+    ui->slider->setLevel(50);
+    ui->slider->setToolTip("50");
 
     ui->vuBar->setMaximumLevel(127);
 

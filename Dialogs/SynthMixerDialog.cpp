@@ -28,7 +28,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     this->setMaximumHeight(height() + 30);
 
     { // Settings
-        QSettings st("HandyKaraoke", "SynthMixer");
+        QSettings st("SynthMixer.ini", QSettings::IniFormat);
 
         QSize size = st.value("Size", this->size()).toSize();
         resize(size);
@@ -48,7 +48,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         for (InstrumentType t : chInstMap.keys())
         {
             st.setArrayIndex(static_cast<int>(t));
-            int ml = st.value("MixLevel", 100).toInt();
+            int ml = st.value("Volume", 50).toInt();
             bool m = st.value("Mute", false).toBool();
             bool s = st.value("Solo", false).toBool();
 
@@ -68,7 +68,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
             vu->setShowPeakHold(sph);
             vu->setPeakHoldMs(phm);
 
-            synth->setMixLevel(t, ml);
+            synth->setVolume(t, ml);
             synth->setMute(t, m);
             synth->setSolo(t, s);
         }
@@ -95,29 +95,28 @@ SynthMixerDialog::~SynthMixerDialog()
 {
     // settings
     {
-        QSettings st("HandyKaraoke", "SynthMixer");
+        QSettings st("SynthMixer.ini", QSettings::IniFormat);
         st.setValue("Size", this->size());
 
         LEDVu *vu = chInstMap.first()->vuBar();
-        st.setValue("LedColorOn1", vu->ledColorOn1());
-        st.setValue("LedColorOn2", vu->ledColorOn2());
-        st.setValue("LedColorOn3", vu->ledColorOn3());
-        st.setValue("LedColorOff1", vu->ledColorOff1());
-        st.setValue("LedColorOff2", vu->ledColorOff2());
-        st.setValue("LedColorOff3", vu->ledColorOff3());
+        st.setValue("LedColorOn1", vu->ledColorOn1().name());
+        st.setValue("LedColorOn2", vu->ledColorOn2().name());
+        st.setValue("LedColorOn3", vu->ledColorOn3().name());
+        st.setValue("LedColorOff1", vu->ledColorOff1().name());
+        st.setValue("LedColorOff2", vu->ledColorOff2().name());
+        st.setValue("LedColorOff3", vu->ledColorOff3().name());
         st.setValue("ShowPeakHold", vu->isShowPeakHold());
         st.setValue("PeakHoldMs", vu->peakHoldMs());
 
-        st.beginWriteArray("SynthMixer");
 
+        st.beginWriteArray("SynthMixer");
         for (InstrumentType t : chInstMap.keys())
         {
             st.setArrayIndex(static_cast<int>(t));
-            st.setValue("MixLevel", synth->mixLevel(t));
+            st.setValue("Volume", synth->volume(t));
             st.setValue("Mute", synth->isMute(t));
             st.setValue("Solo", synth->isSolo(t));
         }
-
         st.endArray();
     }
     // ------------------------
@@ -162,13 +161,13 @@ void SynthMixerDialog::setSolo(InstrumentType t, bool s)
 
 void SynthMixerDialog::setMixLevel(InstrumentType t, int level)
 {
-    synth->setMixLevel(t, level);
+    synth->setVolume(t, level);
 }
 
 void SynthMixerDialog::resetMixLevel(InstrumentType t)
 {
-    chInstMap[t]->setSliderLevel(100);
-    synth->setMixLevel(t, 100);
+    chInstMap[t]->setSliderLevel(50);
+    synth->setVolume(t, 50);
 }
 
 void SynthMixerDialog::onPlayerPlayingEvents(MidiEvent *e)
@@ -236,11 +235,6 @@ void SynthMixerDialog::mapChInstUI()
     chInstMap[InstrumentType::Snare]        = ui->ch_28;
     chInstMap[InstrumentType::SideStick]    = ui->ch_29;
 
-    /*
-    chInstMap[InstrumentType::LowTom]       = ui->ch_30;
-    chInstMap[InstrumentType::MidTom]       = ui->ch_31;
-    chInstMap[InstrumentType::HighTom]      = ui->ch_32;
-    */
     chInstMap[InstrumentType::HighTom]      = ui->ch_30;
     chInstMap[InstrumentType::MidTom]       = ui->ch_31;
     chInstMap[InstrumentType::LowTom]       = ui->ch_32;

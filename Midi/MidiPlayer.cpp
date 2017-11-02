@@ -544,6 +544,7 @@ void MidiPlayer::playEvents()
 void MidiPlayer::sendEvent(MidiEvent *e)
 {
     int ch = e->channel();
+    Channel *midiCh = &_midiChannels[ch];
 
     switch (e->eventType()) {
     case MidiEventType::NoteOff: {
@@ -603,8 +604,6 @@ void MidiPlayer::sendEvent(MidiEvent *e)
             _tempEvent.setData1(programe);
             _playingEventPtr = &_tempEvent;
         }
-
-        qDebug() << "Ch " << ch << "  programe " << programe;
 
         _midiChannels[ch].setInstrument(programe);
         if (ch != 9)

@@ -180,7 +180,11 @@ void FaderSlider::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
 
-    p.setPen(QPen(palette().color(QPalette::Shadow), 4));
+    #ifdef _WIN32
+    p.setPen(QPen(palette().color(QPalette::Shadow), 3));
+    #else
+    p.setPen(QPen(palette().color(QPalette::Mid), 3));
+    #endif
 
     int x = width() / 2;
     p.drawLine(QPointF(x, 0), QPointF(x, height()));

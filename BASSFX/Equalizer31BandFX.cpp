@@ -81,7 +81,7 @@ void Equalizer31BandFX::on()
     //eq.fBandwidth = 18;
     eq.fQ = 0;
     eq.lBand = 0;
-    eq.fBandwidth = 4;
+    eq.fBandwidth = 2;
     eq.lChannel = BASS_BFX_CHANALL;
 
     float eqfreq[31] = { 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160,
@@ -152,7 +152,7 @@ void Equalizer31BandFX::setGain(EQFrequency31Range freq, float gain)
     BASS_BFX_PEAKEQ eq;
     eq.fQ = 0;
     eq.lBand = 0;
-    eq.fBandwidth = 4;
+    eq.fBandwidth = 2;
     eq.lChannel = BASS_BFX_CHANALL;
     if (BASS_FXGetParameters(fxEQ[freq], &eq))
     {
