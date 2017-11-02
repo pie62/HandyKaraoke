@@ -3,11 +3,16 @@
 #include <thread>
 #include <cstring>
 #include <iostream>
+#include <QDebug>
 
 MidiSynthesizer::MidiSynthesizer()
 {
     for (int i=0; i<129; i++) {
-        intmSf.push_back(0);
+        instmSf.append(0);
+    }
+
+    for (int i=0; i<16; i++) {
+        drumSf.append(0);
     }
 
     eq = new Equalizer31BandFX(0);
@@ -24,7 +29,8 @@ MidiSynthesizer::MidiSynthesizer()
         im.mute = false;
         im.solo = false;
         im.enable = true;
-        im.mixlevel = 100;
+        im.volume = 50;
+        im.bus = -1;
 
         instMap[t] = im;
     }
@@ -51,7 +57,8 @@ MidiSynthesizer::~MidiSynthesizer()
     instMap.clear();
 
     sfFiles.clear();
-    intmSf.clear();
+    instmSf.clear();
+    drumSf.clear();
 }
 
 bool MidiSynthesizer::open()
@@ -59,52 +66,77 @@ bool MidiSynthesizer::open()
     if (openned)
         return true;
 
+    auto concurentThreadsSupported = std::thread::hardware_concurrency();
+    float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
 
-    BASS_Init(outDev, 44100, 0, NULL, NULL);
-    //BASS_PluginLoad("D:\\Projects\\QtProjects\\BASS\\bass_fx24\\x64\\bass_fx.dll", 0);
-    //std::cout << "BASS_PluginLoad " << BASS_ErrorGetCode() << std::endl;
+    BASS_Init(-1, 44100, 0, NULL, NULL);
 
     BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
     BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+    BASS_SetConfig(BASS_CONFIG_MIDI_VOICES, nVoices);
 
-    DWORD flags = 0;//BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
+    //BASS_SetConfigPtr(BASS_CONFIG_MIDI_DEFFONT, "D:\\SoundFonts\\sophon208602.sf2");
 
-    // Check for 32-bit floating-point channel support.
-    DWORD floatsupport = BASS_GetConfig(BASS_CONFIG_FLOAT);
-    if (floatsupport) // / floating-point is supported on this platform/architecture
-        flags = BASS_SAMPLE_FLOAT|BASS_MIDI_SINCINTER;
-    else
-        flags = BASS_MIDI_SINCINTER;
+    // create mix stream
+    DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
+    mixHandle = BASS_Mixer_StreamCreate(44100, 2, f);
+    BASS_ChannelSetDevice(mixHandle, outDev);
 
-    stream = BASS_MIDI_StreamCreate(32, flags, 0);
+    DWORD flags = BASS_STREAM_DECODE|BASS_MIDI_SINCINTER;
+    if (useFloat)
+        flags = flags|BASS_SAMPLE_FLOAT;
+    if (!useFX) {
+        flags = flags|BASS_MIDI_NOFX;
+    }
 
-    //BASS_ChannelSetAttribute(stream, BASS_ATTRIB_NOBUFFER, 1);
+    for (int i=0; i<42; i++) {
 
-    auto concurentThreadsSupported = std::thread::hardware_concurrency();
-    float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
-    BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MIDI_VOICES, nVoices);
+        HSTREAM h = BASS_MIDI_StreamCreate(16, flags, 0);
+        #ifdef __linux__
+        BASS_ChannelSetAttribute(h, BASS_ATTRIB_NOBUFFER, 1);
+        #endif
+
+        //BASS_ChannelPlay(h, true);
+
+        BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
+
+        InstrumentType t = static_cast<InstrumentType>(i);
+        handles[t] = h;
+
+        /*
+        if (i != 0) {
+            BASS_ChannelSetLink(handles[InstrumentType::Piano], h);
+            qDebug() << BASS_ErrorGetCode();
+        }
+        */
+    }
+
+    BASS_ChannelPlay(mixHandle, false);
 
     setSfToStream();
 
-    for (int sfInex : intmSf) {
+    bool checkDrumSfMap = true;
+    for (int sfInex : instmSf) {
         if (sfInex > 0) {
-            setMapSoundfontIndex(intmSf);
+            setMapSoundfontIndex(instmSf, drumSf);
+            checkDrumSfMap = false;
             break;
         }
     }
 
-    BASS_ChannelPlay(stream, true);
-
-    //BASS_MIDI_StreamEvent(stream, 9, MIDI_EVENT_DRUMS, 1);
-    for (int i=16; i<32; i++) {
-        BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_DRUMS, 1);
+    if (checkDrumSfMap) {
+        for (int sfIndex : drumSf) {
+            if (sfIndex > 0) {
+                setMapSoundfontIndex(instmSf, drumSf);
+                break;
+            }
+        }
     }
 
-
     // Set stream to Fx
-    eq->setStreamHandle(stream);
-    reverb->setStreamHandle(stream);
-    chorus->setStreamHandle(stream);
+    eq->setStreamHandle(mixHandle);
+    reverb->setStreamHandle(mixHandle);
+    chorus->setStreamHandle(mixHandle);
 
 
     openned = true;
@@ -121,19 +153,20 @@ void MidiSynthesizer::close()
     reverb->setStreamHandle(0);
     chorus->setStreamHandle(0);
 
-
-    BASS_ChannelStop(stream);
+    for (HSTREAM h : handles) {
+        BASS_ChannelStop(h);
+        BASS_StreamFree(h);
+    }
+    handles.clear();
 
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
         BASS_MIDI_FontUnload(f, -1, -1);
         BASS_MIDI_FontFree(f);
     }
-
     synth_HSOUNDFONT.clear();
 
-    BASS_StreamFree(stream);
+    BASS_StreamFree(mixHandle);
     BASS_Free();
-    //BASS_PluginFree(0);
 
     openned = false;
 }
@@ -148,10 +181,10 @@ bool MidiSynthesizer::setOutputDevice(int dv)
     outDev = dv;
 
     if (openned)
-        return BASS_SetDevice(dv);
+        return BASS_ChannelSetDevice(mixHandle, dv);
 }
 
-void MidiSynthesizer::setSoundFonts(QList<QString> &soundfonsFiles)
+void MidiSynthesizer::setSoundFonts(QStringList &soundfonsFiles)
 {
     this->sfFiles.clear();
     this->sfFiles = soundfonsFiles;
@@ -162,14 +195,14 @@ void MidiSynthesizer::setSoundFonts(QList<QString> &soundfonsFiles)
 
 void MidiSynthesizer::setVolume(float vol)
 {
-    if (BASS_ChannelSetAttribute(stream, BASS_ATTRIB_VOL, vol)) {
+    if (BASS_ChannelSetAttribute(mixHandle, BASS_ATTRIB_VOL, vol)) {
         synth_volume = vol;
     }
 }
 
 float MidiSynthesizer::soundfontVolume(int sfIndex)
 {
-    if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.size())
+    if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.count())
         return -1;
 
     return BASS_MIDI_FontGetVolume(synth_HSOUNDFONT[sfIndex]);
@@ -177,69 +210,70 @@ float MidiSynthesizer::soundfontVolume(int sfIndex)
 
 void MidiSynthesizer::setSoundfontVolume(int sfIndex, float sfvl)
 {
-    if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.size())
+    if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.count())
         return;
 
     BASS_MIDI_FontSetVolume(synth_HSOUNDFONT[sfIndex], sfvl);
 }
 
-bool MidiSynthesizer::setMapSoundfontIndex(const std::vector<int> &intrumentSfIndex)
+bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<int> drumSfIndex)
 {
-    intmSf.clear();
-    intmSf = intrumentSfIndex;
+    instmSf.clear();
+    drumSf.clear();
+    instmSf = intrumentSfIndex;
+    drumSf = drumSfIndex;
 
-    if (intrumentSfIndex.size() < 129 || synth_HSOUNDFONT.size() == 0 || !openned)
+    if (intrumentSfIndex.count() < 128 || synth_HSOUNDFONT.count() == 0 || !openned)
         return false;
 
 
-    std::vector<BASS_MIDI_FONTEX> mFonts;
+    std::vector<BASS_MIDI_FONT> mFonts;
 
-    // check use another sf
-    for (int i=0; i<129; i++) {
+    // check instrument use another sf
+    for (int i=0; i<128; i++) {
 
-        if (intmSf.at(i) <= 0)
+        if (instmSf.at(i) <= 0)
             continue;
 
-        if (intmSf.at(i) >= synth_HSOUNDFONT.size())
+        if (instmSf.at(i) >= synth_HSOUNDFONT.count())
             continue;
 
-        BASS_MIDI_FONTEX font;
-        font.font = synth_HSOUNDFONT.at(intmSf.at(i));
-
-        if (i < 128) {
-            font.spreset = i;
-            font.sbank = 0;
-            font.dpreset = i;
-            font.dbank = 0;
-            font.dbanklsb = 0;
-        }
-        else {
-            font.spreset = -1;
-            font.sbank = 128;
-            font.dpreset = -1;
-            font.dbank = 128;
-            font.dbanklsb = 0;
-        }
+        BASS_MIDI_FONT font;
+        font.font = synth_HSOUNDFONT.at(instmSf.at(i));
+        font.preset = i;
+        font.bank = 0;
 
         mFonts.push_back(font);
     }
 
     // defaut sf
-    BASS_MIDI_FONTEX f;
+    BASS_MIDI_FONT f;
     f.font = synth_HSOUNDFONT.at(0);
-    f.spreset = -1;
-    f.sbank = -1;
-    f.dpreset = -1;
-    f.dbank = 0;
-    f.dbanklsb = 0;
+    f.preset = -1;
+    f.bank = 0;
 
     mFonts.push_back(f);
 
-
     // set to stream
-    BASS_MIDI_StreamSetFonts(stream, mFonts.data(), mFonts.size()|BASS_MIDI_FONT_EX);
+    for (HSTREAM h : handles.values()) {
+        BASS_MIDI_StreamSetFonts(h, mFonts.data(), mFonts.size());
+    }
 
-    BASS_MIDI_StreamLoadSamples(stream);
+
+    // check drum sf
+    int li = 0;
+    for (int i=26; i<42; i++) {
+
+        BASS_MIDI_FONT font;
+        font.font = synth_HSOUNDFONT.at(drumSf.at(li));
+        font.preset = -1;
+        font.bank = 0;
+
+        InstrumentType type = static_cast<InstrumentType>(i);
+        BASS_MIDI_StreamSetFonts(handles[type], &font, 1);
+
+        li++;
+    }
 
     return true;
 }
@@ -250,9 +284,9 @@ void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)
         return;
 
     if (ch == 9)
-        BASS_MIDI_StreamEvent(stream, getDrumChannelFromNote(note), MIDI_EVENT_NOTE, note);
+        BASS_MIDI_StreamEvent(getDrumHandleFromNote(note), 9, MIDI_EVENT_NOTE, MAKEWORD(note, 0));
     else
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTE, note);
+        BASS_MIDI_StreamEvent(handles[chInstType[ch]], ch, MIDI_EVENT_NOTE, MAKEWORD(note, 0));
 }
 
 void MidiSynthesizer::sendNoteOn(int ch, int note, int velocity)
@@ -261,9 +295,9 @@ void MidiSynthesizer::sendNoteOn(int ch, int note, int velocity)
         return;
 
     if (ch == 9)
-        BASS_MIDI_StreamEvent(stream, getDrumChannelFromNote(note), MIDI_EVENT_NOTE, MAKEWORD(note, velocity));
+        BASS_MIDI_StreamEvent(getDrumHandleFromNote(note), 9, MIDI_EVENT_NOTE, MAKEWORD(note, velocity));
     else
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTE, MAKEWORD(note, velocity));
+        BASS_MIDI_StreamEvent(handles[chInstType[ch]], ch, MIDI_EVENT_NOTE, MAKEWORD(note, velocity));
 }
 
 void MidiSynthesizer::sendNoteAftertouch(int ch, int note, int value)
@@ -272,9 +306,9 @@ void MidiSynthesizer::sendNoteAftertouch(int ch, int note, int value)
         return;
 
     if (ch == 9)
-        BASS_MIDI_StreamEvent(stream, getDrumChannelFromNote(note), MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
+        BASS_MIDI_StreamEvent(getDrumHandleFromNote(note), 9, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
     else
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
+        BASS_MIDI_StreamEvent(handles[chInstType[ch]], ch, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
 }
 
 void MidiSynthesizer::sendController(int ch, int number, int value)
@@ -336,65 +370,42 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
         break;
     }
 
-    if (ch == 9) {
-        for (int i=16; i<32; i++) {
-            BASS_MIDI_StreamEvent(stream, i, et, value);
-        }
-    }
-    else
+    for (HSTREAM stream : handles) {
         BASS_MIDI_StreamEvent(stream, ch, et, value);
+    }
 }
 
 void MidiSynthesizer::sendProgramChange(int ch, int number)
 {
-    if (ch == 9) {
-        for (int i=16; i<32; i++) {
-            BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_PROGRAM, number);
-        }
+    for (HSTREAM stream : handles) {
+        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_PROGRAM, number);
     }
-    else {
+
+    if (ch != 9) {
         InstrumentType t = MidiHelper::getInstrumentType(number);
         chInstType[ch] = t;
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_PROGRAM, number);
-
-        if (instMap[t].enable)
-            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[t].mixlevel);
-        else
-            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, 0);
     }
 }
 
 void MidiSynthesizer::sendChannelAftertouch(int ch, int value)
 {
-    if (ch == 9) {
-        for (int i=16; i<32; i++) {
-            BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_CHANPRES, value);
-        }
-    }
-    else
+    for (HSTREAM stream : handles) {
         BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_CHANPRES, value);
+    }
 }
 
 void MidiSynthesizer::sendPitchBend(int ch, int value)
 {
-    if (ch == 9) {
-        for (int i=16; i<32; i++) {
-            BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_PITCH, value);
-        }
-    }
-    else
+    for (HSTREAM stream : handles) {
         BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_PITCH, value);
+    }
 }
 
 void MidiSynthesizer::sendAllNotesOff(int ch)
 {
-    if (ch == 9) {
-        for (int i=16; i<32; i++) {
-            BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_NOTESOFF, 0);
-        }
-    }
-    else
+    for (HSTREAM stream : handles) {
         BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTESOFF, 0);
+    }
 }
 
 void MidiSynthesizer::sendAllNotesOff()
@@ -402,17 +413,15 @@ void MidiSynthesizer::sendAllNotesOff()
     for (int i=0; i<16; i++) {
         sendAllNotesOff(i);
     }
+    //BASS_ChannelStop(mixHandle);
+    //BASS_ChannelPlay(mixHandle, false);
 }
 
 void MidiSynthesizer::sendResetAllControllers(int ch)
 {
-    if (ch == 9) {
-        for (int i=16; i<32; i++) {
-            BASS_MIDI_StreamEvent(stream, i, MIDI_EVENT_RESET, 0);
-        }
-    }
-    else
+    for (HSTREAM stream : handles) {
         BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_RESET, 0);
+    }
 }
 
 void MidiSynthesizer::sendResetAllControllers()
@@ -422,9 +431,9 @@ void MidiSynthesizer::sendResetAllControllers()
     }
 }
 
-int MidiSynthesizer::mixLevel(InstrumentType t)
+int MidiSynthesizer::volume(InstrumentType t)
 {
-    return instMap[t].mixlevel;
+    return instMap[t].volume;
 }
 
 bool MidiSynthesizer::isMute(InstrumentType t)
@@ -437,14 +446,14 @@ bool MidiSynthesizer::isSolo(InstrumentType t)
     return instMap[t].solo;
 }
 
-void MidiSynthesizer::setMixLevel(InstrumentType t, int level)
+void MidiSynthesizer::setVolume(InstrumentType t, int volume)
 {
-    if (level > 200)
-        instMap[t].mixlevel = 200;
-    else if (level < 0)
-        instMap[t].mixlevel = 0;
+    if (volume > 100)
+        instMap[t].volume = 100;
+    else if (volume < 0)
+        instMap[t].volume = 0;
     else
-        instMap[t].mixlevel = level;
+        instMap[t].volume = volume;
 
     if (!openned)
         return;
@@ -452,10 +461,7 @@ void MidiSynthesizer::setMixLevel(InstrumentType t, int level)
     if (!instMap[t].enable)
         return;
 
-    for (const int &ch : getChannelsFromType(t))
-    {
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[t].mixlevel);
-    }
+    BASS_ChannelSetAttribute(handles[t], BASS_ATTRIB_VOL, instMap[t].volume / 100.0f);
 }
 
 void MidiSynthesizer::setMute(InstrumentType t, bool m)
@@ -469,13 +475,10 @@ void MidiSynthesizer::setMute(InstrumentType t, bool m)
     if (!openned)
         return;
 
-    for (const int &ch : getChannelsFromType(t))
-    {
-        if (m)
-            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, 0);
-        else
-            BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[t].mixlevel);
-    }
+    if (m)
+        BASS_ChannelSetAttribute(handles[t], BASS_ATTRIB_VOL, 0.0f);
+    else
+        BASS_ChannelSetAttribute(handles[t], BASS_ATTRIB_VOL, instMap[t].volume / 100.0f);
 }
 
 void MidiSynthesizer::setSolo(InstrumentType t, bool s)
@@ -486,9 +489,9 @@ void MidiSynthesizer::setSolo(InstrumentType t, bool s)
     instMap[t].solo = s;
 
     bool us = false;
-    for (const auto &im : instMap) {
-        Instrument i = im.second;
-        if (i.solo) {
+
+    for (const Instrument &im : instMap.values()) {
+        if (im.solo) {
             us = true;
             break;
         }
@@ -500,6 +503,15 @@ void MidiSynthesizer::setSolo(InstrumentType t, bool s)
     if (!openned)
         return;
 
+    for (const Instrument itr : instMap.values()) {
+
+        if (itr.enable)
+            BASS_ChannelSetAttribute(handles[itr.type], BASS_ATTRIB_VOL, itr.volume / 100.0f);
+        else
+            BASS_ChannelSetAttribute(handles[itr.type], BASS_ATTRIB_VOL, 0.0f);
+    }
+
+    /*
     for (const auto &im : instMap) {
 
         Instrument i = im.second;
@@ -515,6 +527,7 @@ void MidiSynthesizer::setSolo(InstrumentType t, bool s)
         }
 
     }
+    */
 }
 
 std::vector<std::string> MidiSynthesizer::audioDevices()
@@ -536,7 +549,11 @@ bool MidiSynthesizer::isSoundFontFile(const QString &sfile)
 {
     bool result = true;
 
+    #ifdef _WIN32
     HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(), 0);
+    #else
+    HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdString().c_str(), 0);
+    #endif
 
     if (!f)
         result = false;
@@ -546,20 +563,52 @@ bool MidiSynthesizer::isSoundFontFile(const QString &sfile)
     return result;
 }
 
+void MidiSynthesizer::setUsetFloattingPoint(bool use)
+{
+    if (use == useFloat)
+        return;
+
+    useFloat = use;
+
+    QList<int> isf = instmSf;
+    QList<int> dsf = drumSf;
+
+    close();
+    open();
+
+    setMapSoundfontIndex(isf, dsf);
+}
+
+void MidiSynthesizer::setUseFXRC(bool use)
+{
+    if (use == useFX)
+        return;
+
+    useFX = use;
+
+    if (useFX) {
+        for (HSTREAM h : handles.values())
+            BASS_ChannelFlags(h, 0, BASS_MIDI_NOFX); // remove the flag
+    } else {
+        for (HSTREAM h : handles.values())
+            BASS_ChannelFlags(h, BASS_MIDI_NOFX, BASS_MIDI_NOFX); // set flag
+    }
+}
+
 void MidiSynthesizer::setSfToStream()
 {
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
-        BASS_MIDI_FontUnload(f, -1, -1);
+        //BASS_MIDI_FontUnload(f, -1, -1);
         BASS_MIDI_FontFree(f);
     }
     synth_HSOUNDFONT.clear();
 
     for (const QString &sfile : sfFiles) {
 
-        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(), //BASS_MIDI_FONT_NOFX);
+        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
                                           BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
         if (f) {
-            BASS_MIDI_FontLoad(f, -1, -1);
+            //BASS_MIDI_FontLoad(f, -1, -1);
             synth_HSOUNDFONT.push_back(f);
         }
 
@@ -573,23 +622,27 @@ void MidiSynthesizer::setSfToStream()
         font.preset = -1;
         font.bank = 0;
 
-        //BASS_MIDI_StreamSetFonts(0, &font, 1); // set sf to default stream
-        BASS_MIDI_StreamSetFonts(stream, &font, 1); // set to stream to
-
-        BASS_MIDI_StreamLoadSamples(stream);
+        for (HSTREAM h : handles.values()) {
+            BASS_MIDI_StreamSetFonts(h, &font, 1); // set to stream to
+        }
     }
 
     // Reset map intrument sf
-    intmSf.clear();
-    for (int i=0; i<129; i++) {
-        intmSf.push_back(0);
+    instmSf.clear();
+    drumSf.clear();
+    for (int i=0; i<128; i++) {
+        instmSf.append(0);
     }
+    for (int i=0; i<16; i++) {
+        drumSf.append(0);
+    }
+
 }
 
 void MidiSynthesizer::calculateEnable()
 {
-    for (const auto & im : instMap) {
-        Instrument i = im.second;
+    for (Instrument i : instMap.values()) {
+        //Instrument i = im.second;
         if (useSolo) {
             if (i.mute)
                 instMap[i.type].enable = false;
@@ -607,79 +660,90 @@ void MidiSynthesizer::calculateEnable()
     }
 }
 
-int MidiSynthesizer::getDrumChannelFromNote(int drumNote)
+HSTREAM MidiSynthesizer::getDrumHandleFromNote(int drumNote)
 {
-    int ch = 0;
     switch (drumNote) {
 
     // Bass drum
     case 35:
-    case 36: ch = 16; break;
+    case 36:
+        return handles[InstrumentType::BassDrum];
 
     // snare
     case 38:
-    case 40: ch = 17; break;
+    case 40:
+        return handles[InstrumentType::Snare];
 
     // Side Stick/Rimshot
-    case 37: ch = 18; break;
+    case 37:
+        return handles[InstrumentType::SideStick];
 
     // Low Tom
     case 41:
-    case 43: ch = 19; break;
+    case 43:
+        return handles[InstrumentType::LowTom];
 
     // Mid Tom
     case 45:
-    case 47: ch = 20; break;
+    case 47:
+        return handles[InstrumentType::MidTom];
 
     // High Tom
     case 48:
-    case 50: ch = 21; break;
+    case 50:
+        return handles[InstrumentType::HighTom];
 
     // Hi-hat
     case 42:
     case 44:
-    case 46: ch = 22; break;
+    case 46:
+        return handles[InstrumentType::Hihat];
 
     // Cowbell
-    case 56: ch = 23; break;
+    case 56:
+        return handles[InstrumentType::Cowbell];
 
     // Crash Cymbal ( 55 = Splash Cymbal )
     case 49:
     case 52:
     case 55:
-    case 57: ch = 24; break;
+    case 57:
+        return handles[InstrumentType::CrashCymbal];
 
     // Ride Cymbal
     case 51:
-    case 59: ch = 25; break;
+    case 59:
+        return handles[InstrumentType::RideCymbal];
 
     // Bongo
     case 60:
-    case 61: ch = 26; break;
+    case 61:
+        return handles[InstrumentType::Bongo];
 
     // Conga
     case 62:
     case 63:
-    case 64: ch = 27; break;
+    case 64:
+        return handles[InstrumentType::Conga];
 
     // Timbale
     case 65:
-    case 66: ch = 28; break;
+    case 66:
+        return handles[InstrumentType::Timbale];
 
     // ฉิ่ง
     case 80:
-    case 81: ch = 29; break;
+    case 81:
+        return handles[InstrumentType::SmallCupShapedCymbals];
 
-    // Chinese Cymbal ( ฉาบ )
+    // ฉาบ
     case 82:
-    case 83: ch = 30; break;
+    case 83:
+        return handles[InstrumentType::ThaiChap];
 
     default:
-        ch = 31;
-        break;
+        return handles[InstrumentType::PercussionEtc];
     }
-
-    return ch;
 }
 
 std::vector<int> MidiSynthesizer::getChannelsFromType(InstrumentType t)

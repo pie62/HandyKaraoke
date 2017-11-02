@@ -11,6 +11,7 @@
 
 #include <bass.h>
 #include <bassmidi.h>
+#include <bassmix.h>
 
 #include "BASSFX/Equalizer31BandFX.h"
 #include "BASSFX/ReverbFX.h"
@@ -19,8 +20,7 @@
 #include "Midi/MidiHelper.h"
 
 #include <QObject>
-#include <vector>
-#include <map>
+#include <QMap>
 
 
 struct Instrument
@@ -29,7 +29,8 @@ struct Instrument
     bool mute;
     bool solo;
     bool enable;
-    int mixlevel;
+    int volume;
+    int bus;
 };
 
 
@@ -40,14 +41,14 @@ public:
     ~MidiSynthesizer();
 
     bool isOpened() { return openned; }
-    QList<QString> soundfontFiles() { return sfFiles; }
+    QStringList soundfontFiles() { return sfFiles; }
 
     bool open();
     void close();
 
     int outPutDevice();
     bool setOutputDevice(int dv);
-    void setSoundFonts(QList<QString> &soundfonsFiles);
+    void setSoundFonts(QStringList &soundfonsFiles);
     void setVolume(float vol);
     float volume() { return synth_volume; }
 
@@ -57,8 +58,9 @@ public:
     // std::vector<int> size 129
     //      1-128 all intrument
     //      129 is drum
-    bool setMapSoundfontIndex(const std::vector<int> &intrumentSfIndex);
-    std::vector<int> getMapSoundfontIndex() { return intmSf; }
+    bool setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<int> drumSfIndex);
+    QList<int> getMapSoundfontIndex() { return instmSf; }
+    QList<int> getDrumMapSfIndex() { return drumSf; }
 
 
     void sendNoteOff(int ch, int note, int velocity);
@@ -75,11 +77,11 @@ public:
 
 
     // Instrument Maper
-    std::map<InstrumentType, Instrument> instrumentMap() { return instMap; }
-    int mixLevel(InstrumentType t);
+    QMap<InstrumentType, Instrument> instrumentMap() { return instMap; }
+    int volume(InstrumentType t);
     bool isMute(InstrumentType t);
     bool isSolo(InstrumentType t);
-    void setMixLevel(InstrumentType t, int level);
+    void setVolume(InstrumentType t, int volume);
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
 
@@ -93,12 +95,22 @@ public:
     ChorusFX* chorusFX() { return chorus; }
     // ------------------------------------------
 
+
+    bool isUseFloattingPoint() { return useFloat; }
+    void setUsetFloattingPoint(bool use);
+
+    bool isUseFXRC() { return useFX; }
+    void setUseFXRC(bool use);
+
+
 private:
-    HSTREAM stream;
-    std::vector<HSOUNDFONT> synth_HSOUNDFONT;
-    QList<QString> sfFiles;
-    std::vector<int> intmSf;
-    std::map<InstrumentType, Instrument> instMap;
+    HSTREAM mixHandle;
+    QMap<InstrumentType, HSTREAM> handles;
+    QList<HSOUNDFONT> synth_HSOUNDFONT;
+    QStringList sfFiles;
+    QList<int> instmSf;
+    QList<int> drumSf;
+    QMap<InstrumentType, Instrument> instMap;
     InstrumentType chInstType[16];
 
     // FX
@@ -111,11 +123,13 @@ private:
     bool openned = false;
     bool useSolo = false;
 
-    int outDev = -1;
+    int outDev = 1;
+    bool useFloat = true;
+    bool useFX = false;
 
     void setSfToStream();
     void calculateEnable();
-    int getDrumChannelFromNote(int drumNote);
+    HSTREAM getDrumHandleFromNote(int drumNote);
     std::vector<int> getChannelsFromType(InstrumentType t);
 };
 

@@ -21,6 +21,7 @@ public:
 
 private slots:
     void onComboBoxItemsActivated(int row, int index);
+    void onComboBoxDrumActivated(int row, int index);
 
     void on_btnOk_clicked();
 
@@ -28,10 +29,13 @@ private slots:
 
 private:
     Ui::MapSoundfontDialog *ui;
+
     QList<QTreeWidgetItem*> treeWidgetItems;
     QList<ComboBoxItem*> comboBoxItems;
+    QList<ComboBoxItem*> comboBoxDrum;
 
-    std::vector<int> instMap;
+    QList<int> instMap;
+    QList<int> drumMap;
 
     MidiPlayer *player = nullptr;
 };

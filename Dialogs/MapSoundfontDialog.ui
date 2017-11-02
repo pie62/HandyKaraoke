@@ -21,19 +21,140 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QTreeWidget" name="treeWidget">
-     <column>
-      <property name="text">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
        <string>เครื่องดนตรี</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>ซาวด์ฟ้อนท์</string>
-      </property>
-     </column>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QTreeWidget" name="treeWidget">
+         <column>
+          <property name="text">
+           <string>ชิ้นดนตรี</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>ซาวด์ฟ้อนท์</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>กลอง</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTreeWidget" name="treeDrum">
+         <column>
+          <property name="text">
+           <string>ชิ้นกลอง</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>ซาวด์ฟ้อนท์</string>
+          </property>
+         </column>
+         <item>
+          <property name="text">
+           <string>Kick (Bass Drum)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Snare</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Side Stick/Rimshot</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>High Tom</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Mid Tom</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Low Tom</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Hi-hat</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cowbell</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Crash Cymbal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Ride Cymbal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Bongo</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Conga</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Timbale</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ฉิ่ง / Triangle</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ฉาบ</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Percussion Etc</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>

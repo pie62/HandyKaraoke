@@ -4,7 +4,9 @@
 #include "Utils.h"
 #include "SettingsDialog.h"
 #include "Dialogs/AboutDialog.h"
+#include "Dialogs/MapSoundfontDialog.h"
 #include "Midi/MidiFile.h"
+#include "Midi/HNKFile.h"
 
 #include <QTime>
 #include <QMenu>
@@ -26,9 +28,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     settings = new QSettings();
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
+    QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
 
     db = new SongDatabase();
     db->setNcnPath(ncn);
+    db->setHNKPath(hnk);
 
 
     timer1 = new QTimer();
@@ -145,8 +149,14 @@ MainWindow::MainWindow(QWidget *parent) :
         int aout = settings->value("AudioOut", 1).toInt();
         synth->setOutputDevice(aout);
 
+        // floating and fx
+        bool useFloat = settings->value("SynthFloatPoint", true).toBool();
+        bool useFX = settings->value("SynthUseFXRC", false).toBool();
+        synth->setUsetFloattingPoint(useFloat);
+        synth->setUseFXRC(useFX);
+
         // Synth soundfont
-        QList<QString> sfs;
+        //QList<QString> sfs;
         QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
 
         // Synth soundfont volume
@@ -154,30 +164,38 @@ MainWindow::MainWindow(QWidget *parent) :
         int idx=0;
         settings->beginReadArray("SynthSoundfontsVolume");
         for (const QString &s : sfList) {
-            sfs.append(s);
-
             settings->setArrayIndex(idx);
             sfvl.append(settings->value("SoundfontVolume", 100).toInt());
             idx++;
         }
         settings->endArray();
 
-        synth->setSoundFonts(sfs);
+        synth->setSoundFonts(sfList);
+
         for (int i=0; i<sfvl.size(); i++) {
             synth->setSoundfontVolume(i, sfvl.at(i) / 100.0f);
         }
         // -----------
 
         // Synth Map soundfont
-        std::vector<int> sfMap = synth->getMapSoundfontIndex();
+        QList<int> sfMap = synth->getMapSoundfontIndex();
         settings->beginReadArray("SynthSoundfontsMap");
-        for (int i=0; i<129; i++) {
+        for (int i=0; i<128; i++) {
             settings->setArrayIndex(i);
             sfMap[i] = settings->value("mapTo", 0).toInt();
         }
         settings->endArray();
 
-        synth->setMapSoundfontIndex(sfMap);
+
+        QList<int> sfDrumMap = synth->getDrumMapSfIndex();
+        settings->beginReadArray("SynthSoundfontsDrumMap");
+        for (int i=0; i<16; i++) {
+            settings->setArrayIndex(i);
+            sfDrumMap[i] = settings->value("mapTo", 0).toInt();
+        }
+        settings->endArray();
+
+        synth->setMapSoundfontIndex(sfMap, sfDrumMap);
 
 
         // Synth EQ
@@ -498,7 +516,6 @@ void MainWindow::play(int index)
     }
 
     Song *s = playlist[index];
-    QString p = db->ncnPath() + s->path();
     playingSong = *s;
     playingIndex = index;
 
@@ -510,31 +527,64 @@ void MainWindow::play(int index)
     }
 
 
-    if (!player->load(p, true)) {
-        QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                             "ไม่มีไฟล์ " + p +
-                             "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
-        return;
+    // NCN File
+    if (playingSong.songType() == "NCN") {
+
+        QString p = db->ncnPath() + playingSong.path();
+        if (!player->load(p, true)) {
+            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                                 "ไม่มีไฟล์ " + p +
+                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            return;
+        }
+
+        QString curPath = db->getCurFilePath(p);
+        if (curPath == "" || !QFile::exists(curPath)) {
+            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                                 "ไม่มีไฟล์ Cursor หรัส " + playingSong.id() +
+                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            return;
+        }
+
+        QString lyrPath = db->getLyrFilePath(p);
+        if (lyrPath == "" || !QFile::exists(lyrPath)) {
+            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                                 "ไม่มีไฟล์ Lyrics รหัส " + playingSong.id() +
+                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            return;
+        }
+
+        lyrWidget->setLyrics(Utils::readLyrics(lyrPath),
+            Utils::readCurFile(curPath, player->midiFile()->resorution()));
+
+    } else if (playingSong.songType() == "HNK") {
+        // HNK File
+        QString p = db->hnkPath() + playingSong.path();
+        if (!QFile::exists(p)) {
+            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                                 "ไม่มีไฟล์ " + p, QMessageBox::Ok);
+            return;
+        }
+
+        QFile mid("temp.mid");
+        if (mid.exists())
+            mid.remove();
+
+        mid.open(QFile::ReadWrite);
+        mid.write(HNKFile::midData(p));
+        mid.close();
+
+        if (!player->load("temp.mid", true)) {
+            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
+                                 "ไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            return;
+        }
+
+        lyrWidget->setLyrics(Utils::readLyrics(HNKFile::lyrData(p)),
+            Utils::readCurFile(HNKFile::curData(p), player->midiFile()->resorution()));
+
     }
 
-    QString curPath = db->getCurFilePath(p);
-    if (curPath == "" || !QFile::exists(curPath)) {
-        QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                             "ไม่มีไฟล์ Cursor หรัส " + playingSong.id() +
-                             "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
-        return;
-    }
-
-    QString lyrPath = db->getLyrFilePath(p);
-    if (lyrPath == "" || !QFile::exists(lyrPath)) {
-        QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                             "ไม่มีไฟล์ Lyrics รหัส " + playingSong.id() +
-                             "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
-        return;
-    }
-
-    lyrWidget->setLyrics(Utils::readLyrics(lyrPath),
-                         Utils::readCurFile(curPath, player->midiFile()->resorution()));
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
 
@@ -923,6 +973,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     QAction actionShowEqDlg("อีควอไลเซอร์", this);
     QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
     QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน", this);
+    QAction actionMapSF("การเลือกใช้ซาวด์ฟ้อนท์", this);
     //QAction actionMinimize("ยุบหน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
     QAction actionAbout("เกี่ยวกับ", this);
@@ -934,6 +985,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionShowEqDlg, SIGNAL(triggered()), eq31Dlg, SLOT(show()));
     connect(&actionShowReverbDlg, SIGNAL(triggered()), reverbDlg, SLOT(show()));
     connect(&actionShowChorusDlg, SIGNAL(triggered()), chorusDlg, SLOT(show()));
+    connect(&actionMapSF, SIGNAL(triggered()), this, SLOT(showMapSFDialog()));
     //connect(&actionMinimize, SIGNAL(triggered()), this, SLOT(minimizeWindow()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
     connect(&actionAbout, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
@@ -947,6 +999,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     menu.addAction(&actionShowEqDlg);
     menu.addAction(&actionShowReverbDlg);
     menu.addAction(&actionShowChorusDlg);
+    menu.addAction(&actionMapSF);
     menu.addSeparator();
     //menu.addAction(&actionMinimize);
     menu.addAction(&actionFullScreen);
@@ -982,6 +1035,14 @@ void MainWindow::showHideChMix()
 void MainWindow::minimizeWindow()
 {
     setWindowState(Qt::WindowMinimized);
+}
+
+void MainWindow::showMapSFDialog()
+{
+    MapSoundfontDialog msfDlg(this, player);
+    msfDlg.setModal(true);
+    msfDlg.setMinimumSize(msfDlg.size());
+    msfDlg.exec();
 }
 
 void MainWindow::showFullScreenOrNormal()

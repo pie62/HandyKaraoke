@@ -49,7 +49,9 @@ SOURCES += main.cpp\
     Dialogs/AboutDialog.cpp \
     Utils.cpp \
     Widgets/PlaybackButton.cpp \
-    Widgets/FaderSlider.cpp
+    Widgets/FaderSlider.cpp \
+    Widgets/VSTLabel.cpp \
+    Midi/HNKFile.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -86,7 +88,10 @@ HEADERS  += MainWindow.h \
     Dialogs/AboutDialog.h \
     Utils.h \
     Widgets/PlaybackButton.h \
-    Widgets/FaderSlider.h
+    Widgets/FaderSlider.h \
+    Widgets/VSTLabel.h \
+    Midi/HNKFile.h \
+    Midi/lz77.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -102,7 +107,8 @@ FORMS    += MainWindow.ui \
     Dialogs/SettingVuDialog.ui \
     Widgets/SongDetail.ui \
     Widgets/Detail.ui \
-    Dialogs/AboutDialog.ui
+    Dialogs/AboutDialog.ui \
+    Widgets/VSTLabel.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

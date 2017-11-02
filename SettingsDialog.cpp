@@ -136,6 +136,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
     // Database
     ui->leNCNPath->setText(db->ncnPath());
+    ui->leHNKPath->setText(db->hnkPath());
     ui->lbCountSongsValue->setText(QString::number(db->count()) + " เพลง");
 
     if (db->isRunning())
@@ -244,7 +245,7 @@ void SettingsDialog::initDeviceTab()
     for (std::string d : MidiPlayer::midiDevices()) {
         ui->cbMidiOut->addItem(QString::fromStdString(d));
     }
-    ui->cbMidiOut->addItem("MIDI Synthesizer (SoundFont)");
+    ui->cbMidiOut->addItem("Midi Synthesizer (SoundFont)");
     if (dfd == -1)
         ui->cbMidiOut->setCurrentIndex( ui->cbMidiOut->count() - 1 );
     else
@@ -295,9 +296,16 @@ void SettingsDialog::initDeviceTab()
             ui->cbLockBass->setEnabled(false);
     }
 
+    MidiSynthesizer *synth = player->midiSynthesizer();
+    ui->chbSynthFloat->setChecked(synth->isUseFloattingPoint());
+    ui->chbSynthFx->setChecked(synth->isUseFXRC());
+
     connect(ui->chbLockDrum, SIGNAL(toggled(bool)), this, SLOT(onChbLockDrumToggled(bool)));
     connect(ui->chbLockSnare, SIGNAL(toggled(bool)), this, SLOT(onChbLockSnareToggled(bool)));
     connect(ui->chbLockBass, SIGNAL(toggled(bool)), this, SLOT(onChbLockBassToggled(bool)));
+
+    connect(ui->chbSynthFloat, SIGNAL(toggled(bool)), this, SLOT(onChbFloatPointToggled(bool)));
+    connect(ui->chbSynthFx, SIGNAL(toggled(bool)), this, SLOT(onChbUseFXToggled(bool)));
 }
 
 void SettingsDialog::on_chbRemoveFromList_toggled(bool checked)
@@ -402,6 +410,20 @@ void SettingsDialog::on_btnNCNPath_clicked()
 
 }
 
+void SettingsDialog::on_btnHNKPath_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(
+                this, tr("เลือกที่เก็บไฟล์เพลง HNK"), QDir::currentPath(),
+                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (path == "")
+        return;
+
+    ui->leHNKPath->setText(path);
+    db->setHNKPath(path);
+    settings->setValue("HNKPath", path);
+}
+
 void SettingsDialog::on_btnUpdateSongs_clicked()
 {
     if (!db->isNCNPath(ui->leNCNPath->text())) {
@@ -413,12 +435,14 @@ void SettingsDialog::on_btnUpdateSongs_clicked()
     }
 
     settings->setValue("NCNPath", ui->leNCNPath->text());
+    settings->setValue("HNKPath", ui->leHNKPath->text());
 
     ui->lbUpdateText->show();
     ui->lbUpdateValue->show();
 
     ui->btnUpdateSongs->setEnabled(false);
     ui->btnNCNPath->setEnabled(false);
+    ui->btnHNKPath->setEnabled(false);
     ui->lbCountSongsText->setEnabled(false);
     ui->lbCountSongsValue->setEnabled(false);
 
@@ -428,6 +452,7 @@ void SettingsDialog::on_btnUpdateSongs_clicked()
 
 void SettingsDialog::on_upDbUpdateFinished()
 { 
+    ui->btnHNKPath->setEnabled(true);
     ui->btnNCNPath->setEnabled(true);
     ui->lbCountSongsText->setEnabled(true);
     ui->lbCountSongsValue->setEnabled(true);
@@ -545,6 +570,21 @@ void SettingsDialog::on_cbLockBass_activated(int index)
 {
     mainWin->midiPlayer()->setLockBass(true, index + 32);
     settings->setValue("MidiLockBassNumber", index + 32);
+}
+
+void SettingsDialog::onChbFloatPointToggled(bool checked)
+{
+    if (mainWin->midiPlayer()->midiOutPortNumber() == -1)
+        mainWin->stop();
+
+    mainWin->midiPlayer()->midiSynthesizer()->setUsetFloattingPoint(checked);
+    settings->setValue("SynthFloatPoint", checked);
+}
+
+void SettingsDialog::onChbUseFXToggled(bool checked)
+{
+    mainWin->midiPlayer()->midiSynthesizer()->setUseFXRC(checked);
+    settings->setValue("SynthUseFXRC", checked);
 }
 
 void SettingsDialog::on_btnFont_clicked()
@@ -724,6 +764,10 @@ void SettingsDialog::onSpinCurBorderOutWidthValueChanged(int arg1)
 
 void SettingsDialog::on_btnSfEdit_clicked()
 {
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+    instSfMap = synth->getMapSoundfontIndex();
+    drumSfMap = synth->getDrumMapSfIndex();
+
     ui->btnSfAdd->setEnabled(true);
     ui->btnSfRemove->setEnabled(true);
     ui->btnSfUp->setEnabled(true);
@@ -748,21 +792,19 @@ void SettingsDialog::on_btnSfFinish_clicked()
     }
 
     QStringList sfList;
-    QList<QString> sfs;
 
     settings->beginWriteArray("SynthSoundfontsVolume");
     for (int i=0; i<ui->listsfFiles->count(); i++) {
         QListWidgetItem *item = ui->listsfFiles->item(i);
         sfList.append(item->text());
-        sfs.append(item->text());
-
         settings->setArrayIndex(i);
         settings->setValue("SoundfontVolume", 100);
     }
     settings->endArray();
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
-    synth->setSoundFonts(sfs);
+    synth->setSoundFonts(sfList);
+    synth->setMapSoundfontIndex(instSfMap, drumSfMap);
 
     ui->btnSfAdd->setEnabled(false);
     ui->btnSfRemove->setEnabled(false);
@@ -788,14 +830,20 @@ void SettingsDialog::on_btnSfFinish_clicked()
     connect(ui->listsfFiles, SIGNAL(currentRowChanged(int)),
             this, SLOT(onListSfCurrentRowChanged(int)));
 
-    std::vector<int> sfMap = synth->getMapSoundfontIndex();
 
     settings->setValue("SynthSoundfonts", sfList);
 
     settings->beginWriteArray("SynthSoundfontsMap");
-    for (int i=0; i<129; i++) {
+    for (int i=0; i<128; i++) {
         settings->setArrayIndex(i);
-        settings->setValue("mapTo", sfMap.at(i));
+        settings->setValue("mapTo", instSfMap.at(i));
+    }
+    settings->endArray();
+
+    settings->beginWriteArray("SynthSoundfontsDrumMap");
+    for (int i=0; i<16; i++) {
+        settings->setArrayIndex(i);
+        settings->setValue("mapTo", drumSfMap.at(i));
     }
     settings->endArray();
 }
@@ -824,6 +872,19 @@ void SettingsDialog::on_btnSfRemove_clicked()
 {
     int i = ui->listsfFiles->currentRow();
     ui->listsfFiles->takeItem(i);
+
+    for (int idx=0; idx<128; idx++) {
+        if (instSfMap[idx] == i)
+            instSfMap[idx] = 0;
+        else if (instSfMap[idx] > i)
+            instSfMap[idx] = instSfMap[idx] - 1;
+    }
+    for (int idx=0; idx<16; idx++) {
+        if (drumSfMap[idx] == i)
+            drumSfMap[idx] = 0;
+        else if (drumSfMap[idx] > i)
+            drumSfMap[idx] = drumSfMap[idx] - 1;
+    }
 }
 
 void SettingsDialog::on_btnSfUp_clicked()

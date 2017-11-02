@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>970</width>
-    <height>308</height>
+    <height>319</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -164,10 +164,10 @@
      <widget class="QWidget" name="scrollAreaWidgetContents">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>-956</x>
         <y>0</y>
         <width>2436</width>
-        <height>245</height>
+        <height>287</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
