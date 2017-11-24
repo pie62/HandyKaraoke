@@ -152,13 +152,19 @@ unix:!macx {
         message("32-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24-linux/ -lbass_fx
+        LIBS += -L$$PWD/BASS/bassmix24-linux/ -lbassmix
     } else {
         message("64-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24-linux/x64/ -lbass_fx
+        LIBS += -L$$PWD/BASS/bassmix24-linux/x64/ -lbassmix
     }
     INCLUDEPATH += $$PWD/BASS/bass24-linux
     INCLUDEPATH += $$PWD/BASS/bassmidi24-linux
+    INCLUDEPATH += $$PWD/BASS/bass_fx24-linux
+    INCLUDEPATH += $$PWD/BASS/bassmix24-linux
 }
 
 macx {
