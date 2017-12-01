@@ -69,7 +69,7 @@ bool MidiSynthesizer::open()
     auto concurentThreadsSupported = std::thread::hardware_concurrency();
     float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
 
-    BASS_Init(-1, 44100, 0, NULL, NULL);
+    //BASS_Init(-1, 44100, 0, NULL, NULL);
 
     BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
     BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
@@ -92,23 +92,19 @@ bool MidiSynthesizer::open()
     for (int i=0; i<42; i++) {
 
         HSTREAM h = BASS_MIDI_StreamCreate(16, flags, 0);
-        #ifdef __linux__
-        BASS_ChannelSetAttribute(h, BASS_ATTRIB_NOBUFFER, 1);
-        #endif
-
-        //BASS_ChannelPlay(h, true);
 
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
 
         InstrumentType t = static_cast<InstrumentType>(i);
         handles[t] = h;
+    }
 
-        /*
-        if (i != 0) {
-            BASS_ChannelSetLink(handles[InstrumentType::Piano], h);
-            qDebug() << BASS_ErrorGetCode();
-        }
-        */
+    for (int i=42; i<58; i++) {
+        HSTREAM h = BASS_Mixer_StreamCreate(44100, 2, f);
+        BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
+
+        InstrumentType t = static_cast<InstrumentType>(i);
+        handles[t] = h;
     }
 
     BASS_ChannelPlay(mixHandle, false);
@@ -166,7 +162,7 @@ void MidiSynthesizer::close()
     synth_HSOUNDFONT.clear();
 
     BASS_StreamFree(mixHandle);
-    BASS_Free();
+    //BASS_Free();
 
     openned = false;
 }
@@ -255,7 +251,8 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
     mFonts.push_back(f);
 
     // set to stream
-    for (HSTREAM h : handles.values()) {
+    for (int i=0; i<42; i++) {
+        HSTREAM h = handles[static_cast<InstrumentType>(i)];
         BASS_MIDI_StreamSetFonts(h, mFonts.data(), mFonts.size());
     }
 
@@ -322,6 +319,14 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
         et = MIDI_EVENT_MODULATION; break;
     case 5:
         et = MIDI_EVENT_PORTATIME; break;
+        /*
+    case 6:
+    case 38:
+        if (RPNType == 0)
+            return;
+        et = RPNType;
+        break;
+        */
     case 7:
         et = MIDI_EVENT_VOLUME; break;
     case 10:
@@ -356,6 +361,23 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
         et = MIDI_EVENT_CHORUS; break;
     case 94:
         et = MIDI_EVENT_USERFX; break;
+        /*
+    case 100:
+    case 101:
+        if (value == 127) {
+            et = MIDI_EVENT_PITCHRANGE;
+            break;
+        }
+        else {
+            switch (value) {
+            case 0: RPNType = MIDI_EVENT_PITCHRANGE; break;
+            case 1: RPNType = MIDI_EVENT_FINETUNE; break;
+            case 2: RPNType = MIDI_EVENT_COARSETUNE; break;
+            default: RPNType = 0;  qDebug() << " Value " << value; break;
+            }
+            return;
+        }
+        */
     case 120:
         et = MIDI_EVENT_SOUNDOFF; break;
     case 121:
@@ -366,20 +388,24 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
     case 127:
         et = MIDI_EVENT_MODE; break;
     default:
+        if (ch < 0 || ch > 15)
+            return;
+        BYTE data[3] = { (0xB0 | ch), (number & 0x7F), (value & 0x7F) };
+        //qDebug() << (data[0] & 0xF0) << "  " << (data[0] & 0x0F) << "  " << data[1] << "  " << data[2];
+        for (int i=0; i<42; i++) {
+            HSTREAM h = handles[static_cast<InstrumentType>(i)];
+            BASS_MIDI_StreamEvents(h, BASS_MIDI_EVENTS_RAW, data, 3);
+        }
+        qDebug() << BASS_ErrorGetCode();
         return;
-        break;
     }
 
-    for (HSTREAM stream : handles) {
-        BASS_MIDI_StreamEvent(stream, ch, et, value);
-    }
+    sendToAllMidiStream(ch, et, value);
 }
 
 void MidiSynthesizer::sendProgramChange(int ch, int number)
 {
-    for (HSTREAM stream : handles) {
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_PROGRAM, number);
-    }
+    sendToAllMidiStream(ch, MIDI_EVENT_PROGRAM, number);
 
     if (ch != 9) {
         InstrumentType t = MidiHelper::getInstrumentType(number);
@@ -389,23 +415,17 @@ void MidiSynthesizer::sendProgramChange(int ch, int number)
 
 void MidiSynthesizer::sendChannelAftertouch(int ch, int value)
 {
-    for (HSTREAM stream : handles) {
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_CHANPRES, value);
-    }
+    sendToAllMidiStream(ch, MIDI_EVENT_CHANPRES, value);
 }
 
 void MidiSynthesizer::sendPitchBend(int ch, int value)
 {
-    for (HSTREAM stream : handles) {
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_PITCH, value);
-    }
+    sendToAllMidiStream(ch, MIDI_EVENT_PITCH, value);
 }
 
 void MidiSynthesizer::sendAllNotesOff(int ch)
 {
-    for (HSTREAM stream : handles) {
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_NOTESOFF, 0);
-    }
+    sendToAllMidiStream(ch, MIDI_EVENT_NOTESOFF, 0);
 }
 
 void MidiSynthesizer::sendAllNotesOff()
@@ -413,15 +433,12 @@ void MidiSynthesizer::sendAllNotesOff()
     for (int i=0; i<16; i++) {
         sendAllNotesOff(i);
     }
-    //BASS_ChannelStop(mixHandle);
-    //BASS_ChannelPlay(mixHandle, false);
 }
 
 void MidiSynthesizer::sendResetAllControllers(int ch)
 {
-    for (HSTREAM stream : handles) {
-        BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_RESET, 0);
-    }
+    sendToAllMidiStream(ch, MIDI_EVENT_RESET, 0);
+    sendToAllMidiStream(ch, MIDI_EVENT_PITCHRANGE, 2);
 }
 
 void MidiSynthesizer::sendResetAllControllers()
@@ -587,11 +604,28 @@ void MidiSynthesizer::setUseFXRC(bool use)
     useFX = use;
 
     if (useFX) {
-        for (HSTREAM h : handles.values())
+        for (int i=0; i<42; i++) {
+            HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_ChannelFlags(h, 0, BASS_MIDI_NOFX); // remove the flag
+        }
     } else {
-        for (HSTREAM h : handles.values())
+        for (int i=0; i<42; i++) {
+            HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_ChannelFlags(h, BASS_MIDI_NOFX, BASS_MIDI_NOFX); // set flag
+        }
+    }
+}
+
+HSTREAM MidiSynthesizer::getChannelHandle(InstrumentType type)
+{
+    return handles[type];
+}
+
+void MidiSynthesizer::sendToAllMidiStream(int ch, DWORD eventType, DWORD param)
+{
+    for (int i=0; i<42; i++) {
+        HSTREAM stream = handles[static_cast<InstrumentType>(i)];
+        BASS_MIDI_StreamEvent(stream, ch, eventType, param);
     }
 }
 
@@ -605,10 +639,16 @@ void MidiSynthesizer::setSfToStream()
 
     for (const QString &sfile : sfFiles) {
 
+        #ifdef _WIN32
         HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
+                                          /*BASS_MIDI_FONT_MMAP|*/BASS_MIDI_FONT_NOFX);
+        #else
+        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdString().c_str(),
                                           BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
+        #endif
         if (f) {
             //BASS_MIDI_FontLoad(f, -1, -1);
+            BASS_MIDI_FontCompact(f);
             synth_HSOUNDFONT.push_back(f);
         }
 
@@ -622,7 +662,8 @@ void MidiSynthesizer::setSfToStream()
         font.preset = -1;
         font.bank = 0;
 
-        for (HSTREAM h : handles.values()) {
+        for (int i=0; i<42; i++) {
+            HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_MIDI_StreamSetFonts(h, &font, 1); // set to stream to
         }
     }

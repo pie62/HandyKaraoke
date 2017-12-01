@@ -4,6 +4,8 @@
 #include "MainWindow.h"
 #include "Dialogs/SettingVuDialog.h"
 
+#include <QDebug>
+
 
 SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, MainWindow *mainWin) :
     QDialog(parent),
@@ -25,7 +27,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     ui->scrollArea->setWidgetResizable(false);
     this->adjustSize();
     this->setMinimumSize(970, height());
-    this->setMaximumHeight(height() + 30);
+    this->setMaximumHeight(height());
 
     { // Settings
         QSettings st("SynthMixer.ini", QSettings::IniFormat);

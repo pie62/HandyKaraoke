@@ -102,6 +102,8 @@ public:
     bool isUseFXRC() { return useFX; }
     void setUseFXRC(bool use);
 
+    HSTREAM getChannelHandle(InstrumentType type);
+
 
 private:
     HSTREAM mixHandle;
@@ -127,6 +129,9 @@ private:
     bool useFloat = true;
     bool useFX = false;
 
+    DWORD RPNType = 0;
+
+    void sendToAllMidiStream(int ch, DWORD eventType, DWORD param);
     void setSfToStream();
     void calculateEnable();
     HSTREAM getDrumHandleFromNote(int drumNote);

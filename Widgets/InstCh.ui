@@ -6,19 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>54</width>
-    <height>217</height>
+    <width>77</width>
+    <height>278</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>4</number>
+   </property>
    <property name="leftMargin">
     <number>2</number>
    </property>
    <property name="topMargin">
-    <number>4</number>
+    <number>2</number>
    </property>
    <property name="rightMargin">
     <number>2</number>
@@ -26,6 +29,19 @@
    <property name="bottomMargin">
     <number>2</number>
    </property>
+   <item>
+    <widget class="QListWidget" name="listWidget">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>65</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(82, 82, 82);</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="spacing">

@@ -123,7 +123,11 @@ void MidiOut::sendAllSoundOff()
 
 void MidiOut::sendResetAllControllers(int ch)
 {
-    sendController(ch, 121, 0);
+    sendController(ch, 100, 0);
+    sendController(ch, 101, 0);
+    sendController(ch, 6, 2);
+
+    sendController(ch, 121, 0); 
 }
 
 void MidiOut::sendResetAllControllers()

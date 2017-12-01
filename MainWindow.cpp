@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    BASS_Init(-1, 44100, 0, 0, NULL);
+
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
 
@@ -481,6 +483,8 @@ MainWindow::~MainWindow()
 
     delete updateDetail;
     delete lyrWidget;
+
+    BASS_Free();
 }
 
 void MainWindow::setBackgroundColor(QString colorName)

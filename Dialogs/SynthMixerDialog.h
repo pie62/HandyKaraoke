@@ -32,7 +32,6 @@ private slots:
     void onPlayerPlayingEvents(MidiEvent *e);
 
     void on_btnSettingVu_clicked();
-
     void on_btnReset_clicked();
 
 protected:
@@ -47,7 +46,6 @@ private:
     MidiSynthesizer *synth;
 
     QMap<InstrumentType, InstCh*> chInstMap;
-
 
     void mapChInstUI();
     void setChInstDetails();

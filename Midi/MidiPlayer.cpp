@@ -656,13 +656,9 @@ void MidiPlayer::sendAllNotesOff()
 void MidiPlayer::sendResetAllControllers()
 {
     if (_midiPortNum == -1) {
-        for (int i=0; i<16; i++) {
-            _midiSynth->sendController(i, 121, 0);
-        }
+        _midiSynth->sendResetAllControllers();
     } else {
-        for (int i=0; i<16; i++) {
-            _midiOut->sendController(i, 121, 0);
-        }
+        _midiOut->sendResetAllControllers();
     }
 }
 
