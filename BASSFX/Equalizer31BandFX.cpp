@@ -4,7 +4,6 @@
 
 Equalizer31BandFX::Equalizer31BandFX(HSTREAM streamHandle)
 {
-    BASS_FX_GetVersion();
     this->streamHandle = streamHandle;
 
     fxOn = false;

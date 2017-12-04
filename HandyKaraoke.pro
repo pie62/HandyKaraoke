@@ -51,7 +51,11 @@ SOURCES += main.cpp\
     Widgets/PlaybackButton.cpp \
     Widgets/FaderSlider.cpp \
     Widgets/VSTLabel.cpp \
-    Midi/HNKFile.cpp
+    Midi/HNKFile.cpp \
+    BASSFX/FX.cpp \
+    Dialogs/VSTManagementDialog.cpp \
+    Widgets/CustomFXList.cpp \
+    Dialogs/VSTDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -91,7 +95,11 @@ HEADERS  += MainWindow.h \
     Widgets/FaderSlider.h \
     Widgets/VSTLabel.h \
     Midi/HNKFile.h \
-    Midi/lz77.h
+    Midi/lz77.h \
+    BASSFX/FX.h \
+    Dialogs/VSTManagementDialog.h \
+    Widgets/CustomFXList.h \
+    Dialogs/VSTDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -108,7 +116,8 @@ FORMS    += MainWindow.ui \
     Widgets/SongDetail.ui \
     Widgets/Detail.ui \
     Dialogs/AboutDialog.ui \
-    Widgets/VSTLabel.ui
+    Widgets/VSTLabel.ui \
+    Dialogs/VSTManagementDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -116,8 +125,11 @@ INCLUDEPATH += $$PWD/Widgets
 
 win32 {
     LIBS += -lwinmm
+
     SOURCES += Midi/rtmidi/RtMidi.cpp
+
     HEADERS  += Midi/rtmidi/RtMidi.h
+
     INCLUDEPATH += $$PWD/Midi/rtmidi
 
     contains(QT_ARCH, i386) {
@@ -126,6 +138,7 @@ win32 {
         LIBS += -L$$PWD/BASS/bassmidi24/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24/ -lbassmix
+        LIBS += -L$$PWD/BASS/bass_vst24/ -lbass_vst
 
         DEFINES += _ATL_XP_TARGETING
         DEFINES += PSAPI_VERSION=1
@@ -136,11 +149,13 @@ win32 {
         LIBS += -L$$PWD/BASS/bassmidi24/x64/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24/x64/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24/x64/ -lbassmix
+        LIBS += -L$$PWD/BASS/bass_vst24/x64/ -lbass_vst
     }
     INCLUDEPATH += $$PWD/BASS/bass24
     INCLUDEPATH += $$PWD/BASS/bassmidi24
     INCLUDEPATH += $$PWD/BASS/bass_fx24
     INCLUDEPATH += $$PWD/BASS/bassmix24
+    INCLUDEPATH += $$PWD/BASS/bass_vst24
 
     RC_ICONS = icon.ico
 }

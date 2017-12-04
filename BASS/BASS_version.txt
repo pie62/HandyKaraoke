@@ -1,5 +1,5 @@
 ﻿BASS		2.4.12
 BASSMIDI	2.4.11
 BASS FX		2.4.11.1
-BASSmix 	2.4.8
-
+BASSmix 		2.4.8
+BASS_VST 	2.4.5

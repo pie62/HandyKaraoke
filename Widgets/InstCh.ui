@@ -10,6 +10,9 @@
     <height>278</height>
    </rect>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::CustomContextMenu</enum>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -30,7 +33,7 @@
     <number>2</number>
    </property>
    <item>
-    <widget class="QListWidget" name="listWidget">
+    <widget class="CustomFXList" name="fxList">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -38,7 +41,17 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(82, 82, 82);</string>
+      <string notr="true">background-color: rgb(82, 82, 82);
+
+QScrollBar{ 
+	border: 2px solid grey; 
+	background: #32CC99;
+	 height: 15px; 
+	margin: 0px 20px 0 20px;
+}</string>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
     </widget>
    </item>
@@ -204,6 +217,11 @@
    <extends>QFrame</extends>
    <header>FaderSlider.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomFXList</class>
+   <extends>QListWidget</extends>
+   <header>CustomFXList.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

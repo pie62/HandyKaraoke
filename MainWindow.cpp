@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     BASS_Init(-1, 44100, 0, 0, NULL);
+    BASS_FX_GetVersion();
 
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
@@ -581,8 +582,11 @@ void MainWindow::play(int index)
         if (!player->load("temp.mid", true)) {
             QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
                                  "ไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            mid.remove();
             return;
         }
+
+        mid.remove();
 
         lyrWidget->setLyrics(Utils::readLyrics(HNKFile::lyrData(p)),
             Utils::readCurFile(HNKFile::curData(p), player->midiFile()->resorution()));

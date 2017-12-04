@@ -20,6 +20,10 @@ public:
     ~InstCh();
 
     LEDVu* vuBar();
+    QString fullInstrumentName();
+
+    void addVSTLabel(const QString &label, int fxIndex, bool bypass = false);
+    void removeVSTLabel(int fxIndex);
 
 public slots:
     void setInstrumentType(InstrumentType t);
@@ -36,11 +40,21 @@ signals:
     void sliderLevelChanged(InstrumentType type, int v);
     void sliderDoubleClicked(InstrumentType type);
 
+    void menuRequested(InstrumentType type, const QPoint &pos);
+    void fxRemoveMenuRequested(InstrumentType typr, int fxIndex, const QPoint &pos);
+    void fxByPassChanged(InstrumentType type, int fxIndex, bool bypass);
+    void fxDoubleClicked(InstrumentType type, int fxIndex);
+
 private slots:
     void onBtnMuteClicked();
     void onBtnSoloClicked();
     void onSliderUserLevelChanged(int v);
     void onSliderDoubleClicked();
+    void contextMenuRequested(const QPoint &pos);
+
+    void onFxMenuRequested(int fxIndex, const QPoint &pos);
+    void onFxByPassChanged(int fxIndex, bool bypass);
+    void onFxDoubleClicked(int fxIndex);
 
 private:
     Ui::InstCh *ui;
