@@ -4,7 +4,6 @@
 #include "Midi/MidiHelper.h"
 #include "Dialogs/MapSoundfontDialog.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>

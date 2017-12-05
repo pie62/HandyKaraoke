@@ -9,7 +9,6 @@
 #include "BASSFX/FX.h"
 
 #include <QMenu>
-#include <QDebug>
 
 
 SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, MainWindow *mainWin) :
@@ -240,9 +239,7 @@ void SynthMixerDialog::setVSTToSynth()
         this->currentType = t;
 
         for (int i=0; i<vstUid.count(); i++) {
-            //QString uid =
             DWORD fx = this->addVST(QString::number(vstUid[i]), vstBypass[i]);
-            qDebug() << fx;
             if (fx == 0)
                 continue;
             FX::setVSTParams(fx, vstParams[i]);

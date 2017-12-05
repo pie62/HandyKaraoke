@@ -5,7 +5,7 @@
 #include <thread>
 #include <cstring>
 #include <iostream>
-#include <QDebug>
+
 
 MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 {
@@ -78,6 +78,7 @@ bool MidiSynthesizer::open()
     BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
     BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
     BASS_SetConfig(BASS_CONFIG_MIDI_VOICES, nVoices);
+    BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
 
     // create mix stream
     DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
@@ -106,7 +107,6 @@ bool MidiSynthesizer::open()
     for (int i=42; i<58; i++) {
         HSTREAM h = BASS_Mixer_StreamCreate(44100, 2, f|BASS_STREAM_DECODE);
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
-        qDebug() << "Add bus " << i << "  " << BASS_ErrorGetCode();
 
         InstrumentType t = static_cast<InstrumentType>(i);
         handles[t] = h;
@@ -434,7 +434,6 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_MIDI_StreamEvents(h, BASS_MIDI_EVENTS_RAW, data, 3);
         }
-        qDebug() << BASS_ErrorGetCode();
         return;
     }
 
@@ -783,17 +782,16 @@ void MidiSynthesizer::setSfToStream()
 
         #ifdef _WIN32
         HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
-                                          /*BASS_MIDI_FONT_MMAP|*/BASS_MIDI_FONT_NOFX);
+                                          BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
         #else
         HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdString().c_str(),
                                           BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
         #endif
-        if (f) {
-            //BASS_MIDI_FontLoad(f, -1, -1);
-            BASS_MIDI_FontCompact(f);
-            synth_HSOUNDFONT.push_back(f);
-        }
+        if (!f)
+            continue;
 
+        BASS_MIDI_FontCompact(f);
+        synth_HSOUNDFONT.push_back(f);
     }
 
     //BASS_MIDI_FontCompact(0);

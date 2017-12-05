@@ -6,19 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>206</height>
+    <width>323</width>
+    <height>238</height>
    </rect>
-  </property>
-  <property name="font">
-   <font>
-    <pointsize>11</pointsize>
-    <weight>75</weight>
-    <bold>true</bold>
-   </font>
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -38,13 +34,6 @@
    </property>
    <item>
     <widget class="QFrame" name="frame">
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
      <property name="styleSheet">
       <string notr="true">#frame {
 background-color: rgb(62, 62, 62, 200);
@@ -53,8 +42,10 @@ border:1px solid rgb(255, 255, 255);
 
 QLabel {
 color: rgb(255, 255, 255);
-	font: bold 11pt;
 }</string>
+     </property>
+     <property name="locale">
+      <locale language="English" country="UnitedStates"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -63,8 +54,19 @@ color: rgb(255, 255, 255);
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="verticalSpacing">
+       <number>4</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>รหัสเพลง :</string>
         </property>
@@ -72,6 +74,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="lbId">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -79,6 +89,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>ชื่อเพลง :</string>
         </property>
@@ -86,6 +104,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="1" column="1">
        <widget class="QLabel" name="lbName">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -93,6 +119,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>ชื่อศิลปิน :</string>
         </property>
@@ -100,6 +134,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="2" column="1">
        <widget class="QLabel" name="lbArtist">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -107,6 +149,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>ความเร็ว :</string>
         </property>
@@ -114,6 +164,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="4" column="1">
        <widget class="QLabel" name="lbBpm">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -121,6 +179,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_5">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>ชนิดเพลง :</string>
         </property>
@@ -128,6 +194,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="5" column="1">
        <widget class="QLabel" name="lbType">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -135,6 +209,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label_6">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>คีย์เพลง :</string>
         </property>
@@ -142,6 +224,14 @@ color: rgb(255, 255, 255);
       </item>
       <item row="3" column="1">
        <widget class="QLabel" name="lbKey">
+        <property name="font">
+         <font>
+          <family>Angsana New</family>
+          <pointsize>18</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string/>
         </property>

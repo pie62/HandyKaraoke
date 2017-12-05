@@ -143,8 +143,8 @@ win32 {
         LIBS += -L$$PWD/BASS/bassmix24/ -lbassmix
         LIBS += -L$$PWD/BASS/bass_vst24/ -lbass_vst
 
-        DEFINES += _ATL_XP_TARGETING
-        DEFINES += PSAPI_VERSION=1
+        #DEFINES += _ATL_XP_TARGETING
+        #DEFINES += PSAPI_VERSION=1
         QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
     } else {
         message("64-bit")

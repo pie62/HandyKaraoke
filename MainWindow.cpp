@@ -12,7 +12,6 @@
 #include <QMenu>
 #include <QCloseEvent>
 #include <QMessageBox>
-#include <QDebug>
 #include <QDir>
 #include <QDirIterator>
 
@@ -93,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
             setBackgroundColor(color);
         } else {
             QString img = settings->value("BackgroundImage", "").toString();
-            if (QFile::exists(img)) {
+            if (img != "" && QFile::exists(img)) {
                 setBackgroundImage(img);
             } else {
                 QString color = settings->value("BackgroundColor", "#525252").toString();
@@ -599,6 +598,9 @@ void MainWindow::play(int index)
     // RHM
     ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
 
+    ui->frameSearch->hide();
+    ui->framePlaylist->hide();
+
     // SongDetail
     ui->songDetail->setDetail(&playingSong);
     ui->songDetail->adjustSize();
@@ -906,7 +908,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             Song *s = db->currentSong();
             ui->playlist->addItem(s->detail());
             QSize size;
-            size.setHeight(41);
+            size.setHeight(49);
             ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
             ui->frameSearch->hide();
 
@@ -1022,7 +1024,8 @@ void MainWindow::showSettingsDialog()
 {
     SettingsDialog d(this, this);
     d.setModal(true);
-    d.setMinimumSize(550, 400);
+    //d.adjustSize();
+    //d.setMinimumSize(d.size());
     d.exec();
 }
 

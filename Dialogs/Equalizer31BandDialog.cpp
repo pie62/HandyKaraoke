@@ -1,7 +1,6 @@
 #include "Equalizer31BandDialog.h"
 #include "ui_Equalizer31BandDialog.h"
 
-#include <QDebug>
 
 Equalizer31BandDialog::Equalizer31BandDialog(QWidget *parent, Equalizer31BandFX *eqfx) :
     QDialog(parent),

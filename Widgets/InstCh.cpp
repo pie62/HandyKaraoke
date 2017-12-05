@@ -5,7 +5,6 @@
 #include <QToolTip>
 #include <QScrollBar>
 #include <QCursor>
-#include <QDebug>
 
 
 InstCh::InstCh(QWidget *parent) :

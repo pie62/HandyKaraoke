@@ -4,7 +4,6 @@
 #include <QSplashScreen>
 #include <QDirIterator>
 #include <QMetaType>
-#include <QDebug>
 
 #include <bass_vst.h>
 #include "BASSFX/FX.h"
@@ -17,30 +16,35 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv); 
 
+    QCoreApplication::setApplicationName("handy-karaoke");
+    QCoreApplication::setApplicationVersion("1.2.0");
     QCoreApplication::setOrganizationName("HandyKaraoke");
     QCoreApplication::setOrganizationDomain("https://github.com/pie62/HandyKaraoke");
-    QCoreApplication::setApplicationName("handy-karaoke");
 
     registerMetaType();
 
-    QPixmap pixmap(":/Icons/App/splash.png");
-    QSplashScreen splash(pixmap);
-    splash.show();
+    QPixmap *pixmap = new QPixmap(":/Icons/App/splash.png");
+    QSplashScreen *splash = new QSplashScreen(*pixmap);
+    splash->show();
+    qApp->processEvents();
 
-    splash.showMessage("กำลังเริ่มโปรแกรม...", Qt::AlignBottom|Qt::AlignRight);
+    splash->showMessage("กำลังเริ่มโปรแกรม...", Qt::AlignBottom|Qt::AlignRight);
     qApp->processEvents();
 
     MainWindow w;
 
     #ifndef __linux__
-    makeVSTList(&splash, w.midiPlayer()->midiSynthesizer());
+    makeVSTList(splash, w.midiPlayer()->midiSynthesizer());
     w.synthMixerDialog()->setVSTVendorMenu();
     w.synthMixerDialog()->setVSTToSynth();
     #endif
 
     w.show();
 
-    splash.finish(&w);
+    splash->finish(&w);
+
+    delete splash;
+    delete pixmap;
 
     return a.exec();
 }
@@ -85,8 +89,8 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 
             it.next();
 
-            splash->showMessage("Reading : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
-            qApp->processEvents();
+            //splash->showMessage("Reading : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
+            //qApp->processEvents();
 
             BASS_VST_INFO info;
             if (!MidiSynthesizer::isVSTFile(it.filePath(), &info))
