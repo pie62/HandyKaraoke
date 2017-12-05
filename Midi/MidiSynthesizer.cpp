@@ -104,9 +104,9 @@ bool MidiSynthesizer::open()
 
     // Create bus stream
     for (int i=42; i<58; i++) {
-        HSTREAM h = BASS_Mixer_StreamCreate(44100, 2, f);
-        BASS_ChannelPlay(h, true);
+        HSTREAM h = BASS_Mixer_StreamCreate(44100, 2, f|BASS_STREAM_DECODE);
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
+        qDebug() << "Add bus " << i << "  " << BASS_ErrorGetCode();
 
         InstrumentType t = static_cast<InstrumentType>(i);
         handles[t] = h;

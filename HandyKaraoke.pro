@@ -53,9 +53,10 @@ SOURCES += main.cpp\
     Widgets/VSTLabel.cpp \
     Midi/HNKFile.cpp \
     BASSFX/FX.cpp \
-    Dialogs/VSTManagementDialog.cpp \
     Widgets/CustomFXList.cpp \
-    Dialogs/VSTDialog.cpp
+    Dialogs/VSTDialog.cpp \
+    Dialogs/BusDialog.cpp \
+    Dialogs/VSTDirsDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -97,9 +98,10 @@ HEADERS  += MainWindow.h \
     Midi/HNKFile.h \
     Midi/lz77.h \
     BASSFX/FX.h \
-    Dialogs/VSTManagementDialog.h \
     Widgets/CustomFXList.h \
-    Dialogs/VSTDialog.h
+    Dialogs/VSTDialog.h \
+    Dialogs/BusDialog.h \
+    Dialogs/VSTDirsDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -117,7 +119,8 @@ FORMS    += MainWindow.ui \
     Widgets/Detail.ui \
     Dialogs/AboutDialog.ui \
     Widgets/VSTLabel.ui \
-    Dialogs/VSTManagementDialog.ui
+    Dialogs/BusDialog.ui \
+    Dialogs/VSTDirsDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

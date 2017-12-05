@@ -129,6 +129,40 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="btnBus">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="toolTip">
+        <string>ตัวจัดการ Bus Group</string>
+       </property>
+       <property name="text">
+        <string>Bus...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../icons.qrc">
+         <normaloff>:/Icons/list-ol.png</normaloff>:/Icons/list-ol.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnVSTDirs">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="toolTip">
+        <string>ที่เก็บ VST</string>
+       </property>
+       <property name="text">
+        <string>VST...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../icons.qrc">
+         <normaloff>:/Icons/list-alt.png</normaloff>:/Icons/list-alt.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnSettingVu">
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
@@ -137,11 +171,11 @@
         <string>ตั้งค่า LED Meter</string>
        </property>
        <property name="text">
-        <string/>
+        <string>VU...</string>
        </property>
        <property name="icon">
         <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/settings.png</normaloff>:/Icons/settings.png</iconset>
+         <normaloff>:/Icons/bar-chart.png</normaloff>:/Icons/bar-chart.png</iconset>
        </property>
        <property name="iconSize">
         <size>

@@ -3,8 +3,9 @@
 
 #include "MainWindow.h"
 #include "Dialogs/SettingVuDialog.h"
-#include "Dialogs/VSTManagementDialog.h"
 #include "Dialogs/VSTDialog.h"
+#include "Dialogs/BusDialog.h"
+#include "Dialogs/VSTDirsDialog.h"
 #include "BASSFX/FX.h"
 
 #include <QMenu>
@@ -48,6 +49,18 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
                 .value<QList<int>>();
         ui->splitter->setSizes(splitterSize);
 
+        // Bus names -----------------------------------
+        QStringList n1 = st.value("BusNames", QStringList()).toStringList();
+        QStringList n2 = st.value("BusFullNames", QStringList()).toStringList();
+        if (n1.count() == 16 && n2.count() == 16) {
+            int start = static_cast<int>(InstrumentType::BusGroup1);
+            for (int i=0; i<16; i++) {
+                InstrumentType type = static_cast<InstrumentType>(start + i);
+                chInstMap[type]->setInstrumentNames(n1[i], n2[i]);
+            }
+        }
+        // --------------------------------------------
+
         LEDVu *vu = chInstMap.first()->vuBar();
         QString bg = st.value("LedBgColor", vu->backgroundColor().name()).toString();
         QString o1 = st.value("LedColorOn1", vu->ledColorOn1().name()).toString();
@@ -58,6 +71,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         QString f3 = st.value("LedColorOff3", vu->ledColorOff3().name()).toString();
         bool sph = st.value("ShowPeakHold", vu->isShowPeakHold()).toBool();
         int phm = st.value("PeakHoldMs", vu->peakHoldMs()).toInt();
+
 
         st.beginReadArray("SynthMixer");
         for (InstrumentType t : chInstMap.keys())
@@ -131,6 +145,18 @@ SynthMixerDialog::~SynthMixerDialog()
         st.setValue("LedColorOff3", vu->ledColorOff3().name());
         st.setValue("ShowPeakHold", vu->isShowPeakHold());
         st.setValue("PeakHoldMs", vu->peakHoldMs());
+
+
+        QStringList busNames;
+        QStringList busFullNames;
+        int start = static_cast<int>(InstrumentType::BusGroup1);
+        for (int i=0; i<16; i++) {
+            InstrumentType type = static_cast<InstrumentType>(start + i);
+            busNames.append(chInstMap[type]->instrumentName());
+            busFullNames.append(chInstMap[type]->fullInstrumentName());
+        }
+        st.setValue("BusNames", busNames);
+        st.setValue("BusFullNames", busFullNames);
 
 
         st.beginWriteArray("SynthMixer");
@@ -253,11 +279,31 @@ void SynthMixerDialog::setBtnChorusIcon(bool s)
 void SynthMixerDialog::setMute(InstrumentType t, bool m)
 {
     synth->setMute(t, m);
+
+    if (t < InstrumentType::BusGroup1)
+        return;
+
+    for (InstrumentType type : synth->instrumentMap().keys()) {
+        if (synth->instrument(type).bus != (static_cast<int>(t) - 42))
+            continue;
+        synth->setMute(type, m);
+        chInstMap[type]->setMuteButton(m);
+    }
 }
 
 void SynthMixerDialog::setSolo(InstrumentType t, bool s)
 {
     synth->setSolo(t, s);
+
+    if (t < InstrumentType::BusGroup1)
+        return;
+
+    for (InstrumentType type : synth->instrumentMap().keys()) {
+        if (synth->instrument(type).bus != (static_cast<int>(t) - 42))
+            continue;
+        synth->setSolo(type, s);
+        chInstMap[type]->setSoloButton(s);
+    }
 }
 
 void SynthMixerDialog::setMixLevel(InstrumentType t, int level)
@@ -387,7 +433,7 @@ void SynthMixerDialog::setChInstDetails()
                              "High Tom", "Mid Tom", "Low Tom", "Hi-hat", "Cowbell",
                              "Crash Cymbal", "Ride Cymbal", "Bongo", "Conga",
                              "Timbale", "ฉิ่ง / Triangle",
-                             "ฉาบ / Chinese Cymbal", "Percussion Etc.",
+                             "ฉาบ", "Percussion Etc.",
 
                              "Bus Group 1", "Bus Group 2", "Bus Group 3", "Bus Group 4",
                              "Bus Group 5", "Bus Group 6", "Bus Group 7", "Bus Group 8",
@@ -421,7 +467,7 @@ void SynthMixerDialog::setChInstDetails()
         InstCh *ich = chInstMap.values()[i];
 
         ich->setInstrumentType(chInstMap.keys()[i]);
-        ich->setInstrumentName(names[i], tooltips[i]);
+        ich->setInstrumentNames(names[i], tooltips[i]);
 
         ich->setInstrumentImage(QImage(rc + imgs[i]));
 
@@ -453,7 +499,15 @@ void SynthMixerDialog::setChInstDetails()
 
 void SynthMixerDialog::createBusActions(InstrumentType t, QMenu *busMenu)
 {
-    const QString names[17] = {
+    QList<QString> names;
+    names.append("Master (Default)");
+    int start = static_cast<int>(InstrumentType::BusGroup1);
+    for (int i=0; i<16; i++) {
+        InstrumentType type = static_cast<InstrumentType>(start + i);
+        names.append(chInstMap[type]->fullInstrumentName());
+    }
+    /*
+    = {
         "Master (Default)",
         "Bus Gruop 1",  "Bus Gruop 2",
         "Bus Gruop 3",  "Bus Gruop 4",
@@ -464,6 +518,7 @@ void SynthMixerDialog::createBusActions(InstrumentType t, QMenu *busMenu)
         "Bus Gruop 13", "Bus Gruop 14",
         "Bus Gruop 15", "Bus Gruop 16",
     };
+    */
 
     for (int i=0; i<17; i++) {
         QAction *act = busMenu->addAction(names[i]);
@@ -474,10 +529,6 @@ void SynthMixerDialog::createBusActions(InstrumentType t, QMenu *busMenu)
             act->setChecked(true);
         }
     }
-
-    //QAction *action = vstVendorMenus[index]->addAction(vst.vstName);
-    //connect(action, SIGNAL(triggered()), &signalVstActionMapper, SLOT(map()));
-    //signalVstActionMapper.setMapping(action, QString::number(vst.uniqueID));
 }
 
 void SynthMixerDialog::on_btnSettingVu_clicked()
@@ -576,7 +627,7 @@ void SynthMixerDialog::showVSTFxDialog(InstrumentType type, int fxIndex)
         QString name = info.vendorName;
         name += " - ";
         name += info.effectName;
-        dlg->setWindowTitle(name + " : " + chInstMap[type]->fullInstrumentName());
+        dlg->setWindowTitle(name + "  [" + chInstMap[type]->fullInstrumentName() + "]");
         dlg->setAttribute(Qt::WA_DeleteOnClose);
         dlg->setFixedSize(info.editorWidth, info.editorHeight);
         dlg->show();
@@ -606,4 +657,20 @@ void SynthMixerDialog::removeVST()
     if (synth->removeVST(currentType, currentFxIndexToRemove)) {
         chInstMap[currentType]->removeVSTLabel(currentFxIndexToRemove);
     }
+}
+
+void SynthMixerDialog::on_btnBus_clicked()
+{
+    BusDialog dlg(this, &chInstMap, synth);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.exec();
+}
+
+void SynthMixerDialog::on_btnVSTDirs_clicked()
+{
+    VSTDirsDialog dlg(this, this, synth);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.exec();
 }

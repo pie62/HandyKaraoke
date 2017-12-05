@@ -65,6 +65,11 @@ LEDVu *InstCh::vuBar()
     return ui->vuBar;
 }
 
+QString InstCh::instrumentName()
+{
+    return ui->lbName->text();
+}
+
 QString InstCh::fullInstrumentName()
 {
     return ui->lbName->toolTip();
@@ -107,7 +112,18 @@ void InstCh::setInstrumentType(InstrumentType t)
     instType = t;
 }
 
-void InstCh::setInstrumentName(const QString &name, const QString &tooltip)
+void InstCh::setInstrumentName(const QString &name)
+{
+    ui->lbName->setText(name);
+}
+
+void InstCh::setFullInstrumentName(const QString &name)
+{
+    ui->lbName->setToolTip(name);
+    ui->lbImage->setToolTip(name);
+}
+
+void InstCh::setInstrumentNames(const QString &name, const QString &tooltip)
 {
     ui->lbName->setText(name);
     ui->lbName->setToolTip(tooltip);

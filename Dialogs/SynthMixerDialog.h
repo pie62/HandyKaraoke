@@ -49,6 +49,10 @@ private slots:
     void showVSTRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos);
     void removeVST();
 
+    void on_btnBus_clicked();
+
+    void on_btnVSTDirs_clicked();
+
 protected:
     void showEvent(QShowEvent *);
     void hideEvent(QHideEvent *event);

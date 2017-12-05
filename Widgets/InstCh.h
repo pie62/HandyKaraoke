@@ -20,6 +20,7 @@ public:
     ~InstCh();
 
     LEDVu* vuBar();
+    QString instrumentName();
     QString fullInstrumentName();
 
     void addVSTLabel(const QString &label, int fxIndex, bool bypass = false);
@@ -27,7 +28,9 @@ public:
 
 public slots:
     void setInstrumentType(InstrumentType t);
-    void setInstrumentName(const QString &name, const QString &tooltip = QString());
+    void setInstrumentName(const QString &name);
+    void setFullInstrumentName(const QString &name);
+    void setInstrumentNames(const QString &name, const QString &tooltip = QString());
     void setInstrumentImage(const QImage &img);
     void setMuteButton(bool m);
     void setSoloButton(bool s);

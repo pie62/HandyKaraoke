@@ -96,5 +96,8 @@
         <file>Icons/Instruments/bus14.png</file>
         <file>Icons/Instruments/bus15.png</file>
         <file>Icons/Instruments/bus16.png</file>
+        <file>Icons/bar-chart.png</file>
+        <file>Icons/list-alt.png</file>
+        <file>Icons/list-ol.png</file>
     </qresource>
 </RCC>
