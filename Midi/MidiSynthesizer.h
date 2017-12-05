@@ -1,17 +1,14 @@
 #ifndef MIDISYNTHESIZER_H
 #define MIDISYNTHESIZER_H
 
-/*
-    Midi stream custom to use 32 channel
-
-        channel 0  - 15 is default intruments
-        channel 16 - 31 is a custom drum.
-
-*/
-
 #include <bass.h>
 #include <bassmidi.h>
 #include <bassmix.h>
+#include <bass_fx.h>
+
+#ifndef __linux__
+#include <bass_vst.h>
+#endif
 
 #include "BASSFX/Equalizer31BandFX.h"
 #include "BASSFX/ReverbFX.h"
@@ -31,13 +28,26 @@ struct Instrument
     bool enable;
     int volume;
     int bus;
+    QList<DWORD> vstHandles;
+    QList<uint> vstUids;
+    QList<bool> vstBypass;
+    QList<QList<float>> vstTempParams;
 };
 
-
-class MidiSynthesizer
+struct VSTNamePath
 {
+    unsigned int uniqueID;
+    QString vstName;
+    QString vstvendor;
+    QString vstPath;
+};
+
+class MidiSynthesizer : public QObject
+{
+    Q_OBJECT
+
 public:
-    MidiSynthesizer();
+    MidiSynthesizer(QObject *parent = nullptr);
     ~MidiSynthesizer();
 
     bool isOpened() { return openned; }
@@ -78,9 +88,12 @@ public:
 
     // Instrument Maper
     QMap<InstrumentType, Instrument> instrumentMap() { return instMap; }
+    Instrument instrument(InstrumentType t) { return instMap.value(t); }
+    int busGroup(InstrumentType t);
     int volume(InstrumentType t);
     bool isMute(InstrumentType t);
     bool isSolo(InstrumentType t);
+    void setBusGroup(InstrumentType t, int group);
     void setVolume(InstrumentType t, int volume);
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
@@ -93,6 +106,9 @@ public:
     Equalizer31BandFX* equalizer31BandFX() { return eq; }
     ReverbFX* reverbFX() { return reverb; }
     ChorusFX* chorusFX() { return chorus; }
+
+    QMap<uint, VSTNamePath> VSTList() { return _vstList; }
+    void setVSTList(const QMap<uint, VSTNamePath> &listMap) { _vstList = listMap; }
     // ------------------------------------------
 
 
@@ -102,6 +118,17 @@ public:
     bool isUseFXRC() { return useFX; }
     void setUseFXRC(bool use);
 
+    HSTREAM getChannelHandle(InstrumentType type);
+
+#ifndef __linux__
+    DWORD addVST(InstrumentType type, DWORD uid);
+    bool removeVST(InstrumentType type, int fxIndex);
+    void setVSTBypass(InstrumentType type, int fxIndex, bool state);
+    static bool isVSTFile(const QString &vstPath, BASS_VST_INFO *info);
+#endif
+
+signals:
+    void noteOnSended(InstrumentType t, int bus, int ch, int note, int velocity);
 
 private:
     HSTREAM mixHandle;
@@ -117,6 +144,9 @@ private:
     Equalizer31BandFX *eq;
     ReverbFX *reverb;
     ChorusFX *chorus;
+
+    // unique ID,  VSTNamePAth
+    QMap<uint, VSTNamePath> _vstList;
     // ---------------------------
 
     float synth_volume = 1.0f;
@@ -127,6 +157,9 @@ private:
     bool useFloat = true;
     bool useFX = false;
 
+    DWORD RPNType = 0;
+
+    void sendToAllMidiStream(int ch, DWORD eventType, DWORD param);
     void setSfToStream();
     void calculateEnable();
     HSTREAM getDrumHandleFromNote(int drumNote);

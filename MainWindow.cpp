@@ -12,7 +12,6 @@
 #include <QMenu>
 #include <QCloseEvent>
 #include <QMessageBox>
-#include <QDebug>
 #include <QDir>
 #include <QDirIterator>
 
@@ -21,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    BASS_Init(-1, 44100, 0, 0, NULL);
+    BASS_FX_GetVersion();
+
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
 
@@ -90,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
             setBackgroundColor(color);
         } else {
             QString img = settings->value("BackgroundImage", "").toString();
-            if (QFile::exists(img)) {
+            if (img != "" && QFile::exists(img)) {
                 setBackgroundImage(img);
             } else {
                 QString color = settings->value("BackgroundColor", "#525252").toString();
@@ -481,6 +483,8 @@ MainWindow::~MainWindow()
 
     delete updateDetail;
     delete lyrWidget;
+
+    BASS_Free();
 }
 
 void MainWindow::setBackgroundColor(QString colorName)
@@ -577,8 +581,11 @@ void MainWindow::play(int index)
         if (!player->load("temp.mid", true)) {
             QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
                                  "ไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            mid.remove();
             return;
         }
+
+        mid.remove();
 
         lyrWidget->setLyrics(Utils::readLyrics(HNKFile::lyrData(p)),
             Utils::readCurFile(HNKFile::curData(p), player->midiFile()->resorution()));
@@ -590,6 +597,9 @@ void MainWindow::play(int index)
 
     // RHM
     ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
+
+    ui->frameSearch->hide();
+    ui->framePlaylist->hide();
 
     // SongDetail
     ui->songDetail->setDetail(&playingSong);
@@ -898,7 +908,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             Song *s = db->currentSong();
             ui->playlist->addItem(s->detail());
             QSize size;
-            size.setHeight(41);
+            size.setHeight(49);
             ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
             ui->frameSearch->hide();
 
@@ -1014,7 +1024,8 @@ void MainWindow::showSettingsDialog()
 {
     SettingsDialog d(this, this);
     d.setModal(true);
-    d.setMinimumSize(550, 400);
+    //d.adjustSize();
+    //d.setMinimumSize(d.size());
     d.exec();
 }
 

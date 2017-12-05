@@ -51,7 +51,12 @@ SOURCES += main.cpp\
     Widgets/PlaybackButton.cpp \
     Widgets/FaderSlider.cpp \
     Widgets/VSTLabel.cpp \
-    Midi/HNKFile.cpp
+    Midi/HNKFile.cpp \
+    BASSFX/FX.cpp \
+    Widgets/CustomFXList.cpp \
+    Dialogs/VSTDialog.cpp \
+    Dialogs/BusDialog.cpp \
+    Dialogs/VSTDirsDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -91,7 +96,12 @@ HEADERS  += MainWindow.h \
     Widgets/FaderSlider.h \
     Widgets/VSTLabel.h \
     Midi/HNKFile.h \
-    Midi/lz77.h
+    Midi/lz77.h \
+    BASSFX/FX.h \
+    Widgets/CustomFXList.h \
+    Dialogs/VSTDialog.h \
+    Dialogs/BusDialog.h \
+    Dialogs/VSTDirsDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -108,7 +118,9 @@ FORMS    += MainWindow.ui \
     Widgets/SongDetail.ui \
     Widgets/Detail.ui \
     Dialogs/AboutDialog.ui \
-    Widgets/VSTLabel.ui
+    Widgets/VSTLabel.ui \
+    Dialogs/BusDialog.ui \
+    Dialogs/VSTDirsDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -116,8 +128,11 @@ INCLUDEPATH += $$PWD/Widgets
 
 win32 {
     LIBS += -lwinmm
+
     SOURCES += Midi/rtmidi/RtMidi.cpp
+
     HEADERS  += Midi/rtmidi/RtMidi.h
+
     INCLUDEPATH += $$PWD/Midi/rtmidi
 
     contains(QT_ARCH, i386) {
@@ -126,9 +141,10 @@ win32 {
         LIBS += -L$$PWD/BASS/bassmidi24/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24/ -lbassmix
+        LIBS += -L$$PWD/BASS/bass_vst24/ -lbass_vst
 
-        DEFINES += _ATL_XP_TARGETING
-        DEFINES += PSAPI_VERSION=1
+        #DEFINES += _ATL_XP_TARGETING
+        #DEFINES += PSAPI_VERSION=1
         QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
     } else {
         message("64-bit")
@@ -136,11 +152,13 @@ win32 {
         LIBS += -L$$PWD/BASS/bassmidi24/x64/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24/x64/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24/x64/ -lbassmix
+        LIBS += -L$$PWD/BASS/bass_vst24/x64/ -lbass_vst
     }
     INCLUDEPATH += $$PWD/BASS/bass24
     INCLUDEPATH += $$PWD/BASS/bassmidi24
     INCLUDEPATH += $$PWD/BASS/bass_fx24
     INCLUDEPATH += $$PWD/BASS/bassmix24
+    INCLUDEPATH += $$PWD/BASS/bass_vst24
 
     RC_ICONS = icon.ico
 }
@@ -152,13 +170,19 @@ unix:!macx {
         message("32-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24-linux/ -lbass_fx
+        LIBS += -L$$PWD/BASS/bassmix24-linux/ -lbassmix
     } else {
         message("64-bit")
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24-linux/x64/ -lbass_fx
+        LIBS += -L$$PWD/BASS/bassmix24-linux/x64/ -lbassmix
     }
     INCLUDEPATH += $$PWD/BASS/bass24-linux
     INCLUDEPATH += $$PWD/BASS/bassmidi24-linux
+    INCLUDEPATH += $$PWD/BASS/bass_fx24-linux
+    INCLUDEPATH += $$PWD/BASS/bassmix24-linux
 }
 
 macx {

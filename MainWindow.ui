@@ -199,13 +199,13 @@ border: 1px solid rgb(255, 255, 255);</string>
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>109</height>
+          <height>119</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>109</height>
+          <height>119</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -257,21 +257,20 @@ border: 1px solid rgb(255, 255, 255);</string>
                <property name="minimumSize">
                 <size>
                  <width>331</width>
-                 <height>41</height>
+                 <height>51</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>331</width>
-                 <height>41</height>
+                 <height>51</height>
                 </size>
                </property>
                <property name="styleSheet">
                 <string notr="true">border: none;
 border-radius: 2px;
 background-color: rgb(224, 224, 224);
-color: rgb(66, 66, 66);
-font: bold 14pt;</string>
+color: rgb(66, 66, 66);</string>
                </property>
                <property name="frameShape">
                 <enum>QFrame::StyledPanel</enum>
@@ -291,6 +290,14 @@ font: bold 14pt;</string>
                 </property>
                 <item>
                  <widget class="QLabel" name="lbSearch">
+                  <property name="font">
+                   <font>
+                    <family>Angsana New</family>
+                    <pointsize>32</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>_</string>
                   </property>
@@ -310,13 +317,13 @@ font: bold 14pt;</string>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>41</height>
+                 <height>51</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>41</height>
+                 <height>51</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -331,8 +338,7 @@ font: bold 14pt;
 border: none;
 border-radius: 2px;
 background-color: rgb(97, 97, 97);
-color: rgb(255, 244, 110);
-font: bold 14pt;</string>
+color: rgb(255, 244, 110);</string>
                </property>
                <property name="frameShape">
                 <enum>QFrame::StyledPanel</enum>
@@ -352,6 +358,14 @@ font: bold 14pt;</string>
                 </property>
                 <item>
                  <widget class="QLabel" name="lbLyrics">
+                  <property name="font">
+                   <font>
+                    <family>Angsana New</family>
+                    <pointsize>24</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -394,8 +408,7 @@ font: bold 16pt;
 border: none;
 border-radius: 2px;
 background-color: /*#1976D2;*/rgb(0, 129, 194);
-color: rgb(238, 238, 238);
-font: bold 16pt;</string>
+color: rgb(238, 238, 238);</string>
              </property>
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
@@ -415,6 +428,14 @@ font: bold 16pt;</string>
               </property>
               <item>
                <widget class="QLabel" name="lbId">
+                <property name="font">
+                 <font>
+                  <family>Angsana New</family>
+                  <pointsize>32</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -422,6 +443,14 @@ font: bold 16pt;</string>
               </item>
               <item>
                <widget class="QLabel" name="lbName">
+                <property name="font">
+                 <font>
+                  <family>Angsana New</family>
+                  <pointsize>32</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -429,6 +458,14 @@ font: bold 16pt;</string>
               </item>
               <item>
                <widget class="QLabel" name="lbBtw">
+                <property name="font">
+                 <font>
+                  <family>Angsana New</family>
+                  <pointsize>32</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -436,6 +473,14 @@ font: bold 16pt;</string>
               </item>
               <item>
                <widget class="QLabel" name="lbArtist">
+                <property name="font">
+                 <font>
+                  <family>Angsana New</family>
+                  <pointsize>32</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -443,6 +488,14 @@ font: bold 16pt;</string>
               </item>
               <item>
                <widget class="QLabel" name="lbTempoKey">
+                <property name="font">
+                 <font>
+                  <family>Angsana New</family>
+                  <pointsize>32</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -450,6 +503,14 @@ font: bold 16pt;</string>
               </item>
               <item>
                <widget class="QLabel" name="lbType">
+                <property name="font">
+                 <font>
+                  <family>Angsana New</family>
+                  <pointsize>32</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -481,13 +542,13 @@ font: bold 16pt;</string>
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>231</height>
+          <height>257</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>231</height>
+          <height>257</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -543,8 +604,7 @@ font: bold 16pt;</string>
 border-radius: 2px;
 /*background-color: rgb(41, 128, 185);*/
 background-color: /*#1976D2;*/rgb(0, 129, 194);
-color: rgb(255, 244, 110);
-font: bold 16pt;</string>
+color: rgb(255, 244, 110);</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -561,6 +621,14 @@ font: bold 16pt;</string>
             </property>
             <item>
              <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <family>Angsana New</family>
+                <pointsize>32</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="text">
                <string>รายการเล่น</string>
               </property>
@@ -577,6 +645,14 @@ font: bold 16pt;</string>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="font">
+            <font>
+             <family>Angsana New</family>
+             <pointsize>30</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -587,7 +663,6 @@ border-radius: 2px;
 /*background-color: rgb(0, 150, 136);*/
 background-color: rgb(97, 97, 97);
 color: rgb(238, 238, 238);
-font: bold 14pt;
 }
 
 QListView::item:selected {
@@ -596,7 +671,6 @@ border-radius: 2px;
 /*background-color: rgb(0, 150, 136);*/
 background-color: rgb(218, 218, 218);
 color: rgb(71, 71, 71);
-font: bold 14pt;
 }
 
 QListView::item:hover {
@@ -605,7 +679,6 @@ border-radius: 2px;
 /*background-color: rgb(0, 150, 136);*/
 background-color: rgb(131, 131, 131);
 color: rgb(238, 238, 238);
-font: bold 14pt;
 }</string>
            </property>
           </widget>
@@ -721,6 +794,9 @@ QToolTip {
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
+           <property name="toolTip">
+            <string>เล่น (F5)</string>
+           </property>
            <property name="text">
             <string>...</string>
            </property>
@@ -742,6 +818,9 @@ QToolTip {
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="toolTip">
+            <string>หยุดชั่วคราว (F6)</string>
            </property>
            <property name="text">
             <string>...</string>
@@ -765,6 +844,9 @@ QToolTip {
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
+           <property name="toolTip">
+            <string>หยุด (F7)</string>
+           </property>
            <property name="text">
             <string>...</string>
            </property>
@@ -787,6 +869,9 @@ QToolTip {
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
+           <property name="toolTip">
+            <string>เพลงก่อนหน้า (F8)</string>
+           </property>
            <property name="text">
             <string>...</string>
            </property>
@@ -808,6 +893,9 @@ QToolTip {
            </property>
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="toolTip">
+            <string>เพลงถัดไป (F9)</string>
            </property>
            <property name="text">
             <string>...</string>

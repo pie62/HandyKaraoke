@@ -1,8 +1,7 @@
 #include "LyricsWidget.h"
 
 #include <QPainter>
-#include <QPainterPathStroker>
-#include <QDebug>
+
 
 LyricsWidget::LyricsWidget(QWidget *parent) : QWidget(parent)
 {

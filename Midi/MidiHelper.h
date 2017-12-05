@@ -81,7 +81,24 @@ enum class InstrumentType
     Timbale,
     SmallCupShapedCymbals,
     ThaiChap,
-    PercussionEtc
+    PercussionEtc,
+
+    BusGroup1,
+    BusGroup2,
+    BusGroup3,
+    BusGroup4,
+    BusGroup5,
+    BusGroup6,
+    BusGroup7,
+    BusGroup8,
+    BusGroup9,
+    BusGroup10,
+    BusGroup11,
+    BusGroup12,
+    BusGroup13,
+    BusGroup14,
+    BusGroup15,
+    BusGroup16
 };
 
 #endif // MIDIHELPER_H

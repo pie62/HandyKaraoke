@@ -1,6 +1,7 @@
 #ifndef MIDIEVENT_H
 #define MIDIEVENT_H
 
+#include <cstdint>
 #include <QByteArray>
 
 enum class MidiEventType {

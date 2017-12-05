@@ -2,7 +2,7 @@
 
 #include <QTimer>
 #include <QtMath>
-#include <QDebug>
+
 
 MidiPlayer::MidiPlayer(QObject *parent) : QThread(parent)
 {
@@ -110,8 +110,6 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     }
     _midiChannels[9].setInstrumentType(InstrumentType::PercussionEtc);
     emit loaded();
-
-    qDebug() << "MidiPlayer: loaded.";
 
     return true;
 }
@@ -656,13 +654,9 @@ void MidiPlayer::sendAllNotesOff()
 void MidiPlayer::sendResetAllControllers()
 {
     if (_midiPortNum == -1) {
-        for (int i=0; i<16; i++) {
-            _midiSynth->sendController(i, 121, 0);
-        }
+        _midiSynth->sendResetAllControllers();
     } else {
-        for (int i=0; i<16; i++) {
-            _midiOut->sendController(i, 121, 0);
-        }
+        _midiOut->sendResetAllControllers();
     }
 }
 

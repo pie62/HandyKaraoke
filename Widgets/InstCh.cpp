@@ -1,7 +1,9 @@
 #include "InstCh.h"
 #include "ui_InstCh.h"
 
+#include "VSTLabel.h"
 #include <QToolTip>
+#include <QScrollBar>
 #include <QCursor>
 
 
@@ -24,6 +26,11 @@ InstCh::InstCh(QWidget *parent) :
                       "border: 1px solid rgb(158, 158, 158);"
                       "background-color: rgb(46, 184, 114);";
 
+    QString fxListScroll = "QScrollBar:vertical {width: 8px;} ";
+
+    QScrollBar *bar = ui->fxList->verticalScrollBar();
+    bar->setStyleSheet(fxListScroll);
+
 
     ui->slider->setMaximumLevel(100);
     ui->slider->setLevel(50);
@@ -42,6 +49,9 @@ InstCh::InstCh(QWidget *parent) :
             this, SLOT(onSliderUserLevelChanged(int)));
     connect(ui->slider, SIGNAL(mouseDoubleClicked()),
             this, SLOT(onSliderDoubleClicked()));
+
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(contextMenuRequested(QPoint)));
 }
 
 InstCh::~InstCh()
@@ -54,12 +64,65 @@ LEDVu *InstCh::vuBar()
     return ui->vuBar;
 }
 
+QString InstCh::instrumentName()
+{
+    return ui->lbName->text();
+}
+
+QString InstCh::fullInstrumentName()
+{
+    return ui->lbName->toolTip();
+}
+
+void InstCh::addVSTLabel(const QString &label, int fxIndex, bool bypass)
+{
+    QListWidgetItem *item = new QListWidgetItem(ui->fxList);
+
+    VSTLabel *vstLabel = new VSTLabel(ui->fxList, label, fxIndex, bypass);
+
+    connect(vstLabel, SIGNAL(byPassChanged(int,bool)),
+            this, SLOT(onFxByPassChanged(int,bool)));
+    connect(vstLabel, SIGNAL(doubleClicked(int)),
+            this, SLOT(onFxDoubleClicked(int)));
+    connect(vstLabel, SIGNAL(menuRequested(int,QPoint)),
+            this, SLOT(onFxMenuRequested(int,QPoint)));
+
+    ui->fxList->addItem(item);
+    ui->fxList->setItemWidget(item, vstLabel);
+}
+
+void InstCh::removeVSTLabel(int fxIndex)
+{
+    QListWidgetItem *item = ui->fxList->takeItem(fxIndex);
+    QWidget *widget = ui->fxList->itemWidget(item);
+    delete widget;
+    delete item;
+
+    for (int i=fxIndex; i<ui->fxList->count(); i++) {
+        item = ui->fxList->item(i);
+        widget = ui->fxList->itemWidget(item);
+        VSTLabel *label = dynamic_cast<VSTLabel*>(widget);
+        label->setFxIndex(i);
+    }
+}
+
 void InstCh::setInstrumentType(InstrumentType t)
 {
     instType = t;
 }
 
-void InstCh::setInstrumentName(const QString &name, const QString &tooltip)
+void InstCh::setInstrumentName(const QString &name)
+{
+    ui->lbName->setText(name);
+}
+
+void InstCh::setFullInstrumentName(const QString &name)
+{
+    ui->lbName->setToolTip(name);
+    ui->lbImage->setToolTip(name);
+}
+
+void InstCh::setInstrumentNames(const QString &name, const QString &tooltip)
 {
     ui->lbName->setText(name);
     ui->lbName->setToolTip(tooltip);
@@ -147,4 +210,27 @@ void InstCh::onSliderUserLevelChanged(int v)
 void InstCh::onSliderDoubleClicked()
 {
     emit sliderDoubleClicked(instType);
+}
+
+void InstCh::contextMenuRequested(const QPoint &pos)
+{
+    emit menuRequested(instType, pos);
+}
+
+void InstCh::onFxMenuRequested(int fxIndex, const QPoint &pos)
+{
+    //QListWidgetItem *item = ui->fxList->item(fxIndex);
+    //QWidget *widget = ui->fxList->itemWidget(item);
+    //emit fxRemoveMenuRequested(instType, fxIndex, widget->mapToGlobal(pos));
+    emit fxRemoveMenuRequested(instType, fxIndex, pos);
+}
+
+void InstCh::onFxByPassChanged(int fxIndex, bool bypass)
+{
+    emit fxByPassChanged(instType, fxIndex, bypass);
+}
+
+void InstCh::onFxDoubleClicked(int fxIndex)
+{
+    emit fxDoubleClicked(instType, fxIndex);
 }

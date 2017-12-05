@@ -3,12 +3,12 @@
 #include "Midi/MidiFile.h"
 #include "Midi/HNKFile.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QSettings>
 #include <QDirIterator>
 #include <QFile>
 #include <QSqlQuery>
+#include <QTextStream>
 
 
 SongDatabase::SongDatabase()
@@ -44,37 +44,17 @@ SongDatabase::SongDatabase()
             query.clear();
 
             createIndex();
-
-            qDebug() << "SongDatabase: create DB";
         }
         db.close();
     }
 
-    if (db.open()) {
-
-        qDebug() << "SongDatabase: opened";
-
-        /*
-        QSqlQuery q;
-        q.exec("PRAGMA cache_size=32768;");
-        q.finish(); q.clear();
-        q.exec("PRAGMA page_size=65536;");
-        q.finish(); q.clear();
-        q.exec("PRAGMA journal_mode = WAL");
-        q.finish(); q.clear();
-        q.exec("PRAGMA temp_store = MEMORY;");
-        q.finish(); q.clear();
-        q.exec("PRAGMA synchronous=NORMAL;");
-        q.finish(); q.clear();
-        */
-    }
+    db.open();
 }
 
 SongDatabase::~SongDatabase()
 {
     if (db.isOpen()) {
         db.close();
-        qDebug() << "SongDatabase: closed";
     }
     delete song;
 }
@@ -553,12 +533,10 @@ Song *SongDatabase::searchPrevious()
 void SongDatabase::run()
 {
     if (!db.isOpen()) {
-        qDebug() << "SongDatabase: Database is't opened";
         return;
     }
 
     if (!isNCNPath(_ncnPath)) {
-        qDebug() << "SongDatabase: Invalid NCN Directory.";
         return;
     }
 
