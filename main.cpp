@@ -89,8 +89,8 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 
             it.next();
 
-            //splash->showMessage("Reading : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
-            //qApp->processEvents();
+            splash->showMessage("Reading : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
+            qApp->processEvents();
 
             BASS_VST_INFO info;
             if (!MidiSynthesizer::isVSTFile(it.filePath(), &info))
