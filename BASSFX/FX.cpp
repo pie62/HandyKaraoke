@@ -5,6 +5,11 @@ FX::FX()
 
 }
 
+FX::~FX()
+{
+
+}
+
 #ifndef __linux__
 
 QList<float> FX::getVSTParams(DWORD vstHandle)

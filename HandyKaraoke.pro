@@ -55,7 +55,8 @@ SOURCES += main.cpp\
     BASSFX/FX.cpp \
     Widgets/CustomFXList.cpp \
     Dialogs/VSTDialog.cpp \
-    Dialogs/BusDialog.cpp
+    Dialogs/BusDialog.cpp \
+    BASSFX/BuiltIn/AutoWah.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -99,7 +100,8 @@ HEADERS  += MainWindow.h \
     BASSFX/FX.h \
     Widgets/CustomFXList.h \
     Dialogs/VSTDialog.h \
-    Dialogs/BusDialog.h
+    Dialogs/BusDialog.h \
+    BASSFX/BuiltIn/AutoWah.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
