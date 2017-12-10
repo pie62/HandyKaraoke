@@ -86,16 +86,16 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
             ich->setMuteButton(m);
             ich->setSoloButton(s);
 
-            vu = ich->vuBar();
-            vu->setBackGroundColor(QColor(bg));
-            vu->setLedColorOn1(QColor(o1));
-            vu->setLedColorOn2(QColor(o2));
-            vu->setLedColorOn3(QColor(o3));
-            vu->setLedColorOff1(QColor(f1));
-            vu->setLedColorOff2(QColor(f2));
-            vu->setLedColorOff3(QColor(f3));
-            vu->setShowPeakHold(sph);
-            vu->setPeakHoldMs(phm);
+            LEDVu *vBar = ich->vuBar();
+            vBar->setBackGroundColor(QColor(bg));
+            vBar->setLedColorOn1(QColor(o1));
+            vBar->setLedColorOn2(QColor(o2));
+            vBar->setLedColorOn3(QColor(o3));
+            vBar->setLedColorOff1(QColor(f1));
+            vBar->setLedColorOff2(QColor(f2));
+            vBar->setLedColorOff3(QColor(f3));
+            vBar->setShowPeakHold(sph);
+            vBar->setPeakHoldMs(phm);
 
             synth->setBusGroup(t, b);
             synth->setVolume(t, ml);

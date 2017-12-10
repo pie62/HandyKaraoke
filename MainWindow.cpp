@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QDirIterator>
+#include <QDebug>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -22,19 +23,24 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     BASS_Init(-1, 44100, 0, 0, NULL);
     BASS_FX_GetVersion();
+    qDebug() << "Inited bass";
 
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
+    qDebug() << "Created lyrics";
 
     ui->setupUi(this);
+    qDebug() << "Created ui";
 
     settings = new QSettings();
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
+    qDebug() << "Readed ncn hnk path";
 
     db = new SongDatabase();
     db->setNcnPath(ncn);
     db->setHNKPath(hnk);
+    qDebug() << "Created db";
 
 
     timer1 = new QTimer();
@@ -52,10 +58,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     songDetailTimer = new QTimer();
     songDetailTimer->setSingleShot(true);
+    qDebug() << "Created timer";
 
     player = new MidiPlayer();
+    qDebug() << "Created player";
 
     locale = QLocale(QLocale::English, QLocale::UnitedStates);
+    qDebug() << "Created locale";
 
     { // Channel Mixer
 
@@ -74,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         connect(ui->chMix, SIGNAL(buttonCloseClicked()), this, SLOT(showHideChMix()));
     }
+
 
     { // UI window size
         int sTime = settings->value("SearchTimeout", 5).toInt();
@@ -144,23 +154,28 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
+    qDebug() << "Synth";
     { // Synth
         MidiSynthesizer *synth = player->midiSynthesizer();
 
+        qDebug() << "Synth Audio out";
         // Audio out
         int aout = settings->value("AudioOut", 1).toInt();
         synth->setOutputDevice(aout);
 
+        qDebug() << "Synth floating and fx";
         // floating and fx
         bool useFloat = settings->value("SynthFloatPoint", true).toBool();
         bool useFX = settings->value("SynthUseFXRC", false).toBool();
         synth->setUsetFloattingPoint(useFloat);
         synth->setUseFXRC(useFX);
 
+        qDebug() << "Synth soundfont";
         // Synth soundfont
         //QList<QString> sfs;
         QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
 
+        qDebug() << "Synth soundfont volume";
         // Synth soundfont volume
         QList<int> sfvl;
         int idx=0;
@@ -179,6 +194,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
         // -----------
 
+        qDebug() << "Synth Map soundfont";
         // Synth Map soundfont
         QList<int> sfMap = synth->getMapSoundfontIndex();
         settings->beginReadArray("SynthSoundfontsMap");
@@ -200,6 +216,7 @@ MainWindow::MainWindow(QWidget *parent) :
         synth->setMapSoundfontIndex(sfMap, sfDrumMap);
 
 
+        qDebug() << "Synth EQ";
         // Synth EQ
         Equalizer31BandFX *eq = synth->equalizer31BandFX();
         std::map<EQFrequency31Range, float> eqgain = eq->gain();
@@ -219,6 +236,7 @@ MainWindow::MainWindow(QWidget *parent) :
         settings->endArray();
 
 
+        qDebug() << "Synth reverb";
         // Synth reverb
         ReverbFX *reverb = synth->reverbFX();
 
@@ -237,6 +255,7 @@ MainWindow::MainWindow(QWidget *parent) :
         reverb->setHighFreqRTRatio(rvHF);
 
 
+        qDebug() << "Synth chorus";
         // Synth chorus
         ChorusFX *chorus = synth->chorusFX();
 
@@ -266,6 +285,7 @@ MainWindow::MainWindow(QWidget *parent) :
         chorus->setDelay((float)cDl);
 
 
+        qDebug() << "Synth effect dialog";
         // Create Synth effect dialog
         eq31Dlg = new Equalizer31BandDialog(this, eq);
         eq31Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
@@ -282,11 +302,13 @@ MainWindow::MainWindow(QWidget *parent) :
         chorusDlg->adjustSize();
         chorusDlg->setFixedSize(chorusDlg->size());
 
+        qDebug() << "Synth synth mixer";
         // Create synth mixer
         synthMix = new SynthMixerDialog(this, this);
     }
 
 
+    qDebug() << "Lyrics";
     { // Lyrics
         QString family  = settings->value("LyricsFamily", font().family()).toString();
         int size        = settings->value("LyricsSize", 40).toInt();

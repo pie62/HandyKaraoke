@@ -3,6 +3,7 @@
 #include <QResizeEvent>
 #include <QPainter>
 
+
 LEDVu::LEDVu(QWidget *parent) : QFrame(parent)
 {
     _timer = new QTimer();

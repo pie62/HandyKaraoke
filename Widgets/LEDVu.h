@@ -71,10 +71,10 @@ private:
     int _peakHoldMs = 500, _peakLevel = 0;
     bool _showPeakHold = true;
 
-    int _ledCount;
-    int _ledCount1;
-    int _ledCount2;
-    int _ledCount3;
+    int _ledCount = 0;
+    int _ledCount1 = 0;
+    int _ledCount2 = 0;
+    int _ledCount3 = 0;
     int _ledPercent1 = 70;
     int _ledPercent2 = 15;
     int _ledPercent3 = 15;
