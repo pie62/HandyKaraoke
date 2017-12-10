@@ -24,7 +24,9 @@ public:
     explicit SynthMixerDialog(QWidget *parent = 0, MainWindow *mainWin = 0);//, MainWindow *mainWin = 0);
     ~SynthMixerDialog();
 
+    #ifndef __linux__
     void setVSTVendorMenu();
+    #endif
     void setVSTToSynth();
 
 private slots:

@@ -18,8 +18,6 @@
 #include <QLocale>
 #include <QSettings>
 
-#include <QSplashScreen>
-
 
 namespace Ui {
 class MainWindow;

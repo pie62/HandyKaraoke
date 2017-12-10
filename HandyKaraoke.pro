@@ -55,8 +55,7 @@ SOURCES += main.cpp\
     BASSFX/FX.cpp \
     Widgets/CustomFXList.cpp \
     Dialogs/VSTDialog.cpp \
-    Dialogs/BusDialog.cpp \
-    Dialogs/VSTDirsDialog.cpp
+    Dialogs/BusDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -100,8 +99,7 @@ HEADERS  += MainWindow.h \
     BASSFX/FX.h \
     Widgets/CustomFXList.h \
     Dialogs/VSTDialog.h \
-    Dialogs/BusDialog.h \
-    Dialogs/VSTDirsDialog.h
+    Dialogs/BusDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -119,8 +117,7 @@ FORMS    += MainWindow.ui \
     Widgets/Detail.ui \
     Dialogs/AboutDialog.ui \
     Widgets/VSTLabel.ui \
-    Dialogs/BusDialog.ui \
-    Dialogs/VSTDirsDialog.ui
+    Dialogs/BusDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -129,9 +126,13 @@ INCLUDEPATH += $$PWD/Widgets
 win32 {
     LIBS += -lwinmm
 
-    SOURCES += Midi/rtmidi/RtMidi.cpp
+    SOURCES += Midi/rtmidi/RtMidi.cpp \
+        Dialogs/VSTDirsDialog.cpp
 
-    HEADERS  += Midi/rtmidi/RtMidi.h
+    HEADERS  += Midi/rtmidi/RtMidi.h \
+        Dialogs/VSTDirsDialog.h
+
+    FORMS += Dialogs/VSTDirsDialog.ui
 
     INCLUDEPATH += $$PWD/Midi/rtmidi
 

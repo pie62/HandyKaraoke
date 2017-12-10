@@ -2,11 +2,14 @@
 #include "ui_SynthMixerDialog.h"
 
 #include "MainWindow.h"
+#include "BASSFX/FX.h"
 #include "Dialogs/SettingVuDialog.h"
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
+
+#ifndef __linux
 #include "Dialogs/VSTDirsDialog.h"
-#include "BASSFX/FX.h"
+#endif
 
 #include <QMenu>
 
@@ -175,9 +178,22 @@ SynthMixerDialog::~SynthMixerDialog()
 
             if (synth->isOpened()) {
                 QList<QList<float>> params;
+                for (int i=0; i<synth->instrument(t).vstUids.count(); i++) {
+                    uint uid = synth->instrument(t).vstUids[i];
+                    if (uid < 10) {
+                        // FX
+                    } else {
+                        #ifndef __linux__
+                        DWORD fxh = synth->instrument(t).vstHandles[i];
+                        params.append(FX::getVSTParams(fxh)
+                        #endif
+                    }
+                }
+                /*
                 for (DWORD fxh : synth->instrument(t).vstHandles) {
                     params.append(FX::getVSTParams(fxh));
                 }
+                */
                 QVariant vstParams = QVariant::fromValue(params);
                 st.setValue("VstParams", vstParams);
             } else {
@@ -199,6 +215,8 @@ SynthMixerDialog::~SynthMixerDialog()
 
     delete ui;
 }
+
+#ifndef __linux__
 
 void SynthMixerDialog::setVSTVendorMenu()
 {
@@ -224,6 +242,8 @@ void SynthMixerDialog::setVSTVendorMenu()
     }
 }
 
+#endif
+
 void SynthMixerDialog::setVSTToSynth()
 {
     QSettings st("SynthMixer.ini", QSettings::IniFormat);
@@ -239,10 +259,17 @@ void SynthMixerDialog::setVSTToSynth()
         this->currentType = t;
 
         for (int i=0; i<vstUid.count(); i++) {
-            DWORD fx = this->addVST(QString::number(vstUid[i]), vstBypass[i]);
-            if (fx == 0)
-                continue;
-            FX::setVSTParams(fx, vstParams[i]);
+            if (vstUid[i] < 10) {
+                // Fx
+            } else {
+                #ifndef __linux__
+
+                DWORD fx = this->addVST(QString::number(vstUid[i]), vstBypass[i]);
+                if (fx == 0)
+                    continue;
+                FX::setVSTParams(fx, vstParams[i]);
+                #endif
+            }
         }
 
     }
@@ -588,6 +615,11 @@ DWORD SynthMixerDialog::addVST(const QString &uidStr, bool bypass)
     VSTNamePath vst = synth->VSTList()[uid];
     Instrument inst = synth->instrument(currentType);
 
+    if (uid < 10) {
+        return uid;
+    }
+
+    #ifndef __linux__
     DWORD fx = synth->addVST(currentType, vst.uniqueID);
 
     if (fx == 0)
@@ -600,13 +632,14 @@ DWORD SynthMixerDialog::addVST(const QString &uidStr, bool bypass)
     chInstMap[currentType]->addVSTLabel(vst.vstName, inst.vstUids.count(), bypass);
 
     return fx;
+    #endif
 }
 
 void SynthMixerDialog::byPassVST(InstrumentType type, int fxIndex, bool bypass)
 {
-    //DWORD fx = synth->instrument(type).vstHandles[fxIndex];
-    //BASS_VST_SetBypass(fx, bypass);
+    #ifndef __linux__
     synth->setVSTBypass(type, fxIndex, bypass);
+    #endif
 }
 
 void SynthMixerDialog::showVSTFxDialog(InstrumentType type, int fxIndex)
@@ -614,6 +647,8 @@ void SynthMixerDialog::showVSTFxDialog(InstrumentType type, int fxIndex)
     if (!synth->isOpened())
         return;
 
+
+    #ifndef __linux__
     DWORD fx = synth->instrument(type).vstHandles[fxIndex];
 
     BASS_VST_INFO info;
@@ -630,11 +665,14 @@ void SynthMixerDialog::showVSTFxDialog(InstrumentType type, int fxIndex)
         dlg->show();
         BASS_VST_EmbedEditor(fx, (HWND)dlg->winId());
     }
+    #endif
 }
 
 void SynthMixerDialog::onVSTDialogClosing(uint32_t fx)
 {
+    #ifndef __linux__
     BASS_VST_EmbedEditor(fx, NULL);
+    #endif
 }
 
 void SynthMixerDialog::showVSTRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos)
@@ -651,9 +689,11 @@ void SynthMixerDialog::showVSTRemoveMenu(InstrumentType type, int fxIndex, const
 
 void SynthMixerDialog::removeVST()
 {
+    #ifndef __linux__
     if (synth->removeVST(currentType, currentFxIndexToRemove)) {
         chInstMap[currentType]->removeVSTLabel(currentFxIndexToRemove);
     }
+    #endif
 }
 
 void SynthMixerDialog::on_btnBus_clicked()
@@ -666,8 +706,10 @@ void SynthMixerDialog::on_btnBus_clicked()
 
 void SynthMixerDialog::on_btnVSTDirs_clicked()
 {
+    #ifndef __linux__
     VSTDirsDialog dlg(this, this, synth);
     dlg.setModal(true);
     dlg.adjustSize();
     dlg.exec();
+    #endif
 }

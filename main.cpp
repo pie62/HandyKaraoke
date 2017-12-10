@@ -5,12 +5,14 @@
 #include <QDirIterator>
 #include <QMetaType>
 
-#include <bass_vst.h>
 #include "BASSFX/FX.h"
 
-
 void registerMetaType();
+
+#ifndef __linux__
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth);
+#endif
+
 
 int main(int argc, char *argv[])
 {
@@ -36,8 +38,8 @@ int main(int argc, char *argv[])
     #ifndef __linux__
     makeVSTList(splash, w.midiPlayer()->midiSynthesizer());
     w.synthMixerDialog()->setVSTVendorMenu();
-    w.synthMixerDialog()->setVSTToSynth();
     #endif
+    w.synthMixerDialog()->setVSTToSynth();
 
     w.show();
 
@@ -68,6 +70,9 @@ void registerMetaType()
     qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
     qRegisterMetaTypeStreamOperators<QList<QList<float>>>("QList<QList<float>>");
 }
+
+
+#ifndef __linux__
 
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 {
@@ -108,3 +113,5 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 
      synth->setVSTList(vstList);
 }
+
+#endif
