@@ -480,10 +480,10 @@ void SynthMixerDialog::setChInstDetails()
                          "Bongo.png", "Conga.png", "Timbale.png", "Ching.png",
                          "Chab.png", "Percussion Etc.png",
 
-                         "bus1.png", "bus2.png", "bus3.png", "bus4.png",
-                         "bus5.png", "bus6.png", "bus7.png", "bus8.png",
-                         "bus9.png", "bus10.png", "bus11.png", "bus12.png",
-                         "bus13.png", "bus14.png", "bus15.png", "bus16.png" };
+                         "bs1.png", "bs2.png", "bs3.png", "bs4.png",
+                         "bs5.png", "bs6.png", "bs7.png", "bs8.png",
+                         "bs9.png", "bs10.png", "bs11.png", "bs12.png",
+                         "bs13.png", "bs14.png", "bs15.png", "bs16.png" };
 
 
     for (int i=0; i<58; i++)
