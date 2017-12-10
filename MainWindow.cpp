@@ -308,7 +308,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
-    qDebug() << "Lyrics";
+    qDebug() << "Lyrics ";
     { // Lyrics
         QString family  = settings->value("LyricsFamily", font().family()).toString();
         int size        = settings->value("LyricsSize", 40).toInt();
