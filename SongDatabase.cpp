@@ -1,7 +1,7 @@
 #include "SongDatabase.h"
 
 #include "Midi/MidiFile.h"
-#include "Midi/HNKFile.h"
+//#include "Midi/HNKFile.h"
 
 #include <QDir>
 #include <QSettings>
@@ -208,7 +208,7 @@ bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, cons
     return true;
 }
 
-bool SongDatabase::insertHNK(const QString &hnkPath, const QString &songId, const QString &hnkFilePath)
+/*bool SongDatabase::insertHNK(const QString &hnkPath, const QString &songId, const QString &hnkFilePath)
 {
     QString id = songId;
 
@@ -256,7 +256,7 @@ bool SongDatabase::insertHNK(const QString &hnkPath, const QString &songId, cons
 
     return true;
 }
-
+*/
 Song* SongDatabase::nextType(const QString &s)
 {
     Song *sg = song;
@@ -545,7 +545,7 @@ void SongDatabase::run()
 
     // Count mid file in NCN
     QDir dir(_ncnPath + "/Song");
-    QDir hnkDir(_hnkPath);
+    //QDir hnkDir(_hnkPath);
 
     QDirIterator iter1(dir.path() ,QStringList() << "*.mid" << "*.MID",
                     QDir::Files, QDirIterator::Subdirectories);
@@ -554,12 +554,12 @@ void SongDatabase::run()
         count++;
     }
 
-    QDirIterator iter2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
+   /* QDirIterator iter2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
                     QDir::Files, QDirIterator::Subdirectories);
     while (iter2.hasNext()) {
         iter2.next();
         count++;
-    }
+    }*/
 
     upCount = count;
     emit updateCountChanged(count);
@@ -600,7 +600,7 @@ void SongDatabase::run()
 
 
     // Update HNK
-    QDirIterator it2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
+   /* QDirIterator it2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
                      QDir::Files, QDirIterator::Subdirectories);
     while (it2.hasNext()) {
 
@@ -616,7 +616,7 @@ void SongDatabase::run()
 
         if (!result)
             erCount ++;
-    }
+    }*/
 
 
     db.commit();

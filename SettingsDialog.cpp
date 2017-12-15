@@ -135,7 +135,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
     // Database
     ui->leNCNPath->setText(db->ncnPath());
-    ui->leHNKPath->setText(db->hnkPath());
+    //ui->leHNKPath->setText(db->hnkPath());
     ui->lbCountSongsValue->setText(QString::number(db->count()) + " เพลง");
 
     if (db->isRunning())
@@ -409,6 +409,7 @@ void SettingsDialog::on_btnNCNPath_clicked()
 
 }
 
+/*
 void SettingsDialog::on_btnHNKPath_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(
@@ -422,7 +423,7 @@ void SettingsDialog::on_btnHNKPath_clicked()
     db->setHNKPath(path);
     settings->setValue("HNKPath", path);
 }
-
+*/
 void SettingsDialog::on_btnUpdateSongs_clicked()
 {
     if (!db->isNCNPath(ui->leNCNPath->text())) {
@@ -434,14 +435,14 @@ void SettingsDialog::on_btnUpdateSongs_clicked()
     }
 
     settings->setValue("NCNPath", ui->leNCNPath->text());
-    settings->setValue("HNKPath", ui->leHNKPath->text());
+    //settings->setValue("HNKPath", ui->leHNKPath->text());
 
     ui->lbUpdateText->show();
     ui->lbUpdateValue->show();
 
     ui->btnUpdateSongs->setEnabled(false);
     ui->btnNCNPath->setEnabled(false);
-    ui->btnHNKPath->setEnabled(false);
+    //ui->btnHNKPath->setEnabled(false);
     ui->lbCountSongsText->setEnabled(false);
     ui->lbCountSongsValue->setEnabled(false);
 
@@ -451,7 +452,7 @@ void SettingsDialog::on_btnUpdateSongs_clicked()
 
 void SettingsDialog::on_upDbUpdateFinished()
 { 
-    ui->btnHNKPath->setEnabled(true);
+    //ui->btnHNKPath->setEnabled(true);
     ui->btnNCNPath->setEnabled(true);
     ui->lbCountSongsText->setEnabled(true);
     ui->lbCountSongsValue->setEnabled(true);

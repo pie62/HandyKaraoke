@@ -40,15 +40,15 @@ public:
     QString ncnPath() { return _ncnPath; }
     bool setNcnPath(const QString &dir);
 
-    QString hnkPath() { return _hnkPath; }
-    void setHNKPath(const QString &p) { _hnkPath = p; }
+    //QString hnkPath() { return _hnkPath; }
+    //void setHNKPath(const QString &p) { _hnkPath = p; }
 
     UpdateType updateType() { return upType; }
     void setUpdateType(UpdateType type);
 
 public slots:
     bool insertNCN(const QString &ncnPath, const QString &songId, const QString &midFilePath);
-    bool insertHNK(const QString &hnkPath, const QString &songId, const QString &hnkFilePath);
+    //bool insertHNK(const QString &hnkPath, const QString &songId, const QString &hnkFilePath);
 
     void setSearchType(SearchType t) { searchType = t; }
     Song *nextType(const QString &s);
@@ -73,7 +73,7 @@ private:
 
     UpdateType upType = UpdateType::UpdateAll;
     QString _ncnPath = "";
-    QString _hnkPath = "";
+    //QString _hnkPath = "";
 
     int upCount = 0;
     bool upTing = false;

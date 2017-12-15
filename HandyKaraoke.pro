@@ -51,7 +51,7 @@ SOURCES += main.cpp\
     Widgets/PlaybackButton.cpp \
     Widgets/FaderSlider.cpp \
     Widgets/VSTLabel.cpp \
-    Midi/HNKFile.cpp \
+    #Midi/HNKFile.cpp \
     BASSFX/FX.cpp \
     Widgets/CustomFXList.cpp \
     Dialogs/VSTDialog.cpp \
@@ -94,8 +94,8 @@ HEADERS  += MainWindow.h \
     Widgets/PlaybackButton.h \
     Widgets/FaderSlider.h \
     Widgets/VSTLabel.h \
-    Midi/HNKFile.h \
-    Midi/lz77.h \
+    #Midi/HNKFile.h \
+    #Midi/lz77.h \
     BASSFX/FX.h \
     Widgets/CustomFXList.h \
     Dialogs/VSTDialog.h \
@@ -146,7 +146,7 @@ win32 {
 
         #DEFINES += _ATL_XP_TARGETING
         #DEFINES += PSAPI_VERSION=1
-        QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+        #QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
     } else {
         message("64-bit")
         LIBS += -L$$PWD/BASS/bass24/x64/ -lbass
@@ -173,8 +173,14 @@ unix:!macx {
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24-linux/ -lbassmix
-    } else {
-        message("64-bit")
+    } contains(QT_ARCH, armhf) {
+        message("ARM")
+        LIBS += -L$$PWD/BASS/bass24-linux/armhf/ -lbass
+        LIBS += -L$$PWD/BASS/bassmidi24-linux/armhf/ -lbassmidi
+        LIBS += -L$$PWD/BASS/bass_fx24-linux/armhf/ -lbass_fx
+        LIBS += -L$$PWD/BASS/bassmix24-linux/armhf/ -lbassmix
+    } else  {
+        message("64-Bit")
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/x64/ -lbass_fx

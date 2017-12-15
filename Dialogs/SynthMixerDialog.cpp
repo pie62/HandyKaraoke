@@ -185,7 +185,7 @@ SynthMixerDialog::~SynthMixerDialog()
                     } else {
                         #ifndef __linux__
                         DWORD fxh = synth->instrument(t).vstHandles[i];
-                        params.append(FX::getVSTParams(fxh)
+                        params.append(FX::getVSTParams(fxh));
                         #endif
                     }
                 }

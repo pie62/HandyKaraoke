@@ -33,7 +33,7 @@ private slots:
     void on_btnBgImg_clicked();
 
     void on_btnNCNPath_clicked();
-    void on_btnHNKPath_clicked();
+    //void on_btnHNKPath_clicked();
     void on_btnUpdateSongs_clicked();
     void on_upDbUpdateFinished();
 

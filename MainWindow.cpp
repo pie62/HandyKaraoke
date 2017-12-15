@@ -6,7 +6,7 @@
 #include "Dialogs/AboutDialog.h"
 #include "Dialogs/MapSoundfontDialog.h"
 #include "Midi/MidiFile.h"
-#include "Midi/HNKFile.h"
+//#include "Midi/HNKFile.h"
 
 #include <QTime>
 #include <QMenu>
@@ -34,12 +34,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     settings = new QSettings();
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
-    QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
+    //QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
     qDebug() << "Readed ncn hnk path";
 
     db = new SongDatabase();
     db->setNcnPath(ncn);
-    db->setHNKPath(hnk);
+    //db->setHNKPath(hnk);
     qDebug() << "Created db";
 
 
@@ -583,7 +583,7 @@ void MainWindow::play(int index)
         lyrWidget->setLyrics(Utils::readLyrics(lyrPath),
             Utils::readCurFile(curPath, player->midiFile()->resorution()));
 
-    } else if (playingSong.songType() == "HNK") {
+    }/* else if (playingSong.songType() == "HNK") {
         // HNK File
         QString p = db->hnkPath() + playingSong.path();
         if (!QFile::exists(p)) {
@@ -612,7 +612,7 @@ void MainWindow::play(int index)
         lyrWidget->setLyrics(Utils::readLyrics(HNKFile::lyrData(p)),
             Utils::readCurFile(HNKFile::curData(p), player->midiFile()->resorution()));
 
-    }
+    }*/
 
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
