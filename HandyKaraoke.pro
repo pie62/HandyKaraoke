@@ -165,7 +165,7 @@ win32 {
 }
 
 unix:!macx {
-    LIBS +=  -lrtmidi
+    #LIBS +=  -lrtmidi
 
     contains(QT_ARCH, i386) {
         message("32-bit")
@@ -173,8 +173,12 @@ unix:!macx {
         LIBS += -L$$PWD/BASS/bassmidi24-linux/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24-linux/ -lbassmix
-    } contains(QT_ARCH, armhf) {
+
+    } contains(QT_ARCH, arm) {
         message("ARM")
+	SOURCES += Midi/rtmidi/RtMidi.cpp
+	HEADERS  += Midi/rtmidi/RtMidi.h
+	INCLUDEPATH += $$PWD/Midi/rtmidi
         LIBS += -L$$PWD/BASS/bass24-linux/armhf/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/armhf/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/armhf/ -lbass_fx
