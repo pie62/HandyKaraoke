@@ -42,7 +42,6 @@ SOURCES += main.cpp\
     BASSFX/ChorusFX.cpp \
     Dialogs/ChorusDialog.cpp \
     Widgets/InstCh.cpp \
-    Dialogs/SynthMixerDialog.cpp \
     Dialogs/SettingVuDialog.cpp \
     Widgets/SongDetail.cpp \
     Widgets/Detail.cpp \
@@ -56,7 +55,8 @@ SOURCES += main.cpp\
     Widgets/CustomFXList.cpp \
     Dialogs/VSTDialog.cpp \
     Dialogs/BusDialog.cpp \
-    BASSFX/BuiltIn/AutoWah.cpp
+    BASSFX/BuiltIn/AutoWah.cpp \
+    Dialogs/SynthMixerDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
