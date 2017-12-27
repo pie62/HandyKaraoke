@@ -80,24 +80,24 @@
         <file>Icons/App/icon_sm.png</file>
         <file>Icons/App/splash.svg</file>
         <file>Icons/App/splash.png</file>
-        <file>Icons/Instruments/bus1.png</file>
-        <file>Icons/Instruments/bus2.png</file>
-        <file>Icons/Instruments/bus3.png</file>
-        <file>Icons/Instruments/bus4.png</file>
-        <file>Icons/Instruments/bus5.png</file>
-        <file>Icons/Instruments/bus6.png</file>
-        <file>Icons/Instruments/bus7.png</file>
-        <file>Icons/Instruments/bus8.png</file>
-        <file>Icons/Instruments/bus9.png</file>
-        <file>Icons/Instruments/bus10.png</file>
-        <file>Icons/Instruments/bus11.png</file>
-        <file>Icons/Instruments/bus12.png</file>
-        <file>Icons/Instruments/bus13.png</file>
-        <file>Icons/Instruments/bus14.png</file>
-        <file>Icons/Instruments/bus15.png</file>
-        <file>Icons/Instruments/bus16.png</file>
         <file>Icons/bar-chart.png</file>
         <file>Icons/list-alt.png</file>
         <file>Icons/list-ol.png</file>
+        <file>Icons/Instruments/bs1.png</file>
+        <file>Icons/Instruments/bs2.png</file>
+        <file>Icons/Instruments/bs3.png</file>
+        <file>Icons/Instruments/bs4.png</file>
+        <file>Icons/Instruments/bs5.png</file>
+        <file>Icons/Instruments/bs6.png</file>
+        <file>Icons/Instruments/bs7.png</file>
+        <file>Icons/Instruments/bs8.png</file>
+        <file>Icons/Instruments/bs9.png</file>
+        <file>Icons/Instruments/bs10.png</file>
+        <file>Icons/Instruments/bs11.png</file>
+        <file>Icons/Instruments/bs12.png</file>
+        <file>Icons/Instruments/bs13.png</file>
+        <file>Icons/Instruments/bs14.png</file>
+        <file>Icons/Instruments/bs15.png</file>
+        <file>Icons/Instruments/bs16.png</file>
     </qresource>
 </RCC>

@@ -177,6 +177,7 @@ SynthMixerDialog::~SynthMixerDialog()
             st.setValue("VstBypass", bypass);
 
             if (synth->isOpened()) {
+                QList<int> programs;
                 QList<QList<float>> params;
                 for (int i=0; i<synth->instrument(t).vstUids.count(); i++) {
                     uint uid = synth->instrument(t).vstUids[i];
@@ -186,19 +187,19 @@ SynthMixerDialog::~SynthMixerDialog()
                         #ifndef __linux__
                         DWORD fxh = synth->instrument(t).vstHandles[i];
                         params.append(FX::getVSTParams(fxh));
+                        programs.append(BASS_VST_GetProgram(fxh));
                         #endif
                     }
                 }
-                /*
-                for (DWORD fxh : synth->instrument(t).vstHandles) {
-                    params.append(FX::getVSTParams(fxh));
-                }
-                */
                 QVariant vstParams = QVariant::fromValue(params);
+                QVariant vstPrograms = QVariant::fromValue(programs);
                 st.setValue("VstParams", vstParams);
+                st.setValue("VstPrograms", vstPrograms);
             } else {
                 QVariant vstParams = QVariant::fromValue(synth->instrument(t).vstTempParams);
+                QVariant vstPrograms = QVariant::fromValue(synth->instrument(t).vstTempProgram);
                 st.setValue("VstParams", vstParams);
+                st.setValue("VstPrograms", vstPrograms);
             }
         }
         st.endArray();
@@ -255,6 +256,7 @@ void SynthMixerDialog::setVSTToSynth()
         QList<uint> vstUid = st.value("VstUid").value<QList<uint>>();
         QList<bool> vstBypass = st.value("VstBypass").value<QList<bool>>();
         QList<QList<float>> vstParams = st.value("VstParams").value<QList<QList<float>>>();
+        QList<int> vstPrograms = st.value("VstPrograms").value<QList<int>>();
 
         this->currentType = t;
 
@@ -267,6 +269,7 @@ void SynthMixerDialog::setVSTToSynth()
                 DWORD fx = this->addVST(QString::number(vstUid[i]), vstBypass[i]);
                 if (fx == 0)
                     continue;
+                BASS_VST_SetProgram(fx, vstPrograms[i]);
                 FX::setVSTParams(fx, vstParams[i]);
                 #endif
             }
@@ -480,10 +483,10 @@ void SynthMixerDialog::setChInstDetails()
                          "Bongo.png", "Conga.png", "Timbale.png", "Ching.png",
                          "Chab.png", "Percussion Etc.png",
 
-                         "bus1.png", "bus2.png", "bus3.png", "bus4.png",
-                         "bus5.png", "bus6.png", "bus7.png", "bus8.png",
-                         "bus9.png", "bus10.png", "bus11.png", "bus12.png",
-                         "bus13.png", "bus14.png", "bus15.png", "bus16.png" };
+                         "bs1.png", "bs2.png", "bs3.png", "bs4.png",
+                         "bs5.png", "bs6.png", "bs7.png", "bs8.png",
+                         "bs9.png", "bs10.png", "bs11.png", "bs12.png",
+                         "bs13.png", "bs14.png", "bs15.png", "bs16.png" };
 
 
     for (int i=0; i<58; i++)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>970</width>
-    <height>345</height>
+    <height>323</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -256,13 +256,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -299,13 +299,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -342,13 +342,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -385,13 +385,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -428,13 +428,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -471,13 +471,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -514,13 +514,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -557,13 +557,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -600,13 +600,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -643,13 +643,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -686,13 +686,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -729,13 +729,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -772,13 +772,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -815,13 +815,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -858,13 +858,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -901,13 +901,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -944,13 +944,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -987,13 +987,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1030,13 +1030,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1073,13 +1073,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1116,13 +1116,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1159,13 +1159,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1202,13 +1202,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1245,13 +1245,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1288,13 +1288,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1331,13 +1331,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1374,13 +1374,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1417,13 +1417,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1460,13 +1460,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1503,13 +1503,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1546,13 +1546,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1589,13 +1589,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1632,13 +1632,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1675,13 +1675,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1718,13 +1718,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1761,13 +1761,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1804,13 +1804,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1847,13 +1847,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1890,13 +1890,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1933,13 +1933,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -1976,13 +1976,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2019,13 +2019,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2068,7 +2068,7 @@
       <widget class="QWidget" name="scrollAreaWidgetContents_2">
        <property name="geometry">
         <rect>
-         <x>0</x>
+         <x>-452</x>
          <y>0</y>
          <width>928</width>
          <height>282</height>
@@ -2116,13 +2116,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2159,13 +2159,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2202,13 +2202,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2245,13 +2245,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2288,13 +2288,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2331,13 +2331,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2374,13 +2374,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2417,13 +2417,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2460,13 +2460,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2503,13 +2503,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2546,13 +2546,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2589,13 +2589,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2632,13 +2632,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2675,13 +2675,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2718,13 +2718,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">
@@ -2761,13 +2761,13 @@
              <property name="minimumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>54</width>
-               <height>278</height>
+               <height>262</height>
               </size>
              </property>
              <property name="autoFillBackground">

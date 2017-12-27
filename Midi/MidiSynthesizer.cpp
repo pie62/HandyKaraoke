@@ -123,9 +123,11 @@ bool MidiSynthesizer::open()
         #ifndef __linux__
         for (int i=0; i<instMap[t].vstUids.count(); i++) {
             DWORD fx = addVST(t, instMap[t].vstUids[i]);
+            BASS_VST_SetProgram(fx, instMap[t].vstTempProgram[i]);
             FX::setVSTParams(fx, instMap[t].vstTempParams[i]);
         }
         instMap[t].vstTempParams.clear();
+        instMap[t].vstTempProgram.clear();
         #endif
     }
 
@@ -168,7 +170,9 @@ void MidiSynthesizer::close()
     #ifndef __linux__
     for (InstrumentType t : instMap.keys()) {
         instMap[t].vstTempParams.clear();
+        instMap[t].vstTempProgram.clear();
         for (DWORD fx : instMap[t].vstHandles) {
+            instMap[t].vstTempProgram.append(BASS_VST_GetProgram(fx));
             instMap[t].vstTempParams.append(FX::getVSTParams(fx));
             BASS_VST_ChannelRemoveDSP(handles[t], fx);
         }

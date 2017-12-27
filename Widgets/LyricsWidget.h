@@ -22,6 +22,9 @@ public:
     void setPositionCursor(int tick);
     void setSeekPositionCursor(int tick);
 
+    QString lyrData() { return lyrics.join("\r\n"); }
+    QList<long> curData() { return cursors; }
+
     QFont   textFont()          { return font(); }
     QColor  textColor()         { return tColor; }
     QColor  textBorderColor()   { return tBorderColor; }

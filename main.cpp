@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv); 
 
     QCoreApplication::setApplicationName("handy-karaoke");
-    QCoreApplication::setApplicationVersion("1.2.0");
+    QCoreApplication::setApplicationVersion("1.3.0");
     QCoreApplication::setOrganizationName("HandyKaraoke");
     QCoreApplication::setOrganizationDomain("https://github.com/pie62/HandyKaraoke");
 
@@ -85,7 +85,7 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 
     QMap<uint, VSTNamePath> vstList;
 
-    for (const QString &dir : dirs)
+    for (const QString &dir : vstDirs)
     {
         QDirIterator it(dir, QStringList() << "*.DLL" << "*.dll",
                         QDir::Files|QDir::NoSymLinks, QDirIterator::Subdirectories);

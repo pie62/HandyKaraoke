@@ -1,8 +1,13 @@
 #ifndef MIDIEVENT_H
 #define MIDIEVENT_H
 
-#include <cstdint>
 #include <QByteArray>
+
+#ifdef _WIN32
+typedef __int32 int32_t;
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int32 uint32_t;
+#endif
 
 enum class MidiEventType {
     NoteOff = 0x80,

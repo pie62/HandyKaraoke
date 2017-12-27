@@ -554,7 +554,7 @@ void SongDatabase::run()
         count++;
     }
 
-   /* QDirIterator iter2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
+    /*QDirIterator iter2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
                     QDir::Files, QDirIterator::Subdirectories);
     while (iter2.hasNext()) {
         iter2.next();
@@ -600,7 +600,7 @@ void SongDatabase::run()
 
 
     // Update HNK
-   /* QDirIterator it2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
+ /*   QDirIterator it2(hnkDir.path() ,QStringList() << "*.hnk" << "*.HNK",
                      QDir::Files, QDirIterator::Subdirectories);
     while (it2.hasNext()) {
 

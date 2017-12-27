@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+# HNK
+Midi/lz77.h
+Midi/HNKFile.h
+Midi/HNKFile.cpp

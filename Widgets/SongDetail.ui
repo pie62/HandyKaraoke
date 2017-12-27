@@ -61,7 +61,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="label">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -76,7 +76,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="lbId">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -91,7 +91,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="label_2">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -106,7 +106,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="lbName">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -121,7 +121,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -136,7 +136,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="lbArtist">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -151,7 +151,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="label_4">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -166,7 +166,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="lbBpm">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -181,7 +181,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="label_5">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -196,7 +196,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="lbType">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -211,7 +211,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="label_6">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>
@@ -226,7 +226,7 @@ color: rgb(255, 255, 255);
        <widget class="QLabel" name="lbKey">
         <property name="font">
          <font>
-          <family>Angsana New</family>
+          <family>DilleniaUPC</family>
           <pointsize>18</pointsize>
           <weight>75</weight>
           <bold>true</bold>

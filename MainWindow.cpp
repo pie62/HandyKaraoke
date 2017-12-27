@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+﻿#include "MainWindow.h"
 #include "ui_MainWindow.h"
 
 #include "Utils.h"
@@ -14,7 +14,7 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QDirIterator>
-#include <QDebug>
+#include <QWindow>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -23,24 +23,23 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     BASS_Init(-1, 44100, 0, 0, NULL);
     BASS_FX_GetVersion();
-    qDebug() << "Inited bass";
 
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
-    qDebug() << "Created lyrics";
 
     ui->setupUi(this);
-    qDebug() << "Created ui";
+
+    #ifdef _WIN32
+    taskbarButton = new QWinTaskbarButton();
+    #endif
 
     settings = new QSettings();
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     //QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
-    qDebug() << "Readed ncn hnk path";
 
     db = new SongDatabase();
     db->setNcnPath(ncn);
     //db->setHNKPath(hnk);
-    qDebug() << "Created db";
 
 
     timer1 = new QTimer();
@@ -58,13 +57,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     songDetailTimer = new QTimer();
     songDetailTimer->setSingleShot(true);
-    qDebug() << "Created timer";
 
     player = new MidiPlayer();
-    qDebug() << "Created player";
 
     locale = QLocale(QLocale::English, QLocale::UnitedStates);
-    qDebug() << "Created locale";
 
     { // Channel Mixer
 
@@ -154,28 +150,23 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
-    qDebug() << "Synth";
     { // Synth
         MidiSynthesizer *synth = player->midiSynthesizer();
 
-        qDebug() << "Synth Audio out";
         // Audio out
         int aout = settings->value("AudioOut", 1).toInt();
         synth->setOutputDevice(aout);
 
-        qDebug() << "Synth floating and fx";
         // floating and fx
         bool useFloat = settings->value("SynthFloatPoint", true).toBool();
         bool useFX = settings->value("SynthUseFXRC", false).toBool();
         synth->setUsetFloattingPoint(useFloat);
         synth->setUseFXRC(useFX);
 
-        qDebug() << "Synth soundfont";
         // Synth soundfont
         //QList<QString> sfs;
         QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
 
-        qDebug() << "Synth soundfont volume";
         // Synth soundfont volume
         QList<int> sfvl;
         int idx=0;
@@ -194,7 +185,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
         // -----------
 
-        qDebug() << "Synth Map soundfont";
         // Synth Map soundfont
         QList<int> sfMap = synth->getMapSoundfontIndex();
         settings->beginReadArray("SynthSoundfontsMap");
@@ -216,7 +206,6 @@ MainWindow::MainWindow(QWidget *parent) :
         synth->setMapSoundfontIndex(sfMap, sfDrumMap);
 
 
-        qDebug() << "Synth EQ";
         // Synth EQ
         Equalizer31BandFX *eq = synth->equalizer31BandFX();
         std::map<EQFrequency31Range, float> eqgain = eq->gain();
@@ -236,7 +225,6 @@ MainWindow::MainWindow(QWidget *parent) :
         settings->endArray();
 
 
-        qDebug() << "Synth reverb";
         // Synth reverb
         ReverbFX *reverb = synth->reverbFX();
 
@@ -255,7 +243,6 @@ MainWindow::MainWindow(QWidget *parent) :
         reverb->setHighFreqRTRatio(rvHF);
 
 
-        qDebug() << "Synth chorus";
         // Synth chorus
         ChorusFX *chorus = synth->chorusFX();
 
@@ -285,7 +272,6 @@ MainWindow::MainWindow(QWidget *parent) :
         chorus->setDelay((float)cDl);
 
 
-        qDebug() << "Synth effect dialog";
         // Create Synth effect dialog
         eq31Dlg = new Equalizer31BandDialog(this, eq);
         eq31Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
@@ -302,13 +288,11 @@ MainWindow::MainWindow(QWidget *parent) :
         chorusDlg->adjustSize();
         chorusDlg->setFixedSize(chorusDlg->size());
 
-        qDebug() << "Synth synth mixer";
         // Create synth mixer
         synthMix = new SynthMixerDialog(this, this);
     }
 
 
-    qDebug() << "Lyrics";
     { // Lyrics
         QString family  = settings->value("LyricsFamily", font().family()).toString();
         int size        = settings->value("LyricsSize", 40).toInt();
@@ -501,6 +485,11 @@ MainWindow::~MainWindow()
 
     delete db;
     delete settings;
+
+    #ifdef _WIN32
+    delete taskbarButton;
+    #endif
+
     delete ui;
 
     delete updateDetail;
@@ -509,13 +498,14 @@ MainWindow::~MainWindow()
     BASS_Free();
 }
 
-void MainWindow::setBackgroundColor(QString colorName)
+void MainWindow::setBackgroundColor(const QString &colorName)
 {
     bgType = 0;
+    bgColor = colorName;
     this->setStyleSheet("#MainWindow {background-color: " + colorName + ";}");
 }
 
-void MainWindow::setBackgroundImage(QString img)
+void MainWindow::setBackgroundImage(const QString &img)
 {
     if (QFile::exists(img)) {
         this->setStyleSheet("");
@@ -534,8 +524,15 @@ void MainWindow::play(int index)
     stop();
     if (index == -1 && playingSong.id() != "") {
         lyrWidget->reset();
-        player->start();
         lyrWidget->show();
+        if (secondLyr != nullptr) {
+            secondLyr->reset();
+            secondLyr->show();
+        }
+        #ifdef _WIN32
+        taskbarButton->progress()->show();
+        #endif
+        player->start();
         positionTimer->start();
         lyricsTimer->start();
         return;
@@ -614,8 +611,17 @@ void MainWindow::play(int index)
 
     }*/
 
+    if (secondLyr != nullptr)
+        secondLyr->setLyrics(lyrWidget->lyrData(), lyrWidget->curData());
+
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
+
+    #ifdef _WIN32
+    taskbarButton->progress()->setValue(0);
+    taskbarButton->progress()->setMaximum(player->durationTick());
+    taskbarButton->progress()->show();
+    #endif
 
     // RHM
     ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
@@ -631,6 +637,8 @@ void MainWindow::play(int index)
 
     player->start();
     lyrWidget->show();
+    if (secondLyr != nullptr)
+        secondLyr->show();
     positionTimer->start();
     lyricsTimer->start();
 }
@@ -640,7 +648,13 @@ void MainWindow::pause()
     positionTimer->stop();
     lyricsTimer->stop();
     lyrWidget->stopAnimation();
+    if (secondLyr != nullptr)
+        secondLyr->stopAnimation();
     player->stop();
+
+    #ifdef _WIN32
+    taskbarButton->progress()->pause();
+    #endif
 }
 
 void MainWindow::resume()
@@ -648,6 +662,10 @@ void MainWindow::resume()
     player->start();
     positionTimer->start();
     lyricsTimer->start();
+
+    #ifdef _WIN32
+    taskbarButton->progress()->resume();
+    #endif
 }
 
 void MainWindow::stop()
@@ -659,10 +677,19 @@ void MainWindow::stop()
     ui->sliderPosition->setValue(0);
     lyrWidget->hide();
     lyrWidget->reset();
+    if (secondLyr != nullptr) {
+        secondLyr->hide();
+        secondLyr->reset();
+    }
     ui->sliderPosition->setValue(0);
     onPlayerPositionMSChanged(0);
 
     ui->rhmWidget->reset();
+
+    #ifdef _WIN32
+    taskbarButton->progress()->hide();
+    taskbarButton->progress()->setValue(0);
+    #endif
 }
 
 void MainWindow::playNext()
@@ -679,6 +706,13 @@ void MainWindow::playPrevious()
     if (playingIndex > 0 && playlist.count() > 0) {
         play(playingIndex - 1);
     }
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+    #ifdef _WIN32
+    taskbarButton->setWindow(this->windowHandle());
+    #endif
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
@@ -706,6 +740,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (resBtn != QMessageBox::Yes) {
         event->ignore();
     } else {
+        if (secondLyr != nullptr) {
+            secondMonitor->close();
+            delete secondMonitor;
+            secondLyr = nullptr;
+        }
         event->accept();
     }
 }
@@ -1006,10 +1045,16 @@ void MainWindow::showContextMenu(const QPoint &pos)
     QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
     QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน", this);
     QAction actionMapSF("การเลือกใช้ซาวด์ฟ้อนท์", this);
-    //QAction actionMinimize("ยุบหน้าจอ", this);
+    QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
     QAction actionAbout("เกี่ยวกับ", this);
+    QAction actionAboutQt("เกี่ยวกับ Qt", this);
     QAction actionExit("ออกจากโปรแกรม", this);
+
+    if (secondLyr != nullptr) {
+        actionSecondMonitor.setCheckable(true);
+        actionSecondMonitor.setChecked(true);
+    }
 
     connect(&actionSettings, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
     connect(&actionShowHideChMix, SIGNAL(triggered()), this, SLOT(showHideChMix()));
@@ -1018,9 +1063,10 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionShowReverbDlg, SIGNAL(triggered()), reverbDlg, SLOT(show()));
     connect(&actionShowChorusDlg, SIGNAL(triggered()), chorusDlg, SLOT(show()));
     connect(&actionMapSF, SIGNAL(triggered()), this, SLOT(showMapSFDialog()));
-    //connect(&actionMinimize, SIGNAL(triggered()), this, SLOT(minimizeWindow()));
+    connect(&actionSecondMonitor, SIGNAL(triggered()), this, SLOT(showSecondMonitor()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
     connect(&actionAbout, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
+    connect(&actionAboutQt, SIGNAL(triggered()), this, SLOT(showAboutQtDialog()));
     connect(&actionExit, SIGNAL(triggered()), this, SLOT(close()));
 
     menu.addAction(&actionSettings);
@@ -1033,10 +1079,11 @@ void MainWindow::showContextMenu(const QPoint &pos)
     menu.addAction(&actionShowChorusDlg);
     menu.addAction(&actionMapSF);
     menu.addSeparator();
-    //menu.addAction(&actionMinimize);
+    menu.addAction(&actionSecondMonitor);
     menu.addAction(&actionFullScreen);
     menu.addSeparator();
     menu.addAction(&actionAbout);
+    menu.addAction(&actionAboutQt);
     menu.addAction(&actionExit);
 
     menu.exec(mapToGlobal(pos));
@@ -1078,6 +1125,34 @@ void MainWindow::showMapSFDialog()
     msfDlg.exec();
 }
 
+void MainWindow::showSecondMonitor()
+{
+    if (secondLyr == nullptr) {
+        this->stop();
+        secondMonitor = new SecondMonitorDialog(this, lyrWidget);
+        secondMonitor->setWindowTitle("หน้าจอที่สอง - Handy Karaoke");
+        secondMonitor->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
+
+        if (bgType == 0)
+            secondMonitor->setBackgroundColor(bgColor);
+        else
+            secondMonitor->setBackgroundImage(bgImg);
+
+        secondLyr = secondMonitor->lyrWidget();
+        secondMonitor->show();
+
+        if (qApp->screens().count() > 1) {
+            secondMonitor->windowHandle()->setScreen(qApp->screens()[1]);
+            secondMonitor->showFullScreen();
+        }
+    } else {
+        secondLyr = nullptr;
+        secondMonitor->close();
+        delete secondMonitor;
+        secondMonitor = nullptr;
+    }
+}
+
 void MainWindow::showFullScreenOrNormal()
 {
     if (this->isFullScreen()) {
@@ -1094,16 +1169,27 @@ void MainWindow::showAboutDialog()
     d.exec();
 }
 
+void MainWindow::showAboutQtDialog()
+{
+    QMessageBox::aboutQt(this);
+}
+
 void MainWindow::onPositiomTimerTimeOut()
 {
-    ui->sliderPosition->setValue(player->positionTick());
+    int tick = player->positionTick();
+    ui->sliderPosition->setValue(tick);
+    #ifdef _WIN32
+    taskbarButton->progress()->setValue(tick);
+    #endif
     onPlayerPositionMSChanged(player->positionMs());
     ui->rhmWidget->setCurrentBeat( player->currentBeat() );
 }
 
 void MainWindow::onLyricsTimerTimeOut()
 {
-    lyrWidget->setPositionCursor(player->positionTick());
+    lyrWidget->setPositionCursor(player->positionTick() + 50);
+    if (secondLyr != nullptr)
+        secondLyr->setPositionCursor(player->positionTick() + 50);
 }
 
 void MainWindow::onPlayerDurationMSChanged(qint64 d)
@@ -1136,8 +1222,14 @@ void MainWindow::onSliderPositionReleased()
         return;
     }
 
+    #ifdef _WIN32
+    taskbarButton->progress()->setValue(ui->sliderPosition->value());
+    #endif
+
     player->setPositionTick(ui->sliderPosition->value());
     lyrWidget->setSeekPositionCursor(ui->sliderPosition->value());
+    if (secondLyr != nullptr)
+        secondLyr->setSeekPositionCursor(ui->sliderPosition->value());
     onPlayerPositionMSChanged(player->positionMs());
 
     // Seek beat
