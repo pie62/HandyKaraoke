@@ -42,7 +42,6 @@ SOURCES += main.cpp\
     BASSFX/ChorusFX.cpp \
     Dialogs/ChorusDialog.cpp \
     Widgets/InstCh.cpp \
-    Dialogs/SynthMixerDialog.cpp \
     Dialogs/SettingVuDialog.cpp \
     Widgets/SongDetail.cpp \
     Widgets/Detail.cpp \
@@ -55,7 +54,10 @@ SOURCES += main.cpp\
     BASSFX/FX.cpp \
     Widgets/CustomFXList.cpp \
     Dialogs/VSTDialog.cpp \
-    Dialogs/BusDialog.cpp
+    Dialogs/BusDialog.cpp \
+    BASSFX/BuiltIn/AutoWah.cpp \
+    Dialogs/SynthMixerDialog.cpp \
+    Dialogs/SecondMonitorDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -99,7 +101,9 @@ HEADERS  += MainWindow.h \
     BASSFX/FX.h \
     Widgets/CustomFXList.h \
     Dialogs/VSTDialog.h \
-    Dialogs/BusDialog.h
+    Dialogs/BusDialog.h \
+    BASSFX/BuiltIn/AutoWah.h \
+    Dialogs/SecondMonitorDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -117,13 +121,15 @@ FORMS    += MainWindow.ui \
     Widgets/Detail.ui \
     Dialogs/AboutDialog.ui \
     Widgets/VSTLabel.ui \
-    Dialogs/BusDialog.ui
+    Dialogs/BusDialog.ui \
+    Dialogs/SecondMonitorDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
 
 
 win32 {
+    QT += winextras
     LIBS += -lwinmm
 
     SOURCES += Midi/rtmidi/RtMidi.cpp \
@@ -146,7 +152,7 @@ win32 {
 
         #DEFINES += _ATL_XP_TARGETING
         #DEFINES += PSAPI_VERSION=1
-        #QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+        QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
     } else {
         message("64-bit")
         LIBS += -L$$PWD/BASS/bass24/x64/ -lbass
@@ -166,6 +172,7 @@ win32 {
 
 unix:!macx {
     #LIBS +=  -lrtmidi
+    
 
     contains(QT_ARCH, i386) {
         message("32-bit")
@@ -178,13 +185,16 @@ unix:!macx {
         message("ARM")
 	SOURCES += Midi/rtmidi/RtMidi.cpp
 	HEADERS  += Midi/rtmidi/RtMidi.h
-	INCLUDEPATH += $$PWD/Midi/rtmidi
+	INCLUDEPATH += $$PWD/Midi/rtmidi/ -lrtmidi
         LIBS += -L$$PWD/BASS/bass24-linux/armhf/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/armhf/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/armhf/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24-linux/armhf/ -lbassmix
     } else  {
         message("64-Bit")
+	SOURCES += Midi/rtmidi/RtMidi.cpp
+	HEADERS  += Midi/rtmidi/RtMidi.h
+	INCLUDEPATH += $$PWD/Midi/rtmidi/ -lrtmidi
         LIBS += -L$$PWD/BASS/bass24-linux/x64/ -lbass
         LIBS += -L$$PWD/BASS/bassmidi24-linux/x64/ -lbassmidi
         LIBS += -L$$PWD/BASS/bass_fx24-linux/x64/ -lbass_fx
