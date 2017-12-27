@@ -177,6 +177,7 @@ SynthMixerDialog::~SynthMixerDialog()
             st.setValue("VstBypass", bypass);
 
             if (synth->isOpened()) {
+                QList<int> programs;
                 QList<QList<float>> params;
                 for (int i=0; i<synth->instrument(t).vstUids.count(); i++) {
                     uint uid = synth->instrument(t).vstUids[i];
@@ -185,20 +186,20 @@ SynthMixerDialog::~SynthMixerDialog()
                     } else {
                         #ifndef __linux__
                         DWORD fxh = synth->instrument(t).vstHandles[i];
-                        params.append(FX::getVSTParams(fxh)
+                        params.append(FX::getVSTParams(fxh));
+                        programs.append(BASS_VST_GetProgram(fxh));
                         #endif
                     }
                 }
-                /*
-                for (DWORD fxh : synth->instrument(t).vstHandles) {
-                    params.append(FX::getVSTParams(fxh));
-                }
-                */
                 QVariant vstParams = QVariant::fromValue(params);
+                QVariant vstPrograms = QVariant::fromValue(programs);
                 st.setValue("VstParams", vstParams);
+                st.setValue("VstPrograms", vstPrograms);
             } else {
                 QVariant vstParams = QVariant::fromValue(synth->instrument(t).vstTempParams);
+                QVariant vstPrograms = QVariant::fromValue(synth->instrument(t).vstTempProgram);
                 st.setValue("VstParams", vstParams);
+                st.setValue("VstPrograms", vstPrograms);
             }
         }
         st.endArray();
@@ -255,6 +256,7 @@ void SynthMixerDialog::setVSTToSynth()
         QList<uint> vstUid = st.value("VstUid").value<QList<uint>>();
         QList<bool> vstBypass = st.value("VstBypass").value<QList<bool>>();
         QList<QList<float>> vstParams = st.value("VstParams").value<QList<QList<float>>>();
+        QList<int> vstPrograms = st.value("VstPrograms").value<QList<int>>();
 
         this->currentType = t;
 
@@ -267,6 +269,7 @@ void SynthMixerDialog::setVSTToSynth()
                 DWORD fx = this->addVST(QString::number(vstUid[i]), vstBypass[i]);
                 if (fx == 0)
                     continue;
+                BASS_VST_SetProgram(fx, vstPrograms[i]);
                 FX::setVSTParams(fx, vstParams[i]);
                 #endif
             }

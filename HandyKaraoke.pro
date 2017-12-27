@@ -56,7 +56,8 @@ SOURCES += main.cpp\
     Dialogs/VSTDialog.cpp \
     Dialogs/BusDialog.cpp \
     BASSFX/BuiltIn/AutoWah.cpp \
-    Dialogs/SynthMixerDialog.cpp
+    Dialogs/SynthMixerDialog.cpp \
+    Dialogs/SecondMonitorDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -101,7 +102,8 @@ HEADERS  += MainWindow.h \
     Widgets/CustomFXList.h \
     Dialogs/VSTDialog.h \
     Dialogs/BusDialog.h \
-    BASSFX/BuiltIn/AutoWah.h
+    BASSFX/BuiltIn/AutoWah.h \
+    Dialogs/SecondMonitorDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -119,13 +121,15 @@ FORMS    += MainWindow.ui \
     Widgets/Detail.ui \
     Dialogs/AboutDialog.ui \
     Widgets/VSTLabel.ui \
-    Dialogs/BusDialog.ui
+    Dialogs/BusDialog.ui \
+    Dialogs/SecondMonitorDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
 
 
 win32 {
+    QT += winextras
     LIBS += -lwinmm
 
     SOURCES += Midi/rtmidi/RtMidi.cpp \

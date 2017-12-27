@@ -344,6 +344,8 @@ void SettingsDialog::onRadioBgColorToggled(bool checked)
 
         settings->setValue("BackgroundType", 0);
         mainWin->setBackgroundColor(ui->lbBgColor->text());
+        if (mainWin->secondMonitorDlg() != nullptr)
+            mainWin->secondMonitorDlg()->setBackgroundColor(ui->lbBgColor->text());
     }
 }
 
@@ -360,6 +362,8 @@ void SettingsDialog::onRadioBgImgToggled(bool checked)
 
         settings->setValue("BackgroundType", 1);
         mainWin->setBackgroundImage(ui->leBgImgPath->text());
+        if (mainWin->secondMonitorDlg() != nullptr)
+            mainWin->secondMonitorDlg()->setBackgroundImage(ui->leBgImgPath->text());
     }
 }
 
@@ -373,6 +377,8 @@ void SettingsDialog::on_btnBgColor_clicked()
         ui->lbBgColor->setText(color.name());
         ui->lbBgColor->setStyleSheet("background-color : " + color.name());
         mainWin->setBackgroundColor(color.name());
+        if (mainWin->secondMonitorDlg() != nullptr)
+            mainWin->secondMonitorDlg()->setBackgroundColor(color.name());
     }
 }
 
@@ -386,6 +392,8 @@ void SettingsDialog::on_btnBgImg_clicked()
         settings->setValue("BackgroundImage", f);
         ui->leBgImgPath->setText(f);
         mainWin->setBackgroundImage(f);
+        if (mainWin->secondMonitorDlg() != nullptr)
+            mainWin->secondMonitorDlg()->setBackgroundImage(f);
     }
 }
 
@@ -602,43 +610,59 @@ void SettingsDialog::on_btnFont_clicked()
         setLabelFontInfo(&f);
 
         mainWin->lyricsWidget()->setTextFont(f);
+        if (mainWin->secondLyrics() != nullptr)
+            mainWin->secondLyrics()->setTextFont(f);
     }
 }
 
 void SettingsDialog::onSpinLine1YValueChanged(int v)
 {
-    mainWin->lyricsWidget()->setLine1Y(v);
     settings->setValue("LyricsLine1Y", v);
+    mainWin->lyricsWidget()->setLine1Y(v);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setLine1Y(v);
 }
 
 void SettingsDialog::onSpinLine2YValueChanged(int v)
 {
-    mainWin->lyricsWidget()->setLine2Y(v);
     settings->setValue("LyricsLine2Y", v);
+    mainWin->lyricsWidget()->setLine2Y(v);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setLine2Y(v);
 }
 
 void SettingsDialog::onSpinAnmtTimeValueChanged(int v)
 {
-    mainWin->lyricsWidget()->setAnimationTime(v);
     settings->setValue("LyricsAnimationTime", v);
+    mainWin->lyricsWidget()->setAnimationTime(v);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setAnimationTime(v);
 }
 
 void SettingsDialog::onChbLyrAutoSizeToggled(bool checked)
 {
     settings->setValue("LyricsAutoFontSize", checked);
     mainWin->lyricsWidget()->setAutoFontSize(checked);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setAutoFontSize(checked);
 }
 
 void SettingsDialog::on_cbLine1X_activated(int index)
 {
     settings->setValue("LyricsLine1X", index);
-    mainWin->lyricsWidget()->setLine1Position(static_cast<LinePosition>(index));
+    LinePosition p = static_cast<LinePosition>(index);
+    mainWin->lyricsWidget()->setLine1Position(p);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setLine1Position(p);
 }
 
 void SettingsDialog::on_cbLine2X_activated(int index)
 {
     settings->setValue("LyricsLine2X", index);
-    mainWin->lyricsWidget()->setLine2Position(static_cast<LinePosition>(index));
+    LinePosition p = static_cast<LinePosition>(index);
+    mainWin->lyricsWidget()->setLine2Position(p);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setLine2Position(p);
 }
 
 void SettingsDialog::on_btnTextColor_clicked()
@@ -654,6 +678,8 @@ void SettingsDialog::on_btnTextColor_clicked()
         ui->lbTextColor->setText(cn);
 
         mainWin->lyricsWidget()->setTextColor(color);
+        if (mainWin->secondLyrics() != nullptr)
+            mainWin->secondLyrics()->setTextColor(color);
     }
 }
 
@@ -670,6 +696,8 @@ void SettingsDialog::on_btnTextBorderColor_clicked()
         ui->lbTextBorderColor->setText(cn);
 
         mainWin->lyricsWidget()->setTextBorderColor(color);
+        if (mainWin->secondLyrics() != nullptr)
+            mainWin->secondLyrics()->setTextBorderColor(color);
     }
 }
 
@@ -686,6 +714,8 @@ void SettingsDialog::on_btnTextBorderOutColor_clicked()
         ui->lbTextBorderOutColor->setText(cn);
 
         mainWin->lyricsWidget()->setTextBorderOutColor(color);
+        if (mainWin->secondLyrics() != nullptr)
+            mainWin->secondLyrics()->setTextBorderOutColor(color);
     }
 }
 
@@ -693,12 +723,16 @@ void SettingsDialog::onSpinTextBorderWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsTextBorderWidth", arg1);
     mainWin->lyricsWidget()->setTextBorderWidth(arg1);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setTextBorderWidth(arg1);
 }
 
 void SettingsDialog::onSpinTextBorderOutWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsTextBorderOutWidth", arg1);
     mainWin->lyricsWidget()->setTextBorderOutWidth(arg1);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setTextBorderOutWidth(arg1);
 }
 
 void SettingsDialog::on_btnCurColor_clicked()
@@ -714,6 +748,8 @@ void SettingsDialog::on_btnCurColor_clicked()
         ui->lbCurColor->setText(cn);
 
         mainWin->lyricsWidget()->setCurColor(color);
+        if (mainWin->secondLyrics() != nullptr)
+            mainWin->secondLyrics()->setCurColor(color);
     }
 }
 
@@ -730,6 +766,8 @@ void SettingsDialog::on_btnCurBorderColor_clicked()
         ui->lbCurBorderColor->setText(cn);
 
         mainWin->lyricsWidget()->setCurBorderColor(color);
+        if (mainWin->secondLyrics() != nullptr)
+            mainWin->secondLyrics()->setCurBorderColor(color);
     }
 }
 
@@ -746,6 +784,8 @@ void SettingsDialog::on_btnCurBorderOutColor_clicked()
         ui->lbCurBorderOutColor->setText(cn);
 
         mainWin->lyricsWidget()->setCurBorderOutColor(color);
+        if (mainWin->secondLyrics() != nullptr)
+            mainWin->secondLyrics()->setCurBorderOutColor(color);
     }
 }
 
@@ -753,12 +793,16 @@ void SettingsDialog::onSpinCurBorderWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsCurBorderWidth", arg1);
     mainWin->lyricsWidget()->setCurBorderWidth(arg1);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setCurBorderWidth(arg1);
 }
 
 void SettingsDialog::onSpinCurBorderOutWidthValueChanged(int arg1)
 {
     settings->setValue("LyricsCurBorderOutWidth", arg1);
     mainWin->lyricsWidget()->setCurBorderOutWidth(arg1);
+    if (mainWin->secondLyrics() != nullptr)
+        mainWin->secondLyrics()->setCurBorderOutWidth(arg1);
 }
 
 void SettingsDialog::on_btnSfEdit_clicked()

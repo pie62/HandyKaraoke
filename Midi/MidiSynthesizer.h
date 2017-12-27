@@ -31,6 +31,7 @@ struct Instrument
     QList<DWORD> vstHandles;
     QList<uint> vstUids;
     QList<bool> vstBypass;
+    QList<int> vstTempProgram;
     QList<QList<float>> vstTempParams;
 };
 

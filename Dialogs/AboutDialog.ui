@@ -83,7 +83,7 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>1.2.0</string>
+      <string>1.3.0</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -134,7 +134,7 @@
         </font>
        </property>
        <property name="text">
-        <string>GPL</string>
+        <string>GPLv3</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
