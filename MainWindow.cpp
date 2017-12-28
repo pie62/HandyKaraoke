@@ -1,4 +1,4 @@
-﻿#include "MainWindow.h"
+#include "MainWindow.h"
 #include "ui_MainWindow.h"
 
 #include "Utils.h"
@@ -587,7 +587,7 @@ void MainWindow::play(int index)
             QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
                                  "ไม่มีไฟล์ " + p, QMessageBox::Ok);
             return;
-        }
+        } 
 
         QFile mid("temp.mid");
         if (mid.exists())
@@ -982,7 +982,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 play(0);
             }
         }
-        if (ui->framePlaylist->isVisible()) {
+        if (ui->framePlaylist->isVisible() && ui->playlist->count() > 0) {
             ui->framePlaylist->hide();
             play(ui->playlist->currentRow());
         }
@@ -1131,7 +1131,11 @@ void MainWindow::showSecondMonitor()
         this->stop();
         secondMonitor = new SecondMonitorDialog(this, lyrWidget);
         secondMonitor->setWindowTitle("หน้าจอที่สอง - Handy Karaoke");
+        #ifdef _WIN32
         secondMonitor->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
+        #else
+        secondMonitor->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        #endif
 
         if (bgType == 0)
             secondMonitor->setBackgroundColor(bgColor);
