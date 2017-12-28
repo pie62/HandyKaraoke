@@ -7,12 +7,15 @@
 
 #include "BASSFX/FX.h"
 
+#ifdef __linux__
+#include <QFontDatabase>
+#endif
+
 void registerMetaType();
 
 #ifndef __linux__
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth);
 #endif
-
 
 int main(int argc, char *argv[])
 {
@@ -32,6 +35,12 @@ int main(int argc, char *argv[])
 
     splash->showMessage("กำลังเริ่มโปรแกรม...", Qt::AlignBottom|Qt::AlignRight);
     qApp->processEvents();
+
+    // Add font for linux
+    #ifdef __linux__
+    QFontDatabase::addApplicationFont(":/Fonts/THSarabunNew/THSarabunNew Bold.ttf");
+    #endif
+    //----------------------------------
 
     MainWindow w;
 

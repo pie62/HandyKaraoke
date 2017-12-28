@@ -29,14 +29,15 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     mapChInstUI();
     setChInstDetails();
 
-    setBtnEqIcon(synth->equalizer31BandFX()->isOn());
-    setBtnReverbIcon(synth->reverbFX()->isOn());
-    setBtnChorusIcon(synth->chorusFX()->isOn());
-
     ui->scrollArea->setWidgetResizable(false);
     this->adjustSize();
     this->setMinimumSize(970, height());
     this->setMaximumHeight(height());
+
+    setBtnEqIcon(synth->equalizer31BandFX()->isOn());
+    setBtnReverbIcon(synth->reverbFX()->isOn());
+    setBtnChorusIcon(synth->chorusFX()->isOn());
+
 
     { // Settings
         QSettings st("SynthMixer.ini", QSettings::IniFormat);
@@ -107,6 +108,11 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         }
         st.endArray();
     }
+
+    #ifdef __linux__
+    ui->btnVSTDirs->hide();
+    #endif
+
 
     connect(ui->btnEq, SIGNAL(clicked()),
             mainWin->equalizer31BandDialog(), SLOT(show()));
@@ -592,11 +598,13 @@ void SynthMixerDialog::showChannelMenu(InstrumentType type, const QPoint &pos)
 
     QMenu menu(this);
 
+    #ifndef __linux__
     QMenu *vstMenu = menu.addMenu("VST Effects");
 
     for (QMenu *m : vstVendorMenus) {
         vstMenu->addMenu(m);
     }
+    #endif
 
     if (static_cast<int>(type) < 42) {
         menu.addSeparator();
