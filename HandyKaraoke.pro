@@ -197,7 +197,8 @@ macx {
 }
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
+    fonts.qrc
 
 #DEFINES += _ATL_XP_TARGETING
 #DEFINES += PSAPI_VERSION=1
