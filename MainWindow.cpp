@@ -401,10 +401,26 @@ MainWindow::MainWindow(QWidget *parent) :
     // Menu
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
+
+    mm = new MidiFile();
+    seq = new MidiSequencer();
+
+    mm->read("D:/rhm.mid");
+    mm->printEvents();
+
+    seq->setMidi(mm);
+
+    connect(seq, SIGNAL(playingEvent(MidiEvent*)), player, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
+
+    seq->start();
 }
 
 MainWindow::~MainWindow()
 {
+    seq->stop();
+    delete seq;
+    delete mm;
+
     stop();
 
     { // Write synth FX settings
@@ -1191,9 +1207,9 @@ void MainWindow::onPositiomTimerTimeOut()
 
 void MainWindow::onLyricsTimerTimeOut()
 {
-    lyrWidget->setPositionCursor(player->positionTick() + 50);
+    lyrWidget->setPositionCursor(player->positionTick() + 25);
     if (secondLyr != nullptr)
-        secondLyr->setPositionCursor(player->positionTick() + 50);
+        secondLyr->setPositionCursor(player->positionTick() + 25);
 }
 
 void MainWindow::onPlayerDurationMSChanged(qint64 d)

@@ -3,6 +3,8 @@
 
 #include "SongDatabase.h"
 #include "Midi/MidiPlayer.h"
+#include "Midi/MidiSequencer.h"
+
 #include <LyricsWidget.h>
 #include <Detail.h>
 #include <ChannelMixer.h>
@@ -117,6 +119,9 @@ private:
     #ifdef _WIN32
     QWinTaskbarButton *taskbarButton;
     #endif
+
+    MidiFile *mm;
+    MidiSequencer *seq;
 
 private slots:
     void showCurrentTime();

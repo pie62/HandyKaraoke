@@ -72,12 +72,15 @@ public:
 
     static int getNumberBeatInBar(int numerator, int denominator);
 
+public slots:
+    void sendEvent(MidiEvent *e);
+
 protected:
     void run();
 
 signals:
     void loaded();
-    void playingEvents(MidiEvent *e);
+    void sendedEvent(MidiEvent *e);
     void bpmChanged(int bpm);
 
 private:
@@ -94,7 +97,7 @@ private:
     bool                _midiChangeBpmSpeed = false;
 
     MidiEvent   _tempEvent;
-    MidiEvent   *_playingEventPtr = nullptr;
+    MidiEvent*  _playingEventPtr = nullptr;
 
     int     _volume = 100;
     int     _durationTick = 0;
@@ -122,13 +125,12 @@ private:
     QElapsedTimer *_eTimer;
 
     void playEvents();
-    void sendEvent(MidiEvent *e);
+    void sendEventToDevices(MidiEvent *e);
     void sendAllNotesOff(int ch);
     void sendAllNotesOff();
     void sendResetAllControllers();
 
     int getNoteNumberToPlay(int ch, int defaultNote);
-    float getSpeedTime(uint32_t tick);
 };
 
 #endif // MIDIPLAYER_H

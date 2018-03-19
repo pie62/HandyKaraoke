@@ -131,7 +131,7 @@ bool MidiSynthesizer::open()
         #endif
     }
 
-    BASS_ChannelPlay(mixHandle, true);
+    BASS_ChannelPlay(mixHandle, false);
 
     setSfToStream();
 
@@ -794,6 +794,7 @@ void MidiSynthesizer::setSfToStream()
         if (!f)
             continue;
 
+        //BASS_MIDI_FontLoad(f, -1, -1);
         BASS_MIDI_FontCompact(f);
         synth_HSOUNDFONT.push_back(f);
     }

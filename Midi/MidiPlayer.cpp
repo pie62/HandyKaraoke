@@ -348,6 +348,12 @@ void MidiPlayer::setBpmSpeed(int sp)
     emit bpmChanged(_midiBpm + sp);
 }
 
+long MidiPlayer::positionMs()
+{
+    //return _playing ? _eTimer->elapsed() + _startPlayTime : _positionMs;
+    return _playing ? _midi->timeFromTick(positionTick()) * 1000 : _positionMs;
+}
+
 int MidiPlayer::positionTick()
 {
     if (_playing) {
@@ -387,7 +393,7 @@ void MidiPlayer::setLockDrum(bool lock, int number)
         ev.setChannel(9);
         ev.setData1(number);
         sendEvent(&ev);
-        emit playingEvents(&ev);
+        emit sendedEvent(&ev);
     }
 }
 
@@ -424,9 +430,31 @@ void MidiPlayer::setLockBass(bool lock, int number)
             ev.setChannel(i);
             ev.setData1(number);
             sendEvent(&ev);
-            emit playingEvents(&ev);
+            emit sendedEvent(&ev);
         }
     }
+}
+
+void MidiPlayer::sendEvent(MidiEvent *e)
+{
+    _playingEventPtr = e;
+
+    if (e->eventType() == MidiEventType::Controller
+        || e->eventType() == MidiEventType::ProgramChange) {
+        sendEventToDevices(e);
+    } else {
+        if (_midiChannels[e->channel()].isMute() == false) {
+            if (_useSolo) {
+                if (_midiChannels[e->channel()].isSolo()) {
+                    sendEventToDevices(e);
+                }
+            } else {
+                sendEventToDevices(e);
+            }
+        }
+    }
+
+    emit sendedEvent(_playingEventPtr);
 }
 
 void MidiPlayer::run()
@@ -445,7 +473,7 @@ void MidiPlayer::run()
             ev.setData1(0);
         }
         sendEvent(&ev);
-        emit playingEvents(&ev);
+        emit sendedEvent(&ev);
     }
 
     _playing = true;
@@ -453,12 +481,6 @@ void MidiPlayer::run()
     _finished = false;
 
     playEvents();
-}
-
-long MidiPlayer::positionMs()
-{
-    //return _playing ? _eTimer->elapsed() + _startPlayTime : _positionMs;
-    return _playing ? _midi->timeFromTick(positionTick()) * 1000 : _positionMs;
 }
 
 void MidiPlayer::playEvents()
@@ -475,7 +497,7 @@ void MidiPlayer::playEvents()
         if (!_playing)
             break;
 
-        _playingEventPtr = _midi->events()[i];
+        //_playingEventPtr = _midi->events()[i];
 
         if (_midi->events()[i]->eventType() != MidiEventType::Meta) {
 
@@ -492,12 +514,13 @@ void MidiPlayer::playEvents()
             long waitTime = eventTime - _startPlayTime  - _eTimer->elapsed();
 
             if (waitTime > 0) {
-                //std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
                 msleep(waitTime);
             }
 
             if (_midi->events()[i]->eventType() != MidiEventType::SysEx) {
 
+                sendEvent(_midi->events()[i]);
+                /*
                 if (_midi->events()[i]->eventType() == MidiEventType::Controller
                     || _midi->events()[i]->eventType() == MidiEventType::ProgramChange) {
                     sendEvent(_midi->events()[i]);
@@ -512,6 +535,7 @@ void MidiPlayer::playEvents()
                         }
                     }
                 }
+                */
 
             }
 
@@ -522,12 +546,13 @@ void MidiPlayer::playEvents()
                 _midiBpm = _midi->events()[i]->bpm();
                 emit bpmChanged(_midiBpm + _midiSpeed);
             }
+            emit sendedEvent(_midi->events()[i]);
         }
 
         _playedIndex = i;
         _positionTick = _midi->events()[i]->tick();
 
-        emit playingEvents(_playingEventPtr);
+        //emit playingEvents(_playingEventPtr);
 
     } // End for loop
 
@@ -539,10 +564,10 @@ void MidiPlayer::playEvents()
     }
 }
 
-void MidiPlayer::sendEvent(MidiEvent *e)
+void MidiPlayer::sendEventToDevices(MidiEvent *e)
 {
     int ch = e->channel();
-    Channel *midiCh = &_midiChannels[ch];
+    //Channel *midiCh = &_midiChannels[ch];
 
     switch (e->eventType()) {
     case MidiEventType::NoteOff: {
@@ -630,6 +655,8 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         }
         break;
     }
+    default:
+        break;
     }
 }
 
@@ -673,17 +700,6 @@ int MidiPlayer::getNoteNumberToPlay(int ch, int defaultNote)
         n = defaultNote + _midiTranspose;
     }
     return n;
-}
-
-float MidiPlayer::getSpeedTime(uint32_t tick)
-{
-    if (_midiSpeed == 0 || _midi->divisionType() != MidiFile::PPQ)
-        return 0.0f;
-    else {
-        const float kSecondsPerQuarterNote = (60000000 / _midiSpeed) / 1000000.0f;
-        const float kSecondsPerTick = kSecondsPerQuarterNote / _midi->resorution();
-        return tick * kSecondsPerTick;
-    }
 }
 
 int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)

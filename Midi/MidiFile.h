@@ -46,6 +46,8 @@ public:
     uint32_t tickFromTime(float time, int bpmSpeed = 0);
     uint32_t tickFromTimeMs(long msTime, int bpmSpeed = 0);
 
+    void printEvents();
+
     static int firstBpm(const QString &file);
     static int firstBpm(QFile *in);
 

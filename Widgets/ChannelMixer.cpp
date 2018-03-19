@@ -121,14 +121,14 @@ void ChannelMixer::setPlayer(MidiPlayer *p)
 {
     if (player != nullptr) {
         disconnect(player, SIGNAL(loaded()), this, SLOT(onPlayerLoaded()));
-        disconnect(player, SIGNAL(playingEvents(MidiEvent*)),
+        disconnect(player, SIGNAL(sendedEvent(MidiEvent*)),
                    this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
     }
 
     player = p;
 
     connect(player, SIGNAL(loaded()), this, SLOT(onPlayerLoaded()));
-    connect(player, SIGNAL(playingEvents(MidiEvent*)),
+    connect(player, SIGNAL(sendedEvent(MidiEvent*)),
             this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
 }
 
