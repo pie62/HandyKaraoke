@@ -1,8 +1,5 @@
 #include "MidiFile.h"
 
-#include <iostream>
-#include <iomanip>
-
 #include <cstdlib>
 
 // ========================================================
@@ -431,92 +428,6 @@ uint32_t MidiFile::tickFromTimeMs(long msTime, int bpmSpeed)
     default:
         return 0;
     }
-}
-
-void MidiFile::printEvents()
-{
-    using namespace std;
-
-    cout << fResolution << endl;
-
-    /*
-    { // Add
-        long mark = fResolution * 4;
-        long lmark = mark * 2;
-        QList<MidiEvent*> nEv, lEv, evs, tev;
-
-        for (MidiEvent *e : events()) {
-
-            if (e->tick() >= lmark) {
-                break;
-            }
-
-            if (e->eventType() == MidiEventType::NoteOn
-                    || e->eventType() == MidiEventType::NoteOff ) {
-
-                if (e->tick() >= mark) {
-                    lEv.append(e);
-                }
-                else {
-                    nEv.append(e);
-                }
-            }
-
-        }
-
-        long m = 0;
-        for (int i=0; i<4; i++) {
-
-            for (MidiEvent *e : nEv) {
-                MidiEvent *ev = new MidiEvent();
-                *ev = *e;
-                ev->setTick(ev->tick() + m);
-                evs.append(ev);
-            }
-
-            m = fResolution * 4 + m;
-
-        }
-
-        for (MidiEvent *e : fTempoEvents) {
-            MidiEvent *ev = new MidiEvent();
-            *ev = *e;
-            evs.append(ev);
-            tev.append(ev);
-        }
-
-        for (MidiEvent *e : fEvents) {
-            delete e;
-        }
-
-        qStableSort(evs.begin(), evs.end(), isGreaterThan);
-        qStableSort(tev.begin(), tev.end(), isGreaterThan);
-
-        fEvents.clear();
-        fTempoEvents.clear();
-
-        fEvents = evs;
-        fTempoEvents = tev;
-    }
-    */
-
-    { // Print
-        long mark = fResolution * 4;
-        cout << "Mark " << mark << endl;
-
-        for (MidiEvent *e : events()) {
-
-            if (e->tick() >= mark ) {
-                mark = fResolution * 4 + mark;
-                cout << "====================================================" << endl;
-            }
-
-            if (e->eventType() == MidiEventType::NoteOn )
-                cout << e->tick() << setw(6) << e->channel() << setw(6) << e->data1() << endl;
-
-        }
-    }
-
 }
 
 int MidiFile::firstBpm(const QString &file)

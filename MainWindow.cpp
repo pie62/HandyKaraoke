@@ -401,26 +401,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Menu
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
-
-    mm = new MidiFile();
-    seq = new MidiSequencer();
-
-    mm->read("D:/rhm.mid");
-    mm->printEvents();
-
-    seq->setMidi(mm);
-
-    connect(seq, SIGNAL(playingEvent(MidiEvent*)), player, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
-
-    seq->start();
 }
 
 MainWindow::~MainWindow()
 {
-    seq->stop();
-    delete seq;
-    delete mm;
-
     stop();
 
     { // Write synth FX settings
@@ -636,6 +620,7 @@ void MainWindow::play(int index)
     #ifdef _WIN32
     taskbarButton->progress()->setValue(0);
     taskbarButton->progress()->setMaximum(player->durationTick());
+    taskbarButton->progress()->resume();
     taskbarButton->progress()->show();
     #endif
 

@@ -2,18 +2,111 @@
 
 MidiSequencer::MidiSequencer(QObject *parent) : QThread(parent)
 {
+    _midi = new MidiFile();
     _eTimer = new QElapsedTimer();
 }
 
 MidiSequencer::~MidiSequencer()
 {
+    stop();
+
     delete _eTimer;
+    delete _midi;
 }
 
-void MidiSequencer::setMidi(MidiFile *midi)
+int MidiSequencer::beatCount()
 {
-    this->stop();
-    this->_midi = midi;
+    if (_midi->events().count() == 0) {
+        return 0;
+    } else {
+        return _midi->beatFromTick(_midi->events().back()->tick());
+    }
+}
+
+int MidiSequencer::currentBeat()
+{
+    return _midi->beatFromTick(positionTick());
+}
+
+int MidiSequencer::positionTick()
+{
+    if (_playing) {
+        return _midi->tickFromTimeMs(_eTimer->elapsed()  + _startPlayTime, _midiSpeed);
+    } else {
+        return _positionTick;
+    }
+}
+
+int MidiSequencer::durationTick()
+{
+    return _midi->events().back()->tick();
+}
+
+long MidiSequencer::positionMs()
+{
+    return _playing ? _midi->timeFromTick(positionTick()) * 1000 : _positionMs;
+}
+
+long MidiSequencer::durationMs()
+{
+    return _midi->timeFromTick(durationTick()) * 1000;
+}
+
+void MidiSequencer::setPositionTick(int t)
+{
+    bool playAfterSeek = _playing;
+    if (_playing)
+        stop();
+
+    int index = 0;
+    for (MidiEvent *e :_midi->events()) {
+        if (e->tick() > t)
+            break;
+
+        if (e->eventType() == MidiEventType::Controller
+            || e->eventType() == MidiEventType::ProgramChange) {
+            emit playingEvent(e);
+        }
+        _positionTick = e->tick();
+        index++;
+    }
+
+    _playedIndex = index;
+    if (playAfterSeek)
+        start();
+}
+
+void MidiSequencer::setBpmSpeed(int sp)
+{
+    if (sp == _midiSpeed)
+        return;
+
+    if ((_midiBpm + sp) < 20 || (_midiBpm + sp) > 250)
+        return;
+
+    if (_playing) {
+        _midiSpeedTemp = sp;
+        _midiChangeBpmSpeed = true;
+    } else {
+        _midiSpeed = sp;
+    }
+}
+
+bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
+{
+    if (!_stopped)
+        stop();
+
+    if (!_midi->read(file, seekFileChunkID))
+        return false;
+
+    _midiSpeed = 0;
+    _midiSpeedTemp = 0;
+    _midiChangeBpmSpeed = false;
+
+    _finished = false;
+
+    return true;
 }
 
 void MidiSequencer::stop(bool resetPos)
@@ -76,15 +169,13 @@ void MidiSequencer::run()
                 msleep(waitTime);
             }
 
-            if (_midi->events()[i]->eventType() != MidiEventType::SysEx) {
-                emit playingEvent(_midi->events()[i]);
-            }
-
             _positionMs = eventTime;
 
         } else { // Meta event
 
         }
+
+        emit playingEvent(_midi->events()[i]);
 
         _playedIndex = i;
         _positionTick = _midi->events()[i]->tick();

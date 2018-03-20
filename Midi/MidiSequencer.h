@@ -14,7 +14,28 @@ public:
     explicit MidiSequencer(QObject *parent = nullptr);
     ~MidiSequencer();
 
-    void setMidi(MidiFile *midi);
+    MidiFile* midiFile() { return _midi; }
+
+    bool isSeqFinished() { return _finished; }
+    bool isSeqPlaying() { return _playing; }
+    bool isSeqStopped() { return _stopped; }
+    bool isSeqPaused() { return (!_playing && !_stopped) ? true : false; }
+
+    int bpmSpeed() { return _midiSpeed; }
+    int currentBpm() { return _midiBpm + _midiSpeed; }
+
+    int beatCount();
+    int currentBeat();
+    int positionTick();
+    int durationTick();
+    long positionMs();
+    long durationMs();
+
+    void setPositionTick(int t);
+    void setBpmSpeed(int sp);
+
+
+    bool load(const QString &file, bool seekFileChunkID = false);
     void stop(bool resetPos = false);
 
 public slots:
@@ -29,22 +50,20 @@ private:
     MidiFile *_midi;
     QElapsedTimer *_eTimer;
 
-    bool    _stopped = true;
-    bool    _playing = false;
-    bool    _changeProgramDrum = false;
-    bool    _midiChangeBpmSpeed = false;
-
+    int     _midiBpm = 120;
     int     _midiSpeed = 0;
     int     _midiSpeedTemp = 0;
-    int     _playedIndex = 0;
+    bool    _midiChangeBpmSpeed = false;
 
-    long    _startPlayTime = 0;
-    long    _startPlayIndex = 0;
-    long    _positionTick = 0;
+    int     _positionTick = 0;
     long    _positionMs = 0;
 
-    int     _lockBpmNumber = 120;
-    bool    _lockBpm = true;
+    int     _playedIndex = 0;
+    long    _startPlayTime = 0;
+    long    _startPlayIndex = 0;
+    bool    _finished = false;
+    bool    _stopped = true;
+    bool    _playing = false;
 };
 
 #endif // MIDISEQUENCER_H

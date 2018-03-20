@@ -713,5 +713,7 @@ int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
         return numerator * 0.5;
     case 16:
         return numerator * 0.25;
+    default:
+        return 4;
     }
 }
