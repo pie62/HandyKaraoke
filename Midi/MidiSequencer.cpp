@@ -90,6 +90,8 @@ void MidiSequencer::setBpmSpeed(int sp)
     } else {
         _midiSpeed = sp;
     }
+
+    emit bpmChanged(_midiBpm + sp);
 }
 
 bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
@@ -105,6 +107,12 @@ bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
     _midiChangeBpmSpeed = false;
 
     _finished = false;
+
+    if (_midi->tempoEvents().count() > 0) {
+        _midiBpm = _midi->tempoEvents()[0]->bpm();
+    } else {
+        _midiBpm = 120;
+    }
 
     return true;
 }
@@ -172,7 +180,10 @@ void MidiSequencer::run()
             _positionMs = eventTime;
 
         } else { // Meta event
-
+            if (_midi->events()[i]->metaEventType() == MidiMetaType::SetTempo) {
+                _midiBpm = _midi->events()[i]->bpm();
+                emit bpmChanged(_midiBpm + _midiSpeed);
+            }
         }
 
         emit playingEvent(_midi->events()[i]);
