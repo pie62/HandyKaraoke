@@ -1,82 +1,49 @@
-#ifndef MIDIPLAYER_H
+﻿#ifndef MIDIPLAYER_H
 #define MIDIPLAYER_H
 
-#include "MidiFile.h"
 #include "MidiOut.h"
 #include "Channel.h"
+#include "MidiSequencer.h"
 #include "MidiSynthesizer.h"
 
-#include <QThread>
-#include <QElapsedTimer>
-#include <QMap>
+#include <QObject>
 
-
-class MidiPlayer : public QThread
+class MidiPlayer : public QObject
 {
     Q_OBJECT
 public:
-    explicit MidiPlayer(QObject *parent = 0);
+    explicit MidiPlayer(QObject *parent = nullptr);
     ~MidiPlayer();
 
     static std::vector<std::string> midiDevices();
-    bool setMidiOut(int portNumer);
-    bool load(const QString &file, bool seekFileChunkID = false);
-    void stop(bool resetPos = false);
-    void setVolume(int v);
-    void setVolume(int ch, int v);
-    void setInstrument(int ch, int i);
-    void setMute(int ch, bool mute);
-    void setSolo(int ch, bool solo);
-    void setPan(int ch, int v);
-    void setReverb(int ch, int v);
-    void setChorus(int ch, int v);
-    void setPositionTick(int t);
-    void setTranspose(int t);
-    void setBpmSpeed(int sp);
+    static bool isSnareNumber(int num);
+    static bool isBassInstrument(int ints);
+    static int getNumberBeatInBar(int numerator, int denominator);
 
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
-    MidiFile* midiFile() { return _midi; }
     Channel* midiChannel() { return _midiChannels; }
     int midiOutPortNumber() { return _midiPortNum; }
     int volume() { return _volume; }
-    int durationTick() { return _durationTick; }
-    long durationMs() { return _durationMs; }
-    bool isPlayerFinished() { return _finished; }
-    bool isPlayerPlaying() { return _playing; }
-    bool isPlayerStopped() { return _stopped; }
-    bool isPlayerPaused() { return (!_playing && !_stopped) ? true : false; }
-    long positionMs();
-    int positionTick();
-    int currentBeat();
     int transpose() { return _midiTranspose; }
-    int bpmSpeed() { return _midiSpeed; }
-
-    int currentBpm() { return _midiBpm + _midiSpeed; }
-    int beatCount() { return _midiBeatCount; }
-    QMap<int, int> beatInBar() { return _beatInBar; }
-
-    static bool isSnareNumber(int num);
-    static bool isBassInstrument(int ints);
 
     int  lockDrumNumber()  { return _lockDrumNumber; }
     int  lockSnareNumber() { return _lockSnareNumber; }
     int  lockBassNumber()  { return _lockBassBumber; }
-
     bool isLockDrum()   { return _lockDrum; }
     bool isLockSnare()  { return _lockSnare; }
     bool isLockBass()   { return _lockBass; }
 
-    void setLockDrum(bool lock, int number = 0);
-    void setLockSnare(bool lock, int number = 38);
-    void setLockBass(bool lock, int number = 32);
-
-    static int getNumberBeatInBar(int numerator, int denominator);
+    long durationMs();
+    long positionMs();
+    int durationTick();
+    int positionTick();
+    int bpmSpeed();
+    int currentBpm();
+    int currentBeat();
+    int beatCount();
 
 public slots:
     void sendEvent(MidiEvent *e);
-
-protected:
-    void run();
 
 signals:
     void loaded();
@@ -84,34 +51,19 @@ signals:
     void bpmChanged(int bpm);
 
 private:
-    MidiFile            *_midi;
-    MidiOut             *_midiOut;
+    std::vector<MidiSequencer*> _midiSeq;
+    QMap<int, MidiOut*> _midiOuts;
     MidiSynthesizer     *_midiSynth;
     Channel             _midiChannels[16];
     int                 _midiPortNum = 0;
-    int                 _midiBpm = 120;
-    int                 _midiSpeed = 0;
-    int                 _midiSpeedTemp = 0;
+    int                 _volume = 100;
     int                 _midiTranspose = 0;
-    int                 _midiBeatCount = 0;
-    bool                _midiChangeBpmSpeed = false;
+    int                 _seqIndex = 0;
+    bool                _useMedley = false;
+    bool                _useSolo = false;
 
     MidiEvent   _tempEvent;
     MidiEvent*  _playingEventPtr = nullptr;
-
-    int     _volume = 100;
-    int     _durationTick = 0;
-    int     _positionTick = 0;
-    long    _durationMs = 0;
-    long    _positionMs = 0;
-
-    int     _playedIndex = 0;
-    long    _startPlayTime = 0;
-    long    _startPlayIndex = 0;
-    bool    _finished = false;
-    bool    _stopped = true;
-    bool    _playing = false;
-    bool    _useSolo = false;
 
     bool    _lockDrum  = false;
     bool    _lockSnare = false;
@@ -120,14 +72,11 @@ private:
     int     _lockSnareNumber = 38;
     int     _lockBassBumber  = 32;
 
-    // number beat in 1 bar , number bar
-    QMap<int, int> _beatInBar;
-    QElapsedTimer *_eTimer;
 
-    void playEvents();
     void sendEventToDevices(MidiEvent *e);
     void sendAllNotesOff(int ch);
     void sendAllNotesOff();
+    void sendResetAllControllers(int ch);
     void sendResetAllControllers();
 
     int getNoteNumberToPlay(int ch, int defaultNote);

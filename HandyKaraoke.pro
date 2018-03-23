@@ -58,7 +58,9 @@ SOURCES += main.cpp\
     BASSFX/BuiltIn/AutoWah.cpp \
     Dialogs/SynthMixerDialog.cpp \
     Dialogs/SecondMonitorDialog.cpp \
-    Midi/MidiSequencer.cpp
+    Midi/MidiSequencer.cpp \
+    Midi/MidiSender.cpp \
+    Midi/MidiPlayer.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -105,7 +107,9 @@ HEADERS  += MainWindow.h \
     Dialogs/BusDialog.h \
     BASSFX/BuiltIn/AutoWah.h \
     Dialogs/SecondMonitorDialog.h \
-    Midi/MidiSequencer.h
+    Midi/MidiSequencer.h \
+    Midi/MidiSender.h \
+    Midi/MidiPlayer.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
