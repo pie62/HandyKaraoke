@@ -154,7 +154,7 @@ void MidiSequencer::run()
 
     _eTimer->restart();
 
-    for (int i = 0; i < _midi->events().count(); i++) {
+    for (int i = _playedIndex; i < _midi->events().count(); i++) {
 
         if (!_playing)
             break;
@@ -192,4 +192,8 @@ void MidiSequencer::run()
         _positionTick = _midi->events()[i]->tick();
 
     } // End for loop
+
+    if (_playedIndex == _midi->events().size() -1 ) {
+        _finished = true;
+    }
 }
