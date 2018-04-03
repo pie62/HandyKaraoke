@@ -86,6 +86,7 @@ ChannelMixer::ChannelMixer(QWidget *parent) :
 
     connect(ui->cbCh, SIGNAL(currentIndexChanged(int)), this, SLOT(showDeTail(int)));
     connect(ui->chbMuteVoice, SIGNAL(toggled(bool)), this, SLOT(onChbMuteVoiceToggled(bool)));
+    connect(ui->chbLock, SIGNAL(toggled(bool)), this, SLOT(onChbLockToggled(bool)));
 
     connect(ui->cbInts, SIGNAL(activated(int)), this, SLOT(onCbIntsActivated(int)));
     connect(ui->dialPan, SIGNAL(valueChanged(int)), this, SLOT(onDialPanValueChanged(int)));
@@ -93,7 +94,6 @@ ChannelMixer::ChannelMixer(QWidget *parent) :
     connect(ui->dialChorus, SIGNAL(valueChanged(int)), this, SLOT(onDialChorusValueChanged(int)));
 
     connect(ui->btnSettingVu, SIGNAL(clicked()), this, SLOT(onBtnSettingVuClicked()));
-    connect(ui->btnClose, SIGNAL(clicked()), this, SLOT(onBtnCloseClicked()));
 }
 
 ChannelMixer::~ChannelMixer()
@@ -115,6 +115,18 @@ ChannelMixer::~ChannelMixer()
 
     chs.clear();
     delete ui;
+}
+
+void ChannelMixer::setLock(bool lock)
+{
+    if (this->lock == lock)
+        return;
+
+    this->lock = lock;
+
+    disconnect(ui->chbLock, SIGNAL(toggled(bool)), this, SLOT(onChbLockToggled(bool)));
+    ui->chbLock->setChecked(lock);
+    connect(ui->chbLock, SIGNAL(toggled(bool)), this, SLOT(onChbLockToggled(bool)));
 }
 
 void ChannelMixer::setPlayer(MidiPlayer *p)
@@ -212,6 +224,11 @@ void ChannelMixer::onPlayerPlayingEvent(MidiEvent *e)
     }
 }
 
+void ChannelMixer::leaveEvent(QEvent *event)
+{
+    emit mouseLeaved();
+}
+
 void ChannelMixer::onChSliderValueChanged(int ch, int v)
 {
     if (player == nullptr)
@@ -303,6 +320,12 @@ void ChannelMixer::onChbMuteVoiceToggled(bool checked)
     chs[8]->setMuteButton(checked);
 }
 
+void ChannelMixer::onChbLockToggled(bool checked)
+{
+    this->lock = checked;
+    emit lockChanged(checked);
+}
+
 void ChannelMixer::onBtnSettingVuClicked()
 {
     QList<LEDVu*> vus;
@@ -315,9 +338,4 @@ void ChannelMixer::onBtnSettingVuClicked()
     dlg.adjustSize();
     dlg.setFixedSize(dlg.size());
     dlg.exec();
-}
-
-void ChannelMixer::onBtnCloseClicked()
-{
-    emit buttonCloseClicked();
 }

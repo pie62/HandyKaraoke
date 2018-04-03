@@ -688,6 +688,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="chbLock">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>ล็อก</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnSettingVu">
        <property name="minimumSize">
         <size>
@@ -713,38 +723,6 @@
        <property name="icon">
         <iconset resource="../icons.qrc">
          <normaloff>:/Icons/settings.png</normaloff>:/Icons/settings.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>12</width>
-         <height>12</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnClose">
-       <property name="minimumSize">
-        <size>
-         <width>30</width>
-         <height>26</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>30</width>
-         <height>26</height>
-        </size>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>ปิด</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/delete.png</normaloff>:/Icons/delete.png</iconset>
        </property>
        <property name="iconSize">
         <size>
