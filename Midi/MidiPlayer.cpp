@@ -85,6 +85,22 @@ int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
     }
 }
 
+QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
+{
+    QList<SignatureBeat> beats;
+    uint32_t t = midi->events().back()->tick();
+    ushort bCount = midi->beatFromTick(t);
+
+    for (MidiEvent *evt : midi->timeSignatureEvents()) {
+        SignatureBeat sb;
+        sb.nBeat = midi->beatFromTick(evt->tick());
+        sb.nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+        beats.append(sb);
+    }
+
+    return beats;
+}
+
 MidiFile *MidiPlayer::midiFile()
 {
     return _midiSeq[_seqIndex]->midiFile();
@@ -213,6 +229,19 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
 
 void MidiPlayer::play()
 {
+    if (isPlayerStopped()) {
+        sendResetAllControllers();
+        MidiEvent ev;
+        ev.setEventType(MidiEventType::ProgramChange);
+        ev.setChannel(9);
+        if (_lockDrum) {
+            ev.setData1(_lockDrumNumber);
+        } else {
+            ev.setData1(0);
+        }
+        sendEvent(&ev);
+        emit sendedEvent(&ev);
+    }
     _midiSeq[_seqIndex]->start();
 }
 
@@ -608,6 +637,13 @@ void MidiPlayer::sendResetAllControllers(int ch)
             _midiSynth->sendResetAllControllers(ch);
     } else {
         _midiOuts[_midiChannels[ch].port()]->sendResetAllControllers(ch);
+    }
+}
+
+void MidiPlayer::sendResetAllControllers()
+{
+    for (int i=0; i<16; i++) {
+        sendResetAllControllers(i);
     }
 }
 

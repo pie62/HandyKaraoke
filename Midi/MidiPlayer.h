@@ -19,6 +19,7 @@ public:
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
     static int getNumberBeatInBar(int numerator, int denominator);
+    static QList<SignatureBeat> CalculateBeats(MidiFile *midi);
 
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
     Channel* midiChannel() { return _midiChannels; }

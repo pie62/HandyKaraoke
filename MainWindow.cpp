@@ -625,7 +625,7 @@ void MainWindow::play(int index)
     #endif
 
     // RHM
-    //ui->rhmWidget->setBeat(player->beatInBar(), player->beatCount());
+    ui->rhmWidget->setBeat(MidiPlayer::CalculateBeats(player->midiFile()), player->beatCount());
 
     ui->frameSearch->hide();
     ui->framePlaylist->hide();
@@ -685,7 +685,7 @@ void MainWindow::stop()
     ui->sliderPosition->setValue(0);
     onPlayerPositionMSChanged(0);
 
-    //ui->rhmWidget->reset();
+    ui->rhmWidget->reset();
 
     #ifdef _WIN32
     taskbarButton->progress()->hide();
@@ -1187,7 +1187,7 @@ void MainWindow::onPositiomTimerTimeOut()
     taskbarButton->progress()->setValue(tick);
     #endif
     onPlayerPositionMSChanged(player->positionMs());
-    //ui->rhmWidget->setCurrentBeat( player->currentBeat() );
+    ui->rhmWidget->setCurrentBeat( player->currentBeat() );
 }
 
 void MainWindow::onLyricsTimerTimeOut()
@@ -1238,7 +1238,7 @@ void MainWindow::onSliderPositionReleased()
     onPlayerPositionMSChanged(player->positionMs());
 
     // Seek beat
-    //ui->rhmWidget->setSeekBeat(player->currentBeat());
+    ui->rhmWidget->setCurrentBeat(player->currentBeat());
 
     if (playAfterSeek) resume();
 }
