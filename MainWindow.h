@@ -79,6 +79,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void closeEvent(QCloseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -160,6 +161,8 @@ private slots:
     void onDetailTimerTimeout();
 
     void addBpmSpeed(int speed);
+
+    void sendDrumPads(QKeyEvent *key, bool noteOn);
 };
 
 #endif // MAINWINDOW_H

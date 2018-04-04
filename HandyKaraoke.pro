@@ -107,7 +107,8 @@ HEADERS  += MainWindow.h \
     BASSFX/BuiltIn/AutoWah.h \
     Dialogs/SecondMonitorDialog.h \
     Midi/MidiSequencer.h \
-    Midi/MidiPlayer.h
+    Midi/MidiPlayer.h \
+    DrumPadsKey.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \

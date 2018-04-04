@@ -145,6 +145,7 @@ void MidiSequencer::run()
 
     _playing = true;
     _stopped = false;
+    _finished = false;
 
 
     if (_playedIndex > 0) {

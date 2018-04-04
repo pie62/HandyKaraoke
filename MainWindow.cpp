@@ -1,7 +1,9 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+
 #include "Utils.h"
+#include "DrumPadsKey.h"
 #include "SettingsDialog.h"
 #include "Dialogs/AboutDialog.h"
 #include "Dialogs/MapSoundfontDialog.h"
@@ -725,7 +727,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     if (ui->chMix->isLock())
         return;
 
-    if (event->pos().x() < 700 && event->pos().y() < 50) {
+    if (event->pos().y() < 60 && event->pos().x() < 700) {
         showChMix();
     }
 }
@@ -761,24 +763,25 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (event->modifiers() & Qt::ControlModifier) {
+    if (event->modifiers() == Qt::ControlModifier) {
         switch (event->key()) {
-        case Qt::Key_Up:
-            ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
-            break;
-        case Qt::Key_Down:
-            ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
-            break;
-        case Qt::Key_X:
-            if (ui->frameSearch->isVisible()) {
-                setFrameSearch( db->search("") );
-                ui->lbSearch->setText("_");
-                ui->frameSearch->show();
-                timer2->start(search_timeout);
-            }
-            break;
-        default:
-            break;
+            case Qt::Key_Up:
+                ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
+                break;
+            case Qt::Key_Down:
+                ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
+                break;
+            case Qt::Key_X:
+                if (ui->frameSearch->isVisible()) {
+                    setFrameSearch( db->search("") );
+                    ui->lbSearch->setText("_");
+                    ui->frameSearch->show();
+                    timer2->start(search_timeout);
+                }
+                break;
+            default:
+                this->sendDrumPads(event, true);
+                break;
         }
         return;
     }
@@ -1025,6 +1028,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             timer2->start(search_timeout);
         }
         break;
+    }
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::ControlModifier) {
+        this->sendDrumPads(event, false);
     }
 }
 
@@ -1391,5 +1401,60 @@ void MainWindow::addBpmSpeed(int speed)
     detailTimer->start(3000);
     if (this->width() < 1160 && ui->chMix->isVisible()) {
         ui->lcdTime->hide();
+    }
+}
+
+void MainWindow::sendDrumPads(QKeyEvent *key, bool noteOn)
+{
+    MidiEvent e;
+    e.setChannel(9);
+
+    if (noteOn) {
+        e.setData2(100);
+        e.setEventType(MidiEventType::NoteOn);
+    } else {
+        e.setData2(0);
+        e.setEventType(MidiEventType::NoteOff);
+    }
+
+    switch (key->key()) {
+        case DrumPadsKey::bassDrum:
+            e.setData1(36);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::snare:
+            e.setData1(38);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::hihatClose:
+            e.setData1(42);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::hihatOpen:
+            e.setData1(46);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::cowbell:
+            e.setData1(56);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::tambourine:
+            e.setData1(54);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::tom1:
+            e.setData1(50);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::tom2:
+            e.setData1(48);
+            player->sendEvent(&e);
+            break;
+        case DrumPadsKey::crashCymbal:
+            e.setData1(49);
+            player->sendEvent(&e);
+            break;
+        default:
+            break;
     }
 }

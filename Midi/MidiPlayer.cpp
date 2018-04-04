@@ -1,7 +1,6 @@
 #include "MidiPlayer.h"
 
 #include <QtMath>
-#include <QDebug>
 
 
 MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
@@ -527,7 +526,7 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
     switch (e->eventType()) {
         case MidiEventType::NoteOff: {
             int n = getNoteNumberToPlay(ch, e->data1());
-            if (_midiPortNum == -1) {
+            if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendNoteOff(ch, n, e->data2());
             } else {
                 _midiOuts[_midiChannels[ch].port()]->sendNoteOff(ch, n, e->data2());
@@ -536,7 +535,7 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
         }
         case MidiEventType::NoteOn: {
             int n = getNoteNumberToPlay(ch, e->data1());
-            if (_midiPortNum == -1) {
+            if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendNoteOn(ch, n, e->data2());
             } else {
                 _midiOuts[_midiChannels[ch].port()]->sendNoteOn(ch, n, e->data2());
@@ -545,7 +544,7 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
         }
         case MidiEventType::NoteAftertouch: {
             int n = getNoteNumberToPlay(ch, e->data1());
-            if (_midiPortNum == -1) {
+            if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendNoteAftertouch(ch, n, e->data2());
             } else {
                 _midiOuts[_midiChannels[ch].port()]->sendNoteAftertouch(ch, n, e->data2());
@@ -561,7 +560,7 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
             default: break;
             }
 
-            if (_midiPortNum == -1) {
+            if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendController(ch, e->data1(), e->data2());
             } else {
                 _midiOuts[_midiChannels[ch].port()]->sendController(ch, e->data1(), e->data2());
@@ -584,10 +583,11 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
             }
 
             _midiChannels[ch].setInstrument(programe);
-            if (ch != 9)
+            if (ch != 9) {
                 _midiChannels[ch].setInstrumentType(MidiHelper::getInstrumentType(programe));
+            }
 
-            if (_midiPortNum == -1) {
+            if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendProgramChange(ch, programe);
             } else {
                 _midiOuts[_midiChannels[ch].port()]->sendProgramChange(ch, programe);
@@ -595,7 +595,7 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
             break;
         }
         case MidiEventType::ChannelAftertouch: {
-            if (_midiPortNum == -1) {
+            if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendChannelAftertouch(ch, e->data1());
             } else {
                 _midiOuts[_midiChannels[ch].port()]->sendChannelAftertouch(ch, e->data1());
@@ -603,7 +603,7 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
             break;
         }
         case MidiEventType::PitchBend: {
-            if (_midiPortNum == -1) {
+            if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendPitchBend(ch, e->data1());
             } else {
                 _midiOuts[_midiChannels[ch].port()]->sendPitchBend(ch, e->data1());
