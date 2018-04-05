@@ -104,7 +104,7 @@ private:
     bool auto_playnext = true;
     int search_timeout = 5000;
     int playlist_timeout = 5000;
-    int songDetail_timeout = 5000;
+    int songDetail_timeout = 4000;
 
     QLocale locale;
 
@@ -135,6 +135,7 @@ private slots:
 
     void showContextMenu(const QPoint &pos);
     void showSettingsDialog();
+    void showMapMidiChannelDialog();
     void minimizeWindow();
     void showMapSFDialog();
     void showSecondMonitor();

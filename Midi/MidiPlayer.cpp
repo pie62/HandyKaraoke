@@ -35,6 +35,7 @@ MidiPlayer::~MidiPlayer()
 
     for (MidiOut *out : _midiOuts.values()) {
         if (out) {
+            out->closePort();
             delete out;
         }
     }
@@ -185,9 +186,9 @@ bool MidiPlayer::setMidiOut(int portNumer)
         MidiOut *out = _midiOuts[portNumer];
         if (!out) {
             out = new MidiOut();
+            out->openPort(portNumer);
             _midiOuts[portNumer] = out;
         }
-        out->openPort(portNumer);
         out->setVolume(_volume / 100.0f);
         result = out->isPortOpen();
         _midiPortNum = result ? portNumer : _midiPortNum;
@@ -198,6 +199,8 @@ bool MidiPlayer::setMidiOut(int portNumer)
             continue;
         _midiChannels[i].setPort(_midiPortNum);
     }
+
+    calculateUsedPort();
 
     return result;
 }
@@ -487,6 +490,60 @@ void MidiPlayer::setLockBass(bool lock, int number)
     }
 }
 
+void MidiPlayer::setMapChannelOutput(int ch, int port)
+{
+    if (port != -1 && port >= midiDevices().size())
+        return;
+
+    if (port == _midiChannels[ch].port())
+        return;
+
+    if (port == -1)
+    {
+        if (!_midiSynth->isOpened()) {
+            _midiSynth->open();
+            _midiSynth->setVolume(_volume / 100.0f);
+        }
+
+        if (!this->isPlayerStopped()) {
+            _midiSynth->sendProgramChange(ch, _midiChannels[ch].instrument());
+            _midiSynth->sendController(ch, 7, _midiChannels[ch].volume());
+            _midiSynth->sendController(ch, 10, _midiChannels[ch].pan());
+            _midiSynth->sendController(ch, 91, _midiChannels[ch].reverb());
+            _midiSynth->sendController(ch, 93, _midiChannels[ch].chorus());
+        }
+    }
+    else
+    {
+        MidiOut *out = _midiOuts[port];
+        if (!out) {
+            out = new MidiOut();
+            out->openPort(port);
+            out->setVolume(_volume / 100.0f);
+            _midiOuts[port] = out;
+        }
+
+        if (!this->isPlayerStopped()) {
+            out->sendProgramChange(ch, _midiChannels[ch].instrument());
+            out->sendController(ch, 7, _midiChannels[ch].volume());
+            out->sendController(ch, 10, _midiChannels[ch].pan());
+            out->sendController(ch, 91, _midiChannels[ch].reverb());
+            out->sendController(ch, 93, _midiChannels[ch].chorus());
+        }
+    }
+
+    if (isPlayerPlaying()) {
+        _midiChannels[ch].setChangingPort(true);
+        sendAllNotesOff(ch);
+        _midiChannels[ch].setPort(port);
+        _midiChannels[ch].setChangingPort(false);
+    } else {
+        _midiChannels[ch].setPort(port);
+    }
+
+    this->calculateUsedPort();
+}
+
 void MidiPlayer::sendEvent(MidiEvent *e)
 {
     _playingEventPtr = e;
@@ -534,6 +591,8 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
             break;
         }
         case MidiEventType::NoteOn: {
+            if (_midiChannels[ch].isChangingPort())
+                break;
             int n = getNoteNumberToPlay(ch, e->data1());
             if (_midiChannels[ch].port() == -1) {
                 _midiSynth->sendNoteOn(ch, n, e->data2());
@@ -660,4 +719,30 @@ int MidiPlayer::getNoteNumberToPlay(int ch, int defaultNote)
         n = defaultNote + _midiTranspose;
     }
     return n;
+}
+
+void MidiPlayer::calculateUsedPort()
+{
+    // calculate used port
+    // list port all channel
+    bool usedSynth = false;
+    QList<int> usedPort;
+    for (int i=0; i<16; i++) {
+        int p = _midiChannels[i].port();
+        usedPort.append(p);
+        if (p == -1)
+            usedSynth = true;
+    }
+    // remove port not used
+    if (!usedSynth) {
+        _midiSynth->close();
+    }
+    for (int pNumber : _midiOuts.keys()) {
+
+        if (usedPort.indexOf(pNumber) != -1)
+            continue;
+
+        _midiOuts[pNumber]->closePort();;
+        delete _midiOuts.take(pNumber);
+    }
 }

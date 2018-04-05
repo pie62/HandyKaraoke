@@ -39,6 +39,7 @@ private slots:
 
 
     // Output tab
+    void on_btnMapChannel_clicked();
     void on_cbMidiOut_activated(int index);
     void on_cbAudioOut_activated(int index);
 
@@ -52,6 +53,7 @@ private slots:
 
     void onChbFloatPointToggled(bool checked);
     void onChbUseFXToggled(bool checked);
+    void onSliderBufferValueChanged(int value);
 
 
 
@@ -94,7 +96,7 @@ private slots:
     void on_btnReverb_clicked();
     void on_btnChorus_clicked();
 
-    void on_btnClose_clicked();
+    void on_btnClose_clicked(); 
 
 private:
     Ui::SettingsDialog *ui;

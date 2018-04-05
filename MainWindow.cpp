@@ -5,10 +5,11 @@
 #include "Utils.h"
 #include "DrumPadsKey.h"
 #include "SettingsDialog.h"
-#include "Dialogs/AboutDialog.h"
-#include "Dialogs/MapSoundfontDialog.h"
 #include "Midi/MidiFile.h"
 #include "Midi/HNKFile.h"
+#include "Dialogs/AboutDialog.h"
+#include "Dialogs/MapSoundfontDialog.h"
+#include "Dialogs/MapChannelDialog.h"
 
 #include <QTime>
 #include <QMenu>
@@ -25,8 +26,21 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    // Init BASS
     BASS_Init(-1, 44100, 0, 0, NULL);
     BASS_FX_GetVersion();
+
+    auto concurentThreadsSupported = Utils::concurentThreadsSupported();
+    float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
+
+    BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
+    BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+    BASS_SetConfig(BASS_CONFIG_MIDI_VOICES, nVoices);
+    BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
+    // End Init BASS
+
+    //TEst
+
 
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
@@ -132,7 +146,9 @@ MainWindow::MainWindow(QWidget *parent) :
         bool lDrum  = settings->value("MidiLockDrum", false).toBool();
         bool lSnare = settings->value("MidiLockSnare", false).toBool();
         bool lBass  = settings->value("MidiLockBass", false).toBool();
+        int synBuf  = settings->value("SynthBuffer", 100).toInt();
 
+        BASS_SetConfig(BASS_CONFIG_BUFFER, synBuf);
         player->setMidiOut(oPort);
         player->setVolume(vl);
 
@@ -147,6 +163,14 @@ MainWindow::MainWindow(QWidget *parent) :
         if (lBass) {
             int lbNum = settings->value("MidiLockBassNumber", 32).toInt();
             player->setLockBass(true, lbNum);
+        }
+
+        // Midi Channel Mapper
+        QList<int> ports = settings->value("MidiChannelMapper").value<QList<int>>();
+        if (ports.count() == 16) {
+            for (int i=0; i<16; i++) {
+                player->setMapChannelOutput(i, ports[i]);
+            }
         }
 
         connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
@@ -405,7 +429,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Menu
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
-
 }
 
 MainWindow::~MainWindow()
@@ -1141,7 +1164,8 @@ void MainWindow::showContextMenu(const QPoint &pos)
 {
     QMenu menu(tr("Context menu"), this);
 
-    QAction actionSettings("ตั้งค่า", this);
+    QAction actionSettings("ตั้งค่า...", this);
+    QAction actionMappChanel("แยกช่องสัญญาณ...", this);
     QAction actionShowSynthMixDlg("Handy Synth Mixer", this);
     QAction actionShowEqDlg("อีควอไลเซอร์", this);
     QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
@@ -1149,8 +1173,8 @@ void MainWindow::showContextMenu(const QPoint &pos)
     QAction actionMapSF("การเลือกใช้ซาวด์ฟ้อนท์", this);
     QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
-    QAction actionAbout("เกี่ยวกับ", this);
-    QAction actionAboutQt("เกี่ยวกับ Qt", this);
+    QAction actionAbout("เกี่ยวกับ...", this);
+    QAction actionAboutQt("เกี่ยวกับ Qt...", this);
     QAction actionExit("ออกจากโปรแกรม", this);
 
     if (secondLyr != nullptr) {
@@ -1159,6 +1183,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     }
 
     connect(&actionSettings, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
+    connect(&actionMappChanel, SIGNAL(triggered()), this, SLOT(showMapMidiChannelDialog()));
     connect(&actionShowSynthMixDlg, SIGNAL(triggered()), synthMix, SLOT(show()));
     connect(&actionShowEqDlg, SIGNAL(triggered()), eq31Dlg, SLOT(show()));
     connect(&actionShowReverbDlg, SIGNAL(triggered()), reverbDlg, SLOT(show()));
@@ -1171,6 +1196,8 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionExit, SIGNAL(triggered()), this, SLOT(close()));
 
     menu.addAction(&actionSettings);
+    menu.addSeparator();
+    menu.addAction(&actionMappChanel);
     menu.addSeparator();
     menu.addAction(&actionShowSynthMixDlg);
     menu.addAction(&actionShowEqDlg);
@@ -1195,6 +1222,15 @@ void MainWindow::showSettingsDialog()
     //d.adjustSize();
     //d.setMinimumSize(d.size());
     d.exec();
+}
+
+void MainWindow::showMapMidiChannelDialog()
+{
+    MapChannelDialog dlg(this, player);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
+    dlg.exec();
 }
 
 void MainWindow::minimizeWindow()

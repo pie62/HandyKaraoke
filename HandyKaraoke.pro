@@ -59,7 +59,8 @@ SOURCES += main.cpp\
     Dialogs/SynthMixerDialog.cpp \
     Dialogs/SecondMonitorDialog.cpp \
     Midi/MidiSequencer.cpp \
-    Midi/MidiPlayer.cpp
+    Midi/MidiPlayer.cpp \
+    Dialogs/MapChannelDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -108,7 +109,9 @@ HEADERS  += MainWindow.h \
     Dialogs/SecondMonitorDialog.h \
     Midi/MidiSequencer.h \
     Midi/MidiPlayer.h \
-    DrumPadsKey.h
+    DrumPadsKey.h \
+    version.h \
+    Dialogs/MapChannelDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -127,7 +130,8 @@ FORMS    += MainWindow.ui \
     Dialogs/AboutDialog.ui \
     Widgets/VSTLabel.ui \
     Dialogs/BusDialog.ui \
-    Dialogs/SecondMonitorDialog.ui
+    Dialogs/SecondMonitorDialog.ui \
+    Dialogs/MapChannelDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -136,6 +140,7 @@ INCLUDEPATH += $$PWD/Widgets
 win32 {
     QT += winextras
     LIBS += -lwinmm
+    RC_FILE = resources.rc
 
     SOURCES += Midi/rtmidi/RtMidi.cpp \
         Dialogs/VSTDirsDialog.cpp
@@ -172,7 +177,7 @@ win32 {
     INCLUDEPATH += $$PWD/BASS/bassmix24
     INCLUDEPATH += $$PWD/BASS/bass_vst24
 
-    RC_ICONS = icon.ico
+    #RC_ICONS = icon.ico
 }
 
 unix:!macx {
@@ -208,3 +213,6 @@ RESOURCES += \
 #DEFINES += _ATL_XP_TARGETING
 #DEFINES += PSAPI_VERSION=1
 #QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+
+DISTFILES += \
+    resources.rc

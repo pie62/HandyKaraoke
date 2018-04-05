@@ -5,6 +5,7 @@
 #include <QDirIterator>
 #include <QMetaType>
 
+#include "version.h"
 #include "BASSFX/FX.h"
 
 #ifdef __linux__
@@ -22,7 +23,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv); 
 
     QCoreApplication::setApplicationName("handy-karaoke");
-    QCoreApplication::setApplicationVersion("1.3.0");
+    QCoreApplication::setApplicationVersion(VER_FILEVERSION_STR);
     QCoreApplication::setOrganizationName("HandyKaraoke");
     QCoreApplication::setOrganizationDomain("https://github.com/pie62/HandyKaraoke");
 

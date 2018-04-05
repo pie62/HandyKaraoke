@@ -70,6 +70,8 @@ public:
     void setLockSnare(bool lock, int number = 38);
     void setLockBass(bool lock, int number = 32);
 
+    void setMapChannelOutput(int ch, int port);
+
 public slots:
     void sendEvent(MidiEvent *e);
 
@@ -113,6 +115,7 @@ private:
     void sendResetAllControllers();
 
     int getNoteNumberToPlay(int ch, int defaultNote);
+    void calculateUsedPort();
 };
 
 #endif // MIDIPLAYER_H

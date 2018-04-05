@@ -1,5 +1,7 @@
 #include "Utils.h"
 
+#include <thread>
+
 #include <QDataStream>
 #include <QTextStream>
 
@@ -75,4 +77,9 @@ QString Utils::readLyrics(const QByteArray &data)
     QString lyr = textStream.readAll();
 
     return lyr;
+}
+
+uint Utils::concurentThreadsSupported()
+{
+    return std::thread::hardware_concurrency();
 }
