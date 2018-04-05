@@ -24,7 +24,6 @@ SOURCES += main.cpp\
     Midi/MidiOut.cpp \
     Midi/Channel.cpp \
     Midi/MidiSynthesizer.cpp \
-    Midi/MidiPlayer.cpp \
     Widgets/ChMx.cpp \
     Widgets/LyricsWidget.cpp \
     Widgets/RhythmWidget.cpp \
@@ -72,7 +71,6 @@ HEADERS  += MainWindow.h \
     Midi/MidiOut.h \
     Midi/Channel.h \
     Midi/MidiSynthesizer.h \
-    Midi/MidiPlayer.h \
     Widgets/ChMx.h \
     Widgets/LyricsWidget.h \
     Widgets/RhythmWidget.h \
@@ -184,6 +182,8 @@ win32 {
 
 unix:!macx {
     LIBS +=  -lrtmidi
+    RESOURCES += \
+        fonts.qrc
 
     contains(QT_ARCH, i386) {
         message("32-bit")
@@ -209,8 +209,7 @@ macx {
 }
 
 RESOURCES += \
-    icons.qrc \
-    fonts.qrc
+    icons.qrc
 
 #DEFINES += _ATL_XP_TARGETING
 #DEFINES += PSAPI_VERSION=1
