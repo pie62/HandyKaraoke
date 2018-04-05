@@ -1,6 +1,7 @@
 #ifndef MIDIEVENT_H
 #define MIDIEVENT_H
 
+#include <vector>
 #include <QByteArray>
 
 #ifdef _WIN32
@@ -45,6 +46,7 @@ class MidiEvent
 {
 public:
     MidiEvent();
+    MidiEvent(std::vector<unsigned char> *message);
     ~MidiEvent();
 
     int32_t         message();
@@ -70,6 +72,8 @@ public:
     void setData(const QByteArray &md)  { mData = md; }
     void setMetaType(MidiMetaType t)    { mType = t; }
     void setMetaType(int mNumber);
+
+    void setMessage(std::vector<unsigned char> *message);
 
     MidiEvent &operator = (const MidiEvent &e);
 

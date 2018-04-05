@@ -16,6 +16,7 @@ public:
     ~MidiPlayer();
 
     static std::vector<std::string> midiDevices();
+    static std::vector<std::string> midiInDevices();
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
     static int getNumberBeatInBar(int numerator, int denominator);
@@ -24,6 +25,7 @@ public:
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
     Channel* midiChannel() { return _midiChannels; }
     int midiOutPortNumber() { return _midiPortNum; }
+    int midiInPortNumber() { return _midiPortInNum; }
     int volume() { return _volume; }
     int transpose() { return _midiTranspose; }
 
@@ -50,7 +52,8 @@ public:
     int currentBeat();
     int beatCount();
 
-    bool setMidiOut(int portNumer);
+    bool setMidiOut(int portNumber);
+    bool setMidiIn(int portNumber);
     bool load(const QString &file, bool seekFileChunkID = false);
     void play();
     void stop(bool resetPos = false);
@@ -71,6 +74,7 @@ public:
     void setLockBass(bool lock, int number = 32);
 
     void setMapChannelOutput(int ch, int port);
+    void receiveMidiIn(std::vector< unsigned char > *message);
 
 public slots:
     void sendEvent(MidiEvent *e);
@@ -89,15 +93,17 @@ private:
     std::vector<MidiSequencer*> _midiSeq;
     QMap<int, MidiOut*> _midiOuts;
     MidiSynthesizer     *_midiSynth;
+    RtMidiIn            *_midiIn = nullptr;
     Channel             _midiChannels[16];
     int                 _midiPortNum = 0;
+    int                 _midiPortInNum = -1;
     int                 _volume = 100;
     int                 _midiTranspose = 0;
     int                 _seqIndex = 0;
     bool                _useMedley = false;
     bool                _useSolo = false;
 
-    MidiEvent   _tempEvent;
+    MidiEvent   _tempEvent, _midiInEvent;
     MidiEvent*  _playingEventPtr = nullptr;
 
     bool    _lockDrum  = false;
@@ -117,5 +123,7 @@ private:
     int getNoteNumberToPlay(int ch, int defaultNote);
     void calculateUsedPort();
 };
+
+void midiIncallback( double deltatime, std::vector< unsigned char > *message, void *userData );
 
 #endif // MIDIPLAYER_H

@@ -142,6 +142,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     { // Player
         int oPort   = settings->value("MidiOut", 0).toInt();
+        int iPort   = settings->value("MidiIn", -1).toInt();
         int vl      = settings->value("MidiVolume", 50).toInt();
         bool lDrum  = settings->value("MidiLockDrum", false).toBool();
         bool lSnare = settings->value("MidiLockSnare", false).toBool();
@@ -150,6 +151,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         BASS_SetConfig(BASS_CONFIG_BUFFER, synBuf);
         player->setMidiOut(oPort);
+        player->setMidiIn(iPort);
         player->setVolume(vl);
 
         if (lDrum) {

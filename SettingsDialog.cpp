@@ -237,7 +237,7 @@ void SettingsDialog::setLabelFontInfo(QFont *font)
 
 void SettingsDialog::initDeviceTab()
 {
-    // Midi device
+    // Midi out device
     MidiPlayer *player = mainWin->midiPlayer();
     int dfd = player->midiOutPortNumber();
 
@@ -250,6 +250,14 @@ void SettingsDialog::initDeviceTab()
         ui->cbMidiOut->setCurrentIndex( ui->cbMidiOut->count() - 1 );
     else
         ui->cbMidiOut->setCurrentIndex( dfd );
+
+
+    // Midi In device
+    ui->cbMidiIn->addItem("None");
+    for (std::string deviceName : MidiPlayer::midiInDevices()) {
+        ui->cbMidiIn->addItem(QString::fromStdString(deviceName));
+    }
+    ui->cbMidiIn->setCurrentIndex(player->midiInPortNumber()+1);
 
 
     // Audio devices
@@ -498,6 +506,12 @@ void SettingsDialog::on_cbMidiOut_activated(int index)
         ports.append(mainWin->midiPlayer()->midiChannel()[i].port());
     }
     settings->setValue("MidiChannelMapper", QVariant::fromValue(ports));
+}
+
+void SettingsDialog::on_cbMidiIn_activated(int index)
+{
+    mainWin->midiPlayer()->setMidiIn(index-1);
+    settings->setValue("MidiIn", index-1);
 }
 
 void SettingsDialog::on_cbAudioOut_activated(int index)

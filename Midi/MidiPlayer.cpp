@@ -53,6 +53,16 @@ std::vector<std::string> MidiPlayer::midiDevices()
     return outName;
 }
 
+std::vector<std::string> MidiPlayer::midiInDevices()
+{
+    std::vector<std::string> inName;
+    RtMidiIn in;
+    for (int i=0; i<in.getPortCount(); i++) {
+        inName.push_back(in.getPortName(i));
+    }
+    return inName;
+}
+
 bool MidiPlayer::isSnareNumber(int num)
 {
     if ( (num == 38) || (num == 40) )
@@ -166,9 +176,9 @@ int MidiPlayer::beatCount()
     return _midiSeq[_seqIndex]->beatCount();
 }
 
-bool MidiPlayer::setMidiOut(int portNumer)
+bool MidiPlayer::setMidiOut(int portNumber)
 {
-    if (portNumer != -1 && portNumer >= midiDevices().size())
+    if (portNumber != -1 && portNumber >= midiDevices().size())
         return false;
 
     if (!isPlayerStopped())
@@ -177,21 +187,21 @@ bool MidiPlayer::setMidiOut(int portNumer)
     int oldPort = _midiPortNum;
     bool result = false;
 
-    if (portNumer == -1) {
+    if (portNumber == -1) {
         _midiSynth->open();
         _midiSynth->setVolume(_volume / 100.0f);
         _midiPortNum = -1;
         result = true;
     } else {
-        MidiOut *out = _midiOuts[portNumer];
+        MidiOut *out = _midiOuts[portNumber];
         if (!out) {
             out = new MidiOut();
-            out->openPort(portNumer);
-            _midiOuts[portNumer] = out;
+            out->openPort(portNumber);
+            _midiOuts[portNumber] = out;
         }
         out->setVolume(_volume / 100.0f);
         result = out->isPortOpen();
-        _midiPortNum = result ? portNumer : _midiPortNum;
+        _midiPortNum = result ? portNumber : _midiPortNum;
     }
 
     for (int i=0; i<16; i++) {
@@ -203,6 +213,36 @@ bool MidiPlayer::setMidiOut(int portNumer)
     calculateUsedPort();
 
     return result;
+}
+
+bool MidiPlayer::setMidiIn(int portNumber)
+{
+    if (portNumber != -1 && portNumber >= midiInDevices().size())
+        return false;
+
+    if (portNumber == _midiPortInNum)
+        return true;
+
+    _midiPortInNum = portNumber;
+
+    if (portNumber == -1) {
+        if (_midiIn != nullptr) {
+            _midiIn->closePort();
+            delete _midiIn;
+            _midiIn = nullptr;
+        }
+    } else {
+        if (_midiIn == nullptr) {
+            _midiIn = new RtMidiIn();
+            _midiIn->openPort(portNumber);
+            _midiIn->setCallback(&midiIncallback, this);
+        } else {
+            _midiIn->closePort();
+            _midiIn->openPort(portNumber);
+        }
+    }
+
+    return true;
 }
 
 bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
@@ -544,6 +584,12 @@ void MidiPlayer::setMapChannelOutput(int ch, int port)
     this->calculateUsedPort();
 }
 
+void MidiPlayer::receiveMidiIn(std::vector<unsigned char> *message)
+{
+    _midiInEvent.setMessage(message);
+    this->sendEvent(&_midiInEvent);
+}
+
 void MidiPlayer::sendEvent(MidiEvent *e)
 {
     _playingEventPtr = e;
@@ -744,5 +790,17 @@ void MidiPlayer::calculateUsedPort()
 
         _midiOuts[pNumber]->closePort();;
         delete _midiOuts.take(pNumber);
+    }
+}
+
+void midiIncallback(double deltatime, std::vector<unsigned char> *message, void *userData)
+{
+    if (message->size() < 2)
+        return;
+
+    if ((message->at(0) & 0xF0) != 0xF0) {
+
+        ((MidiPlayer*)(userData))->receiveMidiIn(message);
+
     }
 }
