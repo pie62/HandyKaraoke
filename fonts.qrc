@@ -1,8 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>Fonts/THSarabunNew/THSarabunNew.ttf</file>
         <file>Fonts/THSarabunNew/THSarabunNew Bold.ttf</file>
-        <file>Fonts/THSarabunNew/THSarabunNew BoldItalic.ttf</file>
-        <file>Fonts/THSarabunNew/THSarabunNew Italic.ttf</file>
     </qresource>
 </RCC>
