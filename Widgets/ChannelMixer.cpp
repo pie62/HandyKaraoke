@@ -226,6 +226,9 @@ void ChannelMixer::onPlayerPlayingEvent(MidiEvent *e)
 
 void ChannelMixer::leaveEvent(QEvent *event)
 {
+    if (ui->cbCh->isPopupVisible() || ui->cbInts->isPopupVisible())
+        return;
+
     emit mouseLeaved();
 }
 

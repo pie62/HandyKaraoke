@@ -51,6 +51,8 @@ public:
     void setCurBorderWidth(int w);
     void setCurBorderOutWidth(int w);
 
+    void setAnimationTime(int t);
+
     bool isAutoFontSize() { return autoFontSize; }
     void setAutoFontSize(bool a) { autoFontSize = a; }
 
@@ -70,7 +72,6 @@ public:
     void setTextLine2(const QString &text, bool andUpdate = true);
 
     int  animationTime()         { return animation->duration(); }
-    void setAnimationTime(int t) { animation->setDuration(t); }
     void stopAnimation()         { animation->stop(); }
 
 public slots:

@@ -399,7 +399,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="cbCh">
+        <widget class="ChMxComboBox" name="cbCh">
          <property name="minimumSize">
           <size>
            <width>51</width>
@@ -509,7 +509,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="cbInts">
+        <widget class="ChMxComboBox" name="cbInts">
          <property name="minimumSize">
           <size>
            <width>201</width>
@@ -748,6 +748,11 @@
    <extends>QFrame</extends>
    <header>ChannelMixer.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ChMxComboBox</class>
+   <extends>QComboBox</extends>
+   <header>ChMxComboBox.h</header>
   </customwidget>
  </customwidgets>
  <resources>

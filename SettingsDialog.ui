@@ -369,6 +369,9 @@
                   <height>16777215</height>
                  </size>
                 </property>
+                <property name="minimum">
+                 <number>100</number>
+                </property>
                 <property name="maximum">
                  <number>500</number>
                 </property>

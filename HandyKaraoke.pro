@@ -60,7 +60,8 @@ SOURCES += main.cpp\
     Dialogs/SecondMonitorDialog.cpp \
     Midi/MidiSequencer.cpp \
     Midi/MidiPlayer.cpp \
-    Dialogs/MapChannelDialog.cpp
+    Dialogs/MapChannelDialog.cpp \
+    Widgets/ChMxComboBox.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -111,7 +112,8 @@ HEADERS  += MainWindow.h \
     Midi/MidiPlayer.h \
     DrumPadsKey.h \
     version.h \
-    Dialogs/MapChannelDialog.h
+    Dialogs/MapChannelDialog.h \
+    Widgets/ChMxComboBox.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \

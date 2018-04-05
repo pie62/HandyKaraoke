@@ -455,6 +455,16 @@ void LyricsWidget::setCurBorderOutWidth(int w)
     updateArea = calculateUpdateArea();
 }
 
+void LyricsWidget::setAnimationTime(int t)
+{
+    if (t < 100)
+         animation->setDuration(100);
+    else if (t > 500)
+        animation->setDuration(500);
+    else
+        animation->setDuration(t);
+}
+
 void LyricsWidget::setLine1Position(LinePosition p)
 {
     if (line1_p == p)
