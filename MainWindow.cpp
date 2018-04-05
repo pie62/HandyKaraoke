@@ -393,6 +393,9 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->songDetail->hide();
         ui->sliderVolume->setValue(player->volume());
 
+        ui->framePlaylist->setMinimumHeight(243);
+        ui->framePlaylist->setMaximumHeight(243);
+
         { // Playback control
             ui->btnPlay->setIconFiles(":/Icons/play-white", ":/Icons/play-blue");
             ui->btnPause->setIconFiles(":/Icons/pause-white", ":/Icons/pause-blue");
@@ -1011,7 +1014,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             Song *s = db->currentSong();
             ui->playlist->addItem(s->detail());
             QSize size;
-            size.setHeight(49);
+            size.setHeight(57);
             ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
 
             // Test
