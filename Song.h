@@ -16,6 +16,7 @@ public:
     QString artist()    { return sArtist; }
     QString key()       { return sKey; }
     int     tempo()     { return sTempo; }
+    int     bpmSpeed()  { return sBpmSpeed; }
     QString songType()  { return sSongType; }
     QString lyrics()    { return sLyrics.replace("\n", " "); }
     QString path()      { return sPath; }
@@ -25,6 +26,7 @@ public:
     void setArtist      (const QString &artist) { sArtist = artist; }
     void setKey         (const QString &key)    { sKey = key; }
     void setTempo       (int tempo)             { sTempo = tempo; }
+    void setBpmSpeed    (int bpm)               { sBpmSpeed = bpm; }
     void setSongType    (const QString &type)   { sSongType = type; }
     void setLyrics      (const QString &lyr)    { sLyrics = lyr; }
     void setPath        (const QString &path)   { sPath = path; }
@@ -41,6 +43,7 @@ private:
     QString sArtist;
     QString sKey;
     int     sTempo;
+    int     sBpmSpeed;
     QString sSongType;
     QString sLyrics;
     QString sPath;

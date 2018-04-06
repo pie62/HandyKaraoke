@@ -29,6 +29,8 @@ public:
 
     int count();
     Song* currentSong() { return song; }
+    QString searchText() { return _searchText; }
+
     bool isOpenned() { return db.isOpen(); }
     bool isUpdatting() { return upTing; }
     int updateCount() { return upCount; }
@@ -69,7 +71,7 @@ private:
     Song *song;
     SearchType searchType;
 
-    QString searchText = "";
+    QString _searchText = "";
 
     UpdateType upType = UpdateType::UpdateAll;
     QString _ncnPath = "";

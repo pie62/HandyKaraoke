@@ -93,7 +93,7 @@ private:
     Song playingSong;
     int playingIndex = -1;
     bool playAfterSeek = false;
-    bool changingBpmSpeed = false;
+    bool searchBoxChangeBpm = false;
 
     LyricsWidget *lyrWidget, *secondLyr = nullptr;
     Detail *updateDetail;
@@ -162,6 +162,7 @@ private slots:
     void onDetailTimerTimeout();
 
     void addBpmSpeed(int speed);
+    void preSetBpmSpeed(int speed);
 
     void sendDrumPads(QKeyEvent *key, bool noteOn);
 };

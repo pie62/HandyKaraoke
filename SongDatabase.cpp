@@ -267,15 +267,15 @@ Song* SongDatabase::nextType(const QString &s)
         break;
     case SearchType::ById:
         searchType = SearchType::ByName;
-        sg = search(searchText);
+        sg = search(_searchText);
         break;
     case SearchType::ByName:
         searchType = SearchType::ByArtist;
-        sg = search(searchText);
+        sg = search(_searchText);
         break;
     case SearchType::ByArtist:
         searchType = SearchType::ByAll;
-        sg = search(searchText);
+        sg = search(_searchText);
         break;
     }
     return sg;
@@ -290,6 +290,8 @@ void setSong(Song *s, QSqlQuery *qry) {
     s->setSongType(qry->value(5).toString());
     s->setLyrics(qry->value(6).toString());
     s->setPath(qry->value(7).toString());
+
+    s->setBpmSpeed(0);
 }
 
 Song *SongDatabase::search(const QString &s)
@@ -297,7 +299,7 @@ Song *SongDatabase::search(const QString &s)
     QString sql = "";
     switch (searchType) {
     case SearchType::ByAll:
-        searchText = s;
+        _searchText = s;
         sql = "SELECT * FROM songs "
               "WHERE id LIKE ? OR name LIKE ? OR artist LIKE ?"
               "ORDER BY id, name, artist LIMIT 1";
@@ -348,9 +350,9 @@ Song *SongDatabase::searchNext()
               "WHERE id LIKE ? OR name LIKE ? OR artist LIKE ?"
               "ORDER BY id, name, artist";// LIMIT 400";
         q.prepare(sql);
-        q.bindValue(0, searchText + "%");
-        q.bindValue(1, searchText + "%");
-        q.bindValue(2, searchText + "%");
+        q.bindValue(0, _searchText + "%");
+        q.bindValue(1, _searchText + "%");
+        q.bindValue(2, _searchText + "%");
         if (q.exec()) {
             while (q.next()) {
                 if (q.value("id").toString() <= song->id())
@@ -444,9 +446,9 @@ Song *SongDatabase::searchPrevious()
               "WHERE id LIKE ? OR name LIKE ? OR artist LIKE ?"
               "ORDER BY id DESC, name DESC, artist DESC";// LIMIT 400";
         q.prepare(sql);
-        q.bindValue(0, searchText + "%");
-        q.bindValue(1, searchText + "%");
-        q.bindValue(2, searchText + "%");
+        q.bindValue(0, _searchText + "%");
+        q.bindValue(1, _searchText + "%");
+        q.bindValue(2, _searchText + "%");
         if (q.exec()) {
             while (q.next()) {
                 if (q.value("id").toString() >= song->id())
