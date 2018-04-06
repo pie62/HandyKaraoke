@@ -406,6 +406,32 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->btnVolumeMute->setIconFiles(":/Icons/volume-white", ":/Icons/volume-blue");
         }
 
+        #ifdef __linux__
+        { // UI Font in linux
+            QString fontName = "TH Sarabun New Bold";
+            QFont f = ui->lbSearch->font();
+            f.setBold(true);
+            f.setFamily(fontName);
+            f.setPointSize(f.pointSize() - 10);
+
+            ui->lbSearch->setFont(f);
+            ui->lbArtist->setFont(f);
+            ui->lbBtw->setFont(f);
+            ui->lbId->setFont(f);
+            ui->lbName->setFont(f);
+            ui->lbTempoKey->setFont(f);
+            ui->lbType->setFont(f);
+
+            ui->lbPlaylist->setFont(f);
+
+            f.setPointSize(f.pointSize() - 2);
+            ui->playlist->setFont(f);
+
+            f.setPointSize(f.pointSize() - 4);
+            ui->lbLyrics->setFont(f);
+        }
+        #endif
+
         connect(db, SIGNAL(started()), updateDetail, SLOT(show()));
         connect(db, SIGNAL(finished()), updateDetail, SLOT(hide()));
         connect(db, SIGNAL(updatePositionChanged(int)), this, SLOT(onDbUpdateChanged(int)));
@@ -755,7 +781,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     if (ui->chMix->isLock())
         return;
 
-    if (event->pos().y() < 60 && event->pos().x() < 700) {
+    if (event->pos().y() < 70 && event->pos().x() < 700) {
         showChMix();
     }
 }
@@ -1224,8 +1250,8 @@ void MainWindow::showSettingsDialog()
 {
     SettingsDialog d(this, this);
     d.setModal(true);
-    //d.adjustSize();
-    //d.setMinimumSize(d.size());
+    d.adjustSize();
+    d.setMinimumSize(d.size());
     d.exec();
 }
 
