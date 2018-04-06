@@ -163,6 +163,7 @@ private slots:
 
     void addBpmSpeed(int speed);
     void preSetBpmSpeed(int speed);
+    void preSetTranspose(int transpose);
 
     void sendDrumPads(QKeyEvent *key, bool noteOn);
 };

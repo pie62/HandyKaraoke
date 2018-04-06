@@ -697,8 +697,11 @@ void MainWindow::play(int index)
     timer2->start(songDetail_timeout);
 
     player->setBpmSpeed(playingSong.bpmSpeed());
+    player->setTranspose(playingSong.transpose());
     player->play();
+
     lyrWidget->show();
+
     if (secondLyr != nullptr)
         secondLyr->show();
     positionTimer->start();
@@ -897,6 +900,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         break;
     }
     case Qt::Key_Insert: {
+        if (ui->frameSearch->isVisible()) {
+            preSetTranspose(db->currentSong()->transpose() + 1);
+            break;
+        }
         player->setTranspose(player->transpose()+1);
         int trp = player->transpose();
         QString t;
@@ -911,6 +918,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         break;
     }
     case Qt::Key_Delete: {
+        if (ui->frameSearch->isVisible()) {
+            preSetTranspose(db->currentSong()->transpose() - 1);
+            break;
+        }
         if (ui->framePlaylist->isVisible()) {
             int i = ui->playlist->currentRow();
             if (i<0)
@@ -1020,6 +1031,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         } else {
             searchBoxChangeBpm = false;
             db->currentSong()->setBpmSpeed(0);
+            db->currentSong()->setTranspose(0);
             ui->framePlaylist->hide();
             if (ui->lbId->text() == "")
                 setFrameSearch( db->search("") );
@@ -1041,6 +1053,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         } else {
             searchBoxChangeBpm = false;
             db->currentSong()->setBpmSpeed(0);
+            db->currentSong()->setTranspose(0);
             ui->framePlaylist->hide();
             if (ui->lbId->text() == "")
                 setFrameSearch( db->search("") );
@@ -1525,6 +1538,11 @@ void MainWindow::addBpmSpeed(int speed)
 
     player->setBpmSpeed(bpmSp);
 
+    if (playingSong.id() != "")
+        playingSong.setBpmSpeed(bpmSp);
+    ui->songDetail->setDetail(&playingSong);
+    ui->songDetail->adjustSize();
+
     QString value = QString::number(bpm);
     if (bpmSp != 0) {
         value += bpmSp > 0 ? " (+" : " (";
@@ -1551,7 +1569,24 @@ void MainWindow::preSetBpmSpeed(int speed)
     else
         s = QString::number(speed);
 
-    ui->lbSearch->setText("[ ความเร็ว " + QString::number(song->tempo() + speed) + " (" + s + ") ]");
+    ui->lbSearch->setText("ความเร็ว : " + QString::number(song->tempo() + speed) + " (" + s + ")");
+    timer2->start(search_timeout);
+}
+
+void MainWindow::preSetTranspose(int transpose)
+{
+    Song *song = db->currentSong();
+    song->setTranspose(transpose);
+    searchBoxChangeBpm = true;
+
+    QString s;
+    if (transpose > 0)
+        s = "+" + QString::number(transpose);
+    else
+        s = QString::number(transpose);
+
+
+    ui->lbSearch->setText("คีย์เพลง : " + s );
     timer2->start(search_timeout);
 }
 

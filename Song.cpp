@@ -8,6 +8,7 @@ Song::Song(QObject *parent) : QObject(parent)
     sKey        = "";
     sTempo      = 0;
     sBpmSpeed   = 0;
+    sTranspose  = 0;
     sSongType   = "";
     sLyrics     = "";
     sPath       = "";
@@ -21,6 +22,7 @@ Song::Song(const Song &s)
     sKey        = s.sKey;
     sTempo      = s.sTempo;
     sBpmSpeed   = s.sBpmSpeed;
+    sTranspose  = s.sTranspose;
     sSongType   = s.sSongType;
     sLyrics     = s.sLyrics;
     sPath       = s.sPath;
@@ -34,6 +36,7 @@ Song &Song::operator =(const Song &s)
     sKey        = s.sKey;
     sTempo      = s.sTempo;
     sBpmSpeed   = s.sBpmSpeed;
+    sTranspose  = s.sTranspose;
     sSongType   = s.sSongType;
     sLyrics     = s.sLyrics;
     sPath       = s.sPath;

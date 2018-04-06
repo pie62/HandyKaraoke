@@ -4,6 +4,7 @@
 #include <QSplashScreen>
 #include <QDirIterator>
 #include <QMetaType>
+#include <QStyleFactory>
 
 #include "version.h"
 #include "BASSFX/FX.h"
@@ -36,6 +37,22 @@ int main(int argc, char *argv[])
 
     splash->showMessage("กำลังเริ่มโปรแกรม...", Qt::AlignBottom|Qt::AlignRight);
     qApp->processEvents();
+
+    { // set style
+        QSettings *s = new QSettings("Style.ini", QSettings::IniFormat);
+
+        #ifdef __linux__
+        bool useFusion = s->value("Fusion", true).toBool();
+        #else
+        bool useFusion = s->value("Fusion", false).toBool();
+        #endif
+
+        delete s;
+
+        if (useFusion)
+            a.setStyle(QStyleFactory::create("Fusion"));
+    }
+
 
     // Add font for linux
     #ifdef __linux__

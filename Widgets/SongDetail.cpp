@@ -43,6 +43,18 @@ void SongDetail::setDetail(Song *song)
     ui->lbName->setText(song->name());
     ui->lbArtist->setText(song->artist());
     ui->lbKey->setText(song->key());
-    ui->lbBpm->setText(QString::number(song->tempo()) + " BPM");
+
+    QString speedText;
+    if (song->bpmSpeed() != 0) {
+        QString s;
+        if (song->bpmSpeed() > 0)
+            s = "+" + QString::number(song->bpmSpeed());
+        else
+            s = QString::number(song->bpmSpeed());
+
+        speedText =  + "(" + s + ")";
+    }
+
+    ui->lbBpm->setText(QString::number(song->tempo() + song->bpmSpeed()) + " " + speedText + " BPM");
     ui->lbType->setText(song->songType());
 }
