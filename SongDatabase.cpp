@@ -386,7 +386,8 @@ Song *SongDatabase::searchNext()
         q.bindValue(0, _searchText + "%");
     }
 
-    if (q.exec() && q.seek(++currentResultIndex)) {
+    if (q.exec() && q.seek(currentResultIndex + 1)) {
+        currentResultIndex++;
         setSong(song, &q);
     }
 
@@ -433,7 +434,8 @@ Song *SongDatabase::searchPrevious()
         q.bindValue(0, _searchText + "%");
     }
 
-    if (q.exec() && currentResultIndex > 0 && q.seek(--currentResultIndex)) {
+    if (q.exec() && q.seek(currentResultIndex - 1)) {
+        currentResultIndex--;
         setSong(song, &q);
     }
 
