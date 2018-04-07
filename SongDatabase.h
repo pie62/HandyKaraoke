@@ -15,12 +15,6 @@ enum class SearchType {
     ByArtist
 };
 
-enum class SearchAllCurrentType {
-    ByID,
-    ByName,
-    ByArtist
-};
-
 enum class UpdateType {
     UpdateAll,
     ImportNCN
@@ -85,6 +79,8 @@ private:
 
     int upCount = 0;
     bool upTing = false;
+
+    int currentResultIndex = -1;
 
     void createIndex();
     void dropIndex();
