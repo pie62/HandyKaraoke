@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
     //----------------------------------
 
     MainWindow w;
+    w.setWindowIcon(QIcon(":/Icons/App/icon.png"));
 
     #ifndef __linux__
     makeVSTList(splash, w.midiPlayer()->midiSynthesizer());

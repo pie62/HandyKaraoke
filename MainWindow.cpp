@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     // Init BASS
-    BASS_Init(-1, 44100, 0, 0, NULL);
+    BASS_Init(-1, 44100, 0, NULL, NULL);
     BASS_FX_GetVersion();
 
     auto concurentThreadsSupported = Utils::concurentThreadsSupported();
@@ -381,8 +381,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     { // Init UI
-        setWindowIcon(QIcon(":/Icons/App/icon.png"));
-
         updateDetail->hide();
         updateDetail->resize(250, 60);
         updateDetail->setText("กำลังปรับปรุงฐานข้อมูล");
