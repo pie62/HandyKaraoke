@@ -13,13 +13,7 @@
   <property name="minimumSize">
    <size>
     <width>330</width>
-    <height>272</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>330</width>
-    <height>272</height>
+    <height>0</height>
    </size>
   </property>
   <property name="font">
@@ -54,7 +48,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../icons.qrc">:/Icons/App/icon_sm.png</pixmap>
+        <pixmap resource="../icons.qrc">:/Icons/App/icon.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>

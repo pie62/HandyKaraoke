@@ -381,7 +381,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     { // Init UI
-        setWindowIcon(QIcon(":/Icons/App/icon_sm.png"));
+        setWindowIcon(QIcon(":/Icons/App/icon.png"));
 
         updateDetail->hide();
         updateDetail->resize(250, 60);
@@ -1275,6 +1275,7 @@ void MainWindow::setFrameSearch(Song *s)
 void MainWindow::showContextMenu(const QPoint &pos)
 {
     QMenu menu(tr("Context menu"), this);
+    menu.setMinimumWidth(230);
 
     QAction actionSettings("ตั้งค่า...", this);
     QAction actionMappChanel("แยกช่องสัญญาณ...", this);
@@ -1403,6 +1404,8 @@ void MainWindow::showAboutDialog()
 {
     AboutDialog d(this);
     d.setModal(true);
+    d.adjustSize();
+    d.setFixedSize(d.size());
     d.exec();
 }
 

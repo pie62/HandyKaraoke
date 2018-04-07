@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>591</width>
-    <height>514</height>
+    <width>614</width>
+    <height>472</height>
    </rect>
   </property>
   <property name="font">
@@ -326,7 +326,7 @@
                  <widget class="QLineEdit" name="leFont">
                   <property name="minimumSize">
                    <size>
-                    <width>135</width>
+                    <width>151</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -1593,7 +1593,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>215</height>
+               <height>235</height>
               </size>
              </property>
             </widget>

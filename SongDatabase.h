@@ -15,6 +15,12 @@ enum class SearchType {
     ByArtist
 };
 
+enum class SearchAllCurrentType {
+    ByID,
+    ByName,
+    ByArtist
+};
+
 enum class UpdateType {
     UpdateAll,
     ImportNCN
