@@ -24,7 +24,6 @@ SOURCES += main.cpp\
     Midi/MidiOut.cpp \
     Midi/Channel.cpp \
     Midi/MidiSynthesizer.cpp \
-    Midi/MidiPlayer.cpp \
     Widgets/ChMx.cpp \
     Widgets/LyricsWidget.cpp \
     Widgets/RhythmWidget.cpp \
@@ -57,7 +56,11 @@ SOURCES += main.cpp\
     Dialogs/BusDialog.cpp \
     BASSFX/BuiltIn/AutoWah.cpp \
     Dialogs/SynthMixerDialog.cpp \
-    Dialogs/SecondMonitorDialog.cpp
+    Dialogs/SecondMonitorDialog.cpp \
+    Midi/MidiSequencer.cpp \
+    Midi/MidiPlayer.cpp \
+    Dialogs/MapChannelDialog.cpp \
+    Widgets/ChMxComboBox.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -68,7 +71,6 @@ HEADERS  += MainWindow.h \
     Midi/MidiOut.h \
     Midi/Channel.h \
     Midi/MidiSynthesizer.h \
-    Midi/MidiPlayer.h \
     Widgets/ChMx.h \
     Widgets/LyricsWidget.h \
     Widgets/RhythmWidget.h \
@@ -103,7 +105,13 @@ HEADERS  += MainWindow.h \
     Dialogs/VSTDialog.h \
     Dialogs/BusDialog.h \
     BASSFX/BuiltIn/AutoWah.h \
-    Dialogs/SecondMonitorDialog.h
+    Dialogs/SecondMonitorDialog.h \
+    Midi/MidiSequencer.h \
+    Midi/MidiPlayer.h \
+    DrumPadsKey.h \
+    version.h \
+    Dialogs/MapChannelDialog.h \
+    Widgets/ChMxComboBox.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -122,7 +130,8 @@ FORMS    += MainWindow.ui \
     Dialogs/AboutDialog.ui \
     Widgets/VSTLabel.ui \
     Dialogs/BusDialog.ui \
-    Dialogs/SecondMonitorDialog.ui
+    Dialogs/SecondMonitorDialog.ui \
+    Dialogs/MapChannelDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -131,6 +140,7 @@ INCLUDEPATH += $$PWD/Widgets
 win32 {
     QT += winextras
     LIBS += -lwinmm
+    RC_FILE = resources.rc
 
     SOURCES += Midi/rtmidi/RtMidi.cpp \
         Dialogs/VSTDirsDialog.cpp
@@ -167,11 +177,13 @@ win32 {
     INCLUDEPATH += $$PWD/BASS/bassmix24
     INCLUDEPATH += $$PWD/BASS/bass_vst24
 
-    RC_ICONS = icon.ico
+    #RC_ICONS = icon.ico
 }
 
 unix:!macx {
     LIBS +=  -lrtmidi
+    RESOURCES += \
+        fonts.qrc
 
     contains(QT_ARCH, i386) {
         message("32-bit")
@@ -197,9 +209,11 @@ macx {
 }
 
 RESOURCES += \
-    icons.qrc \
-    fonts.qrc
+    icons.qrc
 
 #DEFINES += _ATL_XP_TARGETING
 #DEFINES += PSAPI_VERSION=1
 #QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+
+DISTFILES += \
+    resources.rc

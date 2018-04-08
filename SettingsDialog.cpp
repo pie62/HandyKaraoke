@@ -3,6 +3,7 @@
 
 #include "Midi/MidiHelper.h"
 #include "Dialogs/MapSoundfontDialog.h"
+#include "Dialogs/MapChannelDialog.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -236,7 +237,7 @@ void SettingsDialog::setLabelFontInfo(QFont *font)
 
 void SettingsDialog::initDeviceTab()
 {
-    // Midi device
+    // Midi out device
     MidiPlayer *player = mainWin->midiPlayer();
     int dfd = player->midiOutPortNumber();
 
@@ -249,6 +250,14 @@ void SettingsDialog::initDeviceTab()
         ui->cbMidiOut->setCurrentIndex( ui->cbMidiOut->count() - 1 );
     else
         ui->cbMidiOut->setCurrentIndex( dfd );
+
+
+    // Midi In device
+    ui->cbMidiIn->addItem("None");
+    for (std::string deviceName : MidiPlayer::midiInDevices()) {
+        ui->cbMidiIn->addItem(QString::fromStdString(deviceName));
+    }
+    ui->cbMidiIn->setCurrentIndex(player->midiInPortNumber()+1);
 
 
     // Audio devices
@@ -298,6 +307,7 @@ void SettingsDialog::initDeviceTab()
     MidiSynthesizer *synth = player->midiSynthesizer();
     ui->chbSynthFloat->setChecked(synth->isUseFloattingPoint());
     ui->chbSynthFx->setChecked(synth->isUseFXRC());
+    ui->sliderBuffer->setValue(BASS_GetConfig(BASS_CONFIG_BUFFER));
 
     connect(ui->chbLockDrum, SIGNAL(toggled(bool)), this, SLOT(onChbLockDrumToggled(bool)));
     connect(ui->chbLockSnare, SIGNAL(toggled(bool)), this, SLOT(onChbLockSnareToggled(bool)));
@@ -305,6 +315,7 @@ void SettingsDialog::initDeviceTab()
 
     connect(ui->chbSynthFloat, SIGNAL(toggled(bool)), this, SLOT(onChbFloatPointToggled(bool)));
     connect(ui->chbSynthFx, SIGNAL(toggled(bool)), this, SLOT(onChbUseFXToggled(bool)));
+    connect(ui->sliderBuffer, SIGNAL(valueChanged(int)), this, SLOT(onSliderBufferValueChanged(int)));
 }
 
 void SettingsDialog::on_chbRemoveFromList_toggled(bool checked)
@@ -469,6 +480,15 @@ void SettingsDialog::on_upDbUpdateFinished()
     ui->lbCountSongsValue->setText(QString::number(db->count()) + " เพลง");
 }
 
+void SettingsDialog::on_btnMapChannel_clicked()
+{
+    MapChannelDialog d(this, mainWin->midiPlayer());
+    d.setModal(true);
+    d.adjustSize();
+    d.setMinimumSize(d.size());
+    d.exec();
+}
+
 void SettingsDialog::on_cbMidiOut_activated(int index)
 {
     mainWin->stop();
@@ -477,13 +497,21 @@ void SettingsDialog::on_cbMidiOut_activated(int index)
         settings->setValue("MidiOut", -1);
         mainWin->midiPlayer()->setMidiOut(-1);
     } else {
-        //QString dv = mainWin->midiPlayer()->midiDevices().keys()[index];
-        //settings->setValue("MidiOut", dv);
-        //mainWin->midiPlayer()->setMidiOut(dv);
-        //mainWin->midiPlayer()->unsetSoundFonts();
         settings->setValue("MidiOut", index);
         mainWin->midiPlayer()->setMidiOut(index);
     }
+
+    QList<int> ports;
+    for (int i=0; i<16; i++) {
+        ports.append(mainWin->midiPlayer()->midiChannel()[i].port());
+    }
+    settings->setValue("MidiChannelMapper", QVariant::fromValue(ports));
+}
+
+void SettingsDialog::on_cbMidiIn_activated(int index)
+{
+    mainWin->midiPlayer()->setMidiIn(index-1);
+    settings->setValue("MidiIn", index-1);
 }
 
 void SettingsDialog::on_cbAudioOut_activated(int index)
@@ -592,6 +620,24 @@ void SettingsDialog::onChbUseFXToggled(bool checked)
 {
     mainWin->midiPlayer()->midiSynthesizer()->setUseFXRC(checked);
     settings->setValue("SynthUseFXRC", checked);
+}
+
+void SettingsDialog::onSliderBufferValueChanged(int value)
+{
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+
+    if (!mainWin->midiPlayer()->isPlayerStopped())
+        mainWin->stop();
+
+    if (synth->isOpened()) {
+        synth->close();
+        BASS_SetConfig(BASS_CONFIG_BUFFER, value);
+        synth->open();
+    } else {
+        BASS_SetConfig(BASS_CONFIG_BUFFER, value);
+    }
+
+    settings->setValue("SynthBuffer", value);
 }
 
 void SettingsDialog::on_btnFont_clicked()

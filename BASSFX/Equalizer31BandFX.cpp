@@ -77,10 +77,8 @@ void Equalizer31BandFX::on()
     // -------------------------
 
     BASS_BFX_PEAKEQ eq;
-    //eq.fBandwidth = 18;
     eq.fQ = 0;
-    eq.lBand = 0;
-    eq.fBandwidth = 2;
+    eq.fBandwidth = 2.5f;
     eq.lChannel = BASS_BFX_CHANALL;
 
     float eqfreq[31] = { 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160,
@@ -90,6 +88,7 @@ void Equalizer31BandFX::on()
     int i = 0;
     for (auto const& x : fxGain)
     {
+        eq.lBand = i;
         eq.fCenter = eqfreq[i];
         eq.fGain = x.second;
 
@@ -149,10 +148,7 @@ void Equalizer31BandFX::setGain(EQFrequency31Range freq, float gain)
         return;
 
     BASS_BFX_PEAKEQ eq;
-    eq.fQ = 0;
-    eq.lBand = 0;
-    eq.fBandwidth = 2;
-    eq.lChannel = BASS_BFX_CHANALL;
+    eq.lBand = static_cast<int>(freq);
     if (BASS_FXGetParameters(fxEQ[freq], &eq))
     {
         eq.fGain = g;

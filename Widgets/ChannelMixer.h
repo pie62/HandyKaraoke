@@ -29,7 +29,9 @@ public:
     ~ChannelMixer();
 
     LEDVu* vuBar(int ch) { return chs[ch]->vuBar(); }
+    bool isLock() { return lock; }
 
+    void setLock(bool lock);
     void setPlayer(MidiPlayer *p);
     void peak(int ch, int value);
 
@@ -39,7 +41,11 @@ public slots:
     void onPlayerPlayingEvent(MidiEvent *e);
 
 signals:
-    void buttonCloseClicked();
+    void lockChanged(bool lock);
+    void mouseLeaved();
+
+protected:
+    void leaveEvent(QEvent *event);
 
 private slots:
     void onChSliderValueChanged(int ch, int v);
@@ -53,15 +59,17 @@ private slots:
     void setPanToolTip(int value);
 
     void onChbMuteVoiceToggled(bool checked);
+    void onChbLockToggled(bool checked);
 
     void onBtnSettingVuClicked();
-    void onBtnCloseClicked();
 
 private:
     Ui::ChannelMixer *ui;
 
     MidiPlayer *player;
     QList<ChMx*> chs;
+
+    bool lock = false;
 };
 
 #endif // CHANNELMIXER_H

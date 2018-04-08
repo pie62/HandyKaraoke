@@ -3,6 +3,7 @@
 
 #include "SongDatabase.h"
 #include "Midi/MidiPlayer.h"
+
 #include <LyricsWidget.h>
 #include <Detail.h>
 #include <ChannelMixer.h>
@@ -78,20 +79,21 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void closeEvent(QCloseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
 private:
     Ui::MainWindow *ui;
     QSettings *settings;
     SongDatabase *db;
     QTimer *timer1, *timer2, *positionTimer, *lyricsTimer;
-    QTimer *songDetailTimer, *detailTimer;
+    QTimer *detailTimer;
 
     QList<Song*> playlist;
     MidiPlayer *player;
     Song playingSong;
     int playingIndex = -1;
     bool playAfterSeek = false;
-    bool changingBpmSpeed = false;
+    bool searchBoxChangeBpm = false;
 
     LyricsWidget *lyrWidget, *secondLyr = nullptr;
     Detail *updateDetail;
@@ -102,6 +104,7 @@ private:
     bool auto_playnext = true;
     int search_timeout = 5000;
     int playlist_timeout = 5000;
+    int songDetail_timeout = 4000;
 
     QLocale locale;
 
@@ -119,12 +122,20 @@ private:
     #endif
 
 private slots:
+    void showFrameSearch();
+    void showFramePlaylist();
+    void showSongDetail();
+    void showChMix();
+    void onChMixMouseLeaved();
+    void onChMixLockChanged(bool lock);
+    void hideUIFrame();
+
     void showCurrentTime();
     void setFrameSearch(Song* s);
 
     void showContextMenu(const QPoint &pos);
     void showSettingsDialog();
-    void showHideChMix();
+    void showMapMidiChannelDialog();
     void minimizeWindow();
     void showMapSFDialog();
     void showSecondMonitor();
@@ -151,6 +162,10 @@ private slots:
     void onDetailTimerTimeout();
 
     void addBpmSpeed(int speed);
+    void preSetBpmSpeed(int speed);
+    void preSetTranspose(int transpose);
+
+    void sendDrumPads(QKeyEvent *key, bool noteOn);
 };
 
 #endif // MAINWINDOW_H

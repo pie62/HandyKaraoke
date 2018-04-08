@@ -4,7 +4,9 @@
 #include <QSplashScreen>
 #include <QDirIterator>
 #include <QMetaType>
+#include <QStyleFactory>
 
+#include "version.h"
 #include "BASSFX/FX.h"
 
 #ifdef __linux__
@@ -22,7 +24,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv); 
 
     QCoreApplication::setApplicationName("handy-karaoke");
-    QCoreApplication::setApplicationVersion("1.3.0");
+    QCoreApplication::setApplicationVersion(VER_FILEVERSION_STR);
     QCoreApplication::setOrganizationName("HandyKaraoke");
     QCoreApplication::setOrganizationDomain("https://github.com/pie62/HandyKaraoke");
 
@@ -36,6 +38,22 @@ int main(int argc, char *argv[])
     splash->showMessage("กำลังเริ่มโปรแกรม...", Qt::AlignBottom|Qt::AlignRight);
     qApp->processEvents();
 
+    { // set style
+        QSettings *s = new QSettings("Style.ini", QSettings::IniFormat);
+
+        #ifdef __linux__
+        bool useFusion = s->value("Fusion", true).toBool();
+        #else
+        bool useFusion = s->value("Fusion", false).toBool();
+        #endif
+
+        delete s;
+
+        if (useFusion)
+            a.setStyle(QStyleFactory::create("Fusion"));
+    }
+
+
     // Add font for linux
     #ifdef __linux__
     QFontDatabase::addApplicationFont(":/Fonts/THSarabunNew/THSarabunNew Bold.ttf");
@@ -43,6 +61,7 @@ int main(int argc, char *argv[])
     //----------------------------------
 
     MainWindow w;
+    w.setWindowIcon(QIcon(":/Icons/App/icon.png"));
 
     #ifndef __linux__
     makeVSTList(splash, w.midiPlayer()->midiSynthesizer());

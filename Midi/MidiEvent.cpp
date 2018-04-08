@@ -4,6 +4,11 @@ MidiEvent::MidiEvent()
 {
 }
 
+MidiEvent::MidiEvent(std::vector<unsigned char> *message)
+{
+    this->setMessage(message);
+}
+
 MidiEvent::~MidiEvent()
 {
     mData.clear();
@@ -50,6 +55,59 @@ void MidiEvent::setMetaType(int mNumber)
         case 89:  mType = MidiMetaType::KeySignature; break;
         case 127: mType = MidiMetaType::SequencerSpecific; break;
         default:  mType = MidiMetaType::Invalid; break;
+    }
+}
+
+void MidiEvent::setMessage(std::vector<unsigned char> *message)
+{
+    if (message->size() > 0) {
+        switch(message->at(0) & 0xF0) {
+            case 0x80:
+                eType = MidiEventType::NoteOff;
+                eChannel = message->at(0) & 0x0F;
+                eData1 = message->at(1);
+                eData2 = message->at(2);
+                break;
+            case 0x90:
+                eChannel = message->at(0) & 0x0F;
+                eData1 = message->at(1);
+                eData2 = message->at(2);
+                if (eData2 != 0)
+                    eType = MidiEventType::NoteOn;
+                else
+                    eType = MidiEventType::NoteOff;
+                break;
+            case 0xA0:
+                eType = MidiEventType::NoteAftertouch;
+                eChannel = message->at(0) & 0x0F;
+                eData1 = message->at(1);
+                eData2 = message->at(2);
+                break;
+            case 0xB0:
+                eType = MidiEventType::Controller;
+                eChannel = message->at(0) & 0x0F;
+                eData1 = message->at(1);
+                eData2 = message->at(2);
+                break;
+            case 0xC0:
+                eType = MidiEventType::ProgramChange;
+                eChannel = message->at(0) & 0x0F;
+                eData1 = message->at(1);
+                break;
+            case 0xD0:
+                eType = MidiEventType::ChannelAftertouch;
+                eChannel = message->at(0) & 0x0F;
+                eData1 = message->at(1);
+                break;
+            case 0xE0:
+                eType = MidiEventType::PitchBend;
+                eChannel = message->at(0) & 0x0F;
+                eData1 = ((message->at(2) & 0x7F) << 7) | (message->at(1) & 0x7F);
+                // = message->at(1);
+                break;
+            default:
+                break;
+        }
     }
 }
 

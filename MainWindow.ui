@@ -199,13 +199,13 @@ border: 1px solid rgb(255, 255, 255);</string>
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>119</height>
+          <height>131</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>119</height>
+          <height>131</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -257,13 +257,13 @@ border: 1px solid rgb(255, 255, 255);</string>
                <property name="minimumSize">
                 <size>
                  <width>331</width>
-                 <height>51</height>
+                 <height>57</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>331</width>
-                 <height>51</height>
+                 <height>57</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -317,13 +317,13 @@ color: rgb(66, 66, 66);</string>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>51</height>
+                 <height>57</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>51</height>
+                 <height>57</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -387,13 +387,13 @@ color: rgb(255, 244, 110);</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>51</height>
+               <height>57</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>51</height>
+               <height>57</height>
               </size>
              </property>
              <property name="styleSheet">
@@ -542,13 +542,13 @@ color: rgb(238, 238, 238);</string>
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>257</height>
+          <height>227</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>257</height>
+          <height>227</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -590,13 +590,13 @@ color: rgb(238, 238, 238);</string>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>51</height>
+             <height>57</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>51</height>
+             <height>57</height>
             </size>
            </property>
            <property name="styleSheet">
@@ -620,7 +620,7 @@ color: rgb(255, 244, 110);</string>
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label">
+             <widget class="QLabel" name="lbPlaylist">
               <property name="font">
                <font>
                 <family>DilleniaUPC</family>

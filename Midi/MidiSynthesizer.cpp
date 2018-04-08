@@ -2,9 +2,7 @@
 
 #include "BASSFX/FX.h"
 
-#include <thread>
 #include <cstring>
-#include <iostream>
 
 
 MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
@@ -70,16 +68,6 @@ bool MidiSynthesizer::open()
 
     openned = true;
 
-    auto concurentThreadsSupported = std::thread::hardware_concurrency();
-    float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
-
-    //BASS_Init(-1, 44100, 0, NULL, NULL);
-
-    BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
-    BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
-    BASS_SetConfig(BASS_CONFIG_MIDI_VOICES, nVoices);
-    BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
-
     // create mix stream
     DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
     mixHandle = BASS_Mixer_StreamCreate(44100, 2, f);
@@ -131,7 +119,7 @@ bool MidiSynthesizer::open()
         #endif
     }
 
-    BASS_ChannelPlay(mixHandle, true);
+    BASS_ChannelPlay(mixHandle, false);
 
     setSfToStream();
 
@@ -794,6 +782,7 @@ void MidiSynthesizer::setSfToStream()
         if (!f)
             continue;
 
+        //BASS_MIDI_FontLoad(f, -1, -1);
         BASS_MIDI_FontCompact(f);
         synth_HSOUNDFONT.push_back(f);
     }

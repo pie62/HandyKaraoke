@@ -39,7 +39,9 @@ private slots:
 
 
     // Output tab
+    void on_btnMapChannel_clicked();
     void on_cbMidiOut_activated(int index);
+    void on_cbMidiIn_activated(int index);
     void on_cbAudioOut_activated(int index);
 
     void onChbLockDrumToggled(bool checked);
@@ -52,6 +54,7 @@ private slots:
 
     void onChbFloatPointToggled(bool checked);
     void onChbUseFXToggled(bool checked);
+    void onSliderBufferValueChanged(int value);
 
 
 

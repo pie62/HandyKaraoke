@@ -2,6 +2,7 @@
 #include "ui_RhythmWidget.h"
 
 #include <QPainter>
+#include <QDebug>
 
 RhythmWidget::RhythmWidget(QWidget *parent) :
     QWidget(parent),
@@ -30,34 +31,36 @@ void RhythmWidget::setBpm(int bpm)
 
 void RhythmWidget::reset()
 {
-    changeBeatInBar = false;
+    beats[_tempIndex]->off();
+
+    _currentBar = -1;
     _currentBeat = -1;
-    _barIndex = 0;
+    _currentBeatInBar = _signatureBeats.count() > 0 ? _signatureBeats[0].nBeatInBar : 4;
+    _tempIndex = 0;
 
-    beatBarIndex = 0;
-    timeSingIndex = 0;
-
-    nBeatInBar = 4;
-    lastBeat = 0;
-    if (_beatInBar.count() > 0) {
-        nBeatInBar = _beatInBar.keys().at(0);
-        lastBeat = _beatInBar.values().at(0) * nBeatInBar;
-    }
-
-    _barCount = 0;
-    for (int nb : _beatInBar.values()) {
-        _barCount += nb;
-    }
 
     ui->lbBeat->setText("0:" + QString::number(_barCount+1));
-    displayBeats(nBeatInBar);
+    displayBeats(_currentBeatInBar);
 }
 
-void RhythmWidget::setBeat(const QMap<int, int> &beatInBar, int beatCount)
+void RhythmWidget::setBeat(const QList<SignatureBeat> &signatureBeats, int beatCount)
 {
-    _beatInBar.clear();
-    _beatInBar = beatInBar;
+    _signatureBeats.clear();
+    _signatureBeats = signatureBeats;
     _beatCount = beatCount;
+
+    { // Count bar
+       _barCount= 0;
+        int lastBeat = 0, lastBeatInBar = 0;;
+        for (SignatureBeat sigBeat : signatureBeats) {
+            lastBeat = sigBeat.nBeat;
+            if (lastBeat > 0) {
+                _barCount += lastBeat / lastBeatInBar;
+            }
+            lastBeatInBar = sigBeat.nBeatInBar;
+        }
+        _barCount += (beatCount - lastBeat) / lastBeatInBar;
+    }
 
     reset();
 }
@@ -69,70 +72,33 @@ void RhythmWidget::setCurrentBeat(int b)
 
     _currentBeat = b;
 
-    if (beatBarIndex == 0) {
-        if (changeBeatInBar && timeSingIndex < _beatInBar.count()) {
-            nBeatInBar = _beatInBar.keys().at(timeSingIndex);
-            lastBeat += _beatInBar.values().at(timeSingIndex) * nBeatInBar;
-            changeBeatInBar = false;
-            displayBeats(nBeatInBar);
+    int lastBeat = 0;
+    int lastBar = 0;
+    int beatInbar = 4;
+    for (SignatureBeat sigBeat : _signatureBeats) {
+        if (sigBeat.nBeat > _currentBeat) {
+            break;
         }
-        ui->lbBeat->setText(QString::number(_barIndex+1)  + ":" + QString::number(_barCount+1));
-        beats[nBeatInBar-1]->off();
-        beats[0]->on();
-    }
-    else {
-        beats[beatBarIndex-1]->off();
-        beats[beatBarIndex]->on();
-    }
-    beatBarIndex++;
-
-
-    if (beatBarIndex == nBeatInBar) {
-        beatBarIndex = 0;
-        _barIndex++;
+        lastBar += (sigBeat.nBeat - lastBeat) / beatInbar;
+        lastBeat = sigBeat.nBeat;
+        beatInbar = sigBeat.nBeatInBar;
     }
 
-    if (_currentBeat == (lastBeat-1)) {
-        timeSingIndex++;
-        changeBeatInBar = true;
+    if (beatInbar != _currentBeatInBar) {
+        _currentBeatInBar = beatInbar;
+        displayBeats(_currentBeatInBar);
     }
-}
 
-void RhythmWidget::setSeekBeat(int b)
-{
-    if (b == _currentBeat || b < 0 || b > _beatCount)
-        return;
+    int cBar = ((_currentBeat - lastBeat) / beatInbar) + lastBar;
+    if (_currentBar != cBar) {
+        _currentBar = cBar;
+        ui->lbBeat->setText(QString::number(_currentBar+1)  + ":" + QString::number(_barCount+1));
+    }
 
-    reset();
-
-    for (int i=0; i<b; i++) {
-        _currentBeat = i;
-
-        if (beatBarIndex == 0) {
-            if (changeBeatInBar && timeSingIndex < _beatInBar.count()) {
-                nBeatInBar = _beatInBar.keys().at(timeSingIndex);
-                lastBeat += _beatInBar.values().at(timeSingIndex) * nBeatInBar;
-                changeBeatInBar = false;
-            }
-        }
-        beatBarIndex++;
-
-
-        if (beatBarIndex == nBeatInBar) {
-            beatBarIndex = 0;
-            _barIndex++;
-        }
-
-
-        if (_currentBeat == (lastBeat-1)) {
-            timeSingIndex++;
-            changeBeatInBar = true;
-        }
-    } // end for loop
-
-    displayBeats(nBeatInBar);
-    beats[beatBarIndex]->on();
-    ui->lbBeat->setText(QString::number(_barIndex+1)  + ":" + QString::number(_barCount+1));
+    int beatIndex = (_currentBeat - lastBeat) % _currentBeatInBar;
+    beats[_tempIndex]->off();
+    beats[beatIndex]->on();
+    _tempIndex = beatIndex;
 }
 
 void RhythmWidget::offAllBeats()

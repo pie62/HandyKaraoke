@@ -399,7 +399,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="cbCh">
+        <widget class="ChMxComboBox" name="cbCh">
          <property name="minimumSize">
           <size>
            <width>51</width>
@@ -509,7 +509,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="cbInts">
+        <widget class="ChMxComboBox" name="cbInts">
          <property name="minimumSize">
           <size>
            <width>201</width>
@@ -688,6 +688,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="chbLock">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>ล็อก</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnSettingVu">
        <property name="minimumSize">
         <size>
@@ -722,38 +732,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="btnClose">
-       <property name="minimumSize">
-        <size>
-         <width>30</width>
-         <height>26</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>30</width>
-         <height>26</height>
-        </size>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>ปิด</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/delete.png</normaloff>:/Icons/delete.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>12</width>
-         <height>12</height>
-        </size>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>
@@ -770,6 +748,11 @@
    <extends>QFrame</extends>
    <header>ChannelMixer.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ChMxComboBox</class>
+   <extends>QComboBox</extends>
+   <header>ChMxComboBox.h</header>
   </customwidget>
  </customwidgets>
  <resources>

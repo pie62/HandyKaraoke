@@ -18,6 +18,8 @@ public:
 
     static QString readLyrics(const QString &lyrFile);
     static QString readLyrics(const QByteArray &data);
+
+    static uint concurentThreadsSupported();
 };
 
 #endif // UTILS_H

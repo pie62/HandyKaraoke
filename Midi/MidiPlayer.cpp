@@ -1,23 +1,46 @@
 #include "MidiPlayer.h"
 
-#include <QTimer>
 #include <QtMath>
 
 
-MidiPlayer::MidiPlayer(QObject *parent) : QThread(parent)
+MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
 {
-    _midi       = new MidiFile();
-    _midiOut    = new MidiOut();
+    MidiSequencer *seq1 = new MidiSequencer();
+    MidiSequencer *seq2 = new MidiSequencer();
+    _midiSeq.push_back(seq1);
+    _midiSeq.push_back(seq2);
+
     _midiSynth  = new MidiSynthesizer();
-    _eTimer     = new QElapsedTimer();
+
+    connect(seq1, SIGNAL(playingEvent(MidiEvent*)),
+            this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
+    connect(seq1, SIGNAL(bpmChanged(int)),
+            this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
+    connect(seq1, SIGNAL(finished()),
+            this, SLOT(onSeqFinished()), Qt::DirectConnection);
+
+    connect(seq2, SIGNAL(playingEvent(MidiEvent*)),
+            this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
+    connect(seq2, SIGNAL(bpmChanged(int)),
+            this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
+    connect(seq2, SIGNAL(finished()),
+            this, SLOT(onSeqFinished()), Qt::DirectConnection);
 }
 
 MidiPlayer::~MidiPlayer()
 {
-    delete _eTimer;
+    for (MidiSequencer *seq : _midiSeq) {
+        delete seq;
+    }
+
+    for (MidiOut *out : _midiOuts.values()) {
+        if (out) {
+            out->closePort();
+            delete out;
+        }
+    }
+
     delete _midiSynth;
-    delete _midiOut;
-    delete _midi;
 }
 
 std::vector<std::string> MidiPlayer::midiDevices()
@@ -30,75 +53,207 @@ std::vector<std::string> MidiPlayer::midiDevices()
     return outName;
 }
 
-bool MidiPlayer::setMidiOut(int portNumer)
+std::vector<std::string> MidiPlayer::midiInDevices()
 {
-    if (portNumer != -1 && portNumer >= _midiOut->getPortCount())
+    std::vector<std::string> inName;
+    RtMidiIn in;
+    for (int i=0; i<in.getPortCount(); i++) {
+        inName.push_back(in.getPortName(i));
+    }
+    return inName;
+}
+
+bool MidiPlayer::isSnareNumber(int num)
+{
+    if ( (num == 38) || (num == 40) )
+        return true;
+    else
+        return false;
+}
+
+bool MidiPlayer::isBassInstrument(int ints)
+{
+    if ( (ints < 32) || (ints > 39) )
+        return false;
+    else
+        return true;
+}
+
+int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
+{
+    int d = qPow(2, denominator);
+    switch (d) {
+        case 2:
+        case 4:
+            return numerator * 1;
+        case 8:
+            return numerator * 0.5;
+        case 16:
+            return numerator * 0.25;
+        default:
+            return 4;
+    }
+}
+
+QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
+{
+    QList<SignatureBeat> beats;
+    uint32_t t = midi->events().back()->tick();
+    ushort bCount = midi->beatFromTick(t);
+
+    for (MidiEvent *evt : midi->timeSignatureEvents()) {
+        SignatureBeat sb;
+        sb.nBeat = midi->beatFromTick(evt->tick());
+        sb.nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+        beats.append(sb);
+    }
+
+    return beats;
+}
+
+MidiFile *MidiPlayer::midiFile()
+{
+    return _midiSeq[_seqIndex]->midiFile();
+}
+
+bool MidiPlayer::isPlayerPlaying()
+{
+    return _midiSeq[_seqIndex]->isSeqPlaying();
+}
+
+bool MidiPlayer::isPlayerStopped()
+{
+    return _midiSeq[_seqIndex]->isSeqStopped();
+}
+
+bool MidiPlayer::isPlayerPaused()
+{
+    return _midiSeq[_seqIndex]->isSeqPaused();
+}
+
+bool MidiPlayer::isPlayerFinished()
+{
+    return _midiSeq[_seqIndex]->isSeqFinished();
+}
+
+long MidiPlayer::durationMs()
+{
+    return _midiSeq[_seqIndex]->durationMs();
+}
+
+long MidiPlayer::positionMs()
+{
+    return _midiSeq[_seqIndex]->positionMs();
+}
+
+int MidiPlayer::durationTick()
+{
+    return _midiSeq[_seqIndex]->durationTick();
+}
+
+int MidiPlayer::positionTick()
+{
+    return _midiSeq[_seqIndex]->positionTick();
+}
+
+int MidiPlayer::bpmSpeed()
+{
+    return _midiSeq[_seqIndex]->bpmSpeed();
+}
+
+int MidiPlayer::currentBpm()
+{
+    return _midiSeq[_seqIndex]->currentBpm();
+}
+
+int MidiPlayer::currentBeat()
+{
+    return _midiSeq[_seqIndex]->currentBeat();
+}
+
+int MidiPlayer::beatCount()
+{
+    return _midiSeq[_seqIndex]->beatCount();
+}
+
+bool MidiPlayer::setMidiOut(int portNumber)
+{
+    if (portNumber != -1 && portNumber >= midiDevices().size())
         return false;
 
-    if (!_stopped)
-        stop();
+    if (!isPlayerStopped())
+        stop(true);
 
+    int oldPort = _midiPortNum;
     bool result = false;
-    if (_midiOut->isPortOpen())
-        _midiOut->closePort();
 
-    if (portNumer == -1) {
+    if (portNumber == -1) {
         _midiSynth->open();
         _midiSynth->setVolume(_volume / 100.0f);
         _midiPortNum = -1;
         result = true;
     } else {
-        _midiSynth->close();
-        _midiOut->openPort(portNumer);
-        _midiOut->setVolume(_volume / 100.0f);
-        result = _midiOut->isPortOpen();
-        _midiPortNum = result ? portNumer : _midiPortNum;
+        MidiOut *out = _midiOuts[portNumber];
+        if (!out) {
+            out = new MidiOut();
+            out->openPort(portNumber);
+            _midiOuts[portNumber] = out;
+        }
+        out->setVolume(_volume / 100.0f);
+        result = out->isPortOpen();
+        _midiPortNum = result ? portNumber : _midiPortNum;
     }
 
-    for (int i=0; i<16; i++)
+    for (int i=0; i<16; i++) {
+        if (_midiChannels[i].port() != oldPort)
+            continue;
         _midiChannels[i].setPort(_midiPortNum);
+    }
+
+    calculateUsedPort();
 
     return result;
 }
 
-bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
+bool MidiPlayer::setMidiIn(int portNumber)
 {
-    if (!_stopped)
-        stop();
-
-    if (!_midi->read(file, seekFileChunkID))
+    if (portNumber != -1 && portNumber >= midiInDevices().size())
         return false;
 
-    MidiEvent *e = _midi->events().back();
-    _durationTick = e->tick();
-    _durationMs = _midi->timeFromTick(e->tick()) * 1000;
-    _midiTranspose = 0;
-    _midiSpeed = 0;
-    _midiSpeedTemp = 0;
-    _midiChangeBpmSpeed = false;
+    if (portNumber == _midiPortInNum)
+        return true;
 
-    _finished = false;
+    _midiPortInNum = portNumber;
 
-    { // Calculate beat count
-        uint32_t t = _midi->events().back()->tick();
-        _midiBeatCount = _midi->beatFromTick(t);
-
-        _beatInBar.clear();
-        int beatCalculed = 0;
-        int nBeatInBar = 0;
-        for (MidiEvent *evt : _midi->timeSignatureEvents()) {
-            if (nBeatInBar > 0) {
-                int nBeat = _midi->beatFromTick(evt->tick()) - beatCalculed;
-                int nBar = nBeat / nBeatInBar;
-                beatCalculed += nBeat;
-                _beatInBar.insertMulti(nBeatInBar, nBar);
-            }
-            nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+    if (portNumber == -1) {
+        if (_midiIn != nullptr) {
+            _midiIn->closePort();
+            delete _midiIn;
+            _midiIn = nullptr;
         }
-        int nBeat = _midiBeatCount - beatCalculed;
-        int nBar = nBeat / nBeatInBar;
-        _beatInBar.insertMulti(nBeatInBar, nBar);
-    } // End calculate beat count
+    } else {
+        if (_midiIn == nullptr) {
+            _midiIn = new RtMidiIn();
+            _midiIn->openPort(portNumber);
+            _midiIn->setCallback(&midiIncallback, this);
+        } else {
+            _midiIn->closePort();
+            _midiIn->openPort(portNumber);
+        }
+    }
+
+    return true;
+}
+
+bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
+{
+    if (!isPlayerStopped())
+        stop(true);
+
+    if (!_midiSeq[_seqIndex]->load(file, seekFileChunkID))
+        return false;
+
+    _midiTranspose = 0;
 
     for (int i=0; i<16; i++) {
         _midiChannels[i].setInstrument(0);
@@ -114,26 +269,32 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     return true;
 }
 
+void MidiPlayer::play()
+{
+    if (isPlayerStopped()) {
+        sendResetAllControllers();
+        MidiEvent ev;
+        ev.setEventType(MidiEventType::ProgramChange);
+        ev.setChannel(9);
+        if (_lockDrum) {
+            ev.setData1(_lockDrumNumber);
+        } else {
+            ev.setData1(0);
+        }
+        sendEvent(&ev);
+        emit sendedEvent(&ev);
+    }
+    _midiSeq[_seqIndex]->start();
+}
+
 void MidiPlayer::stop(bool resetPos)
 {
-    if (_stopped)
+    if (isPlayerStopped())
         return;
 
-    _playing = false;
-    _stopped = false;
-    _finished = false;
-    _startPlayIndex = _playedIndex;
+    _midiSeq[_seqIndex]->stop(resetPos);
 
-    while (!isFinished()) {};
-
-    if (resetPos) {
-        _stopped = true;
-        _startPlayTime = 0;
-        _startPlayIndex = 0;
-        _playedIndex = 0;
-        _positionMs = 0;
-        _positionTick = 0;
-    }
+    sendAllNotesOff();
 }
 
 void MidiPlayer::setVolume(int v)
@@ -142,8 +303,11 @@ void MidiPlayer::setVolume(int v)
     else if (v > 100) _volume = 100;
     else _volume = v;
 
-    _midiOut->setVolume(_volume / 100.0f);
     _midiSynth->setVolume(_volume / 100.0f);
+    for (MidiOut *out : _midiOuts.values()) {
+        if (!out) continue;
+        out->setVolume(_volume / 100.0f);
+    }
 }
 
 void MidiPlayer::setVolume(int ch, int v)
@@ -175,17 +339,12 @@ void MidiPlayer::setInstrument(int ch, int i)
     else if (i < 0) v = 0;
     else v = i;
 
-    /*MidiEvent evt;
-    evt.setChannel(ch);
-    evt.setEventType(MidiEventType::ProgramChange);
-    evt.setData1(v);
-
-    sendEvent(&evt);*/
-    if (_midiPortNum == -1) {
-        _midiSynth->sendProgramChange(ch, v);
-    } else {
-        _midiOut->sendProgramChange(ch, v);
+    _midiSynth->sendProgramChange(ch, v);
+    for (MidiOut *out : _midiOuts.values()) {
+        if (!out) continue;
+        out->sendProgramChange(ch, v);
     }
+
     _midiChannels[ch].setInstrument(v);
     _midiChannels[ch].setInstrumentType(MidiHelper::getInstrumentType(v));
 }
@@ -199,6 +358,7 @@ void MidiPlayer::setMute(int ch, bool mute)
         return;
 
     _midiChannels[ch].setMute(mute);
+
     if (mute)
         sendAllNotesOff(ch);
 }
@@ -215,19 +375,20 @@ void MidiPlayer::setSolo(int ch, bool solo)
 
     bool us = false;
     for (int i=0; i<16; i++) {
-        if (_midiChannels[i].isSolo())
+        if (_midiChannels[i].isSolo()) {
             us = true;
-        else {
+        } else {
             sendAllNotesOff(i);
         }
     }
 
     _useSolo = us;
 
-    if (_playing) {
+    if (isPlayerPlaying()) {
         for (int i=0; i<16; i++) {
-            if (_midiChannels[i].isSolo())
+            if (_midiChannels[i].isSolo()) {
                 continue;
+            }
             sendAllNotesOff(i);
         }
     }
@@ -292,26 +453,7 @@ void MidiPlayer::setChorus(int ch, int v)
 
 void MidiPlayer::setPositionTick(int t)
 {
-    bool playAfterSeek = _playing;
-    if (_playing)
-        stop();
-
-    int index = 0;
-    for (MidiEvent *e :_midi->events()) {
-        if (e->tick() > t)
-            break;
-
-        if (e->eventType() == MidiEventType::Controller
-            || e->eventType() == MidiEventType::ProgramChange) {
-            sendEvent(e);
-        }
-        _positionTick = e->tick();
-        index++;
-    }
-
-    _playedIndex = index;
-    if (playAfterSeek)
-        start();
+    _midiSeq[_seqIndex]->setPositionTick(t);
 }
 
 void MidiPlayer::setTranspose(int t)
@@ -321,7 +463,7 @@ void MidiPlayer::setTranspose(int t)
 
     _midiTranspose = t;
 
-    if (_playing) {
+    if (isPlayerPlaying()) {
         for (int i=0; i<16; i++) {
             if (i == 9)
                 continue;
@@ -332,48 +474,7 @@ void MidiPlayer::setTranspose(int t)
 
 void MidiPlayer::setBpmSpeed(int sp)
 {
-    if (sp == _midiSpeed)
-        return;
-
-    if ((_midiBpm + sp) < 30 || (_midiBpm + sp) > 240)
-        return;
-
-    if (_playing) {
-        _midiSpeedTemp = sp;
-        _midiChangeBpmSpeed = true;
-    } else {
-        _midiSpeed = sp;
-    }
-
-    emit bpmChanged(_midiBpm + sp);
-}
-
-int MidiPlayer::positionTick()
-{
-    if (_playing) {
-        return _midi->tickFromTimeMs(_eTimer->elapsed()  + _startPlayTime, _midiSpeed);
-    } else {
-        return _positionTick;
-    }
-}
-
-int MidiPlayer::currentBeat()
-{
-    return _midi->beatFromTick(positionTick());
-}
-
-bool MidiPlayer::isSnareNumber(int num) {
-    if ( (num == 38) || (num == 40) )
-        return true;
-    else
-        return false;
-}
-
-bool MidiPlayer::isBassInstrument(int ints) {
-    if ( (ints < 32) || (ints > 39) )
-        return false;
-    else
-        return true;
+    _midiSeq[_seqIndex]->setBpmSpeed(sp);
 }
 
 void MidiPlayer::setLockDrum(bool lock, int number)
@@ -381,13 +482,13 @@ void MidiPlayer::setLockDrum(bool lock, int number)
     _lockDrum = lock;
     _lockDrumNumber = number;
 
-    if (lock && !_stopped) {
+    if (lock && !isPlayerStopped()) {
         MidiEvent ev;
         ev.setEventType(MidiEventType::ProgramChange);
         ev.setChannel(9);
         ev.setData1(number);
         sendEvent(&ev);
-        emit playingEvents(&ev);
+        emit sendedEvent(&ev);
     }
 }
 
@@ -399,7 +500,7 @@ void MidiPlayer::setLockSnare(bool lock, int number)
     _lockSnare = lock;
     _lockSnareNumber = number;
 
-    if (_playing) {
+    if (isPlayerPlaying()) {
         sendAllNotesOff(9);
     }
 }
@@ -412,7 +513,7 @@ void MidiPlayer::setLockBass(bool lock, int number)
     _lockBass = lock;
     _lockBassBumber = number;
 
-    if (_stopped)
+    if (isPlayerStopped())
         return;
 
     if (lock) {
@@ -424,239 +525,230 @@ void MidiPlayer::setLockBass(bool lock, int number)
             ev.setChannel(i);
             ev.setData1(number);
             sendEvent(&ev);
-            emit playingEvents(&ev);
+            emit sendedEvent(&ev);
         }
     }
 }
 
-void MidiPlayer::run()
+void MidiPlayer::setMapChannelOutput(int ch, int port)
 {
-    if (_playing)
+    if (port != -1 && port >= midiDevices().size())
         return;
 
-    if (_stopped) {
-        sendResetAllControllers();
-        MidiEvent ev;
-        ev.setEventType(MidiEventType::ProgramChange);
-        ev.setChannel(9);
-        if (_lockDrum) {
-            ev.setData1(_lockDrumNumber);
-        } else {
-            ev.setData1(0);
-        }
-        sendEvent(&ev);
-        emit playingEvents(&ev);
-    }
+    if (port == _midiChannels[ch].port())
+        return;
 
-    _playing = true;
-    _stopped = false;
-    _finished = false;
-
-    playEvents();
-}
-
-long MidiPlayer::positionMs()
-{
-    //return _playing ? _eTimer->elapsed() + _startPlayTime : _positionMs;
-    return _playing ? _midi->timeFromTick(positionTick()) * 1000 : _positionMs;
-}
-
-void MidiPlayer::playEvents()
-{
-    if (_playedIndex > 0) {
-        uint32_t tick = _midi->events()[_playedIndex]->tick();
-        _startPlayTime = _midi->timeFromTick(tick, _midiSpeed) * 1000;
-    }
-
-    _eTimer->restart();
-
-    for (int i = _playedIndex; i < _midi->events().size(); i++) {
-
-        if (!_playing)
-            break;
-
-        _playingEventPtr = _midi->events()[i];
-
-        if (_midi->events()[i]->eventType() != MidiEventType::Meta) {
-
-            uint32_t tick = _midi->events()[i]->tick();
-
-            if (_midiChangeBpmSpeed) {
-                _midiChangeBpmSpeed = false;
-                _midiSpeed = _midiSpeedTemp;
-                _startPlayTime = _midi->timeFromTick(_midi->events()[i-1]->tick(), _midiSpeed) * 1000;
-                _eTimer->restart();
-            }
-
-            long eventTime = (_midi->timeFromTick(tick, _midiSpeed)  * 1000);
-            long waitTime = eventTime - _startPlayTime  - _eTimer->elapsed();
-
-            if (waitTime > 0) {
-                //std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
-                msleep(waitTime);
-            }
-
-            if (_midi->events()[i]->eventType() != MidiEventType::SysEx) {
-
-                if (_midi->events()[i]->eventType() == MidiEventType::Controller
-                    || _midi->events()[i]->eventType() == MidiEventType::ProgramChange) {
-                    sendEvent(_midi->events()[i]);
-                } else {
-                    if (_midiChannels[_midi->events()[i]->channel()].isMute() == false) {
-                        if (_useSolo) {
-                            if (_midiChannels[_midi->events()[i]->channel()].isSolo()) {
-                                sendEvent(_midi->events()[i]);
-                            }
-                        } else {
-                            sendEvent(_midi->events()[i]);
-                        }
-                    }
-                }
-
-            }
-
-            _positionMs = eventTime;
-
-        } else { // Meta event
-            if (_midi->events()[i]->metaEventType() == MidiMetaType::SetTempo) {
-                _midiBpm = _midi->events()[i]->bpm();
-                emit bpmChanged(_midiBpm + _midiSpeed);
-            }
+    if (port == -1)
+    {
+        if (!_midiSynth->isOpened()) {
+            _midiSynth->open();
+            _midiSynth->setVolume(_volume / 100.0f);
         }
 
-        _playedIndex = i;
-        _positionTick = _midi->events()[i]->tick();
-
-        emit playingEvents(_playingEventPtr);
-
-    } // End for loop
-
-    sendAllNotesOff();
-
-    // Check finished
-    if (_playedIndex == _midi->events().size() -1 ) {
-        _finished = true;
+        if (!this->isPlayerStopped()) {
+            _midiSynth->sendProgramChange(ch, _midiChannels[ch].instrument());
+            _midiSynth->sendController(ch, 7, _midiChannels[ch].volume());
+            _midiSynth->sendController(ch, 10, _midiChannels[ch].pan());
+            _midiSynth->sendController(ch, 91, _midiChannels[ch].reverb());
+            _midiSynth->sendController(ch, 93, _midiChannels[ch].chorus());
+        }
     }
+    else
+    {
+        MidiOut *out = _midiOuts[port];
+        if (!out) {
+            out = new MidiOut();
+            out->openPort(port);
+            out->setVolume(_volume / 100.0f);
+            _midiOuts[port] = out;
+        }
+
+        if (!this->isPlayerStopped()) {
+            out->sendProgramChange(ch, _midiChannels[ch].instrument());
+            out->sendController(ch, 7, _midiChannels[ch].volume());
+            out->sendController(ch, 10, _midiChannels[ch].pan());
+            out->sendController(ch, 91, _midiChannels[ch].reverb());
+            out->sendController(ch, 93, _midiChannels[ch].chorus());
+        }
+    }
+
+    if (isPlayerPlaying()) {
+        _midiChannels[ch].setChangingPort(true);
+        sendAllNotesOff(ch);
+        _midiChannels[ch].setPort(port);
+        _midiChannels[ch].setChangingPort(false);
+    } else {
+        _midiChannels[ch].setPort(port);
+    }
+
+    this->calculateUsedPort();
+}
+
+void MidiPlayer::receiveMidiIn(std::vector<unsigned char> *message)
+{
+    _midiInEvent.setMessage(message);
+    this->sendEvent(&_midiInEvent);
 }
 
 void MidiPlayer::sendEvent(MidiEvent *e)
 {
+    _playingEventPtr = e;
+
+    if (e->eventType() == MidiEventType::Controller
+        || e->eventType() == MidiEventType::ProgramChange) {
+        sendEventToDevices(e);
+    } else {
+        if (_midiChannels[e->channel()].isMute() == false) {
+            if (_useSolo) {
+                if (_midiChannels[e->channel()].isSolo()) {
+                    sendEventToDevices(e);
+                }
+            } else {
+                sendEventToDevices(e);
+            }
+        }
+    }
+
+    emit sendedEvent(_playingEventPtr);
+}
+
+void MidiPlayer::onSeqFinished()
+{
+    emit finished();
+}
+
+void MidiPlayer::onSeqBpmChanged(int bpm)
+{
+    emit bpmChanged(bpm);
+}
+
+void MidiPlayer::sendEventToDevices(MidiEvent *e)
+{
     int ch = e->channel();
-    Channel *midiCh = &_midiChannels[ch];
 
     switch (e->eventType()) {
-    case MidiEventType::NoteOff: {
-        int n = getNoteNumberToPlay(ch, e->data1());
-        if (_midiPortNum == -1) {
-            _midiSynth->sendNoteOff(ch, n, e->data2());
-        } else {
-            _midiOut->sendNoteOff(ch, n, e->data2());
+        case MidiEventType::NoteOff: {
+            int n = getNoteNumberToPlay(ch, e->data1());
+            if (_midiChannels[ch].port() == -1) {
+                _midiSynth->sendNoteOff(ch, n, e->data2());
+            } else {
+                _midiOuts[_midiChannels[ch].port()]->sendNoteOff(ch, n, e->data2());
+            }
+            break;
         }
-        break;
-    }
-    case MidiEventType::NoteOn: {
-        int n = getNoteNumberToPlay(ch, e->data1());
-        if (_midiPortNum == -1) {
-            _midiSynth->sendNoteOn(ch, n, e->data2());
-        } else {
-            _midiOut->sendNoteOn(ch, n, e->data2());
+        case MidiEventType::NoteOn: {
+            if (_midiChannels[ch].isChangingPort())
+                break;
+            int n = getNoteNumberToPlay(ch, e->data1());
+            if (_midiChannels[ch].port() == -1) {
+                _midiSynth->sendNoteOn(ch, n, e->data2());
+            } else {
+                _midiOuts[_midiChannels[ch].port()]->sendNoteOn(ch, n, e->data2());
+            }
+            break;
         }
-        break;
-    }
-    case MidiEventType::NoteAftertouch: {
-        int n = getNoteNumberToPlay(ch, e->data1());
-        if (_midiPortNum == -1) {
-            _midiSynth->sendNoteAftertouch(ch, n, e->data2());
-        } else {
-            _midiOut->sendNoteAftertouch(ch, n, e->data2());
+        case MidiEventType::NoteAftertouch: {
+            int n = getNoteNumberToPlay(ch, e->data1());
+            if (_midiChannels[ch].port() == -1) {
+                _midiSynth->sendNoteAftertouch(ch, n, e->data2());
+            } else {
+                _midiOuts[_midiChannels[ch].port()]->sendNoteAftertouch(ch, n, e->data2());
+            }
+            break;
         }
-        break;
-    }
-    case MidiEventType::Controller: {
-        switch (e->data1()) {
-        case 7: _midiChannels[ch].setVolume(e->data2()); break;
-        case 10: _midiChannels[ch].setPan(e->data2()); break;
-        case 91: _midiChannels[ch].setReverb(e->data2()); break;
-        case 93: _midiChannels[ch].setChorus(e->data2()); break;
-        default: break;
-        }
+        case MidiEventType::Controller: {
+            switch (e->data1()) {
+            case 7: _midiChannels[ch].setVolume(e->data2()); break;
+            case 10: _midiChannels[ch].setPan(e->data2()); break;
+            case 91: _midiChannels[ch].setReverb(e->data2()); break;
+            case 93: _midiChannels[ch].setChorus(e->data2()); break;
+            default: break;
+            }
 
-        if (_midiPortNum == -1) {
-            _midiSynth->sendController(ch, e->data1(), e->data2());
-        } else {
-            _midiOut->sendController(ch, e->data1(), e->data2());
+            if (_midiChannels[ch].port() == -1) {
+                _midiSynth->sendController(ch, e->data1(), e->data2());
+            } else {
+                _midiOuts[_midiChannels[ch].port()]->sendController(ch, e->data1(), e->data2());
+            }
+            break;
         }
-        break;
-    }
-    case MidiEventType::ProgramChange: {
-        int programe = e->data1();
-        if (ch == 9 && _lockDrum) {
-            programe = _lockDrumNumber;
-            _tempEvent = *e;
-            _tempEvent.setData1(programe);
-            _playingEventPtr = &_tempEvent;
-        }
-        if (isBassInstrument(e->data1()) && _lockBass) {
-            programe = _lockBassBumber;
-            _tempEvent = *e;
-            _tempEvent.setData1(programe);
-            _playingEventPtr = &_tempEvent;
-        }
+        case MidiEventType::ProgramChange: {
+            int programe = e->data1();
+            if (ch == 9 && _lockDrum) {
+                programe = _lockDrumNumber;
+                _tempEvent = *e;
+                _tempEvent.setData1(programe);
+                _playingEventPtr = &_tempEvent;
+            }
+            if (isBassInstrument(e->data1()) && _lockBass) {
+                programe = _lockBassBumber;
+                _tempEvent = *e;
+                _tempEvent.setData1(programe);
+                _playingEventPtr = &_tempEvent;
+            }
 
-        _midiChannels[ch].setInstrument(programe);
-        if (ch != 9)
-            _midiChannels[ch].setInstrumentType(MidiHelper::getInstrumentType(programe));
+            _midiChannels[ch].setInstrument(programe);
+            if (ch != 9) {
+                _midiChannels[ch].setInstrumentType(MidiHelper::getInstrumentType(programe));
+            }
 
-        if (_midiPortNum == -1) {
-            _midiSynth->sendProgramChange(ch, programe);
-        } else {
-            _midiOut->sendProgramChange(ch, programe);
+            if (_midiChannels[ch].port() == -1) {
+                _midiSynth->sendProgramChange(ch, programe);
+            } else {
+                _midiOuts[_midiChannels[ch].port()]->sendProgramChange(ch, programe);
+            }
+            break;
         }
-        break;
-    }
-    case MidiEventType::ChannelAftertouch: {
-        if (_midiPortNum == -1) {
-            _midiSynth->sendChannelAftertouch(ch, e->data1());
-        } else {
-            _midiOut->sendChannelAftertouch(ch, e->data1());
+        case MidiEventType::ChannelAftertouch: {
+            if (_midiChannels[ch].port() == -1) {
+                _midiSynth->sendChannelAftertouch(ch, e->data1());
+            } else {
+                _midiOuts[_midiChannels[ch].port()]->sendChannelAftertouch(ch, e->data1());
+            }
+            break;
         }
-        break;
-    }
-    case MidiEventType::PitchBend: {
-        if (_midiPortNum == -1) {
-            _midiSynth->sendPitchBend(ch, e->data1());
-        } else {
-            _midiOut->sendPitchBend(ch, e->data1());
+        case MidiEventType::PitchBend: {
+            if (_midiChannels[ch].port() == -1) {
+                _midiSynth->sendPitchBend(ch, e->data1());
+            } else {
+                _midiOuts[_midiChannels[ch].port()]->sendPitchBend(ch, e->data1());
+            }
+            break;
         }
-        break;
-    }
+        default:
+            break;
     }
 }
 
 void MidiPlayer::sendAllNotesOff(int ch)
 {
-    if (_midiPortNum == -1) {
+    if (_midiChannels[ch].port() == -1) {
         _midiSynth->sendAllNotesOff(ch);
     } else {
-        _midiOut->sendAllNotesOff(ch);
+        _midiOuts[_midiChannels[ch].port()]->sendAllNotesOff(ch);
     }
 }
 
 void MidiPlayer::sendAllNotesOff()
 {
-    if (_midiPortNum == -1) {
-        _midiSynth->sendAllNotesOff();
+    for (int i=0; i<16; i++) {
+        this->sendAllNotesOff(i);
+    }
+}
+
+void MidiPlayer::sendResetAllControllers(int ch)
+{
+    if (_midiChannels[ch].port() == -1) {
+            _midiSynth->sendResetAllControllers(ch);
     } else {
-        _midiOut->sendAllNotesOff();
+        _midiOuts[_midiChannels[ch].port()]->sendResetAllControllers(ch);
     }
 }
 
 void MidiPlayer::sendResetAllControllers()
 {
-    if (_midiPortNum == -1) {
-        _midiSynth->sendResetAllControllers();
-    } else {
-        _midiOut->sendResetAllControllers();
+    for (int i=0; i<16; i++) {
+        sendResetAllControllers(i);
     }
 }
 
@@ -675,27 +767,40 @@ int MidiPlayer::getNoteNumberToPlay(int ch, int defaultNote)
     return n;
 }
 
-float MidiPlayer::getSpeedTime(uint32_t tick)
+void MidiPlayer::calculateUsedPort()
 {
-    if (_midiSpeed == 0 || _midi->divisionType() != MidiFile::PPQ)
-        return 0.0f;
-    else {
-        const float kSecondsPerQuarterNote = (60000000 / _midiSpeed) / 1000000.0f;
-        const float kSecondsPerTick = kSecondsPerQuarterNote / _midi->resorution();
-        return tick * kSecondsPerTick;
+    // calculate used port
+    // list port all channel
+    bool usedSynth = false;
+    QList<int> usedPort;
+    for (int i=0; i<16; i++) {
+        int p = _midiChannels[i].port();
+        usedPort.append(p);
+        if (p == -1)
+            usedSynth = true;
+    }
+    // remove port not used
+    if (!usedSynth) {
+        _midiSynth->close();
+    }
+    for (int pNumber : _midiOuts.keys()) {
+
+        if (usedPort.indexOf(pNumber) != -1)
+            continue;
+
+        _midiOuts[pNumber]->closePort();;
+        delete _midiOuts.take(pNumber);
     }
 }
 
-int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
+void midiIncallback(double deltatime, std::vector<unsigned char> *message, void *userData)
 {
-    int d = qPow(2, denominator);
-    switch (d) {
-    case 2:
-    case 4:
-        return numerator * 1;
-    case 8:
-        return numerator * 0.5;
-    case 16:
-        return numerator * 0.25;
+    if (message->size() < 2)
+        return;
+
+    if ((message->at(0) & 0xF0) != 0xF0) {
+
+        ((MidiPlayer*)(userData))->receiveMidiIn(message);
+
     }
 }
