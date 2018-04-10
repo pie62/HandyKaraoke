@@ -64,7 +64,10 @@ SOURCES += main.cpp\
     BASSFX/CompressorFX.cpp \
     BASSFX/DistortionFX.cpp \
     BASSFX/EchoFX.cpp \
-    FXDialog/EQ31BandDialog.cpp
+    FXDialog/EQ31BandDialog.cpp \
+    FXDialog/EQ15BandDialog.cpp \
+    FXDialog/ChorusFXDialog.cpp \
+    FXDialog/ReverbFXDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -119,7 +122,10 @@ HEADERS  += MainWindow.h \
     BASSFX/CompressorFX.h \
     BASSFX/DistortionFX.h \
     BASSFX/EchoFX.h \
-    FXDialog/EQ31BandDialog.h
+    FXDialog/EQ31BandDialog.h \
+    FXDialog/EQ15BandDialog.h \
+    FXDialog/ChorusFXDialog.h \
+    FXDialog/ReverbFXDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -140,7 +146,10 @@ FORMS    += MainWindow.ui \
     Dialogs/BusDialog.ui \
     Dialogs/SecondMonitorDialog.ui \
     Dialogs/MapChannelDialog.ui \
-    FXDialog/EQ31BandDialog.ui
+    FXDialog/EQ31BandDialog.ui \
+    FXDialog/EQ15BandDialog.ui \
+    FXDialog/ChorusFXDialog.ui \
+    FXDialog/ReverbFXDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

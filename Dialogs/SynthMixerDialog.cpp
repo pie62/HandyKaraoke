@@ -7,7 +7,10 @@
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
 
+#include "FXDialog/ChorusFXDialog.h"
+#include "FXDialog/EQ15BandDialog.h"
 #include "FXDialog/EQ31BandDialog.h"
+#include "FXDialog/ReverbFXDialog.h".h"
 
 #ifndef __linux
 #include "Dialogs/VSTDirsDialog.h"
@@ -575,14 +578,6 @@ void SynthMixerDialog::showChannelMenu(InstrumentType type, const QPoint &pos)
     }
     #endif
 
-    // Bus
-    if (static_cast<int>(type) < 42)
-    {
-        menu.addSeparator();
-        QMenu *busMenu = menu.addMenu("Bus Group");
-        createBusActions(type, busMenu);
-    }
-
     // Built-in FX
     {
         if (signalBFXActionMapper != nullptr)
@@ -594,9 +589,20 @@ void SynthMixerDialog::showChannelMenu(InstrumentType type, const QPoint &pos)
 
         QMenu *fxMenu = menu.addMenu("Built-in Effects");
 
-        QAction *act1 = fxMenu->addAction("Equalizer 31 Band");
-        connect(act1, SIGNAL(triggered()), signalBFXActionMapper, SLOT(map()));
-        signalBFXActionMapper->setMapping(act1, QString::number(6));
+        for (int i=0; i<BUILTIN_FX_COUNT; i++)
+        {
+            QAction *act1 = fxMenu->addAction(BUILTIN_FX_NAMES[i]);
+            connect(act1, SIGNAL(triggered()), signalBFXActionMapper, SLOT(map()));
+            signalBFXActionMapper->setMapping(act1, QString::number(i));
+        }
+    }
+
+    // Bus
+    if (static_cast<int>(type) < 42)
+    {
+        menu.addSeparator();
+        QMenu *busMenu = menu.addMenu("Bus Group");
+        createBusActions(type, busMenu);
     }
 
     connect(signalBFXActionMapper, SIGNAL(mapped(QString)), this, SLOT(addFX(QString)));
@@ -674,6 +680,7 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
         case FXType::AutoWah:
             break;
         case FXType::Chorus:
+            d = new ChorusFXDialog(this, dynamic_cast<ChorusFX*>(fx));
             break;
         case FXType::Compressor:
             break;
@@ -682,11 +689,13 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
         case FXType::Echo:
             break;
         case FXType::EQ15Band:
+            d = new EQ15BandDialog(this, dynamic_cast<Equalizer15BandFX*>(fx));
             break;
         case FXType::EQ31Band:
             d = new EQ31BandDialog(this, dynamic_cast<Equalizer31BandFX*>(fx));
             break;
         case FXType::Reverb:
+            d = new ReverbFXDialog(this, dynamic_cast<ReverbFX*>(fx));
             break;
         }
 
