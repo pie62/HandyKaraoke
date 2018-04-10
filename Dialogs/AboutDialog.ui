@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>330</width>
-    <height>272</height>
+    <height>280</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -18,7 +18,7 @@
   </property>
   <property name="font">
    <font>
-    <pointsize>9</pointsize>
+    <pointsize>10</pointsize>
    </font>
   </property>
   <property name="windowTitle">

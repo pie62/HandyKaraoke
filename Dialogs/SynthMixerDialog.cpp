@@ -9,6 +9,8 @@
 
 #include "FXDialog/AutoWahFXDialog.h".h"
 #include "FXDialog/ChorusFXDialog.h"
+#include "FXDialog/CompressorFXDialog.h"
+#include "FXDialog/DistortionFXDialog.h"
 #include "FXDialog/EQ15BandDialog.h"
 #include "FXDialog/EQ31BandDialog.h"
 #include "FXDialog/ReverbFXDialog.h".h"
@@ -685,8 +687,10 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
             d = new ChorusFXDialog(this, dynamic_cast<ChorusFX*>(fx));
             break;
         case FXType::Compressor:
+            d = new CompressorFXDialog(this, dynamic_cast<CompressorFX*>(fx));
             break;
         case FXType::Distortion:
+            d = new DistortionFXDialog(this, dynamic_cast<DistortionFX*>(fx));
             break;
         case FXType::Echo:
             break;
@@ -704,7 +708,7 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
         if (d != nullptr)
         {
             int i = static_cast<int>(fx->fxType());
-            d->setWindowTitle(BUILTIN_FX_NAMES[i]);
+            d->setWindowTitle(BUILTIN_FX_NAMES[i] + "  [" + chInstMap[type]->fullInstrumentName() + "]");
             d->adjustSize();
             d->setFixedSize(d->size());
             d->setAttribute(Qt::WA_DeleteOnClose);

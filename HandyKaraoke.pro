@@ -68,7 +68,9 @@ SOURCES += main.cpp\
     FXDialog/EQ15BandDialog.cpp \
     FXDialog/ChorusFXDialog.cpp \
     FXDialog/ReverbFXDialog.cpp \
-    FXDialog/AutoWahFXDialog.cpp
+    FXDialog/AutoWahFXDialog.cpp \
+    FXDialog/CompressorFXDialog.cpp \
+    FXDialog/DistortionFXDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -127,7 +129,9 @@ HEADERS  += MainWindow.h \
     FXDialog/EQ15BandDialog.h \
     FXDialog/ChorusFXDialog.h \
     FXDialog/ReverbFXDialog.h \
-    FXDialog/AutoWahFXDialog.h
+    FXDialog/AutoWahFXDialog.h \
+    FXDialog/CompressorFXDialog.h \
+    FXDialog/DistortionFXDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -152,7 +156,9 @@ FORMS    += MainWindow.ui \
     FXDialog/EQ15BandDialog.ui \
     FXDialog/ChorusFXDialog.ui \
     FXDialog/ReverbFXDialog.ui \
-    FXDialog/AutoWahFXDialog.ui
+    FXDialog/AutoWahFXDialog.ui \
+    FXDialog/CompressorFXDialog.ui \
+    FXDialog/DistortionFXDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

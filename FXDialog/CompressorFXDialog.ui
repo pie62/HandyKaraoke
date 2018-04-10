@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AutoWahFXDialog</class>
- <widget class="QDialog" name="AutoWahFXDialog">
+ <class>CompressorFXDialog</class>
+ <widget class="QDialog" name="CompressorFXDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
+    <width>435</width>
     <height>170</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_7">
+  <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -57,7 +57,7 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QDial" name="dialDryMix">
+        <widget class="QDial" name="dialGain">
          <property name="minimumSize">
           <size>
            <width>51</width>
@@ -71,10 +71,10 @@
           </size>
          </property>
          <property name="minimum">
-          <number>-200</number>
+          <number>-60</number>
          </property>
          <property name="maximum">
-          <number>200</number>
+          <number>60</number>
          </property>
          <property name="notchesVisible">
           <bool>true</bool>
@@ -82,7 +82,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QLabel" name="label">
            <property name="font">
@@ -92,20 +92,17 @@
             </font>
            </property>
            <property name="text">
-            <string>DryMix</string>
+            <string>Gain (dB)</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="spinDryMix">
+          <widget class="QSpinBox" name="spinGain">
            <property name="minimum">
-            <double>-2.000000000000000</double>
+            <number>-60</number>
            </property>
            <property name="maximum">
-            <double>2.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
+            <number>60</number>
            </property>
           </widget>
          </item>
@@ -119,7 +116,7 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QDial" name="dialWetMix">
+        <widget class="QDial" name="dialThreshold">
          <property name="minimumSize">
           <size>
            <width>51</width>
@@ -133,10 +130,10 @@
           </size>
          </property>
          <property name="minimum">
-          <number>-200</number>
+          <number>-60</number>
          </property>
          <property name="maximum">
-          <number>200</number>
+          <number>0</number>
          </property>
          <property name="notchesVisible">
           <bool>true</bool>
@@ -144,7 +141,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QLabel" name="label_2">
            <property name="font">
@@ -154,20 +151,17 @@
             </font>
            </property>
            <property name="text">
-            <string>WetMix</string>
+            <string>Threshold (dB)</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="spinWetMix">
+          <widget class="QSpinBox" name="spinThreshold">
            <property name="minimum">
-            <double>-2.000000000000000</double>
+            <number>-60</number>
            </property>
            <property name="maximum">
-            <double>2.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -181,7 +175,7 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QDial" name="dialFeedback">
+        <widget class="QDial" name="dialRatio">
          <property name="minimumSize">
           <size>
            <width>51</width>
@@ -195,7 +189,7 @@
           </size>
          </property>
          <property name="minimum">
-          <number>-100</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <number>100</number>
@@ -216,20 +210,17 @@
             </font>
            </property>
            <property name="text">
-            <string>Feedback</string>
+            <string>Ratio</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="spinFeedback">
+          <widget class="QSpinBox" name="spinRatio">
            <property name="minimum">
-            <double>-1.000000000000000</double>
+            <number>1</number>
            </property>
            <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
+            <number>100</number>
            </property>
           </widget>
          </item>
@@ -243,7 +234,7 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QDial" name="dialRate">
+        <widget class="QDial" name="dialAttack">
          <property name="minimumSize">
           <size>
            <width>51</width>
@@ -257,10 +248,10 @@
           </size>
          </property>
          <property name="minimum">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="maximum">
-          <number>100</number>
+          <number>1000</number>
          </property>
          <property name="notchesVisible">
           <bool>true</bool>
@@ -278,20 +269,17 @@
             </font>
            </property>
            <property name="text">
-            <string>Rate</string>
+            <string>Attack (ms)</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="spinRate">
+          <widget class="QSpinBox" name="spinAttack">
            <property name="minimum">
-            <double>0.000000000000000</double>
+            <number>1</number>
            </property>
            <property name="maximum">
-            <double>10.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
+            <number>1000</number>
            </property>
           </widget>
          </item>
@@ -305,7 +293,7 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QDial" name="dialRange">
+        <widget class="QDial" name="dialRelease">
          <property name="minimumSize">
           <size>
            <width>51</width>
@@ -319,10 +307,10 @@
           </size>
          </property>
          <property name="minimum">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="maximum">
-          <number>100</number>
+          <number>5000</number>
          </property>
          <property name="notchesVisible">
           <bool>true</bool>
@@ -340,76 +328,17 @@
             </font>
            </property>
            <property name="text">
-            <string>Range</string>
+            <string>Release (ms)</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="spinRange">
+          <widget class="QSpinBox" name="spinRelease">
            <property name="minimum">
-            <double>0.000000000000000</double>
+            <number>1</number>
            </property>
            <property name="maximum">
-            <double>10.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="2">
-      <layout class="QHBoxLayout" name="horizontalLayout_7">
-       <property name="spacing">
-        <number>2</number>
-       </property>
-       <item>
-        <widget class="QDial" name="dialFrequency">
-         <property name="minimumSize">
-          <size>
-           <width>51</width>
-           <height>51</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>51</width>
-           <height>51</height>
-          </size>
-         </property>
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="notchesVisible">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Frequency</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spinFrequency">
-           <property name="maximum">
-            <number>1000</number>
+            <number>5000</number>
            </property>
           </widget>
          </item>
