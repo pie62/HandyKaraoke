@@ -2,11 +2,12 @@
 
 #include <bass_fx.h>
 
-Equalizer31BandFX::Equalizer31BandFX(HSTREAM streamHandle)
+Equalizer31BandFX::Equalizer31BandFX(DWORD stream, int priority) :FX(priority)
 {
-    this->streamHandle = streamHandle;
+    this->stream = stream;
+    this->type = FXType::EQ31Band;
 
-    fxOn = false;
+    _on = false;
 
     fxGain[EQFrequency31Range::Frequency20Hz]    = 0;
     fxGain[EQFrequency31Range::Frequency25Hz]    = 0;
@@ -43,35 +44,21 @@ Equalizer31BandFX::Equalizer31BandFX(HSTREAM streamHandle)
 
 Equalizer31BandFX::~Equalizer31BandFX()
 {
-    if (fxOn)
+    if (_on)
         off();
 
     fxGain.clear();
     fxEQ.clear();
 }
 
-void Equalizer31BandFX::setStreamHandle(HSTREAM streamHandle)
-{
-    if (fxOn)
-    {
-        off();
-        this->streamHandle = streamHandle;
-        on();
-    }
-    else
-    {
-        this->streamHandle = streamHandle;
-    }
-}
-
 void Equalizer31BandFX::on()
 {
-    if (fxOn)
+    if (_on)
         return;
 
-    fxOn = true;
+    _on = true;
 
-    if (streamHandle == 0)
+    if (stream == 0)
         return;
 
     // -------------------------
@@ -92,7 +79,7 @@ void Equalizer31BandFX::on()
         eq.fCenter = eqfreq[i];
         eq.fGain = x.second;
 
-        HFX fx = BASS_ChannelSetFX(streamHandle, BASS_FX_BFX_PEAKEQ, 1);
+        HFX fx = BASS_ChannelSetFX(stream, BASS_FX_BFX_PEAKEQ, priority);
 
         BASS_FXSetParameters(fx, &eq);
 
@@ -104,19 +91,19 @@ void Equalizer31BandFX::on()
 
 void Equalizer31BandFX::off()
 {
-    if (!fxOn)
+    if (!_on)
         return;
 
-    fxOn = false;
+    _on = false;
 
-    if (streamHandle == 0)
+    if (stream == 0)
         return;
 
     //========================
 
     for (auto const& x : fxEQ)
     {
-        BASS_ChannelRemoveFX(streamHandle, x.second);
+        BASS_ChannelRemoveFX(stream, x.second);
     }
 
     fxEQ.clear();
@@ -144,7 +131,7 @@ void Equalizer31BandFX::setGain(EQFrequency31Range freq, float gain)
 
     fxGain[freq] = g;
 
-    if (!fxOn || streamHandle == 0)
+    if (!_on || stream == 0)
         return;
 
     BASS_BFX_PEAKEQ eq;
@@ -169,3 +156,53 @@ void Equalizer31BandFX::resetGain()
     fg.clear();
 }
 
+QList<float> Equalizer31BandFX::params()
+{
+    QList<float> params;
+
+    for (auto const& x : fxGain)
+    {
+        params.append(x.second);
+    }
+
+    return params;
+}
+
+void Equalizer31BandFX::setParams(const QList<float> &params)
+{
+    if (params.count() != 31)
+        return;
+
+    for (int i=0; i<31; i++)
+    {
+        EQFrequency31Range freq = static_cast<EQFrequency31Range>(i);
+        this->setGain(freq, params[i]);
+    }
+}
+
+void Equalizer31BandFX::setStreamHandle(DWORD stream)
+{
+    if (_on)
+    {
+        off();
+        this->stream = stream;
+        on();
+    }
+    else
+    {
+        this->stream = stream;
+    }
+}
+
+void Equalizer31BandFX::setBypass(bool b)
+{
+    if (b)
+        this->off();
+    else
+        this->on();
+}
+
+void Equalizer31BandFX::reset()
+{
+    this->resetGain();
+}

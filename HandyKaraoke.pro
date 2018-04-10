@@ -54,13 +54,17 @@ SOURCES += main.cpp\
     Widgets/CustomFXList.cpp \
     Dialogs/VSTDialog.cpp \
     Dialogs/BusDialog.cpp \
-    BASSFX/BuiltIn/AutoWah.cpp \
     Dialogs/SynthMixerDialog.cpp \
     Dialogs/SecondMonitorDialog.cpp \
     Midi/MidiSequencer.cpp \
     Midi/MidiPlayer.cpp \
     Dialogs/MapChannelDialog.cpp \
-    Widgets/ChMxComboBox.cpp
+    Widgets/ChMxComboBox.cpp \
+    BuiltInFX/Equalizer31Band.cpp \
+    BASSFX/AutoWahFX.cpp \
+    BASSFX/CompressorFX.cpp \
+    BASSFX/DistortionFX.cpp \
+    BASSFX/EchoFX.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -104,14 +108,18 @@ HEADERS  += MainWindow.h \
     Widgets/CustomFXList.h \
     Dialogs/VSTDialog.h \
     Dialogs/BusDialog.h \
-    BASSFX/BuiltIn/AutoWah.h \
     Dialogs/SecondMonitorDialog.h \
     Midi/MidiSequencer.h \
     Midi/MidiPlayer.h \
     DrumPadsKey.h \
     version.h \
     Dialogs/MapChannelDialog.h \
-    Widgets/ChMxComboBox.h
+    Widgets/ChMxComboBox.h \
+    BuiltInFX/Equalizer31Band.h \
+    BASSFX/AutoWahFX.h \
+    BASSFX/CompressorFX.h \
+    BASSFX/DistortionFX.h \
+    BASSFX/EchoFX.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -131,7 +139,8 @@ FORMS    += MainWindow.ui \
     Widgets/VSTLabel.ui \
     Dialogs/BusDialog.ui \
     Dialogs/SecondMonitorDialog.ui \
-    Dialogs/MapChannelDialog.ui
+    Dialogs/MapChannelDialog.ui \
+    BuiltInFX/Equalizer31Band.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -143,10 +152,12 @@ win32 {
     RC_FILE = resources.rc
 
     SOURCES += Midi/rtmidi/RtMidi.cpp \
-        Dialogs/VSTDirsDialog.cpp
+        Dialogs/VSTDirsDialog.cpp \
+        BASSFX/VSTFX.cpp
 
     HEADERS  += Midi/rtmidi/RtMidi.h \
-        Dialogs/VSTDirsDialog.h
+        Dialogs/VSTDirsDialog.h \
+        BASSFX/VSTFX.h
 
     FORMS += Dialogs/VSTDirsDialog.ui
 
