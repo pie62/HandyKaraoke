@@ -59,6 +59,12 @@ MidiSynthesizer::~MidiSynthesizer()
     delete reverb;
     delete chorus;
 
+    for (Instrument inst : instMap.values())
+    {
+        for (FX *fx : inst.FXs)
+            delete fx;
+    }
+
     // --------------
 
     instMap.clear();

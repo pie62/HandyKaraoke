@@ -7,6 +7,8 @@
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
 
+#include "FXDialog/EQ31BandDialog.h"
+
 #ifndef __linux
 #include "Dialogs/VSTDirsDialog.h"
 #endif
@@ -199,6 +201,9 @@ SynthMixerDialog::~SynthMixerDialog()
         delete menu;
     }
     vstVendorMenus.clear();
+
+    if (signalBFXActionMapper != nullptr)
+        delete signalBFXActionMapper;
 
     delete ui;
 }
@@ -515,19 +520,6 @@ void SynthMixerDialog::createBusActions(InstrumentType t, QMenu *busMenu)
         InstrumentType type = static_cast<InstrumentType>(start + i);
         names.append(chInstMap[type]->fullInstrumentName());
     }
-    /*
-    = {
-        "Master (Default)",
-        "Bus Gruop 1",  "Bus Gruop 2",
-        "Bus Gruop 3",  "Bus Gruop 4",
-        "Bus Gruop 5",  "Bus Gruop 6",
-        "Bus Gruop 7",  "Bus Gruop 8",
-        "Bus Gruop 9",  "Bus Gruop 10",
-        "Bus Gruop 11", "Bus Gruop 12",
-        "Bus Gruop 13", "Bus Gruop 14",
-        "Bus Gruop 15", "Bus Gruop 16",
-    };
-    */
 
     for (int i=0; i<17; i++) {
         QAction *act = busMenu->addAction(names[i]);
@@ -574,6 +566,7 @@ void SynthMixerDialog::showChannelMenu(InstrumentType type, const QPoint &pos)
 
     QMenu menu(this);
 
+    // VST
     #ifndef __linux__
     QMenu *vstMenu = menu.addMenu("VST Effects");
 
@@ -582,11 +575,31 @@ void SynthMixerDialog::showChannelMenu(InstrumentType type, const QPoint &pos)
     }
     #endif
 
-    if (static_cast<int>(type) < 42) {
+    // Bus
+    if (static_cast<int>(type) < 42)
+    {
         menu.addSeparator();
         QMenu *busMenu = menu.addMenu("Bus Group");
         createBusActions(type, busMenu);
     }
+
+    // Built-in FX
+    {
+        if (signalBFXActionMapper != nullptr)
+            delete signalBFXActionMapper;
+
+        signalBFXActionMapper = new QSignalMapper(this);
+
+        menu.addSeparator();
+
+        QMenu *fxMenu = menu.addMenu("Built-in Effects");
+
+        QAction *act1 = fxMenu->addAction("Equalizer 31 Band");
+        connect(act1, SIGNAL(triggered()), signalBFXActionMapper, SLOT(map()));
+        signalBFXActionMapper->setMapping(act1, QString::number(6));
+    }
+
+    connect(signalBFXActionMapper, SIGNAL(mapped(QString)), this, SLOT(addFX(QString)));
 
     menu.exec(chInstMap[type]->mapToGlobal(pos));
 }
@@ -602,16 +615,21 @@ FX* SynthMixerDialog::addFX(const QString &uidStr, bool bypass)
     VSTNamePath vst = synth->VSTList()[uid];
     Instrument inst = synth->instrument(currentType);
 
-    FX *fx = synth->addFX(currentType, vst.uniqueID);
+    FX *fx = synth->addFX(currentType, uid);
 
     if (fx == nullptr)
         return fx;
 
-    if (bypass) {
-        int i = inst.FXs.count();
-        synth->setFXBypass(currentType, i, true);
-    }
-    chInstMap[currentType]->addFXLabel(vst.vstName, inst.FXs.count(), bypass);
+    int i = inst.FXs.count();
+    synth->setFXBypass(currentType, i, bypass);
+
+    QString name;
+    if (uid < BUILTIN_FX_COUNT)
+        name = BUILTIN_FX_NAMES[uid];
+    else
+        name = vst.vstName;
+
+    chInstMap[currentType]->addFXLabel(name, inst.FXs.count(), bypass);
 
     return fx;
 }
@@ -627,6 +645,9 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
 
     if (fx->fxType() == FXType::VSTEffects)
     {
+        if (!synth->isOpened())
+            return;
+
         #ifndef __linux__
         BASS_VST_INFO info;
 
@@ -646,8 +667,38 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
         #endif
     }
     else
-    {
+    {   
+        QDialog *d = nullptr;
 
+        switch (fx->fxType()) {
+        case FXType::AutoWah:
+            break;
+        case FXType::Chorus:
+            break;
+        case FXType::Compressor:
+            break;
+        case FXType::Distortion:
+            break;
+        case FXType::Echo:
+            break;
+        case FXType::EQ15Band:
+            break;
+        case FXType::EQ31Band:
+            d = new EQ31BandDialog(this, dynamic_cast<Equalizer31BandFX*>(fx));
+            break;
+        case FXType::Reverb:
+            break;
+        }
+
+        if (d != nullptr)
+        {
+            int i = static_cast<int>(fx->fxType());
+            d->setWindowTitle(BUILTIN_FX_NAMES[i]);
+            d->adjustSize();
+            d->setFixedSize(d->size());
+            d->setAttribute(Qt::WA_DeleteOnClose);
+            d->show();
+        }
     }
 }
 

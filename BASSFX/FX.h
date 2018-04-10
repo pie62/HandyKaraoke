@@ -11,6 +11,8 @@
 #include <QObject>
 
 const int BUILTIN_FX_COUNT = 8;
+const QString BUILTIN_FX_NAMES[] = {"Auto Wah", "Chorus", "Compressor", "Distortion",
+                                    "Echo", "Equalizer 15 Band", "Equalizer 31 Band", "Reverb"};
 
 enum class FXType {
     AutoWah,

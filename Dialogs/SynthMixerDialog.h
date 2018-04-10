@@ -72,6 +72,7 @@ private:
     QList<QMenu*> vstVendorMenus;
     QSignalMapper signalVstActionMapper;
     QSignalMapper signalBusActionMapper;
+    QSignalMapper *signalBFXActionMapper = nullptr;
 
     int currentFxIndexToRemove;
 
