@@ -7,6 +7,7 @@
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
 
+#include "FXDialog/AutoWahFXDialog.h".h"
 #include "FXDialog/ChorusFXDialog.h"
 #include "FXDialog/EQ15BandDialog.h"
 #include "FXDialog/EQ31BandDialog.h"
@@ -678,6 +679,7 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
 
         switch (fx->fxType()) {
         case FXType::AutoWah:
+            d = new AutoWahFXDialog(this, dynamic_cast<AutoWahFX*>(fx));
             break;
         case FXType::Chorus:
             d = new ChorusFXDialog(this, dynamic_cast<ChorusFX*>(fx));
