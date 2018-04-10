@@ -1,9 +1,9 @@
-#include "Equalizer31Band.h"
-#include "ui_Equalizer31Band.h"
+#include "EQ31BandDialog.h"
+#include "ui_EQ31BandDialog.h"
 
-Equalizer31Band::Equalizer31Band(QWidget *parent, QList<HFX> fxs) :
+EQ31BandDialog::EQ31BandDialog(QWidget *parent, QList<HFX> fxs) :
     QDialog(parent),
-    ui(new Ui::Equalizer31Band)
+    ui(new Ui::EQ31BandDialog)
 {
     ui->setupUi(this);
 
@@ -45,12 +45,15 @@ Equalizer31Band::Equalizer31Band(QWidget *parent, QList<HFX> fxs) :
     connect(signalMouseDoubleClick, SIGNAL(mapped(int)), this, SLOT(resetGian(int)));
 }
 
-Equalizer31Band::~Equalizer31Band()
+EQ31BandDialog::~Equalizer31Band()
 {
+    delete signalLevelMapper;
+    delete signalMouseDoubleClick;
+
     delete ui;
 }
 
-void Equalizer31Band::setGian(int sliderIndex)
+void EQ31BandDialog::setGian(int sliderIndex)
 {
     EQFreq31Range freq = sliderMap.keys()[sliderIndex];
     Slider *slider = sliderMap.values()[sliderIndex];
@@ -67,7 +70,7 @@ void Equalizer31Band::setGian(int sliderIndex)
     }
 }
 
-void Equalizer31Band::resetGian(int sliderIndex)
+void EQ31BandDialog::resetGian(int sliderIndex)
 {
     EQFreq31Range freq = sliderMap.keys()[sliderIndex];
     Slider *slider = sliderMap.values()[sliderIndex];
@@ -86,7 +89,7 @@ void Equalizer31Band::resetGian(int sliderIndex)
 }
 
 
-void Equalizer31Band::on_btnReset_clicked()
+void EQ31BandDialog::on_btnReset_clicked()
 {
     for (int i=0; i<31; i++)
     {
@@ -94,7 +97,7 @@ void Equalizer31Band::on_btnReset_clicked()
     }
 }
 
-void Equalizer31Band::mapLabels()
+void EQ31BandDialog::mapLabels()
 {
     lbdbMap[EQFreq31Range::Frequency20Hz]    = ui->lbdb_1;
     lbdbMap[EQFreq31Range::Frequency25Hz]    = ui->lbdb_2;
@@ -129,7 +132,7 @@ void Equalizer31Band::mapLabels()
     lbdbMap[EQFreq31Range::Frequency20000Hz] = ui->lbdb_31;
 }
 
-void Equalizer31Band::mapSliders()
+void EQ31BandDialog::mapSliders()
 {
     sliderMap[EQFreq31Range::Frequency20Hz]    = ui->slider_1;
     sliderMap[EQFreq31Range::Frequency25Hz]    = ui->slider_2;

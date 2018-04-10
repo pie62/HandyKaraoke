@@ -1,5 +1,5 @@
-#ifndef EQUALIZER31BAND_H
-#define EQUALIZER31BAND_H
+#ifndef EQ31BANDDIALOG_H
+#define EQ31BANDDIALOG_H
 
 
 #include "BASSFX/FX.h"
@@ -26,16 +26,16 @@ enum class EQFreq31Range
 };
 
 namespace Ui {
-class Equalizer31Band;
+class EQ31BandDialog;
 }
 
-class Equalizer31Band : public QDialog
+class EQ31BandDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit Equalizer31Band(QWidget *parent = 0, QList<HFX> fxs = QList<HFX>());
-    ~Equalizer31Band();
+    explicit EQ31BandDialog(QWidget *parent = 0, QList<HFX> fxs = QList<HFX>());
+    ~EQ31BandDialog();
 
 private slots:
     void setGian(int sliderIndex);
@@ -44,7 +44,7 @@ private slots:
     void on_btnReset_clicked();
 
 private:
-    Ui::Equalizer31Band *ui;
+    Ui::EQ31BandDialog *ui;
 
     QList<HFX> fxs;
 

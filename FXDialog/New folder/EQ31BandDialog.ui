@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Equalizer31Band</class>
- <widget class="QDialog" name="Equalizer31Band">
+ <widget class="QDialog" name="EQ31BandDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

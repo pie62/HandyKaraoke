@@ -60,11 +60,11 @@ SOURCES += main.cpp\
     Midi/MidiPlayer.cpp \
     Dialogs/MapChannelDialog.cpp \
     Widgets/ChMxComboBox.cpp \
-    BuiltInFX/Equalizer31Band.cpp \
     BASSFX/AutoWahFX.cpp \
     BASSFX/CompressorFX.cpp \
     BASSFX/DistortionFX.cpp \
-    BASSFX/EchoFX.cpp
+    BASSFX/EchoFX.cpp \
+    FXDialog/EQ31BandDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -115,11 +115,11 @@ HEADERS  += MainWindow.h \
     version.h \
     Dialogs/MapChannelDialog.h \
     Widgets/ChMxComboBox.h \
-    BuiltInFX/Equalizer31Band.h \
     BASSFX/AutoWahFX.h \
     BASSFX/CompressorFX.h \
     BASSFX/DistortionFX.h \
-    BASSFX/EchoFX.h
+    BASSFX/EchoFX.h \
+    FXDialog/EQ31BandDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -140,7 +140,7 @@ FORMS    += MainWindow.ui \
     Dialogs/BusDialog.ui \
     Dialogs/SecondMonitorDialog.ui \
     Dialogs/MapChannelDialog.ui \
-    BuiltInFX/Equalizer31Band.ui
+    FXDialog/EQ31BandDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
