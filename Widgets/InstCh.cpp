@@ -74,7 +74,7 @@ QString InstCh::fullInstrumentName()
     return ui->lbName->toolTip();
 }
 
-void InstCh::addVSTLabel(const QString &label, int fxIndex, bool bypass)
+void InstCh::addFXLabel(const QString &label, int fxIndex, bool bypass)
 {
     QListWidgetItem *item = new QListWidgetItem(ui->fxList);
 

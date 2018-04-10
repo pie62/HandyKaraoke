@@ -37,6 +37,31 @@ VSTFX::~VSTFX()
     }
 }
 
+bool VSTFX::isVSTFile(const QString &vstPath, BASS_VST_INFO *info)
+{
+    HSTREAM stream = BASS_StreamCreate(44100, 2, 0, NULL, NULL);
+
+    #ifdef _WIN32
+    DWORD h = BASS_VST_ChannelSetDSP(stream, vstPath.toStdWString().c_str(),
+                                     BASS_VST_KEEP_CHANS|BASS_UNICODE, 0);
+    #else
+    DWORD h = BASS_VST_ChannelSetDSP(stream, vstPath.toStdString().c_str(),
+                                     BASS_VST_KEEP_CHANS, 0);
+    #endif
+
+    bool result = false;
+
+    if (BASS_VST_GetInfo(h, info) && !info->isInstrument)
+        result = true;
+    else
+        result = false;
+
+    BASS_VST_ChannelRemoveDSP(stream, h);
+    BASS_StreamFree(stream);
+
+    return result;
+}
+
 BASS_VST_INFO VSTFX::VSTInfo()
 {
     BASS_VST_INFO info;

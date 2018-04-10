@@ -10,6 +10,8 @@ public:
     VSTFX(const QString &vstFile, DWORD stream = 0, int priority = 1);
    ~VSTFX();
 
+    static bool isVSTFile(const QString &vstPath, BASS_VST_INFO *info);
+
     BASS_VST_INFO VSTInfo();
     uint uids();
     int program();
@@ -24,7 +26,7 @@ public:
 private:
     QString vstFile;
 
-    int programIndex = 0, defaultProgramIndex = 0;
+    int defaultProgramIndex = 0;
     QList<float> tempParams, defaultParams;
 };
 

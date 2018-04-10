@@ -1,6 +1,8 @@
 #include "VSTDirsDialog.h"
 #include "ui_VSTDirsDialog.h"
 
+#include "BASSFX/VSTFX.h"
+
 #include <QSettings>
 #include <QDirIterator>
 #include <QFileDialog>
@@ -107,7 +109,7 @@ void VSTDirsDialog::on_btnUpdate_clicked()
         ui->lbVSTName->setText(filesName[i]);
 
         BASS_VST_INFO info;
-        if (!MidiSynthesizer::isVSTFile(filesPath[i], &info)) {
+        if (!VSTFX::isVSTFile(filesPath[i], &info)) {
             ui->progressBar->setValue(i+1);
             continue;
         }

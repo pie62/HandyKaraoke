@@ -23,7 +23,7 @@ public:
     QString instrumentName();
     QString fullInstrumentName();
 
-    void addVSTLabel(const QString &label, int fxIndex, bool bypass = false);
+    void addFXLabel(const QString &label, int fxIndex, bool bypass = false);
     void removeVSTLabel(int fxIndex);
 
 public slots:

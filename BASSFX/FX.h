@@ -10,6 +10,8 @@
 
 #include <QObject>
 
+const int BUILTIN_FX_COUNT = 8;
+
 enum class FXType {
     AutoWah,
     Chorus,
@@ -36,6 +38,8 @@ public:
     virtual HFX fxHandle() { return fx; }
 
     virtual uint uids();
+    virtual int program() { return programIndex; }
+    virtual void setProgram(int programIndex) { this->programIndex = programIndex; }
 
     virtual QList<float> params() = 0;
     virtual void setParams(const QList<float> &params) = 0;
@@ -60,6 +64,7 @@ protected:
     int priority = 1;
     bool _on;
     uint _uids = 0;
+    int programIndex = 0;
     FXType type = FXType::AutoWah;
 };
 
