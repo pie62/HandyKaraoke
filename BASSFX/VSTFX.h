@@ -1,8 +1,11 @@
 #ifndef VSTFX_H
 #define VSTFX_H
 
+#ifndef __linux__
+
 #include "FX.h"
 #include <bass_vst.h>
+
 
 class VSTFX : public FX
 {
@@ -29,5 +32,7 @@ private:
     int defaultProgramIndex = 0;
     QList<float> tempParams, defaultParams;
 };
+
+#endif
 
 #endif // VSTFX_H
