@@ -64,13 +64,14 @@ SOURCES += main.cpp\
     BASSFX/CompressorFX.cpp \
     BASSFX/DistortionFX.cpp \
     BASSFX/EchoFX.cpp \
-    FXDialog/EQ31BandDialog.cpp \
-    FXDialog/EQ15BandDialog.cpp \
-    FXDialog/ChorusFXDialog.cpp \
-    FXDialog/ReverbFXDialog.cpp \
-    FXDialog/AutoWahFXDialog.cpp \
-    FXDialog/CompressorFXDialog.cpp \
-    FXDialog/DistortionFXDialog.cpp
+    FXDialogs/EQ31BandDialog.cpp \
+    FXDialogs/EQ15BandDialog.cpp \
+    FXDialogs/ChorusFXDialog.cpp \
+    FXDialogs/ReverbFXDialog.cpp \
+    FXDialogs/AutoWahFXDialog.cpp \
+    FXDialogs/CompressorFXDialog.cpp \
+    FXDialogs/DistortionFXDialog.cpp \
+    FXDialogs/EchoFXDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -125,13 +126,14 @@ HEADERS  += MainWindow.h \
     BASSFX/CompressorFX.h \
     BASSFX/DistortionFX.h \
     BASSFX/EchoFX.h \
-    FXDialog/EQ31BandDialog.h \
-    FXDialog/EQ15BandDialog.h \
-    FXDialog/ChorusFXDialog.h \
-    FXDialog/ReverbFXDialog.h \
-    FXDialog/AutoWahFXDialog.h \
-    FXDialog/CompressorFXDialog.h \
-    FXDialog/DistortionFXDialog.h
+    FXDialogs/EQ31BandDialog.h \
+    FXDialogs/EQ15BandDialog.h \
+    FXDialogs/ChorusFXDialog.h \
+    FXDialogs/ReverbFXDialog.h \
+    FXDialogs/AutoWahFXDialog.h \
+    FXDialogs/CompressorFXDialog.h \
+    FXDialogs/DistortionFXDialog.h \
+    FXDialogs/EchoFXDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -152,13 +154,14 @@ FORMS    += MainWindow.ui \
     Dialogs/BusDialog.ui \
     Dialogs/SecondMonitorDialog.ui \
     Dialogs/MapChannelDialog.ui \
-    FXDialog/EQ31BandDialog.ui \
-    FXDialog/EQ15BandDialog.ui \
-    FXDialog/ChorusFXDialog.ui \
-    FXDialog/ReverbFXDialog.ui \
-    FXDialog/AutoWahFXDialog.ui \
-    FXDialog/CompressorFXDialog.ui \
-    FXDialog/DistortionFXDialog.ui
+    FXDialogs/EQ31BandDialog.ui \
+    FXDialogs/EQ15BandDialog.ui \
+    FXDialogs/ChorusFXDialog.ui \
+    FXDialogs/ReverbFXDialog.ui \
+    FXDialogs/AutoWahFXDialog.ui \
+    FXDialogs/CompressorFXDialog.ui \
+    FXDialogs/DistortionFXDialog.ui \
+    FXDialogs/EchoFXDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

@@ -7,13 +7,14 @@
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
 
-#include "FXDialog/AutoWahFXDialog.h".h"
-#include "FXDialog/ChorusFXDialog.h"
-#include "FXDialog/CompressorFXDialog.h"
-#include "FXDialog/DistortionFXDialog.h"
-#include "FXDialog/EQ15BandDialog.h"
-#include "FXDialog/EQ31BandDialog.h"
-#include "FXDialog/ReverbFXDialog.h".h"
+#include "FXDialogs/AutoWahFXDialog.h".h"
+#include "FXDialogs/ChorusFXDialog.h"
+#include "FXDialogs/CompressorFXDialog.h"
+#include "FXDialogs/DistortionFXDialog.h"
+#include "FXDialogs/EchoFXDialog.h"
+#include "FXDialogs/EQ15BandDialog.h"
+#include "FXDialogs/EQ31BandDialog.h"
+#include "FXDialogs/ReverbFXDialog.h".h"
 
 #ifndef __linux
 #include "Dialogs/VSTDirsDialog.h"
@@ -693,6 +694,7 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
             d = new DistortionFXDialog(this, dynamic_cast<DistortionFX*>(fx));
             break;
         case FXType::Echo:
+            d = new EchoFXDialog(this, dynamic_cast<EchoFX*>(fx));
             break;
         case FXType::EQ15Band:
             d = new EQ15BandDialog(this, dynamic_cast<Equalizer15BandFX*>(fx));
