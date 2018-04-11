@@ -303,26 +303,23 @@ Song *SongDatabase::search(const QString &s)
 
     switch (searchType) {
     case SearchType::ByAll:
-//        sql = "SELECT * FROM songs "
-//              "WHERE id LIKE ? OR name LIKE ? OR artist LIKE ?"
-//              "ORDER BY id, name, artist LIMIT 1";
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id LIMIT 1) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id GLOB ? ORDER BY id LIMIT 1) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name LIMIT 1) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name GLOB ? ORDER BY name LIMIT 1) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist LIMIT 1) "
+              "SELECT * FROM (SELECT * FROM songs WHERE artist GLOB ? ORDER BY artist LIMIT 1) "
               "LIMIT 1";
         break;
     case SearchType::ById:
-        sql = "SELECT * FROM songs WHERE id LIKE ? "
+        sql = "SELECT * FROM songs WHERE id GLOB ? "
               "ORDER BY id, name, artist LIMIT 1";
         break;
     case SearchType::ByName:
-        sql = "SELECT * FROM songs WHERE name LIKE ? "
+        sql = "SELECT * FROM songs WHERE name GLOB ? "
               "ORDER BY name, artist, id LIMIT 1";
         break;
     case SearchType::ByArtist:
-        sql = "SELECT * FROM songs WHERE artist LIKE ? "
+        sql = "SELECT * FROM songs WHERE artist GLOB ? "
               "ORDER BY artist, name, id LIMIT 1";
         break;
     }
@@ -330,12 +327,12 @@ Song *SongDatabase::search(const QString &s)
     QSqlQuery query;
     if (searchType == SearchType::ByAll) {
         query.prepare(sql);
-        query.bindValue(0, s + "%");
-        query.bindValue(1, s + "%");
-        query.bindValue(2, s + "%");
+        query.bindValue(0, s + "*");
+        query.bindValue(1, s + "*");
+        query.bindValue(2, s + "*");
     } else {
         query.prepare(sql);
-        query.bindValue(0, s + "%");
+        query.bindValue(0, s + "*");
     }
 
     if (query.exec()) {
@@ -355,23 +352,23 @@ Song *SongDatabase::searchNext()
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id, name, artist) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id GLOB ? ORDER BY id, name, artist) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name, artist, id) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name GLOB ? ORDER BY name, artist, id) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist, name, id) ";
+              "SELECT * FROM (SELECT * FROM songs WHERE artist GLOB ? ORDER BY artist, name, id) ";
         break;
     case SearchType::ById:
-        sql = "SELECT * FROM songs WHERE id LIKE ? "
+        sql = "SELECT * FROM songs WHERE id GLOB ? "
               "ORDER BY id, name, artist";
         break;
     case SearchType::ByName:
-        sql = "SELECT * FROM songs WHERE name LIKE ? "
+        sql = "SELECT * FROM songs WHERE name GLOB ? "
               "ORDER BY name, artist, id";
         break;
     case SearchType::ByArtist:
-        sql = "SELECT * FROM songs WHERE artist LIKE ? "
-              "ORDER BY artist, name, id LIMIT 400";
+        sql = "SELECT * FROM songs WHERE artist GLOB ? "
+              "ORDER BY artist, name, id";
         break;
     }
 
@@ -379,11 +376,11 @@ Song *SongDatabase::searchNext()
     q.prepare(sql);
 
     if (searchType == SearchType::ByAll) {
-        q.bindValue(0, _searchText + "%");
-        q.bindValue(1, _searchText + "%");
-        q.bindValue(2, _searchText + "%");
+        q.bindValue(0, _searchText + "*");
+        q.bindValue(1, _searchText + "*");
+        q.bindValue(2, _searchText + "*");
     } else {
-        q.bindValue(0, _searchText + "%");
+        q.bindValue(0, _searchText + "*");
     }
 
     if (q.exec() && q.seek(currentResultIndex + 1)) {
@@ -403,23 +400,23 @@ Song *SongDatabase::searchPrevious()
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id, name, artist) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id GLOB ? ORDER BY id, name, artist) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name, artist, id) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name GLOB ? ORDER BY name, artist, id) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist, name, id) ";
+              "SELECT * FROM (SELECT * FROM songs WHERE artist GLOB ? ORDER BY artist, name, id) ";
         break;
     case SearchType::ById:
-        sql = "SELECT * FROM songs WHERE id LIKE ? "
+        sql = "SELECT * FROM songs WHERE id GLOB ? "
               "ORDER BY id, name, artist";
         break;
     case SearchType::ByName:
-        sql = "SELECT * FROM songs WHERE name LIKE ? "
+        sql = "SELECT * FROM songs WHERE name GLOB ? "
               "ORDER BY name, artist, id";
         break;
     case SearchType::ByArtist:
-        sql = "SELECT * FROM songs WHERE artist LIKE ? "
-              "ORDER BY artist, name, id LIMIT 400";
+        sql = "SELECT * FROM songs WHERE artist GLOB ? "
+              "ORDER BY artist, name, id";
         break;
     }
 
@@ -427,11 +424,11 @@ Song *SongDatabase::searchPrevious()
     q.prepare(sql);
 
     if (searchType == SearchType::ByAll) {
-        q.bindValue(0, _searchText + "%");
-        q.bindValue(1, _searchText + "%");
-        q.bindValue(2, _searchText + "%");
+        q.bindValue(0, _searchText + "*");
+        q.bindValue(1, _searchText + "*");
+        q.bindValue(2, _searchText + "*");
     } else {
-        q.bindValue(0, _searchText + "%");
+        q.bindValue(0, _searchText + "*");
     }
 
     if (q.exec() && q.seek(currentResultIndex - 1)) {
