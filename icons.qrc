@@ -96,5 +96,13 @@
         <file>Icons/Instruments/bs14.png</file>
         <file>Icons/Instruments/bs15.png</file>
         <file>Icons/Instruments/bs16.png</file>
+        <file>Icons/FXLabel/autowah.png</file>
+        <file>Icons/FXLabel/chorus.png</file>
+        <file>Icons/FXLabel/compressor.png</file>
+        <file>Icons/FXLabel/distortion.png</file>
+        <file>Icons/FXLabel/echo.png</file>
+        <file>Icons/FXLabel/eq15.png</file>
+        <file>Icons/FXLabel/eq31.png</file>
+        <file>Icons/FXLabel/reverb.png</file>
     </qresource>
 </RCC>

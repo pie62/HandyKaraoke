@@ -1,8 +1,7 @@
 #ifndef Equalizer15BandFX_H
 #define Equalizer15BandFX_H
 
-#include <bass.h>
-
+#include "FX.h"
 #include <map>
 
 enum class EQFrequency15Range
@@ -24,22 +23,15 @@ enum class EQFrequency15Range
     Frequency16000Hz
 };
 
-class Equalizer15BandFX
+class Equalizer15BandFX : public FX
 {
 private:
-    HSTREAM streamHandle;
     std::map<EQFrequency15Range, HFX> fxEQ;
     std::map<EQFrequency15Range, float> fxGain;
 
-    bool fxOn;
-
 public:
-    Equalizer15BandFX(HSTREAM streamHandle = 0);
+    Equalizer15BandFX(DWORD stream = 0, int priority = 1);
     ~Equalizer15BandFX();
-
-    bool isOn() { return fxOn; }
-
-    void setStreamHandle(HSTREAM streamHandle);
 
     void on();
     void off();
@@ -49,6 +41,12 @@ public:
     void setGain(EQFrequency15Range freq, float gain);
 
     void resetGain();
+
+    QList<float> params();
+    void setParams(const QList<float> &params);
+    void setStreamHandle(DWORD stream);
+    void setBypass(bool b);
+    void reset();
 };
 
 #endif // Equalizer15BandFX_H

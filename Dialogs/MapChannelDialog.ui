@@ -16,6 +16,11 @@
     <height>405</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>แยกช่องสัญญาณ</string>
   </property>

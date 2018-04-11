@@ -1,7 +1,7 @@
 #ifndef EQUALIZER31BANDFX_H
 #define EQUALIZER31BANDFX_H
 
-#include <bass.h>
+#include "FX.h"
 
 #include <map>
 
@@ -20,21 +20,15 @@ enum class EQFrequency31Range
     Frequency20000Hz
 };
 
-class Equalizer31BandFX
+class Equalizer31BandFX : public FX
 {
 private:
-    HSTREAM streamHandle;
     std::map<EQFrequency31Range, HFX> fxEQ;
     std::map<EQFrequency31Range, float> fxGain;
 
-    bool fxOn;
 public:
-    Equalizer31BandFX(HSTREAM streamHandle = 0);
+    Equalizer31BandFX(DWORD stream = 0, int priority = 1);
     ~Equalizer31BandFX();
-
-    bool isOn() { return fxOn; }
-
-    void setStreamHandle(HSTREAM streamHandle);
 
     void on();
     void off();
@@ -44,6 +38,12 @@ public:
     void setGain(EQFrequency31Range freq, float gain);
 
     void resetGain();
+
+    QList<float> params();
+    void setParams(const QList<float> &params);
+    void setStreamHandle(DWORD stream);
+    void setBypass(bool b);
+    void reset();
 };
 
 #endif // EQUALIZER31BANDFX_H

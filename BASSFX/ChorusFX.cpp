@@ -26,9 +26,10 @@ DWORD ChorusFX::getBassPhase(PhaseType pt)
     }
 }
 
-ChorusFX::ChorusFX(HSTREAM streamHandle)
+ChorusFX::ChorusFX(DWORD stream, int priority) :FX(priority)
 {
-    stream = streamHandle;
+    this->stream = stream;
+    this->type = FXType::Chorus;
 
     _on = false;
 
@@ -47,20 +48,6 @@ ChorusFX::~ChorusFX()
         off();
 }
 
-void ChorusFX::setStreamHandle(HSTREAM streamHandle)
-{
-    if (_on)
-    {
-        off();
-        stream = streamHandle;
-        on();
-    }
-    else
-    {
-        stream = streamHandle;
-    }
-}
-
 void ChorusFX::on()
 {
     if (_on)
@@ -73,7 +60,7 @@ void ChorusFX::on()
 
     // --------------------------------
 
-    fx = BASS_ChannelSetFX(stream, BASS_FX_DX8_CHORUS, 1);
+    fx = BASS_ChannelSetFX(stream, BASS_FX_DX8_CHORUS, priority);
 
     BASS_DX8_CHORUS c;
     c.fWetDryMix = fWetDryMix;
@@ -230,6 +217,63 @@ void ChorusFX::setPhase(PhaseType phase)
         c.lPhase = getBassPhase(fPhase);
         BASS_FXSetParameters(fx, &c);
     }
+}
+
+QList<float> ChorusFX::params()
+{
+    QList<float> params;
+
+    params.append(fWetDryMix);
+    params.append(fDepth);
+    params.append(fFeedback);
+    params.append(fFrequency);
+    params.append(fDelay);
+    params.append(getBassWaveform(fWaveform));
+    params.append(getBassPhase(fPhase));
+
+    return params;
+}
+
+void ChorusFX::setParams(const QList<float> &params)
+{
+    if (params.count() != 7)
+        return;
+
+    setWetDryMix(params[0]);
+    setDepth(params[1]);
+    setFeedback(params[2]);
+    setFrequency(params[3]);
+    setDelay(params[4]);
+
+    if (params[5] == 0)
+        setWaveform(WaveformType::Triangle);
+    else
+        setWaveform(WaveformType::Sine);
+
+    DWORD pt = (DWORD)params[6];
+    setPhase(static_cast<PhaseType>(pt));
+}
+
+void ChorusFX::setStreamHandle(DWORD stream)
+{
+    if (_on)
+    {
+        off();
+        this->stream = stream;
+        on();
+    }
+    else
+    {
+        this->stream = stream;
+    }
+}
+
+void ChorusFX::setBypass(bool b)
+{
+    if (b)
+        this->off();
+    else
+        this->on();
 }
 
 void ChorusFX::reset()

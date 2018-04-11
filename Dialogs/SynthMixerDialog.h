@@ -27,7 +27,7 @@ public:
     #ifndef __linux__
     void setVSTVendorMenu();
     #endif
-    void setVSTToSynth();
+    void setFXToSynth();
 
 private slots:
     void setBtnEqIcon(bool s);
@@ -44,12 +44,12 @@ private slots:
 
     void showChannelMenu(InstrumentType type, const QPoint &pos);
     void setBusGroup(int group);
-    DWORD addVST(const QString &uidStr, bool bypass = false);
-    void byPassVST(InstrumentType type, int fxIndex, bool bypass);
-    void showVSTFxDialog(InstrumentType type, int fxIndex);
+    FX* addFX(const QString &uidStr, bool bypass = false);
+    void byPassFX(InstrumentType type, int fxIndex, bool bypass);
+    void showFxDialog(InstrumentType type, int fxIndex);
     void onVSTDialogClosing(uint32_t fx);
-    void showVSTRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos);
-    void removeVST();
+    void showFXRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos);
+    void removeFX();
 
     void on_btnBus_clicked();
 
@@ -72,6 +72,7 @@ private:
     QList<QMenu*> vstVendorMenus;
     QSignalMapper signalVstActionMapper;
     QSignalMapper signalBusActionMapper;
+    QSignalMapper *signalBFXActionMapper = nullptr;
 
     int currentFxIndexToRemove;
 

@@ -1,6 +1,11 @@
 #include "MidiSynthesizer.h"
 
-#include "BASSFX/FX.h"
+#include "BASSFX/AutoWahFX.h"
+#include "BASSFX/CompressorFX.h"
+#include "BASSFX/DistortionFX.h"
+#include "BASSFX/EchoFX.h"
+#include "BASSFX/Equalizer15BandFX.h"
+#include "BASSFX/VSTFX.h"
 
 #include <cstring>
 
@@ -33,6 +38,8 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         im.bus = -1;
 
         instMap[t] = im;
+
+        handles[t] = 0;
     }
 
     for (int i=0; i<16; i++)
@@ -51,6 +58,12 @@ MidiSynthesizer::~MidiSynthesizer()
     delete eq;
     delete reverb;
     delete chorus;
+
+    for (Instrument inst : instMap.values())
+    {
+        for (FX *fx : inst.FXs)
+            delete fx;
+    }
 
     // --------------
 
@@ -101,22 +114,19 @@ bool MidiSynthesizer::open()
     }
 
     // Check volume .. mute.. solo.. bus.. and VST
-    for (int i=0; i<58; i++) {
+    for (int i=0; i<58; i++)
+    {
         InstrumentType t = static_cast<InstrumentType>(i);
         setVolume(t, instMap[t].volume);
         setMute(t, instMap[t].mute);
         setSolo(t, instMap[t].solo);
         setBusGroup(t, instMap[t].bus);
 
-        #ifndef __linux__
-        for (int i=0; i<instMap[t].vstUids.count(); i++) {
-            DWORD fx = addVST(t, instMap[t].vstUids[i]);
-            BASS_VST_SetProgram(fx, instMap[t].vstTempProgram[i]);
-            FX::setVSTParams(fx, instMap[t].vstTempParams[i]);
+        // Set stream handle to FX
+        for (FX *fx : instMap[t].FXs)
+        {
+            fx->setStreamHandle(handles[t]);
         }
-        instMap[t].vstTempParams.clear();
-        instMap[t].vstTempProgram.clear();
-        #endif
     }
 
     BASS_ChannelPlay(mixHandle, false);
@@ -154,30 +164,26 @@ void MidiSynthesizer::close()
     if (!openned)
         return;
 
-    // Clear VST
-    #ifndef __linux__
-    for (InstrumentType t : instMap.keys()) {
-        instMap[t].vstTempParams.clear();
-        instMap[t].vstTempProgram.clear();
-        for (DWORD fx : instMap[t].vstHandles) {
-            instMap[t].vstTempProgram.append(BASS_VST_GetProgram(fx));
-            instMap[t].vstTempParams.append(FX::getVSTParams(fx));
-            BASS_VST_ChannelRemoveDSP(handles[t], fx);
+    // Clear FX
+    for (InstrumentType t : instMap.keys())
+    {
+        for (FX *fx : instMap[t].FXs) {
+            fx->setStreamHandle(0);
         }
-        instMap[t].vstHandles.clear();
     }
-    #endif
 
 
     eq->setStreamHandle(0);
     reverb->setStreamHandle(0);
     chorus->setStreamHandle(0);
 
-    for (HSTREAM h : handles) {
+    for (InstrumentType t: handles.keys())
+    {
+        HSTREAM h = handles[t];
         BASS_ChannelStop(h);
         BASS_StreamFree(h);
+        handles[t] = 0;
     }
-    handles.clear();
 
     for (HSOUNDFONT f : synth_HSOUNDFONT) {
         BASS_MIDI_FontUnload(f, -1, -1);
@@ -669,90 +675,117 @@ HSTREAM MidiSynthesizer::getChannelHandle(InstrumentType type)
     return handles[type];
 }
 
-#ifndef __linux__
-
-DWORD MidiSynthesizer::addVST(InstrumentType type, DWORD uid)
+FX *MidiSynthesizer::addFX(InstrumentType type, DWORD uid)
 {
-    DWORD fx = 0;
+    FX *fx = nullptr;
 
-    if (openned) {
-        if (!_vstList.contains(uid))
-            return 0;
-
-        #ifdef _WIN32
-        fx = BASS_VST_ChannelSetDSP(handles[type], _vstList[uid].vstPath.toStdWString().c_str(),
-                                         BASS_VST_KEEP_CHANS|BASS_UNICODE, instMap[type].vstHandles.count());
-        instMap[type].vstHandles.append(fx);
-        #elif __APPLE__
-        fx = BASS_VST_ChannelSetDSP(handles[type], _vstList[uid].vstPath.toStdString().c_str(),
-                                         BASS_VST_KEEP_CHANS, instMap[type].fxHandles.count());
-        instMap[type].fxHandles.append(fx);
+    if (uid < BUILTIN_FX_COUNT)
+    {
+        FXType fxType = static_cast<FXType>(uid);
+        switch (fxType) {
+        case FXType::AutoWah:
+            fx = new AutoWahFX(handles[type], instMap[type].FXs.count());
+            break;
+        case FXType::Chorus:
+            fx = new ChorusFX(handles[type], instMap[type].FXs.count());
+            break;
+        case FXType::Compressor:
+            fx = new CompressorFX(handles[type], instMap[type].FXs.count());
+            break;
+        case FXType::Distortion:
+            fx = new DistortionFX(handles[type], instMap[type].FXs.count());
+            break;
+        case FXType::Echo:
+            fx = new EchoFX(handles[type], instMap[type].FXs.count());
+            break;
+        case FXType::EQ15Band:
+            fx = new Equalizer15BandFX(handles[type], instMap[type].FXs.count());
+            break;
+        case FXType::EQ31Band:
+            fx = new Equalizer31BandFX(handles[type], instMap[type].FXs.count());
+            break;
+        case FXType::Reverb:
+            fx = new ReverbFX(handles[type], instMap[type].FXs.count());
+            break;
+        }
+    }
+    else
+    {
+        #ifndef __linux__
+        if (_vstList.contains(uid))
+            fx = new VSTFX(_vstList[uid].vstPath, handles[type], instMap[type].FXs.count());
+        else
+            fx = nullptr;
         #endif
     }
 
-    if (instMap[type].vstHandles.count() > instMap[type].vstUids.count()) {
-        instMap[type].vstUids.append(uid);
-        instMap[type].vstBypass.append(false);
+    if (fx != nullptr)
+    {
+        fx->setBypass(false);
+        instMap[type].FXs.append(fx);
     }
 
     return fx;
 }
 
-bool MidiSynthesizer::removeVST(InstrumentType type, int fxIndex)
+bool MidiSynthesizer::removeFX(InstrumentType type, int fxIndex)
 {
-    Instrument inst = instMap[type];
-
-    if (fxIndex >= inst.vstUids.count())
+    if (fxIndex >= instMap[type].FXs.count())
         return false;
 
-    if (openned) {
-        #ifndef __linux__
-        DWORD fx = inst.vstHandles.at(fxIndex);
-        BASS_VST_ChannelRemoveDSP(handles[type], fx);
-        instMap[type].vstHandles.removeAt(fxIndex);
-        #endif
-    }
+    delete instMap[type].FXs.takeAt(fxIndex);
 
-    instMap[type].vstUids.removeAt(fxIndex);
-    instMap[type].vstBypass.removeAt(fxIndex);
     return true;
 }
 
-void MidiSynthesizer::setVSTBypass(InstrumentType type, int fxIndex, bool state)
+void MidiSynthesizer::setFXBypass(InstrumentType type, int fxIndex, bool state)
 {
-    instMap[type].vstBypass[fxIndex] = state;
 
-    if (openned) {
-        BASS_VST_SetBypass(instMap[type].vstHandles[fxIndex], state);
-    }
+    if (fxIndex >= instMap[type].FXs.count())
+        return;
+
+    instMap[type].FXs[fxIndex]->setBypass(state);
 }
 
-bool MidiSynthesizer::isVSTFile(const QString &vstPath, BASS_VST_INFO *info)
+QList<uint> MidiSynthesizer::fxUids(InstrumentType type)
 {
-    HSTREAM stream = BASS_StreamCreate(44100, 2, 0, NULL, NULL);
+    QList<uint> uids;
 
-    #ifdef _WIN32
-    DWORD h = BASS_VST_ChannelSetDSP(stream, vstPath.toStdWString().c_str(),
-                                     BASS_VST_KEEP_CHANS|BASS_UNICODE, 0);
-    #else
-    DWORD h = BASS_VST_ChannelSetDSP(stream, vstPath.toStdString().c_str(),
-                                     BASS_VST_KEEP_CHANS, 0);
-    #endif
+    for (FX *fx : instMap[type].FXs)
+        uids.append(fx->uids());
 
-    bool result = false;
-
-    if (BASS_VST_GetInfo(h, info) && !info->isInstrument)
-        result = true;
-    else
-        result = false;
-
-    BASS_VST_ChannelRemoveDSP(stream, h);
-    BASS_StreamFree(stream);
-
-    return result;
+    return uids;
 }
 
-#endif
+QList<bool> MidiSynthesizer::fxBypass(InstrumentType type)
+{
+    QList<bool> bypass;
+
+    for (FX *fx : instMap[type].FXs)
+        bypass.append(fx->isBypass());
+
+    return bypass;
+}
+
+QList<int> MidiSynthesizer::fxProgram(InstrumentType type)
+{
+    QList<int> programs;
+
+    for (FX *fx : instMap[type].FXs)
+        programs.append(fx->program());
+
+    return programs;
+}
+
+QList<QList<float> > MidiSynthesizer::fxParams(InstrumentType type)
+{
+    QList<QList<float>> params;
+
+    for (FX *fx : instMap[type].FXs)
+        params.append(fx->params());
+
+    return params;
+}
 
 void MidiSynthesizer::sendToAllMidiStream(int ch, DWORD eventType, DWORD param)
 {

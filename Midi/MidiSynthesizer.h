@@ -6,10 +6,7 @@
 #include <bassmix.h>
 #include <bass_fx.h>
 
-#ifndef __linux__
-#include <bass_vst.h>
-#endif
-
+#include "BASSFX/FX.h"
 #include "BASSFX/Equalizer31BandFX.h"
 #include "BASSFX/ReverbFX.h"
 #include "BASSFX/ChorusFX.h"
@@ -28,11 +25,7 @@ struct Instrument
     bool enable;
     int volume;
     int bus;
-    QList<DWORD> vstHandles;
-    QList<uint> vstUids;
-    QList<bool> vstBypass;
-    QList<int> vstTempProgram;
-    QList<QList<float>> vstTempParams;
+    QList<FX*> FXs;
 };
 
 struct VSTNamePath
@@ -121,12 +114,13 @@ public:
 
     HSTREAM getChannelHandle(InstrumentType type);
 
-#ifndef __linux__
-    DWORD addVST(InstrumentType type, DWORD uid);
-    bool removeVST(InstrumentType type, int fxIndex);
-    void setVSTBypass(InstrumentType type, int fxIndex, bool state);
-    static bool isVSTFile(const QString &vstPath, BASS_VST_INFO *info);
-#endif
+    FX* addFX(InstrumentType type, DWORD uid);
+    bool removeFX(InstrumentType type, int fxIndex);
+    void setFXBypass(InstrumentType type, int fxIndex, bool state);
+    QList<uint> fxUids(InstrumentType type);
+    QList<bool> fxBypass(InstrumentType type);
+    QList<int> fxProgram(InstrumentType type);
+    QList<QList<float>> fxParams(InstrumentType type);
 
 signals:
     void noteOnSended(InstrumentType t, int bus, int ch, int note, int velocity);

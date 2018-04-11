@@ -39,7 +39,16 @@ int MidiSequencer::positionTick()
 
 int MidiSequencer::durationTick()
 {
-    return _midi->events().back()->tick();
+    for (int i = _midi->events().count() - 1;  i>=0; i--)
+    {
+        MidiEvent *e = _midi->events()[i];
+
+        if (e->eventType() == MidiEventType::Meta
+                || e->eventType() == MidiEventType::SysEx)
+            continue;
+
+        return e->tick();
+    }
 }
 
 long MidiSequencer::positionMs()

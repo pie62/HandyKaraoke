@@ -15,8 +15,10 @@ RhythmWidget::RhythmWidget(QWidget *parent) :
     beats.append(ui->b3);
     beats.append(ui->b4);
     beats.append(ui->b5);
+    beats.append(ui->b6);
 
     beats[4]->hide();
+    beats[5]->hide();
 }
 
 RhythmWidget::~RhythmWidget()
@@ -51,7 +53,7 @@ void RhythmWidget::setBeat(const QList<SignatureBeat> &signatureBeats, int beatC
 
     { // Count bar
        _barCount= 0;
-        int lastBeat = 0, lastBeatInBar = 0;;
+        int lastBeat = 0, lastBeatInBar = 0;
         for (SignatureBeat sigBeat : signatureBeats) {
             lastBeat = sigBeat.nBeat;
             if (lastBeat > 0) {
@@ -110,7 +112,7 @@ void RhythmWidget::offAllBeats()
 
 void RhythmWidget::displayBeats(int n)
 {
-    for (int i=0; i<5; i++) {
+    for (int i=0; i<6; i++) {
         if (i < n) {
            beats[i]->show();
         }

@@ -7,7 +7,7 @@
 #include <QStyleFactory>
 
 #include "version.h"
-#include "BASSFX/FX.h"
+#include "BASSFX/VSTFX.h"
 
 #ifdef __linux__
 #include <QFontDatabase>
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     makeVSTList(splash, w.midiPlayer()->midiSynthesizer());
     w.synthMixerDialog()->setVSTVendorMenu();
     #endif
-    w.synthMixerDialog()->setVSTToSynth();
+    w.synthMixerDialog()->setFXToSynth();
 
     w.show();
 
@@ -126,7 +126,7 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
             qApp->processEvents();
 
             BASS_VST_INFO info;
-            if (!MidiSynthesizer::isVSTFile(it.filePath(), &info))
+            if (!VSTFX::isVSTFile(it.filePath(), &info))
                 continue;
 
             VSTNamePath v;

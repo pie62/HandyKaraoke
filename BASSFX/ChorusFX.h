@@ -1,7 +1,7 @@
 #ifndef CHORUSFX_H
 #define CHORUSFX_H
 
-#include <bass.h>
+#include "FX.h"
 
 enum class WaveformType
 {
@@ -18,13 +18,9 @@ enum class PhaseType
     Phase180
 };
 
-class ChorusFX
+class ChorusFX : public FX
 {
 private:
-    HSTREAM stream;
-    HFX fx;
-    bool _on;
-
     float fWetDryMix;
     float fDepth;
     float fFeedback;
@@ -37,12 +33,8 @@ private:
     DWORD getBassPhase(PhaseType pt);
 
 public:
-    ChorusFX(HSTREAM streamHandle = 0);
+    ChorusFX(DWORD stream = 0, int priority = 1);
     ~ChorusFX();
-
-    void setStreamHandle(HSTREAM streamHandle);
-
-    bool isOn() { return _on; }
 
     void on();
     void off();
@@ -63,6 +55,10 @@ public:
     void setWaveform(WaveformType waveform);
     void setPhase(PhaseType phase);
 
+    QList<float> params();
+    void setParams(const QList<float> &params);
+    void setStreamHandle(DWORD stream);
+    void setBypass(bool b);
     void reset();
 };
 

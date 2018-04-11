@@ -940,7 +940,9 @@ QToolTip {
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">
+            <string notr="true">QSlider {
+	padding: 3px;
+}
 QSlider::groove:horizontal {
     /*border: 1px solid #999999;*/
     height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */
@@ -1035,7 +1037,9 @@ QSlider::sub-page:horizontal {
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">
+            <string notr="true">QSlider {
+	padding: 3px;
+}
 QSlider::groove:horizontal {
     /*border: 1px solid #999999;*/
     height: 8px; /* the groove expands to the size of the slider by default. by 		  giving it a height, it has a fixed size */

@@ -1,27 +1,19 @@
 #ifndef REVERBFX_H
 #define REVERBFX_H
 
-#include <bass.h>
+#include "FX.h"
 
-class ReverbFX
+class ReverbFX : public FX
 {
 private:
-    HSTREAM stream;
-    HFX fx;
-    bool _on;
-
     float fInGain = 0.0f;
     float fReverbMix = 0.0f;
     float fReverbTime = 1000.0f;
     float fHighFreqRTRatio = 0.001f;
 
 public:
-    ReverbFX(HSTREAM streamHandle = 0);
+    ReverbFX(DWORD stream = 0, int priority = 1);
     ~ReverbFX();
-
-    void setStreamHandle(HSTREAM streamHandle);
-
-    bool isOn() { return _on; }
 
     void on();
     void off();
@@ -35,6 +27,11 @@ public:
     void setReverbMix(float rm);
     void setReverbTime(float rt);
     void setHighFreqRTRatio(float hf);
+
+    QList<float> params();
+    void setParams(const QList<float> &params);
+    void setStreamHandle(DWORD stream);
+    void setBypass(bool b);
     void reset();
 };
 

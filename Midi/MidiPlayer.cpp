@@ -81,18 +81,26 @@ bool MidiPlayer::isBassInstrument(int ints)
 
 int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
 {
+    int value;
     int d = qPow(2, denominator);
-    switch (d) {
+    switch (d)
+    {
         case 2:
         case 4:
-            return numerator * 1;
+            value = numerator * 1;
+            break;
         case 8:
-            return numerator * 0.5;
+            value = numerator * 0.5;
+            break;
         case 16:
-            return numerator * 0.25;
+            value = numerator * 0.25;
+            break;
         default:
-            return 4;
+            value = 4;
+            break;
     }
+
+    return value > 0 ? value : 1;
 }
 
 QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)

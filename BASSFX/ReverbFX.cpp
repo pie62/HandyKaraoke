@@ -1,8 +1,9 @@
 #include "ReverbFX.h"
 
-ReverbFX::ReverbFX(HSTREAM streamHandle)
+ReverbFX::ReverbFX(DWORD stream, int priority) :FX(priority)
 {
-    stream = streamHandle;
+    this->stream = stream;
+    this->type = FXType::Reverb;
     _on = false;
 }
 
@@ -10,20 +11,6 @@ ReverbFX::~ReverbFX()
 {
     if (_on)
         off();
-}
-
-void ReverbFX::setStreamHandle(HSTREAM streamHandle)
-{
-    if (_on)
-    {
-        off();
-        stream = streamHandle;
-        on();
-    }
-    else
-    {
-        stream = streamHandle;
-    }
 }
 
 void ReverbFX::on()
@@ -38,7 +25,7 @@ void ReverbFX::on()
 
     // --------------------------------
 
-    fx = BASS_ChannelSetFX(stream, BASS_FX_DX8_REVERB, 1);
+    fx = BASS_ChannelSetFX(stream, BASS_FX_DX8_REVERB, priority);
 
     BASS_DX8_REVERB rv;
     rv.fInGain = fInGain;
@@ -142,6 +129,49 @@ void ReverbFX::setHighFreqRTRatio(float hf)
         rv.fHighFreqRTRatio = fHighFreqRTRatio;
         BASS_FXSetParameters(fx, &rv);
     }
+}
+
+QList<float> ReverbFX::params()
+{
+    QList<float> params;
+    params.append(fInGain);
+    params.append(fReverbMix);
+    params.append(fReverbTime);
+    params.append(fHighFreqRTRatio);
+    return params;
+}
+
+void ReverbFX::setParams(const QList<float> &params)
+{
+    if (params.count() != 4)
+        return;
+
+    setInGain(params[0]);
+    setReverbMix(params[1]);
+    setReverbTime(params[2]);
+    setHighFreqRTRatio(params[3]);
+}
+
+void ReverbFX::setStreamHandle(DWORD stream)
+{
+    if (_on)
+    {
+        off();
+        this->stream = stream;
+        on();
+    }
+    else
+    {
+        this->stream = stream;
+    }
+}
+
+void ReverbFX::setBypass(bool b)
+{
+    if (b)
+        this->off();
+    else
+        this->on();
 }
 
 void ReverbFX::reset()
