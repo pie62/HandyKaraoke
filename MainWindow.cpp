@@ -586,6 +586,7 @@ void MainWindow::play(int index)
             secondLyr->show();
         }
         #ifdef _WIN32
+        taskbarButton->progress()->resume();
         taskbarButton->progress()->show();
         #endif
         player->play();

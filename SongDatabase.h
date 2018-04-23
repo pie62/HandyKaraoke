@@ -84,6 +84,7 @@ private:
 
     void createIndex();
     void dropIndex();
+    void AddNoCaseIndex();
 };
 
 #endif // SONGDATABASE_H

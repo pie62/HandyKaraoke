@@ -49,6 +49,8 @@ SongDatabase::SongDatabase()
     }
 
     db.open();
+
+    this->AddNoCaseIndex();
 }
 
 SongDatabase::~SongDatabase()
@@ -303,23 +305,23 @@ Song *SongDatabase::search(const QString &s)
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id GLOB ? ORDER BY id LIMIT 1) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id LIMIT 1) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name GLOB ? ORDER BY name LIMIT 1) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name LIMIT 1) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist GLOB ? ORDER BY artist LIMIT 1) "
+              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist LIMIT 1) "
               "LIMIT 1";
         break;
     case SearchType::ById:
-        sql = "SELECT * FROM songs WHERE id GLOB ? "
+        sql = "SELECT * FROM songs WHERE id LIKE ? "
               "ORDER BY id, name, artist LIMIT 1";
         break;
     case SearchType::ByName:
-        sql = "SELECT * FROM songs WHERE name GLOB ? "
+        sql = "SELECT * FROM songs WHERE name LIKE ? "
               "ORDER BY name, artist, id LIMIT 1";
         break;
     case SearchType::ByArtist:
-        sql = "SELECT * FROM songs WHERE artist GLOB ? "
+        sql = "SELECT * FROM songs WHERE artist LIKE ? "
               "ORDER BY artist, name, id LIMIT 1";
         break;
     }
@@ -327,12 +329,12 @@ Song *SongDatabase::search(const QString &s)
     QSqlQuery query;
     if (searchType == SearchType::ByAll) {
         query.prepare(sql);
-        query.bindValue(0, s + "*");
-        query.bindValue(1, s + "*");
-        query.bindValue(2, s + "*");
+        query.bindValue(0, s + "%");
+        query.bindValue(1, s + "%");
+        query.bindValue(2, s + "%");
     } else {
         query.prepare(sql);
-        query.bindValue(0, s + "*");
+        query.bindValue(0, s + "%");
     }
 
     if (query.exec()) {
@@ -352,22 +354,22 @@ Song *SongDatabase::searchNext()
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id GLOB ? ORDER BY id, name, artist) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id, name, artist) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name GLOB ? ORDER BY name, artist, id) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name, artist, id) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist GLOB ? ORDER BY artist, name, id) ";
+              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist, name, id) ";
         break;
     case SearchType::ById:
-        sql = "SELECT * FROM songs WHERE id GLOB ? "
+        sql = "SELECT * FROM songs WHERE id LIKE ? "
               "ORDER BY id, name, artist";
         break;
     case SearchType::ByName:
-        sql = "SELECT * FROM songs WHERE name GLOB ? "
+        sql = "SELECT * FROM songs WHERE name LIKE ? "
               "ORDER BY name, artist, id";
         break;
     case SearchType::ByArtist:
-        sql = "SELECT * FROM songs WHERE artist GLOB ? "
+        sql = "SELECT * FROM songs WHERE artist LIKE ? "
               "ORDER BY artist, name, id";
         break;
     }
@@ -376,11 +378,11 @@ Song *SongDatabase::searchNext()
     q.prepare(sql);
 
     if (searchType == SearchType::ByAll) {
-        q.bindValue(0, _searchText + "*");
-        q.bindValue(1, _searchText + "*");
-        q.bindValue(2, _searchText + "*");
+        q.bindValue(0, _searchText + "%");
+        q.bindValue(1, _searchText + "%");
+        q.bindValue(2, _searchText + "%");
     } else {
-        q.bindValue(0, _searchText + "*");
+        q.bindValue(0, _searchText + "%");
     }
 
     if (q.exec() && q.seek(currentResultIndex + 1)) {
@@ -400,22 +402,22 @@ Song *SongDatabase::searchPrevious()
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id GLOB ? ORDER BY id, name, artist) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id, name, artist) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name GLOB ? ORDER BY name, artist, id) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name, artist, id) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist GLOB ? ORDER BY artist, name, id) ";
+              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist, name, id) ";
         break;
     case SearchType::ById:
-        sql = "SELECT * FROM songs WHERE id GLOB ? "
+        sql = "SELECT * FROM songs WHERE id LIKE ? "
               "ORDER BY id, name, artist";
         break;
     case SearchType::ByName:
-        sql = "SELECT * FROM songs WHERE name GLOB ? "
+        sql = "SELECT * FROM songs WHERE name LIKE ? "
               "ORDER BY name, artist, id";
         break;
     case SearchType::ByArtist:
-        sql = "SELECT * FROM songs WHERE artist GLOB ? "
+        sql = "SELECT * FROM songs WHERE artist LIKE ? "
               "ORDER BY artist, name, id";
         break;
     }
@@ -424,11 +426,11 @@ Song *SongDatabase::searchPrevious()
     q.prepare(sql);
 
     if (searchType == SearchType::ByAll) {
-        q.bindValue(0, _searchText + "*");
-        q.bindValue(1, _searchText + "*");
-        q.bindValue(2, _searchText + "*");
+        q.bindValue(0, _searchText + "%");
+        q.bindValue(1, _searchText + "%");
+        q.bindValue(2, _searchText + "%");
     } else {
-        q.bindValue(0, _searchText + "*");
+        q.bindValue(0, _searchText + "%");
     }
 
     if (q.exec() && q.seek(currentResultIndex - 1)) {
@@ -543,25 +545,49 @@ void SongDatabase::createIndex()
     QSqlQuery query;
     QString sql;
 
-    sql = "CREATE INDEX id_idx ON songs(id); ";
-    query.exec(sql);
-    query.finish();
-    query.clear();
+    { // CASE INDEX
+        sql = "CREATE INDEX id_idx ON songs(id); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
 
-    sql = "CREATE INDEX name_idx ON songs(name); ";
-    query.exec(sql);
-    query.finish();
-    query.clear();
+        sql = "CREATE INDEX name_idx ON songs(name); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
 
-    sql = "CREATE INDEX artist_idx ON songs(artist); ";
-    query.exec(sql);
-    query.finish();
-    query.clear();
+        sql = "CREATE INDEX artist_idx ON songs(artist); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
 
-    sql = "CREATE INDEX compound_idx ON songs(id,name,artist); ";
-    query.exec(sql);
-    query.finish();
-    query.clear();
+        sql = "CREATE INDEX compound_idx ON songs(id,name,artist); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
+    }
+
+    { // NO CASE INDEX
+        sql = "CREATE INDEX id_nocase_idx ON songs(id COLLATE NOCASE); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
+
+        sql = "CREATE INDEX name_nocase_idx ON songs(name COLLATE NOCASE); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
+
+        sql = "CREATE INDEX artist_nocase_idx ON songs(artist COLLATE NOCASE); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
+
+        sql = "CREATE INDEX compound_nocase_idx ON songs(id COLLATE NOCASE, name COLLATE NOCASE, artist COLLATE NOCASE); ";
+        query.exec(sql);
+        query.finish();
+        query.clear();
+    }
 }
 
 void SongDatabase::dropIndex()
@@ -569,23 +595,92 @@ void SongDatabase::dropIndex()
     QSqlQuery q;
     QString sql;
 
-    sql = "DROP INDEX id_idx; ";
-    q.exec(sql);
+    { // CASE INDEX
+        sql = "DROP INDEX id_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+
+        sql = "DROP INDEX name_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+
+        sql = "DROP INDEX artist_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+
+        sql = "DROP INDEX compound_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+    }
+
+    { // NO CASE INDEX
+        sql = "DROP INDEX id_nocase_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+
+        sql = "DROP INDEX name_nocase_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+
+        sql = "DROP INDEX artist_nocase_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+
+        sql = "DROP INDEX compound_nocase_idx; ";
+        q.exec(sql);
+        q.finish();
+        q.clear();
+    }
+}
+
+void SongDatabase::AddNoCaseIndex()
+{
+    QSqlQuery q;
+
+    if (!q.exec("PRAGMA INDEX_LIST(songs)"))
+        return;
+
+    QList<QString> indexNames;
+    while (q.next())
+    {
+        indexNames.append(q.value("name").toString());
+    }
+
     q.finish();
     q.clear();
 
-    sql = "DROP INDEX name_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
+    if (indexNames.indexOf("id_nocase_idx") == -1)
+    {
+        q.exec("CREATE INDEX id_nocase_idx ON songs(id COLLATE NOCASE); ");
+        q.finish();
+        q.clear();
+    }
 
-    sql = "DROP INDEX artist_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
+    if (indexNames.indexOf("name_nocase_idx") == -1)
+    {
+        q.exec("CREATE INDEX name_nocase_idx ON songs(name COLLATE NOCASE); ");
+        q.finish();
+        q.clear();
+    }
 
-    sql = "DROP INDEX compound_idx; ";
-    q.exec(sql);
-    q.finish();
-    q.clear();
+    if (indexNames.indexOf("artist_nocase_idx") == -1)
+    {
+        q.exec("CREATE INDEX artist_nocase_idx ON songs(artist COLLATE NOCASE); ");
+        q.finish();
+        q.clear();
+    }
+
+    if (indexNames.indexOf("compound_nocase_idx") == -1)
+    {
+        q.exec("CREATE INDEX compound_nocase_idx ON songs(id COLLATE NOCASE, name COLLATE NOCASE, artist COLLATE NOCASE); ");
+        q.finish();
+        q.clear();
+    }
 }
