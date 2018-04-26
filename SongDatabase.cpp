@@ -50,7 +50,7 @@ SongDatabase::SongDatabase()
 
     db.open();
 
-    this->AddNoCaseIndex();
+    this->checkAddNoCaseIndex();
 }
 
 SongDatabase::~SongDatabase()
@@ -640,7 +640,7 @@ void SongDatabase::dropIndex()
     }
 }
 
-void SongDatabase::AddNoCaseIndex()
+void SongDatabase::checkAddNoCaseIndex()
 {
     QSqlQuery q;
 

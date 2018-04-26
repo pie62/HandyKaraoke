@@ -100,7 +100,21 @@ int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
             break;
     }
 
-    return value > 0 ? value : 1;
+    if (value == 16 || value == 8)
+        value = 4;
+
+    switch (value)
+    {
+        case 16:
+        case 8:
+            value = 4;
+            break;
+        case 12:
+            value = 6;
+            break;
+    }
+
+    return value;
 }
 
 QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
@@ -109,10 +123,15 @@ QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
     uint32_t t = midi->events().back()->tick();
     ushort bCount = midi->beatFromTick(t);
 
-    for (MidiEvent *evt : midi->timeSignatureEvents()) {
+    for (MidiEvent *evt : midi->timeSignatureEvents())
+    {
+        int nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+        if (nBeatInBar <= 0)
+            continue;
+
         SignatureBeat sb;
         sb.nBeat = midi->beatFromTick(evt->tick());
-        sb.nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+        sb.nBeatInBar = nBeatInBar;
         beats.append(sb);
     }
 
