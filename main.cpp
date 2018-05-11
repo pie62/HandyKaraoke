@@ -139,7 +139,7 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
         }
     }
 
-     synth->setVSTList(vstList);
+    synth->setVSTList(vstList);
 }
 
 #endif

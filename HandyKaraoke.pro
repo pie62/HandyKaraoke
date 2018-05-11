@@ -13,7 +13,6 @@ CONFIG += c++11
 TARGET = HandyKaraoke
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         MainWindow.cpp \
     SettingsDialog.cpp \

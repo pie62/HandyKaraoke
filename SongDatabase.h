@@ -31,6 +31,8 @@ public:
     Song* currentSong() { return song; }
     QString searchText() { return _searchText; }
 
+    QSqlDatabase* database() { return &db; }
+
     bool isOpenned() { return db.isOpen(); }
     bool isUpdatting() { return upTing; }
     int updateCount() { return upCount; }
