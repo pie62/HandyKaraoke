@@ -4,6 +4,7 @@
 
 #include <QDataStream>
 #include <QTextStream>
+#include <QProcess>
 
 Utils::Utils()
 {
@@ -82,4 +83,34 @@ QString Utils::readLyrics(const QByteArray &data)
 uint Utils::concurentThreadsSupported()
 {
     return std::thread::hardware_concurrency();
+}
+
+bool Utils::vstInfo(const QString &vstPath, VSTNamePath *info)
+{
+    QStringList param;
+    param << vstPath << VST_INFO_FILE_PATH;
+
+    int exitCode = QProcess::execute(VST_CHECKER_NAME, param);
+
+    if (exitCode != 0)
+        return false;
+
+    QDir dir(VST_INFO_FILE_DIR);
+    if (!dir.exists())
+        dir.mkpath(VST_INFO_FILE_DIR);
+
+    QFile file(VST_INFO_FILE_PATH);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QTextStream stream(&file);
+
+    info->uniqueID = stream.readLine().toUInt();
+    info->vstName = stream.readLine();
+    info->vstvendor = stream.readLine();
+    info->vstPath = vstPath;
+
+    file.close();
+
+    return true;
 }

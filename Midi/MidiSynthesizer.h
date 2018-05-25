@@ -28,13 +28,13 @@ struct Instrument
     QList<FX*> FXs;
 };
 
-struct VSTNamePath
+typedef struct
 {
     unsigned int uniqueID;
     QString vstName;
     QString vstvendor;
     QString vstPath;
-};
+} VSTNamePath;
 
 class MidiSynthesizer : public QObject
 {

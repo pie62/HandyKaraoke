@@ -6,8 +6,10 @@
 #include <QMetaType>
 #include <QStyleFactory>
 
-#include "version.h"
 #include "BASSFX/VSTFX.h"
+#include "version.h"
+#include "Config.h"
+#include "Utils.h"
 
 #ifdef __linux__
 #include <QFontDatabase>
@@ -122,9 +124,10 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 
             it.next();
 
-            splash->showMessage("Reading : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
+            splash->showMessage("กำลังตรวจสอบ : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
             qApp->processEvents();
 
+            /*
             BASS_VST_INFO info;
             if (!VSTFX::isVSTFile(it.filePath(), &info))
                 continue;
@@ -134,8 +137,16 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
             v.vstName = info.effectName;
             v.vstvendor = info.vendorName;
             v.vstPath = it.filePath();
+            */
 
-            vstList[info.uniqueID] = v;
+
+
+            VSTNamePath info;
+
+            if (!Utils::vstInfo(it.filePath(), &info))
+                continue;
+
+            vstList[info.uniqueID] = info;
         }
     }
 

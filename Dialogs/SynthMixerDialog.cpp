@@ -665,10 +665,11 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
         {
             VSTDialog *dlg = new VSTDialog(this, fx->fxHandle());
             connect(dlg, SIGNAL(closing(uint32_t)), this, SLOT(onVSTDialogClosing(uint32_t)));
-            QString name = info.vendorName;
+            QString name = info.effectName;
             name += " - ";
-            name += info.effectName;
+            name += info.vendorName;
             dlg->setWindowTitle(name + "  [" + chInstMap[type]->fullInstrumentName() + "]");
+            dlg->setWindowFlags(dlg->windowFlags() & ~Qt::WindowContextHelpButtonHint);
             dlg->setAttribute(Qt::WA_DeleteOnClose);
             dlg->setFixedSize(info.editorWidth, info.editorHeight);
             dlg->show();

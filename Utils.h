@@ -2,6 +2,8 @@
 #define UTILS_H
 
 #include <QFile>
+#include "Midi/MidiSynthesizer.h"
+#include "Config.h"
 
 #ifdef _WIN32
 typedef __int32 int32_t;
@@ -20,6 +22,8 @@ public:
     static QString readLyrics(const QByteArray &data);
 
     static uint concurentThreadsSupported();
+
+    static bool vstInfo(const QString &vstPath, VSTNamePath *info);
 };
 
 #endif // UTILS_H

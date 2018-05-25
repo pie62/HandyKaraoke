@@ -1,11 +1,12 @@
 #include "VSTDirsDialog.h"
 #include "ui_VSTDirsDialog.h"
 
-#include "BASSFX/VSTFX.h"
-
 #include <QSettings>
 #include <QDirIterator>
 #include <QFileDialog>
+
+#include "BASSFX/VSTFX.h"
+#include "Utils.h"
 
 
 VSTDirsDialog::VSTDirsDialog(QWidget *parent, SynthMixerDialog *mixDlg,
@@ -108,19 +109,15 @@ void VSTDirsDialog::on_btnUpdate_clicked()
 
         ui->lbVSTName->setText(filesName[i]);
 
-        BASS_VST_INFO info;
-        if (!VSTFX::isVSTFile(filesPath[i], &info)) {
+        VSTNamePath info;
+
+        if (!Utils::vstInfo(filesPath[i], &info))
+        {
             ui->progressBar->setValue(i+1);
             continue;
         }
 
-        VSTNamePath v;
-        v.uniqueID = info.uniqueID;
-        v.vstName = info.effectName;
-        v.vstvendor = info.vendorName;
-        v.vstPath = filesPath[i];
-
-        vstList[info.uniqueID] = v;
+        vstList[info.uniqueID] = info;
 
         ui->progressBar->setValue(i+1);
     }

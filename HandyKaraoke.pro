@@ -132,7 +132,8 @@ HEADERS  += MainWindow.h \
     FXDialogs/AutoWahFXDialog.h \
     FXDialogs/CompressorFXDialog.h \
     FXDialogs/DistortionFXDialog.h \
-    FXDialogs/EchoFXDialog.h
+    FXDialogs/EchoFXDialog.h \
+    Config.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
