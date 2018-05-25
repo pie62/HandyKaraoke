@@ -88,29 +88,27 @@ uint Utils::concurentThreadsSupported()
 bool Utils::vstInfo(const QString &vstPath, VSTNamePath *info)
 {
     QStringList param;
-    param << vstPath << VST_INFO_FILE_PATH;
+    param << vstPath;
 
-    int exitCode = QProcess::execute(VST_CHECKER_NAME, param);
+    QProcess process;
+    process.start(VST_CHECKER_NAME, param);
+    process.waitForFinished(-1);
 
-    if (exitCode != 0)
+    if (process.exitCode() != 0)
         return false;
 
-    QDir dir(VST_INFO_FILE_DIR);
-    if (!dir.exists())
-        dir.mkpath(VST_INFO_FILE_DIR);
+    QString strout = process.readAllStandardOutput();
 
-    QFile file(VST_INFO_FILE_PATH);
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
+    #ifdef _WIN32
+    QStringList vstStrInfo = strout.split("\r\n");
+    #else
+    QStringList vstStrInfo = strout.split("\n");
+    #endif
 
-    QTextStream stream(&file);
-
-    info->uniqueID = stream.readLine().toUInt();
-    info->vstName = stream.readLine();
-    info->vstvendor = stream.readLine();
+    info->uniqueID = vstStrInfo[0].toUInt();
+    info->vstName = vstStrInfo[1];
+    info->vstvendor = vstStrInfo[2];
     info->vstPath = vstPath;
-
-    file.close();
 
     return true;
 }
