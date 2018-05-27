@@ -1,6 +1,7 @@
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 
+#include "Config.h"
 #include "Midi/MidiHelper.h"
 #include "Dialogs/MapSoundfontDialog.h"
 #include "Dialogs/MapChannelDialog.h"
@@ -17,7 +18,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 {
     ui->setupUi(this);
     this->mainWin = m;
-    settings = new QSettings();
+    settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     db = mainWin->database();
 
 

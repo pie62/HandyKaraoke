@@ -2,6 +2,7 @@
 #include "ui_MapSoundfontDialog.h"
 
 #include "Midi/MidiHelper.h"
+#include "Config.h"
 
 #include <QSettings>
 
@@ -100,7 +101,7 @@ void MapSoundfontDialog::on_btnOk_clicked()
 {
     player->midiSynthesizer()->setMapSoundfontIndex(instMap, drumMap);
 
-    QSettings settings;
+    QSettings settings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
 
     settings.beginWriteArray("SynthSoundfontsMap");
     for (int i=0; i<128; i++) {

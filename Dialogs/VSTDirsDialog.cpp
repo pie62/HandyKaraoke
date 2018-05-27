@@ -7,6 +7,7 @@
 
 #include "BASSFX/VSTFX.h"
 #include "Utils.h"
+#include "Config.h"
 
 
 VSTDirsDialog::VSTDirsDialog(QWidget *parent, SynthMixerDialog *mixDlg,
@@ -19,7 +20,7 @@ VSTDirsDialog::VSTDirsDialog(QWidget *parent, SynthMixerDialog *mixDlg,
     this->mixDlg = mixDlg;
     this->synth = synth;
 
-    QSettings st;
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     QStringList dirs = st.value("VSTDirs", QStringList()).toStringList();
 
     QStringList vstDirs;
@@ -40,7 +41,7 @@ VSTDirsDialog::~VSTDirsDialog()
         vstDirs << item->text();
     }
 
-    QSettings st;
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     st.setValue("VSTDirs", vstDirs);
 
     delete ui;

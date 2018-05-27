@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
-
+#include "Config.h"
 #include "Utils.h"
 #include "DrumPadsKey.h"
 #include "SettingsDialog.h"
@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     taskbarButton = new QWinTaskbarButton();
     #endif
 
-    settings = new QSettings();
+    settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
 
@@ -823,10 +823,76 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     if (event->modifiers() == Qt::ControlModifier) {
         switch (event->key()) {
             case Qt::Key_Up:
-                ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetTranspose(db->currentSong()->transpose() + 1);
+                }
+                else if (ui->framePlaylist->isVisible())
+                {
+                    int i = ui->playlist->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setTranspose(s->transpose() + 1);
+                    ui->playlist->item(i)->setText(s->detail());
+                    timer2->start(playlist_timeout);
+                }
+                else
+                {
+                    ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
+                }
                 break;
             case Qt::Key_Down:
-                ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetTranspose(db->currentSong()->transpose() - 1);
+                }
+                else if (ui->framePlaylist->isVisible())
+                {
+                    int i = ui->playlist->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setTranspose(s->transpose() - 1);
+                    ui->playlist->item(i)->setText(s->detail());
+                    timer2->start(playlist_timeout);
+                }
+                else
+                {
+                    ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
+                }
+                break;
+            case Qt::Key_Right:
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetBpmSpeed(db->currentSong()->bpmSpeed() + 1);
+                }
+                else if (ui->framePlaylist->isVisible())
+                {
+                    int i = ui->playlist->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setBpmSpeed(s->bpmSpeed() + 1);
+                    ui->playlist->item(i)->setText(s->detail());
+                    timer2->start(playlist_timeout);
+                }
+                break;
+            case Qt::Key_Left:
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetBpmSpeed(db->currentSong()->bpmSpeed() - 1);
+                }
+                else if (ui->framePlaylist->isVisible())
+                {
+                    int i = ui->playlist->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setBpmSpeed(s->bpmSpeed() - 1);
+                    ui->playlist->item(i)->setText(s->detail());
+                    timer2->start(playlist_timeout);
+                }
                 break;
             case Qt::Key_X:
                 if (ui->frameSearch->isVisible()) {
@@ -903,11 +969,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             preSetTranspose(db->currentSong()->transpose() + 1);
             break;
         }
-        player->setTranspose(player->transpose()+1);
+        playingSong.setTranspose(player->transpose() + 1);
+        player->setTranspose(player->transpose() + 1);
         int trp = player->transpose();
         QString t;
         if (trp > 0) t = "+" + QString::number(trp);
         else t = QString::number(trp);
+        ui->songDetail->setDetail(&playingSong);
+        ui->songDetail->adjustSize();
         ui->detail->setDetail("คีย์เพลง ", t);
         ui->detail->show();
         detailTimer->start(3000);
@@ -932,11 +1001,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             timer2->start(playlist_timeout);
             break;
         }
-        player->setTranspose(player->transpose()-1);
+        playingSong.setTranspose(player->transpose() - 1);
+        player->setTranspose(player->transpose() - 1);
         int trp = player->transpose();
         QString t;
         if (trp > 0) t = "+" + QString::number(trp);
         else t = QString::number(trp);
+        ui->songDetail->setDetail(&playingSong);
+        ui->songDetail->adjustSize();
         ui->detail->setDetail("คีย์เพลง ", t);
         ui->detail->show();
         detailTimer->start(3000);

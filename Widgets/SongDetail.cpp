@@ -44,8 +44,19 @@ void SongDetail::setDetail(Song *song)
     ui->lbArtist->setText(song->artist());
     ui->lbKey->setText(song->key());
 
+    if (song->transpose() != 0)
+    {
+        QString trText = "";
+        if (song->transpose() > 0)
+            trText += "+";
+        trText += QString::number(song->transpose());
+
+        ui->lbKey->setText(ui->lbKey->text() + " (Key " + trText + ")");
+    }
+
     QString speedText;
-    if (song->bpmSpeed() != 0) {
+    if (song->bpmSpeed() != 0)
+    {
         QString s;
         if (song->bpmSpeed() > 0)
             s = "+" + QString::number(song->bpmSpeed());

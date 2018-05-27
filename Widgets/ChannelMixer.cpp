@@ -9,6 +9,9 @@
 #include <QCursor>
 #include <QSettings>
 
+#include "Config.h"
+
+
 void BackgroundChMx::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
@@ -45,7 +48,7 @@ ChannelMixer::ChannelMixer(QWidget *parent) :
     chs.append(ui->ch16);
 
     // vu color ==================
-    QSettings st;
+    QSettings st(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     LEDVu *vu = ui->ch1->vuBar();
 
     QString vBg     = st.value("ChMixVuBgColor", vu->backgroundColor().name()).toString();
@@ -99,7 +102,7 @@ ChannelMixer::ChannelMixer(QWidget *parent) :
 ChannelMixer::~ChannelMixer()
 {
     { // setting vu
-        QSettings st;
+        QSettings st(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
         LEDVu *vu = ui->ch1->vuBar();
 
         st.setValue("ChMixVuBgColor", vu->backgroundColor().name());

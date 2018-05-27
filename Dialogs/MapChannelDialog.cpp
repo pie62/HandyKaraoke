@@ -2,6 +2,8 @@
 #include "ui_MapChannelDialog.h"
 
 #include "Midi/MidiPlayer.h"
+#include "Config.h"
+
 #include <QMenu>
 #include <QSettings>
 
@@ -84,7 +86,7 @@ void MapChannelDialog::setMapMidiOut(int port)
         ports.append(player->midiChannel()[i].port());
     }
 
-    QSettings st;
+    QSettings st(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     st.setValue("MidiChannelMapper", QVariant::fromValue(ports));
 }
 

@@ -25,9 +25,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv); 
 
-    QCoreApplication::setApplicationName("handy-karaoke");
+    QCoreApplication::setApplicationName("Handy Karaoke");
     QCoreApplication::setApplicationVersion(VER_FILEVERSION_STR);
-    QCoreApplication::setOrganizationName("HandyKaraoke");
+    QCoreApplication::setOrganizationName("Handy Karaoke");
     QCoreApplication::setOrganizationDomain("https://github.com/pie62/HandyKaraoke");
 
     registerMetaType();
@@ -41,13 +41,17 @@ int main(int argc, char *argv[])
     qApp->processEvents();
 
     { // Config Dir
-        QDir dir(CONFIG_DIR_PATH);
+        QDir dir(ALL_DATA_DIR_PATH);
+        if (!dir.exists())
+            dir.mkpath(ALL_DATA_DIR_PATH);
+
+        dir.setPath(CONFIG_DIR_PATH);
         if (!dir.exists())
             dir.mkpath(CONFIG_DIR_PATH);
     }
 
     { // set style
-        QSettings *s = new QSettings("Style.ini", QSettings::IniFormat);
+        QSettings *s = new QSettings("Style.conf", QSettings::IniFormat);
 
         #ifdef __linux__
         bool useFusion = s->value("Fusion", true).toBool();
@@ -112,7 +116,7 @@ void registerMetaType()
 
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 {
-    QSettings st;
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     QStringList dirs = st.value("VSTDirs", QStringList()).toStringList();
 
     QStringList vstDirs;

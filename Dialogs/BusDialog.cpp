@@ -2,7 +2,6 @@
 #include "ui_BusDialog.h"
 
 #include <QMenu>
-#include <QSettings>
 
 
 BusDialog::BusDialog(QWidget *parent, QMap<InstrumentType, InstCh *> *chInstMap, MidiSynthesizer *synth) :

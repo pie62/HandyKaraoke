@@ -5,7 +5,6 @@
 #include "Config.h"
 
 #include <QDir>
-#include <QSettings>
 #include <QDirIterator>
 #include <QFile>
 #include <QSqlQuery>
@@ -22,8 +21,8 @@ SongDatabase::SongDatabase()
     if (QFile::exists(DATABASE_FILE_PATH)) {
         hasDb = true;
     } else {
-        QDir dir;
-        if (!dir.exists(DATABASE_DIR_PATH))
+        QDir dir(DATABASE_DIR_PATH);
+        if (!dir.exists())
             dir.mkpath(DATABASE_DIR_PATH);
     }
 
@@ -455,7 +454,6 @@ void SongDatabase::run()
     }
 
     int count = 0;
-    QSettings st;
 
     // Count mid file in NCN
     QDir dir(_ncnPath + "/Song");

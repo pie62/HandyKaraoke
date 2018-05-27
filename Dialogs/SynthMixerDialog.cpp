@@ -2,6 +2,7 @@
 #include "ui_SynthMixerDialog.h"
 
 #include "MainWindow.h"
+#include "Config.h"
 #include "BASSFX/FX.h"
 #include "Dialogs/SettingVuDialog.h"
 #include "Dialogs/VSTDialog.h"
@@ -49,7 +50,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
 
 
     { // Settings
-        QSettings st("SynthMixer.ini", QSettings::IniFormat);
+        QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
 
 
         QSize size = st.value("Size", this->size()).toSize();
@@ -149,7 +150,7 @@ SynthMixerDialog::~SynthMixerDialog()
 {
     // settings
     {
-        QSettings st("SynthMixer.ini", QSettings::IniFormat);
+        QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
         st.setValue("Size", this->size());
         st.setValue("SplitterSize", QVariant::fromValue(ui->splitter->sizes()));
 
@@ -245,7 +246,7 @@ void SynthMixerDialog::setVSTVendorMenu()
 
 void SynthMixerDialog::setFXToSynth()
 {
-    QSettings st("SynthMixer.ini", QSettings::IniFormat);
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     st.beginReadArray("SynthMixer");
     for (InstrumentType t : chInstMap.keys())
     {
