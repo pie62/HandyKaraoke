@@ -2,6 +2,7 @@
 
 #include "Midi/MidiFile.h"
 #include "Midi/HNKFile.h"
+#include "Config.h"
 
 #include <QDir>
 #include <QSettings>
@@ -17,18 +18,17 @@ SongDatabase::SongDatabase()
     searchType = SearchType::ByAll;
 
     bool hasDb = false;
-    QString path = QDir::currentPath() + "/Data/Database.db3";
 
-    if (QFile::exists(path)) {
+    if (QFile::exists(DATABASE_FILE_PATH)) {
         hasDb = true;
     } else {
         QDir dir;
-        if (!dir.exists("Data"))
-            dir.mkdir("Data");
+        if (!dir.exists(DATABASE_DIR_PATH))
+            dir.mkpath(DATABASE_DIR_PATH);
     }
 
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(path);
+    db.setDatabaseName(DATABASE_FILE_PATH);
 
     if (db.open()) {
 

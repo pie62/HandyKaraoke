@@ -40,6 +40,12 @@ int main(int argc, char *argv[])
     splash->showMessage("กำลังเริ่มโปรแกรม...", Qt::AlignBottom|Qt::AlignRight);
     qApp->processEvents();
 
+    { // Config Dir
+        QDir dir(CONFIG_DIR_PATH);
+        if (!dir.exists())
+            dir.mkpath(CONFIG_DIR_PATH);
+    }
+
     { // set style
         QSettings *s = new QSettings("Style.ini", QSettings::IniFormat);
 
