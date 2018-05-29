@@ -12,6 +12,11 @@ MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
 
     _midiSynth  = new MidiSynthesizer();
 
+    if (midiDevices().size() > 0)
+    {
+        setMidiOut(0);
+    }
+
     connect(seq1, SIGNAL(playingEvent(MidiEvent*)),
             this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
     connect(seq1, SIGNAL(bpmChanged(int)),
