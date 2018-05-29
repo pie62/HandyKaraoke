@@ -55,7 +55,7 @@ void VSTDirsDialog::on_btnClose_clicked()
 void VSTDirsDialog::on_btnAdd_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(
-                this, "เลือกโฟลเดอร์ VST", QDir::homePath(),
+                this, "เลือกโฟลเดอร์ VST", Utils::LAST_OPEN_DIR,
                 QFileDialog::ShowDirsOnly
                 |QFileDialog::DontResolveSymlinks);
 
@@ -64,6 +64,8 @@ void VSTDirsDialog::on_btnAdd_clicked()
 
     ui->list->addItem(dir);
     ui->btnRemove->setEnabled(true);
+
+    Utils::LAST_OPEN_DIR = dir;
 }
 
 void VSTDirsDialog::on_btnRemove_clicked()

@@ -3,7 +3,6 @@
 
 #include <QFile>
 #include "Midi/MidiSynthesizer.h"
-#include "Config.h"
 
 #ifdef _WIN32
 typedef __int32 int32_t;
@@ -24,6 +23,8 @@ public:
     static uint concurentThreadsSupported();
 
     static bool vstInfo(const QString &vstPath, VSTNamePath *info);
+
+    static QString LAST_OPEN_DIR;
 };
 
 #endif // UTILS_H

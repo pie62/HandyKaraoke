@@ -2,6 +2,7 @@
 #include "ui_SettingsDialog.h"
 
 #include "Config.h"
+#include "Utils.h"
 #include "Midi/MidiHelper.h"
 #include "Dialogs/MapSoundfontDialog.h"
 #include "Dialogs/MapChannelDialog.h"
@@ -398,7 +399,7 @@ void SettingsDialog::on_btnBgImg_clicked()
 {
     //QStringList filters;
     //filters << "Image files (*.png *.PNG *.jpg *.JPG)";
-    QString f = QFileDialog::getOpenFileName(this, "Select File", QDir::currentPath(),
+    QString f = QFileDialog::getOpenFileName(this, "Select File", Utils::LAST_OPEN_DIR,
                                              "Image files (*.png *.PNG *.jpg *.JPG)");
     if (f != "") {
         settings->setValue("BackgroundImage", f);
@@ -406,16 +407,20 @@ void SettingsDialog::on_btnBgImg_clicked()
         mainWin->setBackgroundImage(f);
         if (mainWin->secondMonitorDlg() != nullptr)
             mainWin->secondMonitorDlg()->setBackgroundImage(f);
+
+        Utils::LAST_OPEN_DIR = QDir().absoluteFilePath(f);
     }
 }
 
 void SettingsDialog::on_btnNCNPath_clicked()
 {
-    QString path = QFileDialog::getExistingDirectory(this, tr("เลือกที่เก็บไฟล์เพลง NCN"), QDir::currentPath(),
+    QString path = QFileDialog::getExistingDirectory(this, tr("เลือกที่เก็บไฟล์เพลง NCN"), Utils::LAST_OPEN_DIR,
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (path == "")
         return;
+
+    Utils::LAST_OPEN_DIR = path;
 
     if (db->isNCNPath(path)) {
         settings->setValue("NCNPath", path);
@@ -432,11 +437,13 @@ void SettingsDialog::on_btnNCNPath_clicked()
 void SettingsDialog::on_btnHNKPath_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(
-                this, tr("เลือกที่เก็บไฟล์เพลง HNK"), QDir::currentPath(),
+                this, tr("เลือกที่เก็บไฟล์เพลง HNK"), Utils::LAST_OPEN_DIR,
                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (path == "")
         return;
+
+    Utils::LAST_OPEN_DIR = path;
 
     ui->leHNKPath->setText(path);
     db->setHNKPath(path);
@@ -942,8 +949,13 @@ void SettingsDialog::on_btnSfAdd_clicked()
 {
     QStringList sfFiles = QFileDialog::getOpenFileNames(this,
                                                         "เลือกไฟล์ซาวด์ฟ้อนท์",
-                                                        QDir::currentPath(),
+                                                        Utils::LAST_OPEN_DIR,
                                                         "SoundFont (*.sf2 *.SF2 *.sfz *.SFZ)");
+
+    if (sfFiles.count() > 0)
+    {
+        Utils::LAST_OPEN_DIR = QDir().absoluteFilePath(sfFiles[0]);
+    }
 
     for (const QString &sf : sfFiles) {
         if (MidiSynthesizer::isSoundFontFile(sf)) {

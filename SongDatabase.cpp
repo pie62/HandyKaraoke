@@ -50,6 +50,13 @@ SongDatabase::SongDatabase()
     db.open();
 
     this->checkAddNoCaseIndex();
+
+    { // pre select
+        QSqlQuery q;
+        q.exec("SELECT * FROM songs WHERE name LIKE the% LIMIT 1;");
+        q.finish();
+        q.clear();
+    }
 }
 
 SongDatabase::~SongDatabase()

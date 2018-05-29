@@ -5,6 +5,9 @@
 #include <QDataStream>
 #include <QTextStream>
 #include <QProcess>
+#include <QDir>
+
+#include "Config.h"
 
 Utils::Utils()
 {
@@ -112,3 +115,5 @@ bool Utils::vstInfo(const QString &vstPath, VSTNamePath *info)
 
     return true;
 }
+
+QString Utils::LAST_OPEN_DIR = QDir::homePath();

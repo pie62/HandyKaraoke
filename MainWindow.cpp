@@ -381,6 +381,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     { // Init UI
+        this->setWindowTitle(QApplication::applicationName() + "  " + QApplication::applicationVersion());
+
+        Utils::LAST_OPEN_DIR = settings->value("LastOpenDir", QDir::homePath()).toString();
+
         updateDetail->hide();
         updateDetail->resize(250, 60);
         updateDetail->setText("กำลังปรับปรุงฐานข้อมูล");
@@ -512,6 +516,7 @@ MainWindow::~MainWindow()
     delete chorusDlg;
 
 
+    settings->setValue("LastOpenDir", Utils::LAST_OPEN_DIR);
     settings->setValue("MidiVolume", ui->sliderVolume->value());
     if (this->isFullScreen()) {
         settings->setValue("WindowFullScreen", true);
