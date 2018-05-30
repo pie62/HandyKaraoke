@@ -122,10 +122,18 @@ public:
     QList<int> fxProgram(InstrumentType type);
     QList<QList<float>> fxParams(InstrumentType type);
 
+    // Speakers
+    static DWORD getSpeakerFlag(SpeakerType Speaker);
+    void setSpeaker(InstrumentType type, int device, SpeakerType Speaker);
+
 signals:
     void noteOnSended(InstrumentType t, int bus, int ch, int note, int velocity);
 
 private:
+    const int HANDLE_STREAM_COUNT = 58;
+    const int HANDLE_MIDI_COUNT = 42;
+    const int HANDLE_BUS_COUNT = 16;
+
     HSTREAM mixHandle;
     QMap<InstrumentType, HSTREAM> handles;
     QList<HSOUNDFONT> synth_HSOUNDFONT;

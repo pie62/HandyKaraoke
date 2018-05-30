@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     // Init BASS
-    BASS_Init(-1, 44100, 0, NULL, NULL);
+    BASS_Init(-1, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
     BASS_FX_GetVersion();
 
     auto concurentThreadsSupported = Utils::concurentThreadsSupported();

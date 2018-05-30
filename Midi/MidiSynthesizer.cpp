@@ -8,6 +8,7 @@
 #include "BASSFX/VSTFX.h"
 
 #include <cstring>
+#include <iostream>
 
 
 MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
@@ -26,7 +27,7 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 
 
     // Map inst
-    for (int i=0; i<58; i++)
+    for (int i=0; i<HANDLE_STREAM_COUNT; i++)
     {
         InstrumentType t = static_cast<InstrumentType>(i);
         Instrument im;
@@ -94,7 +95,7 @@ bool MidiSynthesizer::open()
     }
 
     // Create midi stream
-    for (int i=0; i<42; i++) {
+    for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
 
         HSTREAM h = BASS_MIDI_StreamCreate(16, flags, 0);
 
@@ -105,7 +106,7 @@ bool MidiSynthesizer::open()
     }
 
     // Create bus stream
-    for (int i=42; i<58; i++) {
+    for (int i=HANDLE_MIDI_COUNT; i<HANDLE_STREAM_COUNT; i++) {
         HSTREAM h = BASS_Mixer_StreamCreate(44100, 2, f|BASS_STREAM_DECODE);
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
 
@@ -114,7 +115,7 @@ bool MidiSynthesizer::open()
     }
 
     // Check volume .. mute.. solo.. bus.. and VST
-    for (int i=0; i<58; i++)
+    for (int i=0; i<HANDLE_STREAM_COUNT; i++)
     {
         InstrumentType t = static_cast<InstrumentType>(i);
         setVolume(t, instMap[t].volume);
@@ -281,7 +282,7 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
     mFonts.push_back(f);
 
     // set to stream
-    for (int i=0; i<42; i++) {
+    for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
         HSTREAM h = handles[static_cast<InstrumentType>(i)];
         BASS_MIDI_StreamSetFonts(h, mFonts.data(), mFonts.size());
     }
@@ -289,7 +290,7 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
 
     // check drum sf
     int li = 0;
-    for (int i=26; i<42; i++) {
+    for (int i=26; i<HANDLE_MIDI_COUNT; i++) {
 
         BASS_MIDI_FONT font;
         font.font = synth_HSOUNDFONT.at(drumSf.at(li));
@@ -428,7 +429,7 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
             return;
         BYTE data[3] = { (0xB0 | ch), (number & 0x7F), (value & 0x7F) };
         //qDebug() << (data[0] & 0xF0) << "  " << (data[0] & 0x0F) << "  " << data[1] << "  " << data[2];
-        for (int i=0; i<42; i++) {
+        for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_MIDI_StreamEvents(h, BASS_MIDI_EVENTS_RAW, data, 3);
         }
@@ -505,7 +506,7 @@ bool MidiSynthesizer::isSolo(InstrumentType t)
 
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
 {
-    if (static_cast<int>(t) > 41)
+    if (static_cast<int>(t) >= HANDLE_MIDI_COUNT)
         return;
 
     instMap[t].bus = group;
@@ -518,7 +519,7 @@ void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
     if (group == -1) {
         BASS_Mixer_StreamAddChannel(mixHandle, handles[t], 0);
     } else {
-        InstrumentType toType = static_cast<InstrumentType>(group + 42);
+        InstrumentType toType = static_cast<InstrumentType>(group + HANDLE_MIDI_COUNT);
         BASS_Mixer_StreamAddChannel(handles[toType], handles[t], 0);
     }
 }
@@ -581,24 +582,6 @@ void MidiSynthesizer::setSolo(InstrumentType t, bool s)
         else
             BASS_ChannelSetAttribute(handles[itr.type], BASS_ATTRIB_VOL, 0.0f);
     }
-
-    /*
-    for (const auto &im : instMap) {
-
-        Instrument i = im.second;
-        //if (i.enable)
-        //    continue;
-
-        for (const int &ch : getChannelsFromType(i.type))
-        {
-            if (i.enable)
-                BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, instMap[i.type].mixlevel);
-            else
-                BASS_MIDI_StreamEvent(stream, ch, MIDI_EVENT_MIXLEVEL, 0);
-        }
-
-    }
-    */
 }
 
 std::vector<std::string> MidiSynthesizer::audioDevices()
@@ -658,12 +641,12 @@ void MidiSynthesizer::setUseFXRC(bool use)
     useFX = use;
 
     if (useFX) {
-        for (int i=0; i<42; i++) {
+        for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_ChannelFlags(h, 0, BASS_MIDI_NOFX); // remove the flag
         }
     } else {
-        for (int i=0; i<42; i++) {
+        for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_ChannelFlags(h, BASS_MIDI_NOFX, BASS_MIDI_NOFX); // set flag
         }
@@ -787,9 +770,51 @@ QList<QList<float> > MidiSynthesizer::fxParams(InstrumentType type)
     return params;
 }
 
+DWORD MidiSynthesizer::getSpeakerFlag(SpeakerType Speaker)
+{
+    switch (Speaker)
+    {
+    case SpeakerType::SpeakerDefault:
+        return 0;
+
+    case SpeakerType::SpeakerFrontStereo:
+        return BASS_SPEAKER_FRONT;
+    case SpeakerType::SpeakerFrontLeft:
+        return BASS_SPEAKER_FRONTLEFT;
+    case SpeakerType::SpeakerFrontRight:
+        return BASS_SPEAKER_FRONTRIGHT;
+
+    case SpeakerType::SpeakerRearStereo:
+        return BASS_SPEAKER_REAR;
+    case SpeakerType::SpeakerRearLeft:
+        return BASS_SPEAKER_REARLEFT;
+    case SpeakerType::SpeakerRearRight:
+        return BASS_SPEAKER_REARRIGHT;
+
+    case SpeakerType::SpeakerCenterStereo:
+        return BASS_SPEAKER_CENLFE;
+    case SpeakerType::SpeakerCenterMono:
+        return BASS_SPEAKER_CENTER;
+    case SpeakerType::SpeakerSubwooferMono:
+        return BASS_SPEAKER_LFE;
+
+    case SpeakerType::SpeakerSideStereo:
+        return BASS_SPEAKER_REAR2;
+    case SpeakerType::SpeakerSideLeft:
+        return BASS_SPEAKER_REAR2LEFT;
+    case SpeakerType::SpeakerSideRight:
+        return BASS_SPEAKER_REAR2RIGHT;
+    }
+}
+
+void MidiSynthesizer::setSpeaker(InstrumentType type, int device, SpeakerType Speaker)
+{
+
+}
+
 void MidiSynthesizer::sendToAllMidiStream(int ch, DWORD eventType, DWORD param)
 {
-    for (int i=0; i<42; i++) {
+    for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
         HSTREAM stream = handles[static_cast<InstrumentType>(i)];
         BASS_MIDI_StreamEvent(stream, ch, eventType, param);
     }
@@ -828,7 +853,7 @@ void MidiSynthesizer::setSfToStream()
         font.preset = -1;
         font.bank = 0;
 
-        for (int i=0; i<42; i++) {
+        for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
             BASS_MIDI_StreamSetFonts(h, &font, 1); // set to stream to
         }
