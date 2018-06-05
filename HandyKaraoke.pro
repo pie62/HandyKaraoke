@@ -70,7 +70,8 @@ SOURCES += main.cpp\
     FXDialogs/AutoWahFXDialog.cpp \
     FXDialogs/CompressorFXDialog.cpp \
     FXDialogs/DistortionFXDialog.cpp \
-    FXDialogs/EchoFXDialog.cpp
+    FXDialogs/EchoFXDialog.cpp \
+    Widgets/PlaylistWidget.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -133,7 +134,8 @@ HEADERS  += MainWindow.h \
     FXDialogs/CompressorFXDialog.h \
     FXDialogs/DistortionFXDialog.h \
     FXDialogs/EchoFXDialog.h \
-    Config.h
+    Config.h \
+    Widgets/PlaylistWidget.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -161,7 +163,8 @@ FORMS    += MainWindow.ui \
     FXDialogs/AutoWahFXDialog.ui \
     FXDialogs/CompressorFXDialog.ui \
     FXDialogs/DistortionFXDialog.ui \
-    FXDialogs/EchoFXDialog.ui
+    FXDialogs/EchoFXDialog.ui \
+    Widgets/PlaylistWidget.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

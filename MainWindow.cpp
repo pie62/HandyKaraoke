@@ -395,12 +395,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
         ui->detail->hide();
         ui->frameSearch->hide();
-        ui->framePlaylist->hide();
+        ui->playlistWidget->hide();
         ui->songDetail->hide();
         ui->sliderVolume->setValue(player->volume());
 
-        ui->framePlaylist->setMinimumHeight(243);
-        ui->framePlaylist->setMaximumHeight(243);
+        // 249
+        ui->playlistWidget->setMinimumHeight(305);
+        ui->playlistWidget->setMaximumHeight(305);
 
         { // Playback control
             ui->btnPlay->setIconFiles(":/Icons/play-white", ":/Icons/play-blue");
@@ -443,8 +444,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(db, SIGNAL(updatePositionChanged(int)), this, SLOT(onDbUpdateChanged(int)));
 
         connect(timer1, SIGNAL(timeout()), this, SLOT(showCurrentTime()));
-        //connect(timer2, SIGNAL(timeout()), ui->frameSearch, SLOT(hide()));
-        //connect(timer2, SIGNAL(timeout()), ui->framePlaylist, SLOT(hide()));
         connect(timer2, SIGNAL(timeout()), this, SLOT(hideUIFrame()));
 
         connect(positionTimer, SIGNAL(timeout()), this, SLOT(onPositiomTimerTimeOut()));
@@ -611,7 +610,7 @@ void MainWindow::play(int index)
     if (remove_playlist) {
         delete s; // delete playlist in "index"
         playlist.removeAt(index);
-        delete ui->playlist->takeItem(index);
+        ui->playlistWidget->removeRow(index);
         playingIndex = -1;
     }
 
@@ -694,7 +693,7 @@ void MainWindow::play(int index)
     ui->rhmWidget->setBeat(MidiPlayer::CalculateBeats(player->midiFile()), player->beatCount());
 
     ui->frameSearch->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
     ui->chMix->hide();
     ui->expandChMix->hide();
 
@@ -836,14 +835,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 {
                     preSetTranspose(db->currentSong()->transpose() + 1);
                 }
-                else if (ui->framePlaylist->isVisible())
+                else if (ui->playlistWidget->isVisible())
                 {
-                    int i = ui->playlist->currentRow();
+                    int i = ui->playlistWidget->currentRow();
                     if (i < 0)
                         break;
                     Song *s = playlist[i];
                     s->setTranspose(s->transpose() + 1);
-                    ui->playlist->item(i)->setText(s->detail());
+                    ui->playlistWidget->updateDetail(i, s);
                     timer2->start(playlist_timeout);
                 }
                 else
@@ -856,14 +855,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 {
                     preSetTranspose(db->currentSong()->transpose() - 1);
                 }
-                else if (ui->framePlaylist->isVisible())
+                else if (ui->playlistWidget->isVisible())
                 {
-                    int i = ui->playlist->currentRow();
+                    int i = ui->playlistWidget->currentRow();
                     if (i < 0)
                         break;
                     Song *s = playlist[i];
                     s->setTranspose(s->transpose() - 1);
-                    ui->playlist->item(i)->setText(s->detail());
+                    ui->playlistWidget->updateDetail(i, s);
                     timer2->start(playlist_timeout);
                 }
                 else
@@ -876,14 +875,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 {
                     preSetBpmSpeed(db->currentSong()->bpmSpeed() + 1);
                 }
-                else if (ui->framePlaylist->isVisible())
+                else if (ui->playlistWidget->isVisible())
                 {
-                    int i = ui->playlist->currentRow();
+                    int i = ui->playlistWidget->currentRow();
                     if (i < 0)
                         break;
                     Song *s = playlist[i];
                     s->setBpmSpeed(s->bpmSpeed() + 1);
-                    ui->playlist->item(i)->setText(s->detail());
+                    ui->playlistWidget->updateDetail(i, s);
                     timer2->start(playlist_timeout);
                 }
                 break;
@@ -892,14 +891,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 {
                     preSetBpmSpeed(db->currentSong()->bpmSpeed() - 1);
                 }
-                else if (ui->framePlaylist->isVisible())
+                else if (ui->playlistWidget->isVisible())
                 {
-                    int i = ui->playlist->currentRow();
+                    int i = ui->playlistWidget->currentRow();
                     if (i < 0)
                         break;
                     Song *s = playlist[i];
                     s->setBpmSpeed(s->bpmSpeed() - 1);
-                    ui->playlist->item(i)->setText(s->detail());
+                    ui->playlistWidget->updateDetail(i, s);
                     timer2->start(playlist_timeout);
                 }
                 break;
@@ -912,28 +911,26 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 }
                 break;
             case Qt::Key_Equal:
-                if (ui->playlist->isVisible()) {
-                    int i = ui->playlist->currentRow();
-                    if (i >= ui->playlist->count() -1)
+                if (ui->playlistWidget->isVisible()) {
+                    int i = ui->playlistWidget->currentRow();
+                    if (i >= ui->playlistWidget->rowCount() -1)
                         break;
 
                     playlist.swap(i, i+1);
-                    QListWidgetItem *item = ui->playlist->takeItem(i);
-                    ui->playlist->insertItem(i+1, item);
-                    ui->playlist->setCurrentRow(i+1);
+                    ui->playlistWidget->swapRow(i, i+1);
+                    ui->playlistWidget->setCurrentRow(i+1);
                     timer2->start(playlist_timeout);
                 }
                 break;
             case Qt::Key_Minus:
-                if (ui->playlist->isVisible()) {
-                    int i = ui->playlist->currentRow();
+                if (ui->playlistWidget->isVisible()) {
+                    int i = ui->playlistWidget->currentRow();
                     if (i == 0)
                         break;
 
                     playlist.swap(i, i-1);
-                    QListWidgetItem *item = ui->playlist->takeItem(i);
-                    ui->playlist->insertItem(i-1, item);
-                    ui->playlist->setCurrentRow(i-1);
+                    ui->playlistWidget->swapRow(i, i-1);
+                    ui->playlistWidget->setCurrentRow(i-1);
                     timer2->start(playlist_timeout);
                 }
                 break;
@@ -999,14 +996,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             preSetTranspose(db->currentSong()->transpose() - 1);
             break;
         }
-        if (ui->framePlaylist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i<0)
                 break;
             delete playlist.at(i);
             playlist.removeAt(i);
-            delete ui->playlist->takeItem(i);
-            showFramePlaylist();
+            ui->playlistWidget->removeRow(i);
+            showPlaylist();
             timer2->start(playlist_timeout);
             break;
         }
@@ -1029,13 +1026,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_PageUp:
         if (ui->frameSearch->isVisible()) {
             preSetBpmSpeed(db->currentSong()->bpmSpeed() + 1);
-        } else if (ui->framePlaylist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        } else if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i < 0)
                 break;
             Song *s = playlist[i];
             s->setBpmSpeed(s->bpmSpeed() + 1);
-            ui->playlist->item(i)->setText(s->detail());
+            ui->playlistWidget->updateDetail(i, s);
             timer2->start(playlist_timeout);
         } else {
             addBpmSpeed(1);
@@ -1044,13 +1041,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_PageDown:
         if (ui->frameSearch->isVisible()) {
             preSetBpmSpeed(db->currentSong()->bpmSpeed() - 1);
-        } else if (ui->framePlaylist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        } else if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i < 0)
                 break;
             Song *s = playlist[i];
             s->setBpmSpeed(s->bpmSpeed() - 1);
-            ui->playlist->item(i)->setText(s->detail());
+            ui->playlistWidget->updateDetail(i, s);
             timer2->start(playlist_timeout);
         } else {
             addBpmSpeed(-1);
@@ -1069,32 +1066,30 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_Up:
-        if (ui->framePlaylist->isVisible()) {
-            if (ui->playlist->currentRow() > 0 )
-                ui->playlist->setCurrentRow( ui->playlist->currentRow() - 1 );
+        if (ui->playlistWidget->isVisible()) {
+            if (ui->playlistWidget->currentRow() > 0 )
+                ui->playlistWidget->setCurrentRow( ui->playlistWidget->currentRow() - 1 );
             timer2->start(playlist_timeout);
         } else {
             ui->frameSearch->hide();
-            if (ui->playlist->currentRow() == -1)
-                ui->playlist->setCurrentRow(0);
-            showFramePlaylist();
+            if (ui->playlistWidget->currentRow() == -1)
+                ui->playlistWidget->setCurrentRow(0);
+            showPlaylist();
             ui->chMix->hide();
             ui->expandChMix->hide();
             timer2->start(playlist_timeout);
         }
         break;
     case Qt::Key_Down:
-        if (ui->framePlaylist->isVisible()) {
-            if (ui->playlist->currentRow() < ui->playlist->count() - 1 )
-                ui->playlist->setCurrentRow( ui->playlist->currentRow() + 1 );
+        if (ui->playlistWidget->isVisible()) {
+            if (ui->playlistWidget->currentRow() < ui->playlistWidget->rowCount() - 1 )
+                ui->playlistWidget->setCurrentRow( ui->playlistWidget->currentRow() + 1 );
             timer2->start(playlist_timeout);
         } else {
             ui->frameSearch->hide();
-            if (playingIndex == -1)
-                ui->playlist->setCurrentRow(0);
-            else
-                ui->playlist->setCurrentRow(playingIndex);
-            showFramePlaylist();
+            if (ui->playlistWidget->currentRow() == -1)
+                ui->playlistWidget->setCurrentRow(0);
+            showPlaylist();
             ui->chMix->hide();
             ui->expandChMix->hide();
             timer2->start(playlist_timeout);
@@ -1112,7 +1107,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             searchBoxChangeBpm = false;
             db->currentSong()->setBpmSpeed(0);
             db->currentSong()->setTranspose(0);
-            ui->framePlaylist->hide();
+            ui->playlistWidget->hide();
             if (ui->lbId->text() == "")
                 setFrameSearch( db->search("") );
             ui->lbSearch->setText("_");
@@ -1134,7 +1129,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             searchBoxChangeBpm = false;
             db->currentSong()->setBpmSpeed(0);
             db->currentSong()->setTranspose(0);
-            ui->framePlaylist->hide();
+            ui->playlistWidget->hide();
             if (ui->lbId->text() == "")
                 setFrameSearch( db->search("") );
             ui->lbSearch->setText("_");
@@ -1169,15 +1164,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Return:
         if (ui->frameSearch->isVisible()) {
             Song *s = db->currentSong();
-            ui->playlist->addItem(s->detail());
-            QSize size;
-            size.setHeight(57);
-            ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
+            ui->playlistWidget->addSong(s);
 
-            // Test
-            Song *sToAdd = new Song();
-            *sToAdd = *s;
-            playlist.append(sToAdd);
+            Song *songToAdd = new Song();
+            *songToAdd = *s;
+            playlist.append(songToAdd);
 
             if (auto_playnext && playlist.count() == 1 && player->isPlayerStopped()) {
                 play(0);
@@ -1185,9 +1176,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 hideUIFrame();
             }
         }
-        if (ui->framePlaylist->isVisible() && ui->playlist->count() > 0) {
-            ui->framePlaylist->hide();
-            play(ui->playlist->currentRow());
+        if (ui->playlistWidget->isVisible() && ui->playlistWidget->rowCount() > 0) {
+            ui->playlistWidget->hide();
+            play(ui->playlistWidget->currentRow());
         }
         break;
     case Qt::Key_Space:
@@ -1197,28 +1188,26 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             break;
         }
     case Qt::Key_Plus:
-        if (ui->playlist->isVisible()) {
-            int i = ui->playlist->currentRow();
-            if (i >= ui->playlist->count() -1)
+        if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
+            if (i >= ui->playlistWidget->rowCount() -1)
                 break;
 
             playlist.swap(i, i+1);
-            QListWidgetItem *item = ui->playlist->takeItem(i);
-            ui->playlist->insertItem(i+1, item);
-            ui->playlist->setCurrentRow(i+1);
+            ui->playlistWidget->swapRow(i, i+1);
+            ui->playlistWidget->setCurrentRow(i+1);
             timer2->start(playlist_timeout);
             break;
         }
     case Qt::Key_Minus:
-        if (ui->playlist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i == 0)
                 break;
 
             playlist.swap(i, i-1);
-            QListWidgetItem *item = ui->playlist->takeItem(i);
-            ui->playlist->insertItem(i-1, item);
-            ui->playlist->setCurrentRow(i-1);
+            ui->playlistWidget->swapRow(i, i-1);
+            ui->playlistWidget->setCurrentRow(i-1);
             timer2->start(playlist_timeout);
             break;
         }
@@ -1258,19 +1247,19 @@ void MainWindow::showFrameSearch()
     ui->chMix->hide();
     ui->expandChMix->hide();
     ui->songDetail->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
 
     ui->frameSearch->show();
 }
 
-void MainWindow::showFramePlaylist()
+void MainWindow::showPlaylist()
 {
     ui->chMix->hide();
     ui->expandChMix->hide();
     ui->songDetail->hide();
     ui->frameSearch->hide();
 
-    ui->framePlaylist->show();
+    ui->playlistWidget->show();
 }
 
 void MainWindow::showSongDetail()
@@ -1278,7 +1267,7 @@ void MainWindow::showSongDetail()
     ui->chMix->hide();
     ui->expandChMix->hide();
     ui->frameSearch->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
 
     ui->songDetail->show();
 }
@@ -1286,7 +1275,7 @@ void MainWindow::showSongDetail()
 
 void MainWindow::showChMix()
 {
-    if (ui->framePlaylist->isVisible()
+    if (ui->playlistWidget->isVisible()
             || ui->frameSearch->isVisible()
             || ui->songDetail->isVisible())
     {
@@ -1322,7 +1311,7 @@ void MainWindow::onChMixLockChanged(bool lock)
 void MainWindow::hideUIFrame()
 {
     ui->frameSearch->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
     ui->songDetail->hide();
 
     if (ui->chMix->isLock()) {

@@ -34,6 +34,7 @@ public:
     void setPath        (const QString &path)   { sPath = path; }
 
     QString detail();
+    QString detailWithoutIDType();
 
 signals:
 

@@ -123,7 +123,7 @@ private:
 
 private slots:
     void showFrameSearch();
-    void showFramePlaylist();
+    void showPlaylist();
     void showSongDetail();
     void showChMix();
     void onChMixMouseLeaved();
