@@ -17,6 +17,7 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QDirIterator>
+#include <QFileDialog>
 #include <QWindow>
 
 #include <QDebug>
@@ -1715,4 +1716,15 @@ void MainWindow::sendDrumPads(QKeyEvent *key, bool noteOn)
         default:
             break;
     }
+}
+
+void MainWindow::savePlaylist()
+{
+    //QFileDialog::getSaveFileName(this, tr("บันทึกรายการเล่น"),
+    //                             )
+}
+
+void MainWindow::loadPlaylist()
+{
+
 }

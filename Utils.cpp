@@ -116,4 +116,11 @@ bool Utils::vstInfo(const QString &vstPath, VSTNamePath *info)
     return true;
 }
 
+bool Utils::savePlaylist(const QString &filePath, const QList<Song *> &songs)
+{
+    //QString ss = QFileInfo(filePath).
+
+    return true;
+}
+
 QString Utils::LAST_OPEN_DIR = QDir::homePath();

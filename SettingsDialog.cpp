@@ -408,7 +408,7 @@ void SettingsDialog::on_btnBgImg_clicked()
         if (mainWin->secondMonitorDlg() != nullptr)
             mainWin->secondMonitorDlg()->setBackgroundImage(f);
 
-        Utils::LAST_OPEN_DIR = QDir().absoluteFilePath(f);
+        Utils::LAST_OPEN_DIR = QFileInfo(f).dir().absolutePath();//QDir().absoluteFilePath(f);
     }
 }
 
@@ -954,7 +954,7 @@ void SettingsDialog::on_btnSfAdd_clicked()
 
     if (sfFiles.count() > 0)
     {
-        Utils::LAST_OPEN_DIR = QDir().absoluteFilePath(sfFiles[0]);
+        Utils::LAST_OPEN_DIR = QFileInfo(sfFiles[0]).dir().absolutePath();//QDir().absoluteFilePath(sfFiles[0]);
     }
 
     for (const QString &sf : sfFiles) {

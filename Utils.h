@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <QFile>
+#include "Song.h"
 #include "Midi/MidiSynthesizer.h"
 
 #ifdef _WIN32
@@ -23,6 +24,8 @@ public:
     static uint concurentThreadsSupported();
 
     static bool vstInfo(const QString &vstPath, VSTNamePath *info);
+
+    static bool savePlaylist(const QString &filePath, const QList<Song*> &songs);
 
     static QString LAST_OPEN_DIR;
 };

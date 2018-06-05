@@ -95,19 +95,19 @@ void registerMetaType()
 {
     qRegisterMetaType<InstrumentType>("InstrumentType");
 
-    qRegisterMetaType<QList<int>>("QList<int>");
+    //<QList<int>>("QList<int>");
     qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 
-    qRegisterMetaType<QList<uint>>("QList<uint>");
+    //qRegisterMetaType<QList<uint>>("QList<uint>");
     qRegisterMetaTypeStreamOperators<QList<uint>>("QList<uint>");
 
-    qRegisterMetaType<QList<float>>("QList<float>");
+    //qRegisterMetaType<QList<float>>("QList<float>");
     qRegisterMetaTypeStreamOperators<QList<float>>("QList<float>");
 
-    qRegisterMetaType<QList<bool>>("QList<bool>");
+    //qRegisterMetaType<QList<bool>>("QList<bool>");
     qRegisterMetaTypeStreamOperators<QList<bool>>("QList<bool>");
 
-    qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
+    //qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
     qRegisterMetaTypeStreamOperators<QList<QList<float>>>("QList<QList<float>>");
 }
 

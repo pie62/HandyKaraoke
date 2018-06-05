@@ -55,6 +55,7 @@ public:
     void setBackgroundColor(const QString &colorName);
     void setBackgroundImage(const QString &img);
 
+
     // Synth Mixer
     SynthMixerDialog* synthMixerDialog() { return synthMix; }
     // Synth effect dialog
@@ -166,6 +167,9 @@ private slots:
     void preSetTranspose(int transpose);
 
     void sendDrumPads(QKeyEvent *key, bool noteOn);
+
+    void savePlaylist();
+    void loadPlaylist();
 };
 
 #endif // MAINWINDOW_H
