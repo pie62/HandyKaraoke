@@ -58,6 +58,9 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>23</number>
+         </attribute>
          <column>
           <property name="text">
            <string>ชิ้นดนตรี้</string>
@@ -85,6 +88,9 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>23</number>
+         </attribute>
          <column>
           <property name="text">
            <string>ชื่อเต็ม</string>
