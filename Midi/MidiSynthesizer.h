@@ -48,7 +48,7 @@ public:
     QStringList soundfontFiles() { return sfFiles; }
 
     bool open();
-    void close();
+    void close(bool freeSF = true);
 
     int outPutDevice();
     bool setOutputDevice(int dv);
@@ -58,6 +58,7 @@ public:
 
     float soundfontVolume(int sfIndex);
     void setSoundfontVolume(int sfIndex, float sfvl);
+    void compactSoundfont();
 
     // std::vector<int> size 129
     //      1-128 all intrument
@@ -159,6 +160,7 @@ private:
     int outDev = 1;
     bool useFloat = true;
     bool useFX = false;
+    bool sfLoaded = false;
 
     DWORD RPNType = 0;
 

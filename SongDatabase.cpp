@@ -50,13 +50,6 @@ SongDatabase::SongDatabase()
     db.open();
 
     this->checkAddNoCaseIndex();
-
-    { // pre select
-        QSqlQuery q;
-        q.exec("SELECT * FROM songs WHERE name LIKE the% LIMIT 1;");
-        q.finish();
-        q.clear();
-    }
 }
 
 SongDatabase::~SongDatabase()
@@ -588,10 +581,12 @@ void SongDatabase::createIndex()
         query.finish();
         query.clear();
 
+        /*
         sql = "CREATE INDEX compound_nocase_idx ON songs(id COLLATE NOCASE, name COLLATE NOCASE, artist COLLATE NOCASE); ";
         query.exec(sql);
         query.finish();
         query.clear();
+        */
     }
 }
 
@@ -638,10 +633,12 @@ void SongDatabase::dropIndex()
         q.finish();
         q.clear();
 
+        /*
         sql = "DROP INDEX compound_nocase_idx; ";
         q.exec(sql);
         q.finish();
         q.clear();
+        */
     }
 }
 
@@ -682,10 +679,12 @@ void SongDatabase::checkAddNoCaseIndex()
         q.clear();
     }
 
+    /*
     if (indexNames.indexOf("compound_nocase_idx") == -1)
     {
         q.exec("CREATE INDEX compound_nocase_idx ON songs(id COLLATE NOCASE, name COLLATE NOCASE, artist COLLATE NOCASE); ");
         q.finish();
         q.clear();
     }
+    */
 }

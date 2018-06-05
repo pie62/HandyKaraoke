@@ -638,7 +638,7 @@ void SettingsDialog::onSliderBufferValueChanged(int value)
         mainWin->stop();
 
     if (synth->isOpened()) {
-        synth->close();
+        synth->close(false);
         BASS_SetConfig(BASS_CONFIG_BUFFER, value);
         synth->open();
     } else {

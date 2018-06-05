@@ -296,6 +296,9 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
         _midiChannels[i].setInstrumentType(InstrumentType::Piano);
     }
     _midiChannels[9].setInstrumentType(InstrumentType::PercussionEtc);
+
+    _midiSynth->compactSoundfont();
+
     emit loaded();
 
     return true;
@@ -811,6 +814,7 @@ void MidiPlayer::calculateUsedPort()
         if (p == -1)
             usedSynth = true;
     }
+
     // remove port not used
     if (!usedSynth) {
         _midiSynth->close();

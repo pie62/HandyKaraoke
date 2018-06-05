@@ -27,7 +27,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     // Init BASS
-    BASS_Init(-1, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
+    for (int i=0; i<MidiSynthesizer::audioDevices().size(); i++)
+    {
+        BASS_Init(i, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
+    }
+
+    BASS_SetDevice(1);
     BASS_FX_GetVersion();
 
     auto concurentThreadsSupported = Utils::concurentThreadsSupported();
@@ -124,13 +129,13 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
 
-        int w     = settings->value("WindowWidth", this->minimumWidth()).toInt();
-        int h     = settings->value("WindowHeight", this->minimumHeight()).toInt();
-        bool max  = settings->value("WindowMaximized", false).toBool();
-        bool full = settings->value("WindowFullScreen", false).toBool();
+        int w       = settings->value("WindowWidth", this->minimumWidth()).toInt();
+        int h       = settings->value("WindowHeight", this->minimumHeight()).toInt();
+        bool maximum= settings->value("WindowMaximized", false).toBool();
+        bool full   = settings->value("WindowFullScreen", false).toBool();
 
         this->resize(w, h);
-        if (max) {
+        if (maximum) {
             this->showMaximized();
         } else {
             if (full) {
@@ -234,7 +239,6 @@ MainWindow::MainWindow(QWidget *parent) :
         settings->endArray();
 
         synth->setMapSoundfontIndex(sfMap, sfDrumMap);
-
 
         // Synth EQ
         Equalizer31BandFX *eq = synth->equalizer31BandFX();

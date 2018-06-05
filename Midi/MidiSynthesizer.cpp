@@ -8,7 +8,8 @@
 #include "BASSFX/VSTFX.h"
 
 #include <cstring>
-#include <iostream>
+
+#include <QDebug>
 
 
 MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
@@ -95,10 +96,9 @@ bool MidiSynthesizer::open()
     }
 
     // Create midi stream
-    for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
-
+    for (int i=0; i<HANDLE_MIDI_COUNT; i++)
+    {
         HSTREAM h = BASS_MIDI_StreamCreate(16, flags, 0);
-
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
 
         InstrumentType t = static_cast<InstrumentType>(i);
@@ -106,13 +106,15 @@ bool MidiSynthesizer::open()
     }
 
     // Create bus stream
-    for (int i=HANDLE_MIDI_COUNT; i<HANDLE_STREAM_COUNT; i++) {
+    for (int i=HANDLE_MIDI_COUNT; i<HANDLE_STREAM_COUNT; i++)
+    {
         HSTREAM h = BASS_Mixer_StreamCreate(44100, 2, f|BASS_STREAM_DECODE);
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
 
         InstrumentType t = static_cast<InstrumentType>(i);
         handles[t] = h;
     }
+
 
     // Check volume .. mute.. solo.. bus.. and VST
     for (int i=0; i<HANDLE_STREAM_COUNT; i++)
@@ -129,8 +131,6 @@ bool MidiSynthesizer::open()
             fx->setStreamHandle(handles[t]);
         }
     }
-
-    BASS_ChannelPlay(mixHandle, false);
 
     setSfToStream();
 
@@ -157,10 +157,12 @@ bool MidiSynthesizer::open()
     reverb->setStreamHandle(mixHandle);
     chorus->setStreamHandle(mixHandle);
 
+    BASS_ChannelPlay(mixHandle, false);
+
     return true;
 }
 
-void MidiSynthesizer::close()
+void MidiSynthesizer::close(bool freeSF)
 {
     if (!openned)
         return;
@@ -181,19 +183,23 @@ void MidiSynthesizer::close()
     for (InstrumentType t: handles.keys())
     {
         HSTREAM h = handles[t];
-        BASS_ChannelStop(h);
         BASS_StreamFree(h);
         handles[t] = 0;
     }
 
-    for (HSOUNDFONT f : synth_HSOUNDFONT) {
-        BASS_MIDI_FontUnload(f, -1, -1);
-        BASS_MIDI_FontFree(f);
+    // Clear soundfont
+    if (freeSF)
+    {
+        for (HSOUNDFONT f : synth_HSOUNDFONT)
+        {
+            BASS_MIDI_FontUnload(f, -1, -1);
+            BASS_MIDI_FontFree(f);
+        }
+        synth_HSOUNDFONT.clear();
+        sfLoaded = false;
     }
-    synth_HSOUNDFONT.clear();
 
     BASS_StreamFree(mixHandle);
-    //BASS_Free();
 
     openned = false;
 }
@@ -205,10 +211,28 @@ int MidiSynthesizer::outPutDevice()
 
 bool MidiSynthesizer::setOutputDevice(int dv)
 {
-    outDev = dv;
-
     if (openned)
-        return BASS_ChannelSetDevice(mixHandle, dv);
+    {
+        if (BASS_ChannelSetDevice(mixHandle, dv))
+        {
+            outDev = dv;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if (dv < audioDevices().size())
+        {
+            outDev = dv;
+            return true;
+        }
+        else
+            return false;
+    }
 }
 
 void MidiSynthesizer::setSoundFonts(QStringList &soundfonsFiles)
@@ -217,7 +241,10 @@ void MidiSynthesizer::setSoundFonts(QStringList &soundfonsFiles)
     this->sfFiles = soundfonsFiles;
 
     if (openned)
+    {
+        sfLoaded = false;
         setSfToStream();
+    }
 }
 
 void MidiSynthesizer::setVolume(float vol)
@@ -241,6 +268,11 @@ void MidiSynthesizer::setSoundfontVolume(int sfIndex, float sfvl)
         return;
 
     BASS_MIDI_FontSetVolume(synth_HSOUNDFONT[sfIndex], sfvl);
+}
+
+void MidiSynthesizer::compactSoundfont()
+{
+    BASS_MIDI_FontCompact(0);
 }
 
 bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<int> drumSfIndex)
@@ -456,7 +488,10 @@ void MidiSynthesizer::sendChannelAftertouch(int ch, int value)
 
 void MidiSynthesizer::sendPitchBend(int ch, int value)
 {
-    sendToAllMidiStream(ch, MIDI_EVENT_PITCH, value);
+    if (ch == 9)
+        sendToAllMidiStream(ch, MIDI_EVENT_CHANPRES, value);
+    else
+        BASS_MIDI_StreamEvent(handles[chInstType[ch]], ch, MIDI_EVENT_PITCH, value);
 }
 
 void MidiSynthesizer::sendAllNotesOff(int ch)
@@ -507,6 +542,9 @@ bool MidiSynthesizer::isSolo(InstrumentType t)
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
 {
     if (static_cast<int>(t) >= HANDLE_MIDI_COUNT)
+        return;
+
+    if (group == instMap[t].bus)
         return;
 
     instMap[t].bus = group;
@@ -627,7 +665,7 @@ void MidiSynthesizer::setUsetFloattingPoint(bool use)
     QList<int> isf = instmSf;
     QList<int> dsf = drumSf;
 
-    close();
+    close(false);
     open();
 
     setMapSoundfontIndex(isf, dsf);
@@ -822,30 +860,34 @@ void MidiSynthesizer::sendToAllMidiStream(int ch, DWORD eventType, DWORD param)
 
 void MidiSynthesizer::setSfToStream()
 {
-    for (HSOUNDFONT f : synth_HSOUNDFONT) {
-        //BASS_MIDI_FontUnload(f, -1, -1);
-        BASS_MIDI_FontFree(f);
+    if (!sfLoaded)
+    {
+        for (HSOUNDFONT f : synth_HSOUNDFONT) {
+            //BASS_MIDI_FontUnload(f, -1, -1);
+            BASS_MIDI_FontFree(f);
+        }
+        synth_HSOUNDFONT.clear();
+
+        for (const QString &sfile : sfFiles) {
+
+            #ifdef _WIN32
+            HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
+                                              BASS_MIDI_FONT_NOFX);
+            #else
+            HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdString().c_str(),
+                                              BASS_MIDI_FONT_NOFX);
+            #endif
+            if (!f)
+                continue;
+
+            //BASS_MIDI_FontLoad(f, -1, -1);
+            BASS_MIDI_FontCompact(f);
+            synth_HSOUNDFONT.push_back(f);
+        }
+
+        sfLoaded = true;
     }
-    synth_HSOUNDFONT.clear();
 
-    for (const QString &sfile : sfFiles) {
-
-        #ifdef _WIN32
-        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
-                                          BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
-        #else
-        HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdString().c_str(),
-                                          BASS_MIDI_FONT_MMAP|BASS_MIDI_FONT_NOFX);
-        #endif
-        if (!f)
-            continue;
-
-        //BASS_MIDI_FontLoad(f, -1, -1);
-        BASS_MIDI_FontCompact(f);
-        synth_HSOUNDFONT.push_back(f);
-    }
-
-    //BASS_MIDI_FontCompact(0);
 
     if (synth_HSOUNDFONT.size() > 0) {
         BASS_MIDI_FONT font;
