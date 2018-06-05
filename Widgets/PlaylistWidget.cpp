@@ -35,6 +35,17 @@ PlaylistWidget::~PlaylistWidget()
     delete ui;
 }
 
+void PlaylistWidget::setPlaylist(const QList<Song *> &songlist)
+{
+    for (int row=ui->tableWidget->rowCount()-1; row>=0; row--)
+        ui->tableWidget->removeRow(row);
+
+    for (Song* s : songlist)
+        addSong(s);
+
+    setCurrentRow(0);
+}
+
 void PlaylistWidget::addSong(Song *song)
 {
     int rowCount = ui->tableWidget->rowCount();

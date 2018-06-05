@@ -935,6 +935,24 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                     timer2->start(playlist_timeout);
                 }
                 break;
+            case Qt::Key_S:
+                if (ui->playlistWidget->isVisible())
+                {
+                    timer2->stop();
+                    savePlaylist();
+                    timer2->start(playlist_timeout);
+                }
+                break;
+            case Qt::Key_O:
+                if (ui->playlistWidget->isVisible())
+                {
+                    timer2->stop();
+                    loadPlaylist();
+                    timer2->start(playlist_timeout);
+                }
+                else
+                    this->sendDrumPads(event, true);
+                break;
             default:
                 this->sendDrumPads(event, true);
                 break;
@@ -1720,11 +1738,49 @@ void MainWindow::sendDrumPads(QKeyEvent *key, bool noteOn)
 
 void MainWindow::savePlaylist()
 {
-    //QFileDialog::getSaveFileName(this, tr("บันทึกรายการเล่น"),
-    //                             )
+    if (playlist.count() == 0)
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("บันทึกรายการเล่น"),
+                                                    Utils::LAST_OPEN_DIR,
+                                                    HANDY_PLAYLIST_FILTER_TEXT);
+
+    if (fileName == "")
+        return;
+
+    Utils::LAST_OPEN_DIR = QFileInfo(fileName).dir().absolutePath();
+
+    if (!Utils::savePlaylist(fileName, playlist))
+    {
+        QMessageBox::critical(this, tr("บันทึกรายการเล่นล้มเหลว"),
+                              tr("ไม่สามารถบันทึกรายการเล่นได้\nโปรดลองอีกครั้ง"));
+    }
 }
 
 void MainWindow::loadPlaylist()
 {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("เปิดรายการเล่น"),
+                                                    Utils::LAST_OPEN_DIR,
+                                                    HANDY_PLAYLIST_FILTER_TEXT);
 
+    if (fileName == "")
+        return;
+
+    Utils::LAST_OPEN_DIR = QFileInfo(fileName).dir().absolutePath();
+
+    QList<Song*> songs;
+    if (Utils::loadPlaylist(fileName, songs))
+    {
+        for (Song *s : playlist)
+            delete s;
+        playlist.clear();
+        playlist = songs;
+        ui->playlistWidget->setPlaylist(playlist);
+        playingIndex = -1;
+    }
+    else
+    {
+        QMessageBox::critical(this, tr("เปิดรายการเล่นล้มเหลว"),
+                              tr("ไม่สามารถเปิดรายการเล่นได้\nโปรดลองอีกครั้ง"));
+    }
 }

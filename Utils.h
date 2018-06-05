@@ -26,6 +26,7 @@ public:
     static bool vstInfo(const QString &vstPath, VSTNamePath *info);
 
     static bool savePlaylist(const QString &filePath, const QList<Song*> &songs);
+    static bool loadPlaylist(const QString &filePath, QList<Song*> &songs);
 
     static QString LAST_OPEN_DIR;
 };

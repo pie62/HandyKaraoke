@@ -17,6 +17,7 @@ public:
     explicit PlaylistWidget(QWidget *parent = 0);
     ~PlaylistWidget();
 
+    void setPlaylist(const QList<Song*> &songlist);
     void addSong(Song *song);
     void updateDetail(int row, Song *song);
 

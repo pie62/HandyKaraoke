@@ -32,9 +32,8 @@
    <item>
     <widget class="QFrame" name="framePlaylist">
      <property name="styleSheet">
-      <string notr="true">
-	border: 1px solid rgb(224, 224, 224);
-	background-color: rgba(66, 66, 66);
+      <string notr="true">border: 1px solid rgb(224, 224, 224);
+background-color: rgba(66, 66, 66);
 </string>
      </property>
      <property name="frameShape">
@@ -136,7 +135,7 @@ color: rgb(255, 244, 110);</string>
     color: rgb(238, 238, 238);
    	 border: none;
     background: rgb(97, 97, 97);
-    gridline-color: red;
+    gridline-color: rgb(140, 140, 140);
 }
 QTableView::item
 {
@@ -159,9 +158,6 @@ QTableView::item:selected {
         </property>
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <property name="showGrid">
-         <bool>false</bool>
         </property>
         <attribute name="horizontalHeaderVisible">
          <bool>false</bool>

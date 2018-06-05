@@ -118,9 +118,146 @@ bool Utils::vstInfo(const QString &vstPath, VSTNamePath *info)
 
 bool Utils::savePlaylist(const QString &filePath, const QList<Song *> &songs)
 {
-    //QString ss = QFileInfo(filePath).
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::WriteOnly|QIODevice::Truncate))
+        return false;
+
+    QTextStream out(&file);
+    out.setCodec("UTF-8");
+
+    out << HANDY_PLAYLIST_HEADTEXT << endl;
+    out << HANDY_PLAYLIST_VERSION_1 << endl;
+    out << HANDY_PLAYLIST_NAME + QFileInfo(filePath).baseName() << endl;
+    out << HANDY_PLAYLIST_COUNT + QString::number(songs.count()) << endl;
+
+    out << endl;
+
+    out << HANDY_PLAYLIST_SONGLIST << endl;
+
+    for (int i=0; i<songs.count(); i++)
+    {
+        Song *s = songs[i];
+        out << HANDY_PLAYLIST_SONG + QString::number(i+1) << endl;
+        out << s->id() << endl;
+        out << s->name() << endl;
+        out << s->artist() << endl;
+        out << s->key() << endl;
+        out << s->tempo() << endl;
+        out << s->bpmSpeed() << endl;
+        out << s->transpose() << endl;
+        out << s->songType() << endl;
+        out << s->lyrics() << endl;
+        out << s->path() << endl;
+        out << endl;
+    }
+
+    out << HANDY_PLAYLIST_END_SONGLIST;
+
+    file.close();
 
     return true;
+}
+
+bool Utils::loadPlaylist(const QString &filePath, QList<Song *> &songs)
+{
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QTextStream in(&file);
+    in.setCodec("UTF-8");
+
+    if (in.readLine() != HANDY_PLAYLIST_HEADTEXT)
+    {
+        file.close();
+        return false;
+    }
+
+    if (in.readLine().indexOf(HANDY_PLAYLIST_VERSION) != 0)
+    {
+        file.close();
+        return false;
+    }
+
+    if (in.readLine().indexOf(HANDY_PLAYLIST_NAME) != 0)
+    {
+        file.close();
+        return false;
+    }
+
+    QString countText = in.readLine();
+    if (countText.indexOf(HANDY_PLAYLIST_COUNT) != 0)
+    {
+        file.close();
+        return false;
+    }
+
+    int count = countText.replace(HANDY_PLAYLIST_COUNT, "").toInt();
+
+    in.readLine();
+
+    if (in.readLine() != HANDY_PLAYLIST_SONGLIST)
+    {
+        file.close();
+        return false;
+    }
+
+    bool valid = true;
+    QList<Song*> songList;
+
+    for (int i=0; i<count; i++)
+    {
+        QString songListText = in.readLine();
+        if (songListText.indexOf(HANDY_PLAYLIST_SONG) != 0)
+        {
+            valid = false;
+            break;
+        }
+        if (songListText.replace(HANDY_PLAYLIST_SONG, "").toInt() != (i+1))
+        {
+            valid = false;
+            break;
+        }
+
+        Song *s = new Song();
+        s->setId(in.readLine());
+        s->setName(in.readLine());
+        s->setArtist(in.readLine());
+        s->setKey(in.readLine());
+        s->setTempo(in.readLine().toInt());
+        s->setBpmSpeed(in.readLine().toInt());
+        s->setTranspose(in.readLine().toInt());
+        s->setSongType(in.readLine());
+        s->setLyrics(in.readLine());
+        s->setPath(in.readLine());
+
+        in.readLine();
+
+        songList.append(s);
+    }
+
+    if (valid && (in.readLine() != HANDY_PLAYLIST_END_SONGLIST))
+        valid = false;
+
+    file.close();
+
+    if (valid)
+    {
+        for (Song *s : songs)
+            delete s;
+        songs.clear();
+        songs = songList;
+        return true;
+    }
+    else
+    {
+        for (Song *s : songList)
+            delete s;
+        songList.clear();
+        return false;
+    }
 }
 
 QString Utils::LAST_OPEN_DIR = QDir::homePath();
