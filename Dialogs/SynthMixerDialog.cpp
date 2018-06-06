@@ -8,20 +8,24 @@
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
 
-#include "FXDialogs/AutoWahFXDialog.h".h"
+#include "FXDialogs/AutoWahFXDialog.h"
 #include "FXDialogs/ChorusFXDialog.h"
 #include "FXDialogs/CompressorFXDialog.h"
 #include "FXDialogs/DistortionFXDialog.h"
 #include "FXDialogs/EchoFXDialog.h"
 #include "FXDialogs/EQ15BandDialog.h"
 #include "FXDialogs/EQ31BandDialog.h"
-#include "FXDialogs/ReverbFXDialog.h".h"
+#include "FXDialogs/ReverbFXDialog.h"
 
-#ifndef __linux
+#include <bass.h>
+
+#ifndef __linux__
+#include <bass_vst.h>
 #include "Dialogs/VSTDirsDialog.h"
 #endif
 
 #include <QMenu>
+#include <QScrollBar>
 
 
 SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, MainWindow *mainWin) :
@@ -57,10 +61,13 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         resize(size);
 
         QList<int> splits; splits.append(700); splits.append(200);
-        QList<int> splitterSize = st.value(
-                    "SplitterSize", QVariant::fromValue(splits))
-                .value<QList<int>>();
+        QList<int> splitterSize = st.value("SplitterSize", QVariant::fromValue(splits)).value<QList<int>>();
+        int scroll1 = st.value("ScrollInstrument", 0).toInt();
+        int scroll2 = st.value("ScrollBusGroup", 0).toInt();
+
         ui->splitter->setSizes(splitterSize);
+        ui->scrollArea->horizontalScrollBar()->setValue(scroll1);
+        ui->scrollArea_2->horizontalScrollBar()->setValue(scroll2);
 
         // Bus names -----------------------------------
         QStringList n1 = st.value("BusNames", QStringList()).toStringList();
@@ -84,6 +91,26 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         QString f3 = st.value("LedColorOff3", vu->ledColorOff3().name()).toString();
         bool sph = st.value("ShowPeakHold", vu->isShowPeakHold()).toBool();
         int phm = st.value("PeakHoldMs", vu->peakHoldMs()).toInt();
+
+
+        st.beginReadArray("VSTiGroup");
+        for (int i=0; i<4; i++)
+        {
+            st.setArrayIndex(i);
+
+            QString      filePath    = st.value("VstiFilePath", "").toString();
+            int          program     = st.value("VstiPrograms", 0).toInt();
+            QList<float> params      = st.value("VstiParams").value<QList<float>>();
+
+            DWORD vsti = synth->setVSTiFile(i, filePath);
+
+            if (vsti != 0)
+            {
+                BASS_VST_SetProgram(vsti, program);
+                FX::setVSTParams(vsti, params);
+            }
+        }
+        st.endArray();
 
 
         st.beginReadArray("SynthMixer");
@@ -153,6 +180,8 @@ SynthMixerDialog::~SynthMixerDialog()
         QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
         st.setValue("Size", this->size());
         st.setValue("SplitterSize", QVariant::fromValue(ui->splitter->sizes()));
+        st.setValue("ScrollInstrument", ui->scrollArea->horizontalScrollBar()->value());
+        st.setValue("ScrollBusGroup", ui->scrollArea_2->horizontalScrollBar()->value());
 
         LEDVu *vu = chInstMap.first()->vuBar();
         st.setValue("LedColorOn1", vu->ledColorOn1().name());
@@ -163,6 +192,29 @@ SynthMixerDialog::~SynthMixerDialog()
         st.setValue("LedColorOff3", vu->ledColorOff3().name());
         st.setValue("ShowPeakHold", vu->isShowPeakHold());
         st.setValue("PeakHoldMs", vu->peakHoldMs());
+
+
+        st.beginWriteArray("VSTiGroup");
+        for (int i=0; i<4; i++)
+        {
+            st.setArrayIndex(i);
+
+            DWORD vsti = synth->vstiHandle(i);
+
+            if (vsti == 0)
+            {
+                st.setValue("VstiFilePath", "");
+                st.setValue("VstiPrograms", 0);
+                st.setValue("VstiParams", QVariant::fromValue(QList<float>()));
+            }
+            else
+            {
+                st.setValue("VstiFilePath", synth->vstiFile(i));
+                st.setValue("VstiPrograms", BASS_VST_GetProgram(vsti));
+                st.setValue("VstiParams", QVariant::fromValue(FX::getVSTParams(vsti)));
+            }
+        }
+        st.endArray();
 
 
         QStringList busNames;
@@ -272,6 +324,11 @@ void SynthMixerDialog::setFXToSynth()
 
     }
     st.endArray();
+}
+
+InstCh *SynthMixerDialog::mixChannel(InstrumentType t)
+{
+    return chInstMap[t];
 }
 
 void SynthMixerDialog::setBtnEqIcon(bool s)
@@ -672,21 +729,18 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
             return;
 
         #ifndef __linux__
-        BASS_VST_INFO info;
-
-        if (BASS_VST_GetInfo(fx->fxHandle(), &info) && info.hasEditor)
+        if (fx->fxHandle() != 0)
         {
-            VSTDialog *dlg = new VSTDialog(this, fx->fxHandle());
-            connect(dlg, SIGNAL(closing(uint32_t)), this, SLOT(onVSTDialogClosing(uint32_t)));
-            QString name = info.effectName;
-            name += " - ";
-            name += info.vendorName;
-            dlg->setWindowTitle(name + "  [" + chInstMap[type]->fullInstrumentName() + "]");
-            dlg->setWindowFlags(dlg->windowFlags() & ~Qt::WindowContextHelpButtonHint);
+            VSTDialog *dlg = new VSTDialog(this, fx->fxHandle(), chInstMap[type]->fullInstrumentName());
+
+            if (!dlg->isCanOpen())
+            {
+                delete dlg;
+                return;
+            }
+
             dlg->setAttribute(Qt::WA_DeleteOnClose);
-            dlg->setFixedSize(info.editorWidth, info.editorHeight);
             dlg->show();
-            BASS_VST_EmbedEditor(fx->fxHandle(), (HWND)dlg->winId());
         }
         #endif
     }
@@ -731,13 +785,6 @@ void SynthMixerDialog::showFxDialog(InstrumentType type, int fxIndex)
             d->show();
         }
     }
-}
-
-void SynthMixerDialog::onVSTDialogClosing(uint32_t fx)
-{
-    #ifndef __linux__
-    BASS_VST_EmbedEditor(fx, NULL);
-    #endif
 }
 
 void SynthMixerDialog::showFXRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos)

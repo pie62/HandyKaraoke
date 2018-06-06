@@ -26,10 +26,16 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
     reverb = new ReverbFX(0);
     chorus = new ChorusFX(0);
 
-    vstHandles[0] = 0;
-    vstHandles[1] = 0;
-    vstHandles[2] = 0;
-    vstHandles[3] = 0;
+    mVstiFiles[0] = "";
+    mVstiFiles[1] = "";
+    mVstiFiles[2] = "";
+    mVstiFiles[3] = "";
+
+    BASS_VST_INFO vstinfo;
+    mVstiInfos[0] = vstinfo;
+    mVstiInfos[1] = vstinfo;
+    mVstiInfos[2] = vstinfo;
+    mVstiInfos[3] = vstinfo;
 
     // Map inst
     for (int i=0; i<HANDLE_STREAM_COUNT; i++)
@@ -108,7 +114,25 @@ bool MidiSynthesizer::open()
         if (i < HANDLE_MIDI_COUNT-4)
             h = BASS_MIDI_StreamCreate(16, flags, 0);
         else
-            h = vstHandles[i - (HANDLE_MIDI_COUNT-4)];
+        {
+            #ifdef __linux__
+            h = 0;
+            #else
+            int fIndex = i - (HANDLE_MIDI_COUNT-4);
+            if (mVstiFiles[fIndex] == "")
+                h = 0;
+            else
+            {
+                #ifdef _WIN32
+                h = BASS_VST_ChannelCreate(44100, 2, mVstiFiles[fIndex].toStdWString().c_str(),
+                                           f|BASS_STREAM_DECODE);
+                #else
+                h = BASS_VST_ChannelCreate(44100, 2, mVstiFiles[fIndex].toStdString().c_str(),
+                                           f|BASS_STREAM_DECODE);
+                #endif
+            }
+            #endif
+        }
 
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
 
@@ -177,6 +201,8 @@ void MidiSynthesizer::close(bool freeSF)
     if (!openned)
         return;
 
+    BASS_ChannelStop(mixHandle);
+
     // Clear FX
     for (InstrumentType t : instMap.keys())
     {
@@ -185,7 +211,6 @@ void MidiSynthesizer::close(bool freeSF)
         }
     }
 
-
     eq->setStreamHandle(0);
     reverb->setStreamHandle(0);
     chorus->setStreamHandle(0);
@@ -193,7 +218,13 @@ void MidiSynthesizer::close(bool freeSF)
     for (InstrumentType t: handles.keys())
     {
         HSTREAM h = handles[t];
-        BASS_StreamFree(h);
+
+        if (t==InstrumentType::VSTi1 || t==InstrumentType::VSTi2
+         || t==InstrumentType::VSTi3 || t==InstrumentType::VSTi4)
+            BASS_VST_ChannelFree(h);
+        else
+            BASS_StreamFree(h);
+
         handles[t] = 0;
     }
 
@@ -856,6 +887,109 @@ void MidiSynthesizer::setSpeaker(InstrumentType type, int device, SpeakerType Sp
 {
 
 }
+
+#ifndef __linux__
+
+BASS_VST_INFO MidiSynthesizer::vstiInfo(int vstiIndex)
+{
+    if (vstiIndex < 0 || vstiIndex > 3)
+        return BASS_VST_INFO();
+    else
+        return mVstiInfos[vstiIndex];
+}
+
+QStringList MidiSynthesizer::vstiFiles()
+{
+    return QStringList() << mVstiFiles[0] << mVstiFiles[1]
+            << mVstiFiles[2] << mVstiFiles[3];
+}
+
+QString MidiSynthesizer::vstiFile(int vstiIndex)
+{
+    if (vstiIndex < 0 || vstiIndex > 3)
+        return "";
+    else
+        return mVstiFiles[vstiIndex];
+}
+
+DWORD MidiSynthesizer::vstiHandle(int vstiIndex)
+{
+    InstrumentType t = static_cast<InstrumentType>(HANDLE_VSTI_START+vstiIndex);
+    return handles[t];
+}
+
+DWORD MidiSynthesizer::setVSTiFile(int vstiIndex, const QString &file)
+{
+    if (vstiIndex < 0 || vstiIndex > 3)
+        return 0;
+
+    InstrumentType t = static_cast<InstrumentType>(HANDLE_VSTI_START+vstiIndex);
+    DWORD vsti = handles[t];
+
+    if (file == mVstiFiles[vstiIndex])
+        return vsti;
+
+    mVstiFiles[vstiIndex] = file;
+
+    if (!openned)
+        return 0;
+
+    BASS_Mixer_ChannelRemove(vsti);
+    BASS_VST_ChannelFree(vsti);
+
+    DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
+    #ifdef _WIN32
+    vsti = BASS_VST_ChannelCreate(44100, 2,file.toStdWString().c_str(),
+                               f|BASS_UNICODE|BASS_STREAM_DECODE);
+    #else
+    h = BASS_VST_ChannelCreate(44100, 2, file.toStdString().c_str(),
+                               f|BASS_STREAM_DECODE);
+    #endif
+
+    if (vsti)
+    {
+        BASS_VST_INFO vstinfo;
+        BASS_VST_GetInfo(vsti, &vstinfo);
+        mVstiInfos[vstiIndex] = vstinfo;
+
+        BASS_Mixer_StreamAddChannel(mixHandle, vsti, 0);
+        handles[t] = vsti;
+
+        setVolume(t, instMap[t].volume);
+        setMute(t, instMap[t].mute);
+        setSolo(t, instMap[t].solo);
+        setBusGroup(t, instMap[t].bus);
+
+        // Set stream handle to FX
+        for (FX *fx : instMap[t].FXs)
+            fx->setStreamHandle(vsti);
+
+        return vsti;
+    }
+    else
+    {
+        handles[t] = 0;
+        return 0;
+    }
+}
+
+void MidiSynthesizer::removeVSTiFile(int vstiIndex)
+{
+    if (vstiIndex < 0 || vstiIndex > 3)
+        return ;
+
+    InstrumentType t = static_cast<InstrumentType>(HANDLE_VSTI_START+vstiIndex);
+    DWORD vsti = handles[t];
+
+    BASS_Mixer_ChannelRemove(vsti);
+    BASS_VST_ChannelFree(vsti);
+
+    handles[t] = 0;
+    mVstiFiles[vstiIndex] = "";
+    mVstiInfos[vstiIndex] = BASS_VST_INFO();
+}
+
+#endif
 
 void MidiSynthesizer::sendToAllMidiStream(int ch, DWORD eventType, DWORD param)
 {

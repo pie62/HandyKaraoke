@@ -127,9 +127,19 @@ public:
     static DWORD getSpeakerFlag(SpeakerType Speaker);
     void setSpeaker(InstrumentType type, int device, SpeakerType Speaker);
 
+    #ifndef __linux__
+    BASS_VST_INFO vstiInfo(int vstiIndex);
+    QStringList vstiFiles();
+    QString vstiFile(int vstiIndex);
+    DWORD vstiHandle(int vstiIndex);
+    DWORD setVSTiFile(int vstiIndex, const QString &file);
+    void removeVSTiFile(int vstiIndex);
+    #endif
+
     const int HANDLE_STREAM_COUNT = 62;
     const int HANDLE_MIDI_COUNT = 46;
     const int HANDLE_BUS_COUNT = 16;
+    const int HANDLE_VSTI_START = 42;
 
 signals:
     void noteOnSended(InstrumentType t, int bus, int ch, int note, int velocity);
@@ -143,7 +153,11 @@ private:
     QList<int> drumSf;
     QMap<InstrumentType, Instrument> instMap;
     InstrumentType chInstType[16];
-    DWORD vstHandles[4];
+
+    #ifndef __linux__
+    QString mVstiFiles[4];
+    BASS_VST_INFO mVstiInfos[4];
+    #endif
 
     // FX
     Equalizer31BandFX *eq;

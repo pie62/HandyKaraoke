@@ -28,6 +28,7 @@ public:
     void setVSTVendorMenu();
     #endif
     void setFXToSynth();
+    InstCh* mixChannel(InstrumentType t);
 
 private slots:
     void setBtnEqIcon(bool s);
@@ -47,7 +48,6 @@ private slots:
     FX* addFX(const QString &uidStr, bool bypass = false);
     void byPassFX(InstrumentType type, int fxIndex, bool bypass);
     void showFxDialog(InstrumentType type, int fxIndex);
-    void onVSTDialogClosing(uint32_t fx);
     void showFXRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos);
     void removeFX();
 
