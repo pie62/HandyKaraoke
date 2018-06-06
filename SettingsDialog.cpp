@@ -244,8 +244,8 @@ void SettingsDialog::initDeviceTab()
     int dfd = player->midiOutPortNumber();
 
 
-    for (std::string d : MidiPlayer::midiDevices()) {
-        ui->cbMidiOut->addItem(QString::fromStdString(d));
+    for (QString d : MidiPlayer::midiDevices()) {
+        ui->cbMidiOut->addItem(d);
     }
     ui->cbMidiOut->addItem("Midi Synthesizer (SoundFont)");
     if (dfd == -1)
@@ -256,8 +256,8 @@ void SettingsDialog::initDeviceTab()
 
     // Midi In device
     ui->cbMidiIn->addItem("None");
-    for (std::string deviceName : MidiPlayer::midiInDevices()) {
-        ui->cbMidiIn->addItem(QString::fromStdString(deviceName));
+    for (QString deviceName : MidiPlayer::midiInDevices()) {
+        ui->cbMidiIn->addItem(deviceName);
     }
     ui->cbMidiIn->setCurrentIndex(player->midiInPortNumber()+1);
 

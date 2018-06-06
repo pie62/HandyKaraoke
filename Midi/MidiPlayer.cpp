@@ -2,6 +2,11 @@
 
 #include <QtMath>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <mmsystem.h>
+#endif
+
 
 MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
 {
@@ -48,23 +53,49 @@ MidiPlayer::~MidiPlayer()
     delete _midiSynth;
 }
 
-std::vector<std::string> MidiPlayer::midiDevices()
+QStringList MidiPlayer::midiDevices()
 {
-    std::vector<std::string> outName;
+    QStringList outName;
+
+    #ifdef _WIN32
+    UINT outCount = midiOutGetNumDevs();
+    for (UINT i=0; i<outCount; i++)
+    {
+        MIDIOUTCAPS outCaps;
+        if (midiOutGetDevCaps(i, &outCaps, sizeof(MIDIOUTCAPS))  != MMSYSERR_NOERROR)
+            continue;
+        outName.append(QString::fromStdWString(outCaps.szPname));
+    }
+    #else
     MidiOut o;
     for (int i=0; i<o.getPortCount(); i++) {
-        outName.push_back(o.getPortName(i));
+        outName.append(QString::fromStdString(o.getPortName(i)));
     }
+    #endif
+
     return outName;
 }
 
-std::vector<std::string> MidiPlayer::midiInDevices()
+QStringList MidiPlayer::midiInDevices()
 {
-    std::vector<std::string> inName;
+    QStringList inName;
+
+    #ifdef _WIN32
+    UINT inCount = midiInGetNumDevs();
+    for (UINT i=0; i<inCount; i++)
+    {
+        MIDIINCAPS inCaps;
+        if (midiInGetDevCaps(i, &inCaps, sizeof(MIDIINCAPS))  != MMSYSERR_NOERROR)
+            continue;
+        inName.append(QString::fromStdWString(inCaps.szPname));
+    }
+    #else
     RtMidiIn in;
     for (int i=0; i<in.getPortCount(); i++) {
-        inName.push_back(in.getPortName(i));
+        inName.append(QString::fromStdString(in.getPortName(i)));
     }
+    #endif
+
     return inName;
 }
 
