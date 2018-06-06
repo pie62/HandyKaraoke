@@ -104,5 +104,6 @@
         <file>Icons/FXLabel/eq15.png</file>
         <file>Icons/FXLabel/eq31.png</file>
         <file>Icons/FXLabel/reverb.png</file>
+        <file>Icons/Instruments/vst.png</file>
     </qresource>
 </RCC>

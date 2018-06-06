@@ -79,6 +79,11 @@ enum class InstrumentType
     ThaiChap,
     PercussionEtc,
 
+    VSTi1,
+    VSTi2,
+    VSTi3,
+    VSTi4,
+
     BusGroup1,
     BusGroup2,
     BusGroup3,

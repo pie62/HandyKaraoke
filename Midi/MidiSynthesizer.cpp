@@ -26,6 +26,10 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
     reverb = new ReverbFX(0);
     chorus = new ChorusFX(0);
 
+    vstHandles[0] = 0;
+    vstHandles[1] = 0;
+    vstHandles[2] = 0;
+    vstHandles[3] = 0;
 
     // Map inst
     for (int i=0; i<HANDLE_STREAM_COUNT; i++)
@@ -98,10 +102,16 @@ bool MidiSynthesizer::open()
     // Create midi stream
     for (int i=0; i<HANDLE_MIDI_COUNT; i++)
     {
-        HSTREAM h = BASS_MIDI_StreamCreate(16, flags, 0);
+        InstrumentType t = static_cast<InstrumentType>(i);
+        DWORD h = 0;
+
+        if (i < HANDLE_MIDI_COUNT-4)
+            h = BASS_MIDI_StreamCreate(16, flags, 0);
+        else
+            h = vstHandles[i - (HANDLE_MIDI_COUNT-4)];
+
         BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
 
-        InstrumentType t = static_cast<InstrumentType>(i);
         handles[t] = h;
     }
 
@@ -314,7 +324,7 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
     mFonts.push_back(f);
 
     // set to stream
-    for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
+    for (int i=0; i<HANDLE_MIDI_COUNT-4; i++) {
         HSTREAM h = handles[static_cast<InstrumentType>(i)];
         BASS_MIDI_StreamSetFonts(h, mFonts.data(), mFonts.size());
     }
@@ -322,7 +332,7 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
 
     // check drum sf
     int li = 0;
-    for (int i=26; i<HANDLE_MIDI_COUNT; i++) {
+    for (int i=26; i<HANDLE_MIDI_COUNT-4; i++) {
 
         BASS_MIDI_FONT font;
         font.font = synth_HSOUNDFONT.at(drumSf.at(li));
@@ -542,9 +552,6 @@ bool MidiSynthesizer::isSolo(InstrumentType t)
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
 {
     if (static_cast<int>(t) >= HANDLE_MIDI_COUNT)
-        return;
-
-    if (group == instMap[t].bus)
         return;
 
     instMap[t].bus = group;

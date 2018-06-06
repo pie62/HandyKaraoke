@@ -210,8 +210,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>2436</width>
-         <height>282</height>
+         <width>2668</width>
+         <height>266</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -2037,60 +2037,6 @@
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QScrollArea" name="scrollArea_2">
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContents</enum>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents_2">
-       <property name="geometry">
-        <rect>
-         <x>-452</x>
-         <y>0</y>
-         <width>928</width>
-         <height>282</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
          <widget class="BackgroundChMx" name="frame_43">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -2098,7 +2044,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_43">
+          <layout class="QVBoxLayout" name="verticalLayout_66">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2141,7 +2087,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_44">
+          <layout class="QVBoxLayout" name="verticalLayout_67">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2184,7 +2130,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_45">
+          <layout class="QVBoxLayout" name="verticalLayout_68">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2227,7 +2173,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_46">
+          <layout class="QVBoxLayout" name="verticalLayout_69">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2263,6 +2209,60 @@
          </widget>
         </item>
         <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QScrollArea" name="scrollArea_2">
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>928</width>
+         <height>266</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
          <widget class="BackgroundChMx" name="frame_47">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -2270,7 +2270,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_47">
+          <layout class="QVBoxLayout" name="verticalLayout_43">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2313,7 +2313,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_48">
+          <layout class="QVBoxLayout" name="verticalLayout_44">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2356,7 +2356,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_49">
+          <layout class="QVBoxLayout" name="verticalLayout_45">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2399,7 +2399,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_50">
+          <layout class="QVBoxLayout" name="verticalLayout_46">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2442,7 +2442,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_51">
+          <layout class="QVBoxLayout" name="verticalLayout_47">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2485,7 +2485,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_52">
+          <layout class="QVBoxLayout" name="verticalLayout_48">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2528,7 +2528,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_53">
+          <layout class="QVBoxLayout" name="verticalLayout_49">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2571,7 +2571,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_54">
+          <layout class="QVBoxLayout" name="verticalLayout_50">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2614,7 +2614,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_55">
+          <layout class="QVBoxLayout" name="verticalLayout_51">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2657,7 +2657,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_56">
+          <layout class="QVBoxLayout" name="verticalLayout_52">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2700,7 +2700,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_57">
+          <layout class="QVBoxLayout" name="verticalLayout_53">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2743,7 +2743,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_58">
+          <layout class="QVBoxLayout" name="verticalLayout_54">
            <property name="leftMargin">
             <number>1</number>
            </property>
@@ -2758,6 +2758,178 @@
            </property>
            <item>
             <widget class="InstCh" name="ch_58" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="BackgroundChMx" name="frame_59">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_55">
+           <property name="leftMargin">
+            <number>1</number>
+           </property>
+           <property name="topMargin">
+            <number>1</number>
+           </property>
+           <property name="rightMargin">
+            <number>1</number>
+           </property>
+           <property name="bottomMargin">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="InstCh" name="ch_59" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="BackgroundChMx" name="frame_60">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_56">
+           <property name="leftMargin">
+            <number>1</number>
+           </property>
+           <property name="topMargin">
+            <number>1</number>
+           </property>
+           <property name="rightMargin">
+            <number>1</number>
+           </property>
+           <property name="bottomMargin">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="InstCh" name="ch_60" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="BackgroundChMx" name="frame_61">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_57">
+           <property name="leftMargin">
+            <number>1</number>
+           </property>
+           <property name="topMargin">
+            <number>1</number>
+           </property>
+           <property name="rightMargin">
+            <number>1</number>
+           </property>
+           <property name="bottomMargin">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="InstCh" name="ch_61" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>54</width>
+               <height>262</height>
+              </size>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="BackgroundChMx" name="frame_62">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_58">
+           <property name="leftMargin">
+            <number>1</number>
+           </property>
+           <property name="topMargin">
+            <number>1</number>
+           </property>
+           <property name="rightMargin">
+            <number>1</number>
+           </property>
+           <property name="bottomMargin">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="InstCh" name="ch_62" native="true">
              <property name="minimumSize">
               <size>
                <width>54</width>
