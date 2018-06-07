@@ -179,6 +179,17 @@ MidiFile *MidiPlayer::midiFile()
     return _midiSeq[_seqIndex]->midiFile();
 }
 
+bool MidiPlayer::isUsedMidiSynthesizer()
+{
+    for (int i=0; i<16; i++)
+    {
+        if (_midiChannels[i].port() == -1)
+            return true;
+    }
+
+    return false;
+}
+
 bool MidiPlayer::isPlayerPlaying()
 {
     return _midiSeq[_seqIndex]->isSeqPlaying();
@@ -197,6 +208,18 @@ bool MidiPlayer::isPlayerPaused()
 bool MidiPlayer::isPlayerFinished()
 {
     return _midiSeq[_seqIndex]->isSeqFinished();
+}
+
+PlayerState MidiPlayer::playerState()
+{
+    if (isPlayerFinished())
+        return PlayerState::Finished;
+    else if (isPlayerPlaying())
+        return PlayerState::Playing;
+    else if (isPlayerPaused())
+        return PlayerState::Paused;
+    else
+        return PlayerState::Stopped;
 }
 
 long MidiPlayer::durationMs()

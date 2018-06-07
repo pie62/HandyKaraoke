@@ -29,6 +29,8 @@ public:
     #endif
     void setFXToSynth();
     InstCh* mixChannel(InstrumentType t);
+    QMap<InstrumentType, InstCh*> mixChannelMap();
+
 
 private slots:
     void setBtnEqIcon(bool s);

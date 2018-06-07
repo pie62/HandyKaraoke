@@ -25,6 +25,7 @@ struct Instrument
     bool enable;
     int volume;
     int bus;
+    int vsti;
     QList<FX*> FXs;
 };
 
@@ -84,14 +85,16 @@ public:
     // Instrument Maper
     QMap<InstrumentType, Instrument> instrumentMap() { return instMap; }
     Instrument instrument(InstrumentType t) { return instMap.value(t); }
-    int busGroup(InstrumentType t);
-    int volume(InstrumentType t);
+    int  busGroup(InstrumentType t);
+    int  volume(InstrumentType t);
     bool isMute(InstrumentType t);
     bool isSolo(InstrumentType t);
+    int  useVSTi(InstrumentType t);
     void setBusGroup(InstrumentType t, int group);
     void setVolume(InstrumentType t, int volume);
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
+    void setUseVSTi(InstrumentType t, int vstiIndex);
 
 
     static std::vector<std::string> audioDevices();

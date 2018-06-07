@@ -584,20 +584,33 @@ void MainWindow::setBackgroundImage(const QString &img)
     }
 }
 
-void MainWindow::play(int index)
+void MainWindow::play(int index, int position)
 {
     stop();
-    if (index == -1 && playingSong.id() != "") {
+    if (index == -1 && playingSong.id() != "")
+    {
         lyrWidget->reset();
         lyrWidget->show();
-        if (secondLyr != nullptr) {
+        if (secondLyr != nullptr)
+        {
             secondLyr->reset();
             secondLyr->show();
         }
+        if (position > 0)
+        {
+            lyrWidget->setSeekPositionCursor(position);
+            if (secondLyr != nullptr)
+                secondLyr->setSeekPositionCursor(position);
+        }
+
         #ifdef _WIN32
         taskbarButton->progress()->resume();
         taskbarButton->progress()->show();
         #endif
+
+        if (position > 0)
+            player->setPositionTick(position);
+
         player->play();
         positionTimer->start();
         lyricsTimer->start();

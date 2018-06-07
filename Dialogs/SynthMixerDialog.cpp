@@ -117,10 +117,11 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         for (InstrumentType t : chInstMap.keys())
         {
             st.setArrayIndex(static_cast<int>(t));
-            int b   = st.value("Bus", -1).toInt();
+            int  b = st.value("Bus", -1).toInt();
             int ml = st.value("Volume", 50).toInt();
             bool m = st.value("Mute", false).toBool();
             bool s = st.value("Solo", false).toBool();
+            int  v = st.value("VSTi", -1).toInt();
 
             InstCh * ich = chInstMap[t];
             ich->setSliderLevel(ml);
@@ -142,6 +143,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
             synth->setVolume(t, ml);
             synth->setMute(t, m);
             synth->setSolo(t, s);
+            synth->setUseVSTi(t, v);
         }
         st.endArray();
     }
@@ -237,6 +239,7 @@ SynthMixerDialog::~SynthMixerDialog()
             st.setValue("Mute", synth->isMute(t));
             st.setValue("Solo", synth->isSolo(t));
             st.setValue("Bus", synth->busGroup(t));
+            st.setValue("VSTi", synth->useVSTi(t));
 
             QVariant v = QVariant::fromValue(synth->fxUids(t));
             st.setValue("VstUid", v);
@@ -329,6 +332,11 @@ void SynthMixerDialog::setFXToSynth()
 InstCh *SynthMixerDialog::mixChannel(InstrumentType t)
 {
     return chInstMap[t];
+}
+
+QMap<InstrumentType, InstCh *> SynthMixerDialog::mixChannelMap()
+{
+    return chInstMap;
 }
 
 void SynthMixerDialog::setBtnEqIcon(bool s)
@@ -818,9 +826,10 @@ void SynthMixerDialog::on_btnBus_clicked()
 void SynthMixerDialog::on_btnVSTDirs_clicked()
 {
     #ifndef __linux__
-    VSTDirsDialog dlg(this, this, synth);
+    VSTDirsDialog dlg(this, mainWin);
     dlg.setModal(true);
     dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
     dlg.exec();
     #endif
 }

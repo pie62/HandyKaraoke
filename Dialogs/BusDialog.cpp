@@ -17,7 +17,8 @@ BusDialog::BusDialog(QWidget *parent, QMap<InstrumentType, InstCh *> *chInstMap,
     // Tab 1 --------------------------------------------------------
     {
         int i = 0;
-        for (InstrumentType t : chInstMap->keys()) {
+        for (InstrumentType t : chInstMap->keys())
+        {
             if (t >= InstrumentType::BusGroup1)
                 break;
 

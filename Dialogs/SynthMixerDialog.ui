@@ -154,7 +154,7 @@
         <string>ที่เก็บ VST</string>
        </property>
        <property name="text">
-        <string>VST...</string>
+        <string>VST &amp;&amp; VSTi...</string>
        </property>
        <property name="icon">
         <iconset resource="../icons.qrc">

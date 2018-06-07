@@ -8,6 +8,14 @@
 
 #include <QObject>
 
+enum class PlayerState
+{
+    Playing,
+    Stopped,
+    Paused,
+    Finished
+};
+
 class MidiPlayer : public QObject
 {
     Q_OBJECT
@@ -38,10 +46,13 @@ public:
 
     MidiFile* midiFile();
 
+    bool isUsedMidiSynthesizer();
+
     bool isPlayerPlaying();
     bool isPlayerStopped();
     bool isPlayerPaused();
     bool isPlayerFinished();
+    PlayerState playerState();
 
     long durationMs();
     long positionMs();

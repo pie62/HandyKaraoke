@@ -5,6 +5,7 @@
 #include <QDirIterator>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QMenu>
 
 #include "BASSFX/VSTFX.h"
 #include "Dialogs/VSTDialog.h"
@@ -12,38 +13,78 @@
 #include "Config.h"
 
 
-VSTDirsDialog::VSTDirsDialog(QWidget *parent, SynthMixerDialog *mixDlg,
-                             MidiSynthesizer *synth) :
+VSTDirsDialog::VSTDirsDialog(QWidget *parent, MainWindow *mainWindow) :
     QDialog(parent),
     ui(new Ui::VSTDirsDialog)
 {
     ui->setupUi(this);
 
-    this->mixDlg = mixDlg;
-    this->synth = synth;
+    this->mainWindow = mainWindow;
+    this->mixDlg = mainWindow->synthMixerDialog();
+    this->synth = mainWindow->midiPlayer()->midiSynthesizer();
 
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
-    QStringList dirs = st.value("VSTDirs", QStringList()).toStringList();
 
-    QStringList vstDirs;
-    vstDirs << QDir::currentPath() + "/VST";
-    vstDirs += dirs;
+    // VST dir tab
+    {
+        QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+        QStringList dirs = st.value("VSTDirs", QStringList()).toStringList();
 
-    ui->list->addItems(vstDirs);
-    ui->list->setCurrentRow(0);
-    if (vstDirs.count() == 1)
-        ui->btnRemove->setEnabled(false);
+        QStringList vstDirs;
+        vstDirs << QDir::currentPath() + "/VST";
+        vstDirs += dirs;
+
+        ui->list->addItems(vstDirs);
+        ui->list->setCurrentRow(0);
+        if (vstDirs.count() == 1)
+            ui->btnRemove->setEnabled(false);
+    }
 
 
     // VSti Tab
-    initVSTiNumber(0, ui->leVSTiPath1, ui->lbVSTiName1, ui->lbVSTiVendor1, ui->btnVSTi1, ui->btnVSTiRemove1);
-    initVSTiNumber(1, ui->leVSTiPath2, ui->lbVSTiName2, ui->lbVSTiVendor2, ui->btnVSTi2, ui->btnVSTiRemove2);
-    initVSTiNumber(2, ui->leVSTiPath3, ui->lbVSTiName3, ui->lbVSTiVendor3, ui->btnVSTi3, ui->btnVSTiRemove3);
-    initVSTiNumber(3, ui->leVSTiPath4, ui->lbVSTiName4, ui->lbVSTiVendor4, ui->btnVSTi4, ui->btnVSTiRemove4);
-
-    if (!synth->isOpened())
     {
-        ui->tab_2->setEnabled(false);
+        initVSTiDetail(0, ui->leVSTiPath1, ui->lbVSTiName1, ui->lbVSTiVendor1, ui->btnVSTi1, ui->btnVSTiRemove1);
+        initVSTiDetail(1, ui->leVSTiPath2, ui->lbVSTiName2, ui->lbVSTiVendor2, ui->btnVSTi2, ui->btnVSTiRemove2);
+        initVSTiDetail(2, ui->leVSTiPath3, ui->lbVSTiName3, ui->lbVSTiVendor3, ui->btnVSTi3, ui->btnVSTiRemove3);
+        initVSTiDetail(3, ui->leVSTiPath4, ui->lbVSTiName4, ui->lbVSTiVendor4, ui->btnVSTi4, ui->btnVSTiRemove4);
+
+        if (!synth->isOpened())
+        {
+            ui->tab_2->setEnabled(false);
+        }
+    }
+
+
+    // VSTi used tab
+    {
+        auto chInstMap = mixDlg->mixChannelMap();
+
+        QStringList vstiNames;
+        vstiNames << "Not used"
+                  << chInstMap.value(InstrumentType::VSTi1)->fullInstrumentName()
+                  << chInstMap.value(InstrumentType::VSTi2)->fullInstrumentName()
+                  << chInstMap.value(InstrumentType::VSTi3)->fullInstrumentName()
+                  << chInstMap.value(InstrumentType::VSTi4)->fullInstrumentName();
+
+        int i = 0;
+        for (InstrumentType t : chInstMap.keys())
+        {
+            if (t >= InstrumentType::VSTi1)
+                break;
+
+            QString vName = vstiNames[synth->useVSTi(t) + 1];
+
+            QTableWidgetItem *nameItem = new QTableWidgetItem(chInstMap.value(t)->fullInstrumentName());
+            QTableWidgetItem *vstiItem = new QTableWidgetItem(vName);
+
+            ui->tableVSTiUsed->insertRow(i);
+            ui->tableVSTiUsed->setItem(i, 0, nameItem);
+            ui->tableVSTiUsed->setItem(i, 1, vstiItem);
+            i++;
+        }
+
+        ui->tableVSTiUsed->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        connect(ui->tableVSTiUsed, SIGNAL(customContextMenuRequested(QPoint)),
+                this, SLOT(showVSTiSelectMenu(QPoint)));
     }
 }
 
@@ -144,7 +185,7 @@ void VSTDirsDialog::on_btnUpdate_clicked()
     mixDlg->setVSTVendorMenu();
 }
 
-void VSTDirsDialog::initVSTiNumber(int vstiIndex, QLineEdit *le, QLabel *lbName, QLabel *lbVendor, QPushButton *btn, QPushButton *btn2)
+void VSTDirsDialog::initVSTiDetail(int vstiIndex, QLineEdit *le, QLabel *lbName, QLabel *lbVendor, QPushButton *btn, QPushButton *btn2)
 {
     DWORD vsti = synth->vstiHandle(vstiIndex);
     if (vsti)
@@ -159,7 +200,7 @@ void VSTDirsDialog::initVSTiNumber(int vstiIndex, QLineEdit *le, QLabel *lbName,
     }
 }
 
-bool VSTDirsDialog::openVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QLabel *lbVendor, QPushButton *btn, QPushButton *btn2)
+bool VSTDirsDialog::setVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QLabel *lbVendor, QPushButton *btn, QPushButton *btn2)
 {
     #ifdef _WIN32
     QString filter = tr("DLL file (*.dll *.DLL)");
@@ -175,6 +216,12 @@ bool VSTDirsDialog::openVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, Q
 
     Utils::LAST_OPEN_DIR = QFileInfo(file).dir().absolutePath();
 
+    PlayerState state = mainWindow->midiPlayer()->playerState();
+    int position = mainWindow->midiPlayer()->positionTick();
+
+    if (synth->isOpened() && mainWindow->midiPlayer()->isPlayerPlaying())
+        mainWindow->stop();
+
     DWORD vsti = synth->setVSTiFile(vstiIndex, file);
 
     if (!vsti)
@@ -184,7 +231,22 @@ bool VSTDirsDialog::openVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, Q
         return false;
     }
 
-    initVSTiNumber(vstiIndex, le, lbName, lbVendor, btn, btn2);
+    initVSTiDetail(vstiIndex, le, lbName, lbVendor, btn, btn2);
+
+    if (synth->isOpened())
+    {
+        switch (state) {
+        case PlayerState::Playing:
+            mainWindow->play(-1, position);
+            break;
+        case PlayerState::Paused:
+            mainWindow->midiPlayer()->setPositionTick(0);
+            mainWindow->midiPlayer()->setPositionTick(position);
+            break;
+        default:
+            break;
+        }
+    }
 
     return true;
 }
@@ -205,6 +267,14 @@ void VSTDirsDialog::showVSTiDialog(DWORD vsti, const QString &instName)
 
 void VSTDirsDialog::removeVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QLabel *lbVendor, QPushButton *btn, QPushButton *btn2)
 {
+    DWORD vstiHandle = synth->vstiHandle(vstiIndex);
+
+    PlayerState state = mainWindow->midiPlayer()->playerState();
+    int position = mainWindow->midiPlayer()->positionTick();
+
+    if (synth->isOpened() && (vstiHandle != 0) && mainWindow->midiPlayer()->isPlayerPlaying())
+        mainWindow->stop();
+
     synth->removeVSTiFile(vstiIndex);
 
     le->setText("");
@@ -213,6 +283,21 @@ void VSTDirsDialog::removeVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName,
     btn->setText("...");
     btn->setIcon(QIcon());
     btn2->setEnabled(false);
+
+    if (synth->isOpened() && (vstiHandle != 0))
+    {
+        switch (state) {
+        case PlayerState::Playing:
+            mainWindow->play(-1, position);
+            break;
+        case PlayerState::Paused:
+            mainWindow->midiPlayer()->setPositionTick(0);
+            mainWindow->midiPlayer()->setPositionTick(position);
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void VSTDirsDialog::on_btnVSTi1_clicked()
@@ -220,7 +305,7 @@ void VSTDirsDialog::on_btnVSTi1_clicked()
     DWORD vsti = synth->vstiHandle(0);
 
     if (vsti == 0)
-        openVSTiFile(0, ui->leVSTiPath1, ui->lbVSTiName1, ui->lbVSTiVendor1, ui->btnVSTi1, ui->btnVSTiRemove1);
+        setVSTiFile(0, ui->leVSTiPath1, ui->lbVSTiName1, ui->lbVSTiVendor1, ui->btnVSTi1, ui->btnVSTiRemove1);
     else
         showVSTiDialog(vsti, mixDlg->mixChannel(InstrumentType::VSTi1)->fullInstrumentName());
 }
@@ -230,7 +315,7 @@ void VSTDirsDialog::on_btnVSTi2_clicked()
     DWORD vsti = synth->vstiHandle(1);
 
     if (vsti == 0)
-        openVSTiFile(1, ui->leVSTiPath2, ui->lbVSTiName2, ui->lbVSTiVendor2, ui->btnVSTi2, ui->btnVSTiRemove2);
+        setVSTiFile(1, ui->leVSTiPath2, ui->lbVSTiName2, ui->lbVSTiVendor2, ui->btnVSTi2, ui->btnVSTiRemove2);
     else
         showVSTiDialog(vsti, mixDlg->mixChannel(InstrumentType::VSTi2)->fullInstrumentName());
 }
@@ -240,7 +325,7 @@ void VSTDirsDialog::on_btnVSTi3_clicked()
     DWORD vsti = synth->vstiHandle(2);
 
     if (vsti == 0)
-        openVSTiFile(2, ui->leVSTiPath3, ui->lbVSTiName3, ui->lbVSTiVendor3, ui->btnVSTi3, ui->btnVSTiRemove3);
+        setVSTiFile(2, ui->leVSTiPath3, ui->lbVSTiName3, ui->lbVSTiVendor3, ui->btnVSTi3, ui->btnVSTiRemove3);
     else
         showVSTiDialog(vsti, mixDlg->mixChannel(InstrumentType::VSTi3)->fullInstrumentName());
 }
@@ -250,7 +335,7 @@ void VSTDirsDialog::on_btnVSTi4_clicked()
     DWORD vsti = synth->vstiHandle(3);
 
     if (vsti == 0)
-        openVSTiFile(3, ui->leVSTiPath4, ui->lbVSTiName4, ui->lbVSTiVendor4, ui->btnVSTi4, ui->btnVSTiRemove4);
+        setVSTiFile(3, ui->leVSTiPath4, ui->lbVSTiName4, ui->lbVSTiVendor4, ui->btnVSTi4, ui->btnVSTiRemove4);
     else
         showVSTiDialog(vsti, mixDlg->mixChannel(InstrumentType::VSTi4)->fullInstrumentName());
 }
@@ -273,4 +358,75 @@ void VSTDirsDialog::on_btnVSTiRemove3_clicked()
 void VSTDirsDialog::on_btnVSTiRemove4_clicked()
 {
     removeVSTiFile(3, ui->leVSTiPath4, ui->lbVSTiName4, ui->lbVSTiVendor4, ui->btnVSTi4, ui->btnVSTiRemove4);
+}
+
+void VSTDirsDialog::showVSTiSelectMenu(const QPoint &pos)
+{
+    auto chInstMap = mixDlg->mixChannelMap();
+
+    QStringList vstiNames;
+    vstiNames << "Not used"
+              << chInstMap.value(InstrumentType::VSTi1)->fullInstrumentName()
+              << chInstMap.value(InstrumentType::VSTi2)->fullInstrumentName()
+              << chInstMap.value(InstrumentType::VSTi3)->fullInstrumentName()
+              << chInstMap.value(InstrumentType::VSTi4)->fullInstrumentName();
+
+    QMenu menu(ui->tableVSTiUsed);
+    vstiSignalMapper = new QSignalMapper();
+
+    for (int i=-1; i<4; i++)
+    {
+        QAction *act = menu.addAction(vstiNames[i+1]);
+        connect(act, SIGNAL(triggered()), vstiSignalMapper, SLOT(map()));
+        vstiSignalMapper->setMapping(act, i);
+    }
+
+    connect(vstiSignalMapper, SIGNAL(mapped(int)), this, SLOT(setVSTiUsed(int)));
+
+    menu.exec(ui->tableVSTiUsed->mapToGlobal(pos));
+
+    delete vstiSignalMapper;
+}
+
+void VSTDirsDialog::setVSTiUsed(int selected)
+{
+    auto chInstMap = mixDlg->mixChannelMap();
+
+    QStringList vstiNames;
+    vstiNames << "Not used"
+              << chInstMap.value(InstrumentType::VSTi1)->fullInstrumentName()
+              << chInstMap.value(InstrumentType::VSTi2)->fullInstrumentName()
+              << chInstMap.value(InstrumentType::VSTi3)->fullInstrumentName()
+              << chInstMap.value(InstrumentType::VSTi4)->fullInstrumentName();
+
+    PlayerState state = mainWindow->midiPlayer()->playerState();
+    int position = mainWindow->midiPlayer()->positionTick();
+
+    if (synth->isOpened() && mainWindow->midiPlayer()->isPlayerPlaying())
+        mainWindow->stop();
+
+    QModelIndexList indexList = ui->tableVSTiUsed->selectionModel()->selectedRows();
+    for (QModelIndex index : indexList)
+    {
+        QTableWidgetItem *item = ui->tableVSTiUsed->item(index.row(), 1);
+        item->setText(vstiNames[selected+1]);
+
+        InstrumentType type = static_cast<InstrumentType>(index.row());
+        synth->setUseVSTi(type, selected);
+    }
+
+    if (synth->isOpened())
+    {
+        switch (state) {
+        case PlayerState::Playing:
+            mainWindow->play(-1, position);
+            break;
+        case PlayerState::Paused:
+            mainWindow->midiPlayer()->setPositionTick(0);
+            mainWindow->midiPlayer()->setPositionTick(position);
+            break;
+        default:
+            break;
+        }
+    }
 }

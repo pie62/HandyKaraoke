@@ -64,7 +64,7 @@ public:
     ChorusDialog* chorusDialog() { return chorusDlg; }
 
 public slots:
-    void play(int index);
+    void play(int index, int position = 0);
     void pause();
     void resume();
     void stop();
