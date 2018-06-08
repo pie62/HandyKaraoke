@@ -181,20 +181,9 @@ SynthMixerDialog::~SynthMixerDialog()
         {
             st.setArrayIndex(i);
 
-            DWORD vsti = synth->vstiHandle(i);
-
-            if (vsti == 0)
-            {
-                st.setValue("VstiFilePath", "");
-                st.setValue("VstiPrograms", 0);
-                st.setValue("VstiParams", QVariant::fromValue(QList<float>()));
-            }
-            else
-            {
-                st.setValue("VstiFilePath", synth->vstiFile(i));
-                st.setValue("VstiPrograms", BASS_VST_GetProgram(vsti));
-                st.setValue("VstiParams", QVariant::fromValue(FX::getVSTParams(vsti)));
-            }
+            st.setValue("VstiFilePath", synth->vstiFile(i));
+            st.setValue("VstiPrograms", synth->vstiProgram(i));
+            st.setValue("VstiParams", QVariant::fromValue(synth->vstiParams(i)));
         }
         st.endArray();
 

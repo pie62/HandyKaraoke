@@ -135,6 +135,8 @@ public:
     QStringList vstiFiles();
     QString vstiFile(int vstiIndex);
     DWORD vstiHandle(int vstiIndex);
+    int vstiProgram(int vstiIndex);
+    QList<float> vstiParams(int vstiIndex);
     DWORD setVSTiFile(int vstiIndex, const QString &file);
     void removeVSTiFile(int vstiIndex);
     #endif

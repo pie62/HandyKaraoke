@@ -133,6 +133,9 @@ bool MidiSynthesizer::open()
                 #endif
                 if (f)
                 {
+                    BASS_VST_INFO info;
+                    BASS_VST_GetInfo(h, &info);
+                    mVstiInfos[fIndex] = info;
                     BASS_VST_SetProgram(h, mVstiTempProgram[fIndex]);
                     FX::setVSTParams(h, mVstiTempParams[fIndex]);
                 }
@@ -1010,6 +1013,24 @@ DWORD MidiSynthesizer::vstiHandle(int vstiIndex)
 {
     InstrumentType t = static_cast<InstrumentType>(HANDLE_VSTI_START+vstiIndex);
     return handles[t];
+}
+
+int MidiSynthesizer::vstiProgram(int vstiIndex)
+{
+    DWORD h = vstiHandle(vstiIndex);
+    if (isOpened() && h != 0)
+        return BASS_VST_GetProgram(h);
+    else
+        return mVstiTempProgram[vstiIndex];
+}
+
+QList<float> MidiSynthesizer::vstiParams(int vstiIndex)
+{
+    DWORD h = vstiHandle(vstiIndex);
+    if (isOpened() && h != 0)
+        FX::getVSTParams(h);
+    else
+        return mVstiTempParams[vstiIndex];
 }
 
 DWORD MidiSynthesizer::setVSTiFile(int vstiIndex, const QString &file)
