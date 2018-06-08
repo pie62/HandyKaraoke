@@ -26,16 +26,16 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
     reverb = new ReverbFX(0);
     chorus = new ChorusFX(0);
 
-    mVstiFiles[0] = "";
-    mVstiFiles[1] = "";
-    mVstiFiles[2] = "";
-    mVstiFiles[3] = "";
 
     BASS_VST_INFO vstinfo;
-    mVstiInfos[0] = vstinfo;
-    mVstiInfos[1] = vstinfo;
-    mVstiInfos[2] = vstinfo;
-    mVstiInfos[3] = vstinfo;
+    for (int i=0; i<4; i++)
+    {
+        mVstiFiles[i] = "";
+        mVstiInfos[i] = vstinfo;
+        mVstiTempProgram[i] = 0;
+        mVstiTempParams[i] = QList<float>();
+    }
+
 
     // Map inst
     for (int i=0; i<HANDLE_STREAM_COUNT; i++)
@@ -126,11 +126,16 @@ bool MidiSynthesizer::open()
             {
                 #ifdef _WIN32
                 h = BASS_VST_ChannelCreate(44100, 2, mVstiFiles[fIndex].toStdWString().c_str(),
-                                           f|BASS_STREAM_DECODE);
+                                           f|BASS_UNICODE|BASS_STREAM_DECODE);
                 #else
                 h = BASS_VST_ChannelCreate(44100, 2, mVstiFiles[fIndex].toStdString().c_str(),
                                            f|BASS_STREAM_DECODE);
                 #endif
+                if (f)
+                {
+                    BASS_VST_SetProgram(h, mVstiTempProgram[fIndex]);
+                    FX::setVSTParams(h, mVstiTempParams[fIndex]);
+                }
             }
             #endif
         }
@@ -222,7 +227,12 @@ void MidiSynthesizer::close(bool freeSF)
 
         if (t==InstrumentType::VSTi1 || t==InstrumentType::VSTi2
          || t==InstrumentType::VSTi3 || t==InstrumentType::VSTi4)
+        {
+            int vIndex = static_cast<int>(t) - HANDLE_VSTI_START;
+            mVstiTempProgram[vIndex] = BASS_VST_GetProgram(h);
+            mVstiTempParams[vIndex] = FX::getVSTParams(h);
             BASS_VST_ChannelFree(h);
+        }
         else
             BASS_StreamFree(h);
 
@@ -1035,6 +1045,8 @@ DWORD MidiSynthesizer::setVSTiFile(int vstiIndex, const QString &file)
         BASS_VST_INFO vstinfo;
         BASS_VST_GetInfo(vsti, &vstinfo);
         mVstiInfos[vstiIndex] = vstinfo;
+        mVstiTempProgram[vstiIndex] = 0;
+        mVstiTempParams[vstiIndex].clear();
 
         BASS_Mixer_StreamAddChannel(mixHandle, vsti, 0);
         handles[t] = vsti;
@@ -1071,6 +1083,8 @@ void MidiSynthesizer::removeVSTiFile(int vstiIndex)
     handles[t] = 0;
     mVstiFiles[vstiIndex] = "";
     mVstiInfos[vstiIndex] = BASS_VST_INFO();
+    mVstiTempProgram[vstiIndex] = 0;
+    mVstiTempParams[vstiIndex].clear();
 }
 
 #endif

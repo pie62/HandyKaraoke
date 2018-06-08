@@ -18,6 +18,7 @@
 void registerMetaType();
 
 #ifndef __linux__
+void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth);
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth);
 #endif
 
@@ -76,6 +77,7 @@ int main(int argc, char *argv[])
     w.setWindowIcon(QIcon(":/Icons/App/icon.png"));
 
     #ifndef __linux__
+    loadVSTi(splash, w.midiPlayer()->midiSynthesizer());
     makeVSTList(splash, w.midiPlayer()->midiSynthesizer());
     w.synthMixerDialog()->setVSTVendorMenu();
     #endif
@@ -113,6 +115,36 @@ void registerMetaType()
 
 
 #ifndef __linux__
+
+void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
+{
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+
+    st.beginReadArray("VSTiGroup");
+    for (int i=0; i<4; i++)
+    {
+        st.setArrayIndex(i);
+
+        QString      filePath    = st.value("VstiFilePath", "").toString();
+        int          program     = st.value("VstiPrograms", 0).toInt();
+        QList<float> params      = st.value("VstiParams").value<QList<float>>();
+
+        if (filePath == "")
+            continue;
+
+        splash->showMessage("กำลังโหลด : " + QFileInfo(filePath).fileName(), Qt::AlignBottom|Qt::AlignRight);
+        qApp->processEvents();
+
+        DWORD vsti = synth->setVSTiFile(i, filePath);
+
+        if (vsti != 0)
+        {
+            BASS_VST_SetProgram(vsti, program);
+            FX::setVSTParams(vsti, params);
+        }
+    }
+    st.endArray();
+}
 
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 {

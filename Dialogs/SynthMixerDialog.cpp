@@ -93,26 +93,6 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         int phm = st.value("PeakHoldMs", vu->peakHoldMs()).toInt();
 
 
-        st.beginReadArray("VSTiGroup");
-        for (int i=0; i<4; i++)
-        {
-            st.setArrayIndex(i);
-
-            QString      filePath    = st.value("VstiFilePath", "").toString();
-            int          program     = st.value("VstiPrograms", 0).toInt();
-            QList<float> params      = st.value("VstiParams").value<QList<float>>();
-
-            DWORD vsti = synth->setVSTiFile(i, filePath);
-
-            if (vsti != 0)
-            {
-                BASS_VST_SetProgram(vsti, program);
-                FX::setVSTParams(vsti, params);
-            }
-        }
-        st.endArray();
-
-
         st.beginReadArray("SynthMixer");
         for (InstrumentType t : chInstMap.keys())
         {

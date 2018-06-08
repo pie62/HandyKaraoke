@@ -160,6 +160,8 @@ private:
     #ifndef __linux__
     QString mVstiFiles[4];
     BASS_VST_INFO mVstiInfos[4];
+    int mVstiTempProgram[4];
+    QList<float> mVstiTempParams[4];
     #endif
 
     // FX
