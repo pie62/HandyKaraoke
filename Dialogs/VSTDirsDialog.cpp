@@ -233,6 +233,12 @@ bool VSTDirsDialog::setVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QL
 
     initVSTiDetail(vstiIndex, le, lbName, lbVendor, btn, btn2);
 
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    st.beginWriteArray("VSTiGroup");
+    st.setArrayIndex(vstiIndex);
+    st.setValue("VstiFilePath", file);
+    st.endArray();
+
     if (synth->isOpened())
     {
         switch (state) {
@@ -285,6 +291,12 @@ void VSTDirsDialog::removeVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName,
     btn->setText("...");
     btn->setIcon(QIcon());
     btn2->setEnabled(false);
+
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    st.beginWriteArray("VSTiGroup");
+    st.setArrayIndex(vstiIndex);
+    st.setValue("VstiFilePath", "");
+    st.endArray();
 
     if (synth->isOpened() && (vstiHandle != 0))
     {
