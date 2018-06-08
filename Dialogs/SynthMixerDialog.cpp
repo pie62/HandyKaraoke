@@ -593,6 +593,9 @@ void SynthMixerDialog::setChInstDetails()
 
         connect(ich, SIGNAL(fxRemoveMenuRequested(InstrumentType,int,QPoint)),
                 this, SLOT(showFXRemoveMenu(InstrumentType,int,QPoint)));
+
+        connect(ich, SIGNAL(imageDoubleClicked(InstrumentType)),
+                this, SLOT(showVSTiDialog(InstrumentType)));
     }
 }
 
@@ -805,6 +808,32 @@ void SynthMixerDialog::showFXRemoveMenu(InstrumentType type, int fxIndex, const 
     menu.addAction("Remove", this, SLOT(removeFX()));
 
     menu.exec(chInstMap[type]->mapToGlobal(pos));
+}
+
+void SynthMixerDialog::showVSTiDialog(InstrumentType vstiIndexType)
+{
+    int index = static_cast<int>(vstiIndexType) - synth->HANDLE_VSTI_START;
+
+    if (index < 0 || index > 3)
+        return;
+
+    #ifdef __linux__
+    return;
+    #else
+    DWORD vsti = synth->vstiHandle(index);
+    if (vsti == 0)
+        return;
+
+    VSTDialog *dlg = new VSTDialog(this, vsti, chInstMap[vstiIndexType]->fullInstrumentName());
+    if (!dlg->isCanOpen())
+    {
+        delete dlg;
+        return;
+    }
+
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
+    #endif
 }
 
 void SynthMixerDialog::removeFX()

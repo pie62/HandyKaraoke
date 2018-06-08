@@ -48,6 +48,11 @@ signals:
     void fxByPassChanged(InstrumentType type, int fxIndex, bool bypass);
     void fxDoubleClicked(InstrumentType type, int fxIndex);
 
+    void imageDoubleClicked(InstrumentType type);
+
+protected:
+    void mouseDoubleClickEvent(QMouseEvent *event);
+
 private slots:
     void onBtnMuteClicked();
     void onBtnSoloClicked();

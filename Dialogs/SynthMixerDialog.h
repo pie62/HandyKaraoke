@@ -51,10 +51,10 @@ private slots:
     void byPassFX(InstrumentType type, int fxIndex, bool bypass);
     void showFxDialog(InstrumentType type, int fxIndex);
     void showFXRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos);
+    void showVSTiDialog(InstrumentType vstiIndexType);
     void removeFX();
 
     void on_btnBus_clicked();
-
     void on_btnVSTDirs_clicked();
 
 protected:
