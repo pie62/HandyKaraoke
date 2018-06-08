@@ -240,8 +240,10 @@ bool VSTDirsDialog::setVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QL
             mainWindow->play(-1, position);
             break;
         case PlayerState::Paused:
-            mainWindow->midiPlayer()->setPositionTick(0);
             mainWindow->midiPlayer()->setPositionTick(position);
+            mainWindow->lyricsWidget()->setSeekPositionCursor(position);
+            if (mainWindow->secondLyrics() != nullptr)
+                mainWindow->secondLyrics()->setSeekPositionCursor(position);
             break;
         default:
             break;
@@ -291,8 +293,10 @@ void VSTDirsDialog::removeVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName,
             mainWindow->play(-1, position);
             break;
         case PlayerState::Paused:
-            mainWindow->midiPlayer()->setPositionTick(0);
             mainWindow->midiPlayer()->setPositionTick(position);
+            mainWindow->lyricsWidget()->setSeekPositionCursor(position);
+            if (mainWindow->secondLyrics() != nullptr)
+                mainWindow->secondLyrics()->setSeekPositionCursor(position);
             break;
         default:
             break;
@@ -422,8 +426,10 @@ void VSTDirsDialog::setVSTiUsed(int selected)
             mainWindow->play(-1, position);
             break;
         case PlayerState::Paused:
-            mainWindow->midiPlayer()->setPositionTick(0);
             mainWindow->midiPlayer()->setPositionTick(position);
+            mainWindow->lyricsWidget()->setSeekPositionCursor(position);
+            if (mainWindow->secondLyrics() != nullptr)
+                mainWindow->secondLyrics()->setSeekPositionCursor(position);
             break;
         default:
             break;
