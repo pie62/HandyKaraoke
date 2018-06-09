@@ -17,6 +17,8 @@
 
 void registerMetaType();
 
+void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth);
+
 #ifndef __linux__
 void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth);
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth);
@@ -76,6 +78,8 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.setWindowIcon(QIcon(":/Icons/App/icon.png"));
 
+    loadSoundfonts(splash, w.midiPlayer()->midiSynthesizer());
+
     #ifndef __linux__
     loadVSTi(splash, w.midiPlayer()->midiSynthesizer());
     makeVSTList(splash, w.midiPlayer()->midiSynthesizer());
@@ -113,6 +117,38 @@ void registerMetaType()
     qRegisterMetaTypeStreamOperators<QList<QList<float>>>("QList<QList<float>>");
 }
 
+void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)
+{
+    QSettings settings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+
+    // set soundfont to synth
+    QStringList sfList = settings.value("SynthSoundfonts", QStringList()).toStringList();
+    settings.beginReadArray("SynthSoundfontsVolume");
+    for (int i=0; i<sfList.count(); i++)
+    {
+        settings.setArrayIndex(i);
+        int volume = settings.value("SoundfontVolume", 100).toInt();
+
+        splash->showMessage("กำลังโหลด : " + QFileInfo(sfList.at(i)).fileName(), Qt::AlignBottom|Qt::AlignRight);
+        qApp->processEvents();
+
+        if (synth->addSoundfont(sfList.at(i)))
+            synth->setSoundfontVolume(i, volume / 100.0f);
+    }
+    settings.endArray();
+
+
+    // set Map soundfont
+     QList<int> sfMap     = settings.value("SynthSoundfontsMap").value<QList<int>>();
+     QList<int> sfDrumMap = settings.value("SynthSoundfontsDrumMap").value<QList<int>>();
+
+     if (sfMap.count() == 0)
+         sfMap = synth->getMapSoundfontIndex();
+     if (sfDrumMap.count() == 0)
+         sfDrumMap = synth->getDrumMapSfIndex();
+
+     synth->setMapSoundfontIndex(sfMap, sfDrumMap);
+}
 
 #ifndef __linux__
 
@@ -168,20 +204,6 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 
             splash->showMessage("กำลังตรวจสอบ : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
             qApp->processEvents();
-
-            /*
-            BASS_VST_INFO info;
-            if (!VSTFX::isVSTFile(it.filePath(), &info))
-                continue;
-
-            VSTNamePath v;
-            v.uniqueID = info.uniqueID;
-            v.vstName = info.effectName;
-            v.vstvendor = info.vendorName;
-            v.vstPath = it.filePath();
-            */
-
-
 
             VSTNamePath info;
 

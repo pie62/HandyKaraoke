@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>การเลือกใช้ซาวด์ฟ้อนท์</string>
+   <string>ตารางเลือกใช้ซาวด์ฟ้อนท์</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>

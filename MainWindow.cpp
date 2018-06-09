@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     #endif
 
     settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
 
@@ -199,47 +200,8 @@ MainWindow::MainWindow(QWidget *parent) :
         synth->setUsetFloattingPoint(useFloat);
         synth->setUseFXRC(useFX);
 
-        // Synth soundfont
-        //QList<QString> sfs;
-        QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
-
-        // Synth soundfont volume
-        QList<int> sfvl;
-        int idx=0;
-        settings->beginReadArray("SynthSoundfontsVolume");
-        for (const QString &s : sfList) {
-            settings->setArrayIndex(idx);
-            sfvl.append(settings->value("SoundfontVolume", 100).toInt());
-            idx++;
-        }
-        settings->endArray();
-
-        synth->setSoundFonts(sfList);
-
-        for (int i=0; i<sfvl.size(); i++) {
-            synth->setSoundfontVolume(i, sfvl.at(i) / 100.0f);
-        }
-        // -----------
-
-        // Synth Map soundfont
-        QList<int> sfMap = synth->getMapSoundfontIndex();
-        settings->beginReadArray("SynthSoundfontsMap");
-        for (int i=0; i<128; i++) {
-            settings->setArrayIndex(i);
-            sfMap[i] = settings->value("mapTo", 0).toInt();
-        }
-        settings->endArray();
-
-
-        QList<int> sfDrumMap = synth->getDrumMapSfIndex();
-        settings->beginReadArray("SynthSoundfontsDrumMap");
-        for (int i=0; i<16; i++) {
-            settings->setArrayIndex(i);
-            sfDrumMap[i] = settings->value("mapTo", 0).toInt();
-        }
-        settings->endArray();
-
-        synth->setMapSoundfontIndex(sfMap, sfDrumMap);
+        // Soundfonts and Soundfonts map
+        // move to setup in main function (main.cpp)
 
         // Synth EQ
         Equalizer31BandFX *eq = synth->equalizer31BandFX();
@@ -1384,7 +1346,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     QAction actionShowEqDlg("อีควอไลเซอร์", this);
     QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
     QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน", this);
-    QAction actionMapSF("การเลือกใช้ซาวด์ฟ้อนท์", this);
+    QAction actionMapSF("ตารางเลือกใช้ซาวด์ฟ้อนท์", this);
     QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
     QAction actionAbout("เกี่ยวกับ...", this);

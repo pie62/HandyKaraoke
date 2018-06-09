@@ -46,20 +46,24 @@ public:
     ~MidiSynthesizer();
 
     bool isOpened() { return openned; }
-    QStringList soundfontFiles() { return sfFiles; }
 
     bool open();
-    void close(bool freeSF = true);
+    void close();
 
     int outPutDevice();
     bool setOutputDevice(int dv);
-    void setSoundFonts(QStringList &soundfonsFiles);
     void setVolume(float vol);
     float volume() { return synth_volume; }
 
+    QStringList soundfontFiles() { return sfFiles; }
+    bool addSoundfont(const QString &sfFile);
+    void removeSoundfont(int sfIndex);
+    void swapSoundfont(int sfIndex, int toIndex);
     float soundfontVolume(int sfIndex);
     void setSoundfontVolume(int sfIndex, float sfvl);
     void compactSoundfont();
+    bool isLoadAllSoundfont() { return sfLoadAll; }
+    void setLoadAllSoundfont(bool loadAll);
 
     // std::vector<int> size 129
     //      1-128 all intrument
@@ -182,7 +186,7 @@ private:
     int outDev = 1;
     bool useFloat = true;
     bool useFX = false;
-    bool sfLoaded = false;
+    bool sfLoadAll = false;
 
     DWORD RPNType = 0;
 

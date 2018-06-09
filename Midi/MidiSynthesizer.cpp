@@ -67,6 +67,13 @@ MidiSynthesizer::~MidiSynthesizer()
     if (openned)
         close();
 
+    // Free soundfont
+    for (HSOUNDFONT f : synth_HSOUNDFONT) {
+        BASS_MIDI_FontUnload(f, -1, -1);
+        BASS_MIDI_FontFree(f);
+    }
+    synth_HSOUNDFONT.clear();
+
     // Fx ------------
     delete eq;
     delete reverb;
@@ -205,7 +212,7 @@ bool MidiSynthesizer::open()
     return true;
 }
 
-void MidiSynthesizer::close(bool freeSF)
+void MidiSynthesizer::close()
 {
     if (!openned)
         return;
@@ -242,17 +249,8 @@ void MidiSynthesizer::close(bool freeSF)
         handles[t] = 0;
     }
 
-    // Clear soundfont
-    if (freeSF)
-    {
-        for (HSOUNDFONT f : synth_HSOUNDFONT)
-        {
-            BASS_MIDI_FontUnload(f, -1, -1);
-            BASS_MIDI_FontFree(f);
-        }
-        synth_HSOUNDFONT.clear();
-        sfLoaded = false;
-    }
+    // compact soundfont
+    BASS_MIDI_FontCompact(0);
 
     BASS_StreamFree(mixHandle);
 
@@ -290,23 +288,104 @@ bool MidiSynthesizer::setOutputDevice(int dv)
     }
 }
 
-void MidiSynthesizer::setSoundFonts(QStringList &soundfonsFiles)
-{
-    this->sfFiles.clear();
-    this->sfFiles = soundfonsFiles;
-
-    if (openned)
-    {
-        sfLoaded = false;
-        setSfToStream();
-    }
-}
-
 void MidiSynthesizer::setVolume(float vol)
 {
     if (BASS_ChannelSetAttribute(mixHandle, BASS_ATTRIB_VOL, vol)) {
         synth_volume = vol;
     }
+}
+
+bool MidiSynthesizer::addSoundfont(const QString &sfFile)
+{
+    #ifdef _WIN32
+    HSOUNDFONT sf = BASS_MIDI_FontInit(sfFile.toStdWString().c_str(), BASS_MIDI_FONT_NOFX);
+    #else
+    HSOUNDFONT sf = BASS_MIDI_FontInit(sfFile.toStdString().c_str(), BASS_MIDI_FONT_NOFX);
+    #endif
+
+    if (!sf)
+        return false;
+
+    this->sfFiles.append(sfFile);
+
+    if (sfLoadAll)
+        BASS_MIDI_FontLoad(sf, -1, -1);
+    BASS_MIDI_FontCompact(sf);
+
+    synth_HSOUNDFONT.push_back(sf);
+
+    if (!openned)
+        return true;
+
+    if (synth_HSOUNDFONT.size() == 1)
+        setSfToStream();
+
+    return true;
+}
+
+void MidiSynthesizer::removeSoundfont(int sfIndex)
+{
+    if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.count())
+        return;
+
+    QList<int> instSfMap = instmSf;
+    QList<int> drumSfMap = drumSf;
+
+    for (int i=0; i<instSfMap.count(); i++)
+    {
+        if (instSfMap[i] == sfIndex)
+            instSfMap[i] = 0;
+        else if (instSfMap[i] > sfIndex)
+            instSfMap[i] = instSfMap[i] - 1;
+    }
+
+    for (int i=0; i<drumSfMap.count(); i++)
+    {
+        if (drumSfMap[i] == sfIndex)
+            drumSfMap[i] = 0;
+        else if (drumSfMap[i] > sfIndex)
+            drumSfMap[i] = drumSfMap[i] - 1;
+    }
+
+    HSOUNDFONT sf = synth_HSOUNDFONT.takeAt(sfIndex);
+    BASS_MIDI_FontUnload(sf, -1, -1);
+    BASS_MIDI_FontFree(sf);
+    sfFiles.removeAt(sfIndex);
+
+    setMapSoundfontIndex(instSfMap, drumSfMap);
+}
+
+void MidiSynthesizer::swapSoundfont(int sfIndex, int toIndex)
+{
+    if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.count())
+        return;
+
+    if (toIndex < 0 || toIndex >= synth_HSOUNDFONT.count())
+        return;
+
+    QList<int> instSfMap = instmSf;
+    QList<int> drumSfMap = drumSf;
+
+    for (int i=0; i<instSfMap.count(); i++)
+    {
+        if (instSfMap[i] == 0)
+            continue;
+        if (instSfMap[i] == sfIndex)
+            instSfMap[i] = toIndex;
+    }
+
+    for (int i=0; i<drumSfMap.count(); i++)
+    {
+        if (drumSfMap[i] == 0)
+            continue;
+        if (drumSfMap[i] == sfIndex)
+            drumSfMap[i] = toIndex;
+    }
+
+    synth_HSOUNDFONT.swap(sfIndex, toIndex);
+    sfFiles.swap(sfIndex, toIndex);
+
+    setMapSoundfontIndex(instSfMap, drumSfMap);
 }
 
 float MidiSynthesizer::soundfontVolume(int sfIndex)
@@ -330,6 +409,21 @@ void MidiSynthesizer::compactSoundfont()
     BASS_MIDI_FontCompact(0);
 }
 
+void MidiSynthesizer::setLoadAllSoundfont(bool loadAll)
+{
+    if (loadAll == sfLoadAll)
+        return;
+
+    sfLoadAll = loadAll;
+
+    for (HSOUNDFONT sf : synth_HSOUNDFONT)
+    {
+        if (sfLoadAll)
+            BASS_MIDI_FontLoad(sf, -1, -1);
+        BASS_MIDI_FontCompact(sf);
+    }
+}
+
 bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<int> drumSfIndex)
 {
     instmSf.clear();
@@ -344,13 +438,16 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
     std::vector<BASS_MIDI_FONT> mFonts;
 
     // check instrument use another sf
-    for (int i=0; i<128; i++) {
-
+    for (int i=0; i<128; i++)
+    {
         if (instmSf.at(i) <= 0)
             continue;
 
         if (instmSf.at(i) >= synth_HSOUNDFONT.count())
+        {
+            instmSf[i] = 0;
             continue;
+        }
 
         BASS_MIDI_FONT font;
         font.font = synth_HSOUNDFONT.at(instmSf.at(i));
@@ -376,8 +473,12 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
 
 
     // check drum sf
+    int startDrum = static_cast<int>(InstrumentType::BassDrum);
     int li = 0;
-    for (int i=26; i<HANDLE_MIDI_COUNT-4; i++) {
+    for (int i=startDrum; i<HANDLE_MIDI_COUNT-4; i++)
+    {
+        if (drumSf.at(li) < 0 || drumSf.at(li) >= synth_HSOUNDFONT.count())
+            drumSf[li] = 0;
 
         BASS_MIDI_FONT font;
         font.font = synth_HSOUNDFONT.at(drumSf.at(li));
@@ -800,7 +901,7 @@ void MidiSynthesizer::setUsetFloattingPoint(bool use)
     QList<int> isf = instmSf;
     QList<int> dsf = drumSf;
 
-    close(false);
+    close();
     open();
 
     setMapSoundfontIndex(isf, dsf);
@@ -1123,36 +1224,8 @@ void MidiSynthesizer::sendToAllMidiStream(int ch, DWORD eventType, DWORD param)
 
 void MidiSynthesizer::setSfToStream()
 {
-    if (!sfLoaded)
+    if (synth_HSOUNDFONT.size() > 0)
     {
-        for (HSOUNDFONT f : synth_HSOUNDFONT) {
-            //BASS_MIDI_FontUnload(f, -1, -1);
-            BASS_MIDI_FontFree(f);
-        }
-        synth_HSOUNDFONT.clear();
-
-        for (const QString &sfile : sfFiles) {
-
-            #ifdef _WIN32
-            HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdWString().c_str(),
-                                              BASS_MIDI_FONT_NOFX);
-            #else
-            HSOUNDFONT f = BASS_MIDI_FontInit(sfile.toStdString().c_str(),
-                                              BASS_MIDI_FONT_NOFX);
-            #endif
-            if (!f)
-                continue;
-
-            //BASS_MIDI_FontLoad(f, -1, -1);
-            BASS_MIDI_FontCompact(f);
-            synth_HSOUNDFONT.push_back(f);
-        }
-
-        sfLoaded = true;
-    }
-
-
-    if (synth_HSOUNDFONT.size() > 0) {
         BASS_MIDI_FONT font;
         font.font = synth_HSOUNDFONT.at(0);
         font.preset = -1;
@@ -1160,11 +1233,12 @@ void MidiSynthesizer::setSfToStream()
 
         for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
-            BASS_MIDI_StreamSetFonts(h, &font, 1); // set to stream to
+            BASS_MIDI_StreamSetFonts(h, &font, 1); // set sf stream
         }
     }
 
     // Reset map intrument sf
+    /*
     instmSf.clear();
     drumSf.clear();
     for (int i=0; i<128; i++) {
@@ -1173,7 +1247,7 @@ void MidiSynthesizer::setSfToStream()
     for (int i=0; i<16; i++) {
         drumSf.append(0);
     }
-
+    */
 }
 
 void MidiSynthesizer::calculateEnable()

@@ -222,7 +222,9 @@ bool VSTDirsDialog::setVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QL
     if (synth->isOpened() && mainWindow->midiPlayer()->isPlayerPlaying())
         mainWindow->stop();
 
+    this->setEnabled(false);
     DWORD vsti = synth->setVSTiFile(vstiIndex, file);
+    this->setEnabled(true);
 
     if (!vsti)
     {
