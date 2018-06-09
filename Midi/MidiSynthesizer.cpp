@@ -788,7 +788,8 @@ void MidiSynthesizer::setDevice(InstrumentType t, int device)
     if (!openned)
         return;
 
-    BASS_ChannelSetDevice(handles[t], device);
+    if (!BASS_ChannelSetDevice(handles[t], device))
+        instMap[t].device = BASS_GetDevice();
 }
 
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
