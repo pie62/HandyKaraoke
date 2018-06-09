@@ -31,8 +31,6 @@ public:
 
     static InstrumentType getInstrumentDrumType(int drumNote);
     static InstrumentType getInstrumentType(int instNumber);
-
-    static DWORD getSpeakerFlag(SpeakerType Speaker);
 };
 
 enum class InstrumentType
@@ -106,23 +104,23 @@ enum class InstrumentType
 
 enum class SpeakerType
 {
-    Default,
+    SpeakerDefault          = -1,
 
-    FrontStereo,
-    FrontLeft,
-    FrontRight,
+    SpeakerFrontStereo      = 0,
+    SpeakerFrontLeft        = 1,
+    SpeakerFrontRight       = 2,
 
-    RearStereo,
-    RearLeft,
-    RearRight,
+    SpeakerRearStereo       = 3,
+    SpeakerRearLeft         = 4,
+    SpeakerRearRight        = 5,
 
-    CenterStereo,
-    CenterMono,
-    SubwooferMono,
+    SpeakerCenterStereo     = 6,
+    SpeakerCenterMono       = 7,
+    SpeakerSubwooferMono    = 8,
 
-    SideStereo,
-    SideLeft,
-    SideRight
+    SpeakerSideStereo       = 9,
+    SpeakerSideLeft         = 10,
+    SpeakerSideRight        = 11
 };
 
 #endif // MIDIHELPER_H
