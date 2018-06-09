@@ -16,7 +16,8 @@
 #define ALL_DATA_DIR_PATH       QDir::homePath() + "/.HandyKaraoke"
 
 #define DATABASE_DIR_PATH       ALL_DATA_DIR_PATH + "/Data"
-#define DATABASE_FILE_PATH      DATABASE_DIR_PATH + "/Database.db3"
+//#define DATABASE_FILE_PATH      DATABASE_DIR_PATH + "/Database.db3"
+#define DATABASE_FILE_PATH     "Data/Database.db3"
 
 #define CONFIG_DIR_PATH         ALL_DATA_DIR_PATH + "/Config"
 #define CONFIG_APP_FILE_PATH    CONFIG_DIR_PATH + "/HandyKaraoke.conf"

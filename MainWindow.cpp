@@ -1416,7 +1416,7 @@ void MainWindow::minimizeWindow()
 
 void MainWindow::showMapSFDialog()
 {
-    MapSoundfontDialog msfDlg(this, player);
+    MapSoundfontDialog msfDlg(this, player->midiSynthesizer());
     msfDlg.setModal(true);
     msfDlg.setMinimumSize(msfDlg.size());
     msfDlg.exec();

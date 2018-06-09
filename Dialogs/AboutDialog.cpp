@@ -13,6 +13,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     QString version = QT_VERSION_STR;
     ui->lbQtVer->setText("Using Qt version " + version);
+    ui->lbCopyright->setText(VER_LEGALCOPYRIGHT_STR);
 }
 
 AboutDialog::~AboutDialog()

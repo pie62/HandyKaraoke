@@ -978,7 +978,7 @@ void SettingsDialog::onChbSfLoadAllToggled(bool value)
 
 void SettingsDialog::on_btnSfMap_clicked()
 {
-    MapSoundfontDialog msfDlg(this, mainWin->midiPlayer());
+    MapSoundfontDialog msfDlg(this, mainWin->midiPlayer()->midiSynthesizer());
     msfDlg.setModal(true);
     msfDlg.setMinimumSize(msfDlg.size());
     msfDlg.exec();

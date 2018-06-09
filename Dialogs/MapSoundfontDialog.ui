@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>441</width>
-    <height>447</height>
+    <width>424</width>
+    <height>469</height>
    </rect>
   </property>
   <property name="font">
@@ -31,9 +31,24 @@
       <attribute name="title">
        <string>เครื่องดนตรี</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QTreeWidget" name="treeWidget">
+        <widget class="QTableWidget" name="tableInst">
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>23</number>
+         </attribute>
          <column>
           <property name="text">
            <string>ชิ้นดนตรี</string>
@@ -52,9 +67,104 @@
       <attribute name="title">
        <string>กลอง</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTreeWidget" name="treeDrum">
+        <widget class="QTableWidget" name="tableDrum">
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>23</number>
+         </attribute>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
          <column>
           <property name="text">
            <string>ชิ้นกลอง</string>
@@ -65,88 +175,87 @@
            <string>ซาวด์ฟ้อนท์</string>
           </property>
          </column>
-         <item>
+         <item row="0" column="0">
           <property name="text">
            <string>Kick (Bass Drum)</string>
           </property>
          </item>
-         <item>
+         <item row="0" column="1">
+          <property name="text">
+           <string/>
+          </property>
+         </item>
+         <item row="1" column="0">
           <property name="text">
            <string>Snare</string>
           </property>
          </item>
-         <item>
+         <item row="2" column="0">
           <property name="text">
            <string>Side Stick/Rimshot</string>
           </property>
          </item>
-         <item>
+         <item row="3" column="0">
           <property name="text">
            <string>High Tom</string>
           </property>
          </item>
-         <item>
+         <item row="4" column="0">
           <property name="text">
            <string>Mid Tom</string>
           </property>
          </item>
-         <item>
+         <item row="5" column="0">
           <property name="text">
            <string>Low Tom</string>
           </property>
          </item>
-         <item>
+         <item row="6" column="0">
           <property name="text">
            <string>Hi-hat</string>
           </property>
          </item>
-         <item>
+         <item row="7" column="0">
           <property name="text">
            <string>Cowbell</string>
           </property>
          </item>
-         <item>
+         <item row="8" column="0">
           <property name="text">
            <string>Crash Cymbal</string>
           </property>
          </item>
-         <item>
+         <item row="9" column="0">
           <property name="text">
            <string>Ride Cymbal</string>
           </property>
          </item>
-         <item>
+         <item row="10" column="0">
           <property name="text">
            <string>Bongo</string>
           </property>
          </item>
-         <item>
+         <item row="11" column="0">
           <property name="text">
            <string>Conga</string>
           </property>
          </item>
-         <item>
+         <item row="12" column="0">
           <property name="text">
            <string>Timbale</string>
           </property>
          </item>
-         <item>
+         <item row="13" column="0">
           <property name="text">
            <string>ฉิ่ง / Triangle</string>
           </property>
-          <property name="text">
-           <string/>
-          </property>
          </item>
-         <item>
+         <item row="14" column="0">
           <property name="text">
            <string>ฉาบ</string>
           </property>
-          <property name="text">
-           <string/>
-          </property>
          </item>
-         <item>
+         <item row="15" column="0">
           <property name="text">
            <string>Percussion Etc</string>
           </property>
@@ -173,16 +282,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnOk">
+      <widget class="QPushButton" name="btnClose">
        <property name="text">
-        <string>ตกลง</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnCancel">
-       <property name="text">
-        <string>ยกเลิก</string>
+        <string>ปิด</string>
        </property>
       </widget>
      </item>
