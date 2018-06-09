@@ -26,6 +26,8 @@ struct Instrument
     int volume;
     int bus;
     int vsti;
+    int device;
+    SpeakerType speaker;
     QList<FX*> FXs;
 };
 
@@ -89,11 +91,13 @@ public:
     // Instrument Maper
     QMap<InstrumentType, Instrument> instrumentMap() { return instMap; }
     Instrument instrument(InstrumentType t) { return instMap.value(t); }
+    int  device(InstrumentType t);
     int  busGroup(InstrumentType t);
     int  volume(InstrumentType t);
     bool isMute(InstrumentType t);
     bool isSolo(InstrumentType t);
     int  useVSTi(InstrumentType t);
+    void setDevice(InstrumentType t, int device);
     void setBusGroup(InstrumentType t, int group);
     void setVolume(InstrumentType t, int volume);
     void setMute(InstrumentType t, bool m);
@@ -131,8 +135,7 @@ public:
     QList<QList<float>> fxParams(InstrumentType type);
 
     // Speakers
-    static DWORD getSpeakerFlag(SpeakerType Speaker);
-    void setSpeaker(InstrumentType type, int device, SpeakerType Speaker);
+    void setSpeaker(InstrumentType type, SpeakerType Speaker);
 
     #ifndef __linux__
     BASS_VST_INFO vstiInfo(int vstiIndex);

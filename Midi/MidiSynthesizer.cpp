@@ -49,6 +49,8 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         im.volume = 50;
         im.bus = -1;
         im.vsti = -1;
+        im.device = 1;
+        im.speaker = SpeakerType::Default;
 
         instMap[t] = im;
 
@@ -166,10 +168,11 @@ bool MidiSynthesizer::open()
     }
 
 
-    // Check volume .. mute.. solo.. bus.. and VST
+    // Check device.. volume .. mute.. solo.. bus.. and VST
     for (int i=0; i<HANDLE_STREAM_COUNT; i++)
     {
         InstrumentType t = static_cast<InstrumentType>(i);
+        setDevice(t, instMap[t].device);
         setVolume(t, instMap[t].volume);
         setMute(t, instMap[t].mute);
         setSolo(t, instMap[t].solo);
@@ -745,6 +748,11 @@ void MidiSynthesizer::sendResetAllControllers()
     }
 }
 
+int MidiSynthesizer::device(InstrumentType t)
+{
+    return instMap[t].device;
+}
+
 int MidiSynthesizer::busGroup(InstrumentType t)
 {
     return instMap[t].bus;
@@ -768,6 +776,19 @@ bool MidiSynthesizer::isSolo(InstrumentType t)
 int MidiSynthesizer::useVSTi(InstrumentType t)
 {
     return instMap[t].vsti;
+}
+
+void MidiSynthesizer::setDevice(InstrumentType t, int device)
+{
+    if (device < 0 || device >= audioDevices().size())
+        return;
+
+    instMap[t].device = device;
+
+    if (!openned)
+        return;
+
+    BASS_ChannelSetDevice(handles[t], device);
 }
 
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
@@ -1044,44 +1065,7 @@ QList<QList<float> > MidiSynthesizer::fxParams(InstrumentType type)
     return params;
 }
 
-DWORD MidiSynthesizer::getSpeakerFlag(SpeakerType Speaker)
-{
-    switch (Speaker)
-    {
-    case SpeakerType::SpeakerDefault:
-        return 0;
-
-    case SpeakerType::SpeakerFrontStereo:
-        return BASS_SPEAKER_FRONT;
-    case SpeakerType::SpeakerFrontLeft:
-        return BASS_SPEAKER_FRONTLEFT;
-    case SpeakerType::SpeakerFrontRight:
-        return BASS_SPEAKER_FRONTRIGHT;
-
-    case SpeakerType::SpeakerRearStereo:
-        return BASS_SPEAKER_REAR;
-    case SpeakerType::SpeakerRearLeft:
-        return BASS_SPEAKER_REARLEFT;
-    case SpeakerType::SpeakerRearRight:
-        return BASS_SPEAKER_REARRIGHT;
-
-    case SpeakerType::SpeakerCenterStereo:
-        return BASS_SPEAKER_CENLFE;
-    case SpeakerType::SpeakerCenterMono:
-        return BASS_SPEAKER_CENTER;
-    case SpeakerType::SpeakerSubwooferMono:
-        return BASS_SPEAKER_LFE;
-
-    case SpeakerType::SpeakerSideStereo:
-        return BASS_SPEAKER_REAR2;
-    case SpeakerType::SpeakerSideLeft:
-        return BASS_SPEAKER_REAR2LEFT;
-    case SpeakerType::SpeakerSideRight:
-        return BASS_SPEAKER_REAR2RIGHT;
-    }
-}
-
-void MidiSynthesizer::setSpeaker(InstrumentType type, int device, SpeakerType Speaker)
+void MidiSynthesizer::setSpeaker(InstrumentType type, SpeakerType Speaker)
 {
 
 }
