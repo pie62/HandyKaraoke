@@ -168,6 +168,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     { // Synth tab
         MidiSynthesizer *synth =  mainWin->midiPlayer()->midiSynthesizer();
 
+        ui->chbSfLoadAll->setChecked(synth->isLoadAllSoundfont());
         ui->listsfFiles->addItems(synth->soundfontFiles());
 
         if (synth->equalizer31BandFX()->isOn())
@@ -972,6 +973,7 @@ void SettingsDialog::onListSfCurrentRowChanged(int currentRow)
 void SettingsDialog::onChbSfLoadAllToggled(bool value)
 {
     mainWin->midiPlayer()->midiSynthesizer()->setLoadAllSoundfont(value);
+    settings->setValue("SynthSoundfontsLoadAll", value);
 }
 
 void SettingsDialog::on_btnSfMap_clicked()

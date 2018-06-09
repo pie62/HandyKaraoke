@@ -121,6 +121,8 @@ void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)
 {
     QSettings settings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
 
+    synth->setLoadAllSoundfont(settings.value("SynthSoundfontsLoadAll", false).toBool());
+
     // set soundfont to synth
     QStringList sfList = settings.value("SynthSoundfonts", QStringList()).toStringList();
     settings.beginReadArray("SynthSoundfontsVolume");
