@@ -97,12 +97,14 @@ public:
     bool isMute(InstrumentType t);
     bool isSolo(InstrumentType t);
     int  useVSTi(InstrumentType t);
+    SpeakerType speaker(InstrumentType t);
     void setDevice(InstrumentType t, int device);
     void setBusGroup(InstrumentType t, int group);
     void setVolume(InstrumentType t, int volume);
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
     void setUseVSTi(InstrumentType t, int vstiIndex);
+    void setSpeaker(InstrumentType t, SpeakerType speaker);
 
 
     static std::vector<std::string> audioDevices();
@@ -134,9 +136,6 @@ public:
     QList<int> fxProgram(InstrumentType type);
     QList<QList<float>> fxParams(InstrumentType type);
 
-    // Speakers
-    void setSpeaker(InstrumentType type, SpeakerType Speaker);
-
     #ifndef __linux__
     BASS_VST_INFO vstiInfo(int vstiIndex);
     QStringList vstiFiles();
@@ -150,11 +149,15 @@ public:
 
     const int HANDLE_STREAM_COUNT = 62;
     const int HANDLE_MIDI_COUNT = 46;
-    const int HANDLE_BUS_COUNT = 16;
     const int HANDLE_VSTI_START = 42;
+    const int HANDLE_BUS_COUNT = 16;
+    const int HANDLE_BUS_START = 46;
 
 signals:
     void noteOnSended(InstrumentType t, int bus, int ch, int note, int velocity);
+
+private:
+    DWORD createStream(InstrumentType t);
 
 private:
     HSTREAM mixHandle;

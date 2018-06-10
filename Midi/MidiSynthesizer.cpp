@@ -108,65 +108,11 @@ bool MidiSynthesizer::open()
     mixHandle = BASS_Mixer_StreamCreate(44100, 2, f);
     BASS_ChannelSetDevice(mixHandle, outDev);
 
-    DWORD flags = BASS_STREAM_DECODE|BASS_MIDI_SINCINTER;
-    if (useFloat)
-        flags = flags|BASS_SAMPLE_FLOAT;
-    if (!useFX) {
-        flags = flags|BASS_MIDI_NOFX;
-    }
-
-    // Create midi stream
-    for (int i=0; i<HANDLE_MIDI_COUNT; i++)
+    for (int i=0; i<HANDLE_STREAM_COUNT; i++)
     {
         InstrumentType t = static_cast<InstrumentType>(i);
-        DWORD h = 0;
-
-        if (i < HANDLE_MIDI_COUNT-4)
-            h = BASS_MIDI_StreamCreate(16, flags, 0);
-        else
-        {
-            #ifdef __linux__
-            h = 0;
-            #else
-            int fIndex = i - (HANDLE_MIDI_COUNT-4);
-            if (mVstiFiles[fIndex] == "")
-                h = 0;
-            else
-            {
-                #ifdef _WIN32
-                h = BASS_VST_ChannelCreate(44100, 2, mVstiFiles[fIndex].toStdWString().c_str(),
-                                           f|BASS_UNICODE|BASS_STREAM_DECODE);
-                #else
-                h = BASS_VST_ChannelCreate(44100, 2, mVstiFiles[fIndex].toStdString().c_str(),
-                                           f|BASS_STREAM_DECODE);
-                #endif
-                if (f)
-                {
-                    BASS_VST_INFO info;
-                    BASS_VST_GetInfo(h, &info);
-                    mVstiInfos[fIndex] = info;
-                    BASS_VST_SetProgram(h, mVstiTempProgram[fIndex]);
-                    FX::setVSTParams(h, mVstiTempParams[fIndex]);
-                }
-            }
-            #endif
-        }
-
-        BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
-
-        handles[t] = h;
+        handles[t] = createStream(t);
     }
-
-    // Create bus stream
-    for (int i=HANDLE_MIDI_COUNT; i<HANDLE_STREAM_COUNT; i++)
-    {
-        HSTREAM h = BASS_Mixer_StreamCreate(44100, 2, f|BASS_STREAM_DECODE);
-        BASS_Mixer_StreamAddChannel(mixHandle, h, 0);
-
-        InstrumentType t = static_cast<InstrumentType>(i);
-        handles[t] = h;
-    }
-
 
     // Check device.. volume .. mute.. solo.. bus.. and VST
     for (int i=0; i<HANDLE_STREAM_COUNT; i++)
@@ -778,6 +724,11 @@ int MidiSynthesizer::useVSTi(InstrumentType t)
     return instMap[t].vsti;
 }
 
+SpeakerType MidiSynthesizer::speaker(InstrumentType t)
+{
+    return instMap[t].speaker;
+}
+
 void MidiSynthesizer::setDevice(InstrumentType t, int device)
 {
     if (device < 0 || device >= audioDevices().size())
@@ -789,7 +740,7 @@ void MidiSynthesizer::setDevice(InstrumentType t, int device)
         return;
 
     if (!BASS_ChannelSetDevice(handles[t], device))
-        instMap[t].device = BASS_GetDevice();
+        instMap[t].device = outDev;
 }
 
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
@@ -804,11 +755,13 @@ void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
 
     BASS_Mixer_ChannelRemove(handles[t]);
 
+    DWORD flag = MidiHelper::getSpeakerFlag(instMap[t].speaker);
+
     if (group == -1) {
-        BASS_Mixer_StreamAddChannel(mixHandle, handles[t], 0);
+        BASS_Mixer_StreamAddChannel(mixHandle, handles[t], flag);
     } else {
         InstrumentType toType = static_cast<InstrumentType>(group + HANDLE_MIDI_COUNT);
-        BASS_Mixer_StreamAddChannel(handles[toType], handles[t], 0);
+        BASS_Mixer_StreamAddChannel(handles[toType], handles[t], flag|BASS_MIXER_DOWNMIX);
     }
 }
 
@@ -877,7 +830,42 @@ void MidiSynthesizer::setUseVSTi(InstrumentType t, int vstiIndex)
     if (vstiIndex < -1 || vstiIndex > 4)
         return;
 
+    int oldVstiIndex = instMap[t].vsti;
     instMap[t].vsti = vstiIndex;
+
+    if (oldVstiIndex != -1 && vstiHandle(oldVstiIndex) != 0)
+    {
+        InstrumentType type = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
+        for (int ch=0; ch<16; ch++)
+            BASS_VST_ProcessEvent(handles[type], ch, MIDI_EVENT_NOTESOFF, 0);
+    }
+}
+
+void MidiSynthesizer::setSpeaker(InstrumentType t, SpeakerType speaker)
+{
+    instMap[t].speaker = speaker;
+
+    if (!openned)
+        return;
+
+    BASS_Mixer_ChannelRemove(handles[t]);
+    BASS_VST_ChannelFree(handles[t]);
+    BASS_StreamFree(handles[t]);
+
+    handles[t] = createStream(t);
+
+    // Check device.. volume .. mute.. solo.. bus.. and VST
+    setDevice(t, instMap[t].device);
+    setVolume(t, instMap[t].volume);
+    setMute(t, instMap[t].mute);
+    setSolo(t, instMap[t].solo);
+    setBusGroup(t, instMap[t].bus); // speaker will set in here
+
+    // Set stream handle to FX
+    for (FX *fx : instMap[t].FXs)
+        fx->setStreamHandle(handles[t]);
+
+    setMapSoundfontIndex(instmSf, drumSf);
 }
 
 std::vector<std::string> MidiSynthesizer::audioDevices()
@@ -1066,11 +1054,6 @@ QList<QList<float> > MidiSynthesizer::fxParams(InstrumentType type)
     return params;
 }
 
-void MidiSynthesizer::setSpeaker(InstrumentType type, SpeakerType Speaker)
-{
-
-}
-
 #ifndef __linux__
 
 BASS_VST_INFO MidiSynthesizer::vstiInfo(int vstiIndex)
@@ -1138,14 +1121,7 @@ DWORD MidiSynthesizer::setVSTiFile(int vstiIndex, const QString &file)
     BASS_Mixer_ChannelRemove(vsti);
     BASS_VST_ChannelFree(vsti);
 
-    DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
-    #ifdef _WIN32
-    vsti = BASS_VST_ChannelCreate(44100, 2,file.toStdWString().c_str(),
-                               f|BASS_UNICODE|BASS_STREAM_DECODE);
-    #else
-    h = BASS_VST_ChannelCreate(44100, 2, file.toStdString().c_str(),
-                               f|BASS_STREAM_DECODE);
-    #endif
+    vsti = createStream(t);
 
     if (vsti)
     {
@@ -1155,13 +1131,13 @@ DWORD MidiSynthesizer::setVSTiFile(int vstiIndex, const QString &file)
         mVstiTempProgram[vstiIndex] = 0;
         mVstiTempParams[vstiIndex].clear();
 
-        BASS_Mixer_StreamAddChannel(mixHandle, vsti, 0);
         handles[t] = vsti;
 
+        setDevice(t, instMap[t].device);
         setVolume(t, instMap[t].volume);
         setMute(t, instMap[t].mute);
         setSolo(t, instMap[t].solo);
-        setBusGroup(t, instMap[t].bus);
+        setBusGroup(t, instMap[t].bus); // speaker will set here
 
         // Set stream handle to FX
         for (FX *fx : instMap[t].FXs)
@@ -1192,6 +1168,58 @@ void MidiSynthesizer::removeVSTiFile(int vstiIndex)
     mVstiInfos[vstiIndex] = BASS_VST_INFO();
     mVstiTempProgram[vstiIndex] = 0;
     mVstiTempParams[vstiIndex].clear();
+}
+
+DWORD MidiSynthesizer::createStream(InstrumentType t)
+{
+    int index = static_cast<int>(t);
+
+    DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
+
+    if (index < HANDLE_MIDI_COUNT)  // Midi & VSTi stream
+    {
+        if (index < HANDLE_MIDI_COUNT-4) // Midi
+        {
+             DWORD flags = f|BASS_STREAM_DECODE|BASS_MIDI_SINCINTER;
+             if (!useFX) flags = flags|BASS_MIDI_NOFX;
+             if (!MidiHelper::isStereoSpeaker(instMap[t].speaker))
+                 flags = flags|BASS_SAMPLE_MONO;
+
+            return BASS_MIDI_StreamCreate(16, flags, 44100);
+        }
+        else // VSTi
+        {
+            #ifdef __linux__
+            return 0;
+            #else
+            int vIndex = index - (HANDLE_MIDI_COUNT-4);
+            int chan = MidiHelper::isStereoSpeaker(instMap[t].speaker) ? 2 : 1;
+            if (mVstiFiles[vIndex] == "")
+                return 0;
+            #ifdef _WIN32
+            DWORD h = BASS_VST_ChannelCreate(44100, chan, mVstiFiles[vIndex].toStdWString().c_str(),
+                                       f|BASS_UNICODE|BASS_STREAM_DECODE);
+            #else
+            DWORD h = BASS_VST_ChannelCreate(44100, chan, mVstiFiles[vIndex].toStdString().c_str(),
+                                       f|BASS_STREAM_DECODE);
+            #endif
+            if (h)
+            {
+                BASS_VST_INFO info;
+                BASS_VST_GetInfo(h, &info);
+                mVstiInfos[vIndex] = info;
+                BASS_VST_SetProgram(h, mVstiTempProgram[vIndex]);
+                FX::setVSTParams(h, mVstiTempParams[vIndex]);
+            }
+            return h; // vsti handle
+            #endif
+        }
+    }
+    else // bus stream
+    {
+        int chan = MidiHelper::isStereoSpeaker(instMap[t].speaker) ? 2 : 1;
+        return BASS_Mixer_StreamCreate(44100, chan, f|BASS_STREAM_DECODE);
+    }
 }
 
 #endif

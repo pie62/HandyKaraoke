@@ -476,3 +476,17 @@ DWORD MidiHelper::getSpeakerFlag(SpeakerType Speaker)
         return BASS_SPEAKER_REAR2RIGHT;
     }
 }
+
+bool MidiHelper::isStereoSpeaker(SpeakerType speaker)
+{
+    switch (speaker) {
+    case SpeakerType::Default:
+    case SpeakerType::FrontStereo:
+    case SpeakerType::RearStereo:
+    case SpeakerType::CenterStereo:
+    case SpeakerType::SideStereo:
+        return true;
+    default:
+        return false;
+    }
+}

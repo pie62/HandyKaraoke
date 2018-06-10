@@ -32,7 +32,8 @@ public:
     static InstrumentType getInstrumentDrumType(int drumNote);
     static InstrumentType getInstrumentType(int instNumber);
 
-    static DWORD MidiHelper::getSpeakerFlag(SpeakerType Speaker);
+    static DWORD getSpeakerFlag(SpeakerType Speaker);
+    static bool isStereoSpeaker(SpeakerType speaker);
 };
 
 enum class InstrumentType
