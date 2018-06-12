@@ -130,6 +130,6 @@
         <file>Icons/SoundCard/ports-small/port-sm-side.png</file>
         <file>Icons/SoundCard/ports-small/port-sm-side-left.png</file>
         <file>Icons/SoundCard/ports-small/port-sm-side-right.png</file>
-        <file>Icons/speakers.png</file>
+        <file>Icons/speaker.png</file>
     </qresource>
 </RCC>

@@ -150,12 +150,15 @@
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
        </property>
+       <property name="toolTip">
+        <string>แยกอุปกรณ์เสียง / ลำโพง</string>
+       </property>
        <property name="text">
         <string>แยกลำโพง...</string>
        </property>
        <property name="icon">
         <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/speakers.png</normaloff>:/Icons/speakers.png</iconset>
+         <normaloff>:/Icons/speaker.png</normaloff>:/Icons/speaker.png</iconset>
        </property>
       </widget>
      </item>
