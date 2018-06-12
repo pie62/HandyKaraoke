@@ -49,7 +49,7 @@ SongDatabase::SongDatabase()
 
     db.open();
 
-    this->checkAddNoCaseIndex();
+    //this->checkAddNoCaseIndex();
 }
 
 SongDatabase::~SongDatabase()

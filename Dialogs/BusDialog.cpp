@@ -3,6 +3,8 @@
 
 #include <QMenu>
 
+#include "Dialogs/DialogHelper.h"
+
 
 BusDialog::BusDialog(QWidget *parent, QMap<InstrumentType, InstCh *> *chInstMap, MidiSynthesizer *synth) :
     QDialog(parent),

@@ -134,14 +134,28 @@
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="toolTip">
-        <string>ตัวจัดการ Bus Group</string>
+        <string>บัสกรุ๊ป</string>
        </property>
        <property name="text">
-        <string>Bus...</string>
+        <string>บัสกรุ๊ป...</string>
        </property>
        <property name="icon">
         <iconset resource="../icons.qrc">
          <normaloff>:/Icons/list-ol.png</normaloff>:/Icons/list-ol.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSpeakers">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>แยกลำโพง...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../icons.qrc">
+         <normaloff>:/Icons/speakers.png</normaloff>:/Icons/speakers.png</iconset>
        </property>
       </widget>
      </item>
@@ -151,7 +165,7 @@
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="toolTip">
-        <string>ที่เก็บ VST</string>
+        <string>ตัวจัดการ VST Effects &amp; VST instruments</string>
        </property>
        <property name="text">
         <string>VST &amp;&amp; VSTi...</string>

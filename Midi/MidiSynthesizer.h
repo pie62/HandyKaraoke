@@ -1,23 +1,24 @@
 #ifndef MIDISYNTHESIZER_H
 #define MIDISYNTHESIZER_H
 
+#include <QObject>
+#include <QMap>
+
 #include <bass.h>
 #include <bassmidi.h>
 #include <bassmix.h>
 #include <bass_fx.h>
+
+#include "Midi/MixerManager.h"
+#include "Midi/MidiHelper.h"
 
 #include "BASSFX/FX.h"
 #include "BASSFX/Equalizer31BandFX.h"
 #include "BASSFX/ReverbFX.h"
 #include "BASSFX/ChorusFX.h"
 
-#include "Midi/MidiHelper.h"
 
-#include <QObject>
-#include <QMap>
-
-
-struct Instrument
+typedef struct
 {
     InstrumentType type;
     bool mute;
@@ -29,7 +30,7 @@ struct Instrument
     int device;
     SpeakerType speaker;
     QList<FX*> FXs;
-};
+} Instrument;
 
 typedef struct
 {
@@ -52,8 +53,8 @@ public:
     bool open();
     void close();
 
-    int outPutDevice();
-    bool setOutputDevice(int dv);
+    int defaultDevice();
+    bool setDefaultDevice(int dv);
     void setVolume(float vol);
     float volume() { return synth_volume; }
 
@@ -107,7 +108,8 @@ public:
     void setSpeaker(InstrumentType t, SpeakerType speaker);
 
 
-    static std::vector<std::string> audioDevices();
+    static QStringList audioDevices();
+    static void audioDevices(const QMap<int, QString> &devices);
     static bool isSoundFontFile(const QString &sfile);
 
     // Fx ----------------------
@@ -159,8 +161,14 @@ signals:
 private:
     DWORD createStream(InstrumentType t);
 
+    void sendToAllMidiStream(int ch, DWORD eventType, DWORD param);
+    void setSfToStream();
+    void calculateEnable();
+    HSTREAM getDrumHandleFromNote(int drumNote);
+
 private:
-    HSTREAM mixHandle;
+    MixerManager mixers;
+    //HSTREAM mixHandle;
     QMap<InstrumentType, HSTREAM> handles;
     QList<HSOUNDFONT> synth_HSOUNDFONT;
     QStringList sfFiles;
@@ -189,18 +197,15 @@ private:
     bool openned = false;
     bool useSolo = false;
 
-    int outDev = 1;
+    int defaultDev = 1;
     bool useFloat = true;
     bool useFX = false;
     bool sfLoadAll = false;
 
     DWORD RPNType = 0;
 
-    void sendToAllMidiStream(int ch, DWORD eventType, DWORD param);
-    void setSfToStream();
-    void calculateEnable();
-    HSTREAM getDrumHandleFromNote(int drumNote);
-    std::vector<int> getChannelsFromType(InstrumentType t);
+    // device number, name
+    static QMap<int, QString> outDevices;
 };
 
 #endif // MIDISYNTHESIZER_H

@@ -27,11 +27,25 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    // Init BASS
-    for (int i=0; i<MidiSynthesizer::audioDevices().size(); i++)
-    {
-        BASS_Init(i, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
+
+    { // List audio device
+        QMap<int, QString> dvs;
+        int a, count=0;
+        BASS_DEVICEINFO info;
+        for (a=0; BASS_GetDeviceInfo(a, &info); a++) {
+            if (info.flags&BASS_DEVICE_ENABLED) { // device is enabled
+                BASS_Init(a, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
+                dvs[a] =  QString(info.name);
+                count++; // count it
+            }
+        }
+        MidiSynthesizer::audioDevices(dvs);
     }
+    // Init BASS
+    //for (int i=0; i<MidiSynthesizer::audioDevices().size(); i++)
+    //{
+    //    BASS_Init(i, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
+    //}
 
     BASS_SetDevice(1);
     BASS_FX_GetVersion();
@@ -45,7 +59,10 @@ MainWindow::MainWindow(QWidget *parent) :
     BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
     // End Init BASS
 
-    //TEst
+    //List audio devices
+    {
+
+    }
 
 
     lyrWidget = new LyricsWidget(this);
@@ -191,8 +208,8 @@ MainWindow::MainWindow(QWidget *parent) :
         MidiSynthesizer *synth = player->midiSynthesizer();
 
         // Audio out
-        int aout = settings->value("AudioOut", 1).toInt();
-        synth->setOutputDevice(aout);
+        int aout = settings->value("SynthDefaultDevice", 1).toInt();
+        synth->setDefaultDevice(aout);
 
         // floating and fx
         bool useFloat = settings->value("SynthFloatPoint", true).toBool();

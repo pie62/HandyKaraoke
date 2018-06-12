@@ -2,6 +2,9 @@
 #define UTILS_H
 
 #include <QFile>
+#include <QMenu>
+#include <QSignalMapper>
+
 #include "Song.h"
 #include "Midi/MidiSynthesizer.h"
 

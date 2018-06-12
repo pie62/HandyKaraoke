@@ -51,7 +51,7 @@
          </attribute>
          <column>
           <property name="text">
-           <string>ชิ้นดนตรี</string>
+           <string>เครื่องดนตรี</string>
           </property>
          </column>
          <column>

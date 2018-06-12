@@ -8,6 +8,7 @@
 #include <QDir>
 
 #include "Config.h"
+#include "Midi/MidiHelper.h"
 
 Utils::Utils()
 {

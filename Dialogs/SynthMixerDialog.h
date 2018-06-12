@@ -55,6 +55,7 @@ private slots:
     void removeFX();
 
     void on_btnBus_clicked();
+    void on_btnSpeakers_clicked();
     void on_btnVSTDirs_clicked();
 
 protected:

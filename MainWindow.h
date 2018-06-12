@@ -122,6 +122,8 @@ private:
     QWinTaskbarButton *taskbarButton;
     #endif
 
+    QList<DWORD> streams;
+
 private slots:
     void showFrameSearch();
     void showPlaylist();

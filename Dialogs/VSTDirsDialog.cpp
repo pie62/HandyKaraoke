@@ -218,7 +218,6 @@ bool VSTDirsDialog::setVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QL
 
     PlayerState state = mainWindow->midiPlayer()->playerState();
     int position = mainWindow->midiPlayer()->positionTick();
-
     if (synth->isOpened() && mainWindow->midiPlayer()->isPlayerPlaying())
         mainWindow->stop();
 

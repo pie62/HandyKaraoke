@@ -32,7 +32,7 @@ public:
     static InstrumentType getInstrumentDrumType(int drumNote);
     static InstrumentType getInstrumentType(int instNumber);
 
-    static DWORD getSpeakerFlag(SpeakerType Speaker);
+    static DWORD getSpeakerFlag(SpeakerType speaker);
     static bool isStereoSpeaker(SpeakerType speaker);
 };
 

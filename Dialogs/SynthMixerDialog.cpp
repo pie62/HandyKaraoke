@@ -7,6 +7,7 @@
 #include "Dialogs/SettingVuDialog.h"
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
+#include "Dialogs/SpeakerDialog.h"
 
 #include "FXDialogs/AutoWahFXDialog.h"
 #include "FXDialogs/ChorusFXDialog.h"
@@ -97,11 +98,13 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         for (InstrumentType t : chInstMap.keys())
         {
             st.setArrayIndex(static_cast<int>(t));
+            int dv = st.value("Device", 0).toInt();
             int  b = st.value("Bus", -1).toInt();
             int ml = st.value("Volume", 50).toInt();
             bool m = st.value("Mute", false).toBool();
             bool s = st.value("Solo", false).toBool();
             int  v = st.value("VSTi", -1).toInt();
+            int sp = st.value("Speaker", 0).toInt();
 
             InstCh * ich = chInstMap[t];
             ich->setSliderLevel(ml);
@@ -119,11 +122,13 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
             vBar->setShowPeakHold(sph);
             vBar->setPeakHoldMs(phm);
 
+            synth->setDevice(t, dv);
             synth->setBusGroup(t, b);
             synth->setVolume(t, ml);
             synth->setMute(t, m);
             synth->setSolo(t, s);
             synth->setUseVSTi(t, v);
+            synth->setSpeaker(t, static_cast<SpeakerType>(sp));
         }
         st.endArray();
     }
@@ -816,6 +821,14 @@ void SynthMixerDialog::removeFX()
 void SynthMixerDialog::on_btnBus_clicked()
 {
     BusDialog dlg(this, &chInstMap, synth);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.exec();
+}
+
+void SynthMixerDialog::on_btnSpeakers_clicked()
+{
+    SpeakerDialog dlg(this, &chInstMap, mainWin);
     dlg.setModal(true);
     dlg.adjustSize();
     dlg.exec();

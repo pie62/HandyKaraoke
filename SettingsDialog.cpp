@@ -266,12 +266,12 @@ void SettingsDialog::initDeviceTab()
 
 
     // Audio devices
-    std::vector<std::string> dvnames = MidiSynthesizer::audioDevices();
+    QStringList dvnames = MidiSynthesizer::audioDevices();
     int aSelected = 0;
-    for (int i=1; i<dvnames.size(); i++)
+    for (int i=1; i<dvnames.count(); i++)
     {
-        ui->cbAudioOut->addItem(QString::fromStdString(dvnames[i]));
-        if (i == player->midiSynthesizer()->outPutDevice())
+        ui->cbAudioOut->addItem(dvnames[i]);
+        if (i == player->midiSynthesizer()->defaultDevice())
             aSelected = i-1;
     }
     ui->cbAudioOut->setCurrentIndex(aSelected);
@@ -534,11 +534,9 @@ void SettingsDialog::on_cbAudioOut_activated(int index)
         return;
     }*/
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
-    if (index == synth->outPutDevice())
-        return;
 
-    synth->setOutputDevice(index+1);
-    settings->setValue("AudioOut", index+1);
+    synth->setDefaultDevice(index+1);
+    settings->setValue("SynthDefaultDevice", index+1);
     /*if (BASS_SetDevice(index) == BASS_OK) {
         settings->setValue("defaultAudioDevice", index);
     } else {

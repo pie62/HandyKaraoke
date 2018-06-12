@@ -554,7 +554,7 @@
          </attribute>
          <column>
           <property name="text">
-           <string>ชิ้นดนตรี้</string>
+           <string>เครื่องดนตรี</string>
           </property>
          </column>
          <column>

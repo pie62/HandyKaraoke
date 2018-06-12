@@ -12,8 +12,10 @@
 #include <QDebug>
 
 
-MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
-{
+MidiSynthesizer::MidiSynthesizer(QObject *parent) :
+    QObject(parent),
+    mixers(outDevices)
+{   
     for (int i=0; i<129; i++) {
         instmSf.append(0);
     }
@@ -49,7 +51,7 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         im.volume = 50;
         im.bus = -1;
         im.vsti = -1;
-        im.device = 1;
+        im.device = 0;
         im.speaker = SpeakerType::Default;
 
         instMap[t] = im;
@@ -103,12 +105,11 @@ bool MidiSynthesizer::open()
 
     openned = true;
 
-    // create mix stream
-    DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
-    mixHandle = BASS_Mixer_StreamCreate(44100, 2, f);
-    BASS_ChannelSetDevice(mixHandle, outDev);
+    // create mixer, bus
+    mixers.open(defaultDev, useFloat);
 
-    for (int i=0; i<HANDLE_STREAM_COUNT; i++)
+    // create midi stream
+    for (int i=0; i<HANDLE_MIDI_COUNT; i++)
     {
         InstrumentType t = static_cast<InstrumentType>(i);
         handles[t] = createStream(t);
@@ -122,41 +123,27 @@ bool MidiSynthesizer::open()
         setVolume(t, instMap[t].volume);
         setMute(t, instMap[t].mute);
         setSolo(t, instMap[t].solo);
-        setBusGroup(t, instMap[t].bus);
+        setBusGroup(t, instMap[t].bus);  // speaker will set here
+
+        if (t >= InstrumentType::BusGroup1)
+            continue;
 
         // Set stream handle to FX
         for (FX *fx : instMap[t].FXs)
-        {
             fx->setStreamHandle(handles[t]);
-        }
     }
 
     setSfToStream();
+    setMapSoundfontIndex(instmSf, drumSf);
+    setVolume(synth_volume);
 
-    bool checkDrumSfMap = true;
-    for (int sfInex : instmSf) {
-        if (sfInex > 0) {
-            setMapSoundfontIndex(instmSf, drumSf);
-            checkDrumSfMap = false;
-            break;
-        }
+    // Set fx to mixer
+    for (DWORD mix : mixers.mixerHandles())
+    {
+        eq->setStreamHandle(mix);
+        reverb->setStreamHandle(mix);
+        chorus->setStreamHandle(mix);
     }
-
-    if (checkDrumSfMap) {
-        for (int sfIndex : drumSf) {
-            if (sfIndex > 0) {
-                setMapSoundfontIndex(instmSf, drumSf);
-                break;
-            }
-        }
-    }
-
-    // Set stream to Fx
-    eq->setStreamHandle(mixHandle);
-    reverb->setStreamHandle(mixHandle);
-    chorus->setStreamHandle(mixHandle);
-
-    BASS_ChannelPlay(mixHandle, false);
 
     return true;
 }
@@ -166,22 +153,28 @@ void MidiSynthesizer::close()
     if (!openned)
         return;
 
-    BASS_ChannelStop(mixHandle);
-
     // Clear FX
     for (InstrumentType t : instMap.keys())
     {
+        if (t >= InstrumentType::BusGroup1)
+            break;
+
         for (FX *fx : instMap[t].FXs) {
             fx->setStreamHandle(0);
         }
     }
 
-    eq->setStreamHandle(0);
-    reverb->setStreamHandle(0);
-    chorus->setStreamHandle(0);
+    { // mixer fx
+        eq->setStreamHandle(0);
+        reverb->setStreamHandle(0);
+        chorus->setStreamHandle(0);
+    }
 
     for (InstrumentType t: handles.keys())
     {
+        if (t >= InstrumentType::BusGroup1)
+            break;
+
         HSTREAM h = handles[t];
 
         if (t==InstrumentType::VSTi1 || t==InstrumentType::VSTi2
@@ -201,23 +194,28 @@ void MidiSynthesizer::close()
     // compact soundfont
     BASS_MIDI_FontCompact(0);
 
-    BASS_StreamFree(mixHandle);
+    mixers.close();
 
     openned = false;
 }
 
-int MidiSynthesizer::outPutDevice()
+int MidiSynthesizer::defaultDevice()
 {
-    return outDev;
+    return defaultDev;
 }
 
-bool MidiSynthesizer::setOutputDevice(int dv)
+bool MidiSynthesizer::setDefaultDevice(int dv)
 {
     if (openned)
     {
-        if (BASS_ChannelSetDevice(mixHandle, dv))
+        DWORD mix = mixers.mixerHandle(0);
+        BASS_ChannelStop(mix);
+        bool rs = BASS_ChannelSetDevice(mix, dv);
+        BASS_ChannelPlay(mix, false);
+
+        if (rs)
         {
-            outDev = dv;
+            defaultDev = dv;
             return true;
         }
         else
@@ -227,9 +225,9 @@ bool MidiSynthesizer::setOutputDevice(int dv)
     }
     else
     {
-        if (dv < audioDevices().size())
+        if (dv < audioDevices().count())
         {
-            outDev = dv;
+            defaultDev = dv;
             return true;
         }
         else
@@ -239,9 +237,9 @@ bool MidiSynthesizer::setOutputDevice(int dv)
 
 void MidiSynthesizer::setVolume(float vol)
 {
-    if (BASS_ChannelSetAttribute(mixHandle, BASS_ATTRIB_VOL, vol)) {
-        synth_volume = vol;
-    }
+    synth_volume = vol;
+    for (DWORD mix : mixers.mixerHandles())
+        BASS_ChannelSetAttribute(mix, BASS_ATTRIB_VOL, vol);
 }
 
 bool MidiSynthesizer::addSoundfont(const QString &sfFile)
@@ -731,7 +729,10 @@ SpeakerType MidiSynthesizer::speaker(InstrumentType t)
 
 void MidiSynthesizer::setDevice(InstrumentType t, int device)
 {
-    if (device < 0 || device >= audioDevices().size())
+    if (t >= InstrumentType::BusGroup1)
+        return;
+
+    if (device < 0 || device >= audioDevices().count())
         return;
 
     instMap[t].device = device;
@@ -739,8 +740,9 @@ void MidiSynthesizer::setDevice(InstrumentType t, int device)
     if (!openned)
         return;
 
-    if (!BASS_ChannelSetDevice(handles[t], device))
-        instMap[t].device = outDev;
+    BASS_Mixer_ChannelRemove(handles[t]);
+    DWORD flag = MidiHelper::getSpeakerFlag(instMap[t].speaker);
+    mixers.moveChannel(handles[t], instMap[t].device, instMap[t].bus, flag);
 }
 
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
@@ -757,12 +759,7 @@ void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
 
     DWORD flag = MidiHelper::getSpeakerFlag(instMap[t].speaker);
 
-    if (group == -1) {
-        BASS_Mixer_StreamAddChannel(mixHandle, handles[t], flag);
-    } else {
-        InstrumentType toType = static_cast<InstrumentType>(group + HANDLE_MIDI_COUNT);
-        BASS_Mixer_StreamAddChannel(handles[toType], handles[t], flag|BASS_MIXER_DOWNMIX);
-    }
+    mixers.moveChannel(handles[t], instMap[t].device, instMap[t].bus, flag);
 }
 
 void MidiSynthesizer::setVolume(InstrumentType t, int volume)
@@ -780,7 +777,16 @@ void MidiSynthesizer::setVolume(InstrumentType t, int volume)
     if (!instMap[t].enable)
         return;
 
-    BASS_ChannelSetAttribute(handles[t], BASS_ATTRIB_VOL, instMap[t].volume / 100.0f);
+    if (t < InstrumentType::BusGroup1)
+        BASS_ChannelSetAttribute(handles[t], BASS_ATTRIB_VOL, instMap[t].volume / 100.0f);
+    else
+    {
+        int busNumber = static_cast<int>(t) - HANDLE_BUS_START;
+        for (int i=0; i<mixers.mixerCount(); i++)
+            BASS_ChannelSetAttribute(mixers.busHandle(i, busNumber),
+                                     BASS_ATTRIB_VOL,
+                                     instMap[t].volume / 100.0f);
+    }
 }
 
 void MidiSynthesizer::setMute(InstrumentType t, bool m)
@@ -827,6 +833,9 @@ void MidiSynthesizer::setSolo(InstrumentType t, bool s)
 
 void MidiSynthesizer::setUseVSTi(InstrumentType t, int vstiIndex)
 {
+    if (t >= InstrumentType::BusGroup1)
+        return;
+
     if (vstiIndex < -1 || vstiIndex > 4)
         return;
 
@@ -843,6 +852,9 @@ void MidiSynthesizer::setUseVSTi(InstrumentType t, int vstiIndex)
 
 void MidiSynthesizer::setSpeaker(InstrumentType t, SpeakerType speaker)
 {
+    if (t >= InstrumentType::BusGroup1)
+        return;
+
     instMap[t].speaker = speaker;
 
     if (!openned)
@@ -861,26 +873,21 @@ void MidiSynthesizer::setSpeaker(InstrumentType t, SpeakerType speaker)
     setSolo(t, instMap[t].solo);
     setBusGroup(t, instMap[t].bus); // speaker will set in here
 
-    // Set stream handle to FX
+    // Set fx to stream handle
     for (FX *fx : instMap[t].FXs)
         fx->setStreamHandle(handles[t]);
 
     setMapSoundfontIndex(instmSf, drumSf);
 }
 
-std::vector<std::string> MidiSynthesizer::audioDevices()
+QStringList MidiSynthesizer::audioDevices()
 {
-    std::vector<std::string> dvs;
+    return QStringList(outDevices.values());
+}
 
-    int a, count=0;
-    BASS_DEVICEINFO info;
-    for (a=0; BASS_GetDeviceInfo(a, &info); a++)
-        if (info.flags&BASS_DEVICE_ENABLED) { // device is enabled
-            dvs.push_back(info.name);
-            count++; // count it
-        }
-
-    return dvs;
+void MidiSynthesizer::audioDevices(const QMap<int, QString> &devices)
+{
+    outDevices = devices;
 }
 
 bool MidiSynthesizer::isSoundFontFile(const QString &sfile)
@@ -1370,67 +1377,4 @@ HSTREAM MidiSynthesizer::getDrumHandleFromNote(int drumNote)
     }
 }
 
-std::vector<int> MidiSynthesizer::getChannelsFromType(InstrumentType t)
-{
-    std::vector<int> r;
-
-    switch (t) {
-    case InstrumentType::BassDrum:
-        r.push_back(16);
-        break;
-    case InstrumentType::Snare:
-        r.push_back(17);
-        break;
-    case InstrumentType::SideStick:
-        r.push_back(18);
-        break;
-    case InstrumentType::LowTom:
-        r.push_back(19);
-        break;
-    case InstrumentType::MidTom:
-        r.push_back(20);
-        break;
-    case InstrumentType::HighTom:
-        r.push_back(21);
-        break;
-    case InstrumentType::Hihat:
-        r.push_back(22);
-        break;
-    case InstrumentType::Cowbell:
-        r.push_back(23);
-        break;
-    case InstrumentType::CrashCymbal:
-        r.push_back(24);
-        break;
-    case InstrumentType::RideCymbal:
-        r.push_back(25);
-        break;
-    case InstrumentType::Bongo:
-        r.push_back(26);
-        break;
-    case InstrumentType::Conga:
-        r.push_back(27);
-        break;
-    case InstrumentType::Timbale:
-        r.push_back(28);
-        break;
-    case InstrumentType::SmallCupShapedCymbals:
-        r.push_back(29);
-        break;
-    case InstrumentType::ThaiChap:
-        r.push_back(30);
-        break;
-    case InstrumentType::PercussionEtc:
-        r.push_back(31);
-        break;
-    default: {
-        for (int i=0; i<16; i++) {
-            if (chInstType[i] != t)
-                continue;
-            r.push_back(i);
-        }
-    }
-    }
-
-    return r;
-}
+QMap<int, QString> MidiSynthesizer::outDevices;

@@ -440,9 +440,9 @@ InstrumentType MidiHelper::getInstrumentType(int instNumber)
     return t;
 }
 
-DWORD MidiHelper::getSpeakerFlag(SpeakerType Speaker)
+DWORD MidiHelper::getSpeakerFlag(SpeakerType speaker)
 {
-    switch (Speaker)
+    switch (speaker)
     {
     case SpeakerType::Default:
         return 0;
