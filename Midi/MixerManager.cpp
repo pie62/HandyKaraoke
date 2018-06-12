@@ -11,6 +11,10 @@ MixerManager::MixerManager(const QMap<int, QString> &devices)
         MixerHandle mixer;
         mixer.handle = 0;
 
+        mixer.eq = new Equalizer31BandFX();
+        mixer.reverb = new ReverbFX();
+        mixer.chorus = new ChorusFX();
+
         for (int b=0; b<16; b++)
             mixer.bus[b] = 0;
 
@@ -24,6 +28,10 @@ MixerManager::~MixerManager()
 
     for (MixerHandle mixer : mixers)
     {
+        delete mixer.eq;
+        delete mixer.reverb;
+        delete mixer.chorus;
+
         for (int b=0; b<16; b++)        // ลูปทั้ง 16 bus
             for (FX *fx : mixer.fxs[b]) // ลูป FX ใน bus
                 delete fx;
@@ -43,6 +51,10 @@ void MixerManager::open(DWORD defaultDev, bool useSampleFloat)
     {
         MixerHandle mixer;
         mixer.handle = BASS_Mixer_StreamCreate(44100, 2, f);
+
+        mixer.eq->setStreamHandle(mixer.handle);
+        mixer.reverb->setStreamHandle(mixer.handle);
+        mixer.chorus->setStreamHandle(mixer.handle);
 
         for (int b=0; b<16; b++)
         {
@@ -82,6 +94,10 @@ void MixerManager::close()
             BASS_Mixer_ChannelRemove(mixer.bus[b]);
             BASS_StreamFree(mixer.bus[b]);
         }
+
+        mixer.eq->setStreamHandle(0);
+        mixer.reverb->setStreamHandle(0);
+        mixer.chorus->setStreamHandle(0);
 
         BASS_StreamFree(mixer.handle);
     }
@@ -132,6 +148,42 @@ DWORD MixerManager::busHandle(int mix, int bus)
         return mixers[mix].bus[bus];
     else
         return 0;
+}
+
+QList<Equalizer31BandFX *> MixerManager::mixerEqualizers()
+{
+    QList<Equalizer31BandFX *> eqs;
+
+    for (MixerHandle mixer : mixers)
+        eqs.append(mixer.eq);
+
+    return eqs;
+}
+
+Equalizer31BandFX *MixerManager::mixerEqualizer(int mix)
+{
+    if (isInMixer(mix, 0))
+        return mixers[mix].eq;
+    else
+        return nullptr;
+}
+
+QList<ReverbFX *> MixerManager::mixerReverbs()
+{
+    QList<ReverbFX *> rvs;
+
+    for (MixerHandle mixer : mixers)
+        rvs.append(mixer.reverb);
+
+    return rvs;
+}
+
+ReverbFX *MixerManager::mixerReverb(int mix)
+{
+    if (isInMixer(mix, 0))
+        return mixers[mix].reverb;
+    else
+        return nullptr;
 }
 
 void MixerManager::moveChannel(DWORD stream, int mix, int bus, DWORD speakerFlag)

@@ -13,9 +13,6 @@
 #include "Midi/MidiHelper.h"
 
 #include "BASSFX/FX.h"
-#include "BASSFX/Equalizer31BandFX.h"
-#include "BASSFX/ReverbFX.h"
-#include "BASSFX/ChorusFX.h"
 
 
 typedef struct
@@ -183,11 +180,6 @@ private:
     int mVstiTempProgram[4];
     QList<float> mVstiTempParams[4];
     #endif
-
-    // FX
-    Equalizer31BandFX *eq;
-    ReverbFX *reverb;
-    ChorusFX *chorus;
 
     // unique ID,  VSTNamePAth
     QMap<uint, VSTNamePath> _vstList;
