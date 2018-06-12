@@ -1,14 +1,15 @@
 #include "ChorusDialog.h"
 #include "ui_ChorusDialog.h"
 
-ChorusDialog::ChorusDialog(QWidget *parent, ChorusFX *chorusFX) :
+ChorusDialog::ChorusDialog(QWidget *parent, QList<ChorusFX *> choruss) :
     QDialog(parent),
     ui(new Ui::ChorusDialog)
 {
     ui->setupUi(this);
 
-    chorus = chorusFX;
+    this->choruss = choruss;
 
+    auto chorus = choruss[0];
     if (chorus != nullptr)
     {
         if (chorus->isOn())
@@ -56,6 +57,23 @@ ChorusDialog::~ChorusDialog()
     delete ui;
 }
 
+bool ChorusDialog::openned = false;
+
+bool ChorusDialog::isOpenned()
+{
+    return openned;
+}
+
+void ChorusDialog::showEvent(QShowEvent *)
+{
+    openned = true;
+}
+
+void ChorusDialog::closeEvent(QCloseEvent *)
+{
+    openned = false;
+}
+
 void ChorusDialog::connectDialAndSpin()
 {
     connect(ui->dialWetDryMix, SIGNAL(valueChanged(int)), this, SLOT(setWetDryMix(int)));
@@ -94,20 +112,26 @@ void ChorusDialog::disconnectDialAndSpin()
 
 void ChorusDialog::onSwitchChanged(bool sw)
 {
-    if (sw)
-        chorus->on();
-    else
-        chorus->off();
+    for (auto chorus : choruss)
+    {
+        if (sw)
+            chorus->on();
+        else
+            chorus->off();
+    }
 
     emit switchChanged(sw);
 }
 
 void ChorusDialog::on_cbWaveform_activated(int index)
 {
-    if (index == 0)
-        chorus->setWaveform(WaveformType::Triangle);
-    else
-        chorus->setWaveform(WaveformType::Sine);
+    for (auto chorus : choruss)
+    {
+        if (index == 0)
+            chorus->setWaveform(WaveformType::Triangle);
+        else
+            chorus->setWaveform(WaveformType::Sine);
+    }
 }
 
 void ChorusDialog::on_cbPhase_activated(int index)
@@ -122,7 +146,8 @@ void ChorusDialog::on_cbPhase_activated(int index)
     case 4: pt = PhaseType::Phase180; break;
     }
 
-    chorus->setPhase(pt);
+    for (auto chorus : choruss)
+        chorus->setPhase(pt);
 }
 
 void ChorusDialog::setWetDryMix(int wetDryMix)
@@ -132,8 +157,9 @@ void ChorusDialog::setWetDryMix(int wetDryMix)
     ui->dialWetDryMix->setValue(wetDryMix);
     ui->spinWetDryMix->setValue(wetDryMix);
 
-    if (chorus != nullptr)
-        chorus->setWetDryMix(wetDryMix);
+    for (auto chorus : choruss)
+        if (chorus != nullptr)
+            chorus->setWetDryMix(wetDryMix);
 
     connectDialAndSpin();
 }
@@ -145,8 +171,9 @@ void ChorusDialog::setDepth(int depth)
     ui->dialDepth->setValue(depth);
     ui->spinDepth->setValue(depth);
 
-    if (chorus != nullptr)
-        chorus->setDepth(depth);
+    for (auto chorus : choruss)
+        if (chorus != nullptr)
+            chorus->setDepth(depth);
 
     connectDialAndSpin();
 }
@@ -158,8 +185,9 @@ void ChorusDialog::setFeedback(int feedback)
     ui->dialFeedback->setValue(feedback);
     ui->spinFeedback->setValue(feedback);
 
-    if (chorus != nullptr)
-        chorus->setFeedback(feedback);
+    for (auto chorus : choruss)
+        if (chorus != nullptr)
+            chorus->setFeedback(feedback);
 
     connectDialAndSpin();
 }
@@ -171,8 +199,9 @@ void ChorusDialog::setFrequency(int frequency)
     ui->dialFrequency->setValue(frequency);
     ui->spinFrequency->setValue(frequency);
 
-    if (chorus != nullptr)
-        chorus->setFrequency(frequency);
+    for (auto chorus : choruss)
+        if (chorus != nullptr)
+            chorus->setFrequency(frequency);
 
     connectDialAndSpin();
 }
@@ -184,8 +213,9 @@ void ChorusDialog::setDelay(int delay)
     ui->dialDelay->setValue(delay);
     ui->spinDelay->setValue(delay);
 
-    if (chorus != nullptr)
-        chorus->setDelay(delay);
+    for (auto chorus : choruss)
+        if (chorus != nullptr)
+            chorus->setDelay(delay);
 
     connectDialAndSpin();
 }
@@ -195,10 +225,13 @@ void ChorusDialog::on_btnReset_clicked()
     ui->cbWaveform->setCurrentIndex(1);
     ui->cbPhase->setCurrentIndex(3);
 
-    if (chorus != nullptr)
+    for (auto chorus : choruss)
     {
-        chorus->setWaveform(WaveformType::Sine);
-        chorus->setPhase(PhaseType::Phase90);
+        if (chorus != nullptr)
+        {
+            chorus->setWaveform(WaveformType::Sine);
+            chorus->setPhase(PhaseType::Phase90);
+        }
     }
 
     setWetDryMix(50);

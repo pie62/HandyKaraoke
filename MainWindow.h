@@ -58,10 +58,6 @@ public:
 
     // Synth Mixer
     SynthMixerDialog* synthMixerDialog() { return synthMix; }
-    // Synth effect dialog
-    Equalizer31BandDialog* equalizer31BandDialog() { return eq31Dlg; }
-    ReverbDialog* reverbDialog() { return reverbDlg; }
-    ChorusDialog* chorusDialog() { return chorusDlg; }
 
 public slots:
     void play(int index, int position = 0);
@@ -138,6 +134,9 @@ private slots:
 
     void showContextMenu(const QPoint &pos);
     void showSettingsDialog();
+    void showEqDialog();
+    void showReverbDialog();
+    void showChorusDialog();
     void showMapMidiChannelDialog();
     void minimizeWindow();
     void showMapSFDialog();

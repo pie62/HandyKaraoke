@@ -9,11 +9,19 @@
 #include <bassmix.h>
 #include <bass_fx.h>
 
-#include "Midi/MixerManager.h"
 #include "Midi/MidiHelper.h"
-
 #include "BASSFX/FX.h"
+#include "BASSFX/Equalizer31BandFX.h"
+#include "BASSFX/ReverbFX.h"
+#include "BASSFX/ChorusFX.h"
 
+typedef struct
+{
+    DWORD handle;
+    Equalizer31BandFX *eq;
+    ReverbFX *reverb;
+    ChorusFX *chorus;
+} MixerHandle;
 
 typedef struct
 {
@@ -110,9 +118,9 @@ public:
     static bool isSoundFontFile(const QString &sfile);
 
     // Fx ----------------------
-    Equalizer31BandFX* equalizer31BandFX() { return eq; }
-    ReverbFX* reverbFX() { return reverb; }
-    ChorusFX* chorusFX() { return chorus; }
+    QList<Equalizer31BandFX *> equalizer31BandFXs();
+    QList<ReverbFX *> reverbFXs();
+    QList<ChorusFX *> chorusFXs();
 
     QMap<uint, VSTNamePath> VSTList() { return _vstList; }
     void setVSTList(const QMap<uint, VSTNamePath> &listMap) { _vstList = listMap; }
@@ -164,7 +172,8 @@ private:
     HSTREAM getDrumHandleFromNote(int drumNote);
 
 private:
-    MixerManager mixers;
+    QList<MixerHandle> mixers;
+    //MixerManager mixers;
     //HSTREAM mixHandle;
     QMap<InstrumentType, HSTREAM> handles;
     QList<HSOUNDFONT> synth_HSOUNDFONT;

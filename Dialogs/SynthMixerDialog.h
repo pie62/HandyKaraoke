@@ -33,9 +33,13 @@ public:
 
 
 private slots:
+    void showEqDialog();
+    void showReverbDialog();
+    void showChorusDialog();
     void setBtnEqIcon(bool s);
     void setBtnReverbIcon(bool s);
     void setBtnChorusIcon(bool s);
+
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
     void setMixLevel(InstrumentType t, int level);

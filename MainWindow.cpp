@@ -28,7 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 
-    { // List audio device
+    // List audio device and Init BASS
+    {
         QMap<int, QString> dvs;
         int a, count=0;
         BASS_DEVICEINFO info;
@@ -41,11 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
         }
         MidiSynthesizer::audioDevices(dvs);
     }
-    // Init BASS
-    //for (int i=0; i<MidiSynthesizer::audioDevices().size(); i++)
-    //{
-    //    BASS_Init(i, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
-    //}
 
     BASS_SetDevice(1);
     BASS_FX_GetVersion();
@@ -58,11 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :
     BASS_SetConfig(BASS_CONFIG_MIDI_VOICES, nVoices);
     BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
     // End Init BASS
-
-    //List audio devices
-    {
-
-    }
 
 
     lyrWidget = new LyricsWidget(this);
@@ -221,27 +212,27 @@ MainWindow::MainWindow(QWidget *parent) :
         // move to setup in main function (main.cpp)
 
         // Synth EQ
-        Equalizer31BandFX *eq = synth->equalizer31BandFX();
-        std::map<EQFrequency31Range, float> eqgain = eq->gain();
+        auto eqs = synth->equalizer31BandFXs();
+        std::map<EQFrequency31Range, float> eqgain = eqs[0]->gain();
 
         bool eqon = settings->value("SynthFXEQOn", false).toBool();
         if (eqon)
-            eq->on();
+            for (auto eq : eqs)
+                eq->on();
 
         int gi =0;
         settings->beginReadArray("SynthFXEQGain");
         for (const auto& g : eqgain) {
             settings->setArrayIndex(gi);
             float gain = settings->value("gain", 0.0f).toFloat();
-            eq->setGain(g.first, gain);
+            for (auto eq : eqs)
+                eq->setGain(g.first, gain);
             gi++;
         }
         settings->endArray();
 
 
         // Synth reverb
-        ReverbFX *reverb = synth->reverbFX();
-
         bool rvOn   = settings->value("SynthFXReverbOn", false).toBool();
         int rvGain  = settings->value("SynthFXReverbInGain", 0).toInt();
         int rvMix   = settings->value("SynthFXReverbMix", 0).toInt();
@@ -249,17 +240,19 @@ MainWindow::MainWindow(QWidget *parent) :
         float rvHF  = settings->value("SynthFXReverbHF", 0.001).toFloat();
 
         if (rvOn)
-            reverb->on();
+            for (auto reverb : synth->reverbFXs())
+                reverb->on();
 
-        reverb->setInGain((float)rvGain);
-        reverb->setReverbMix((float)rvMix);
-        reverb->setReverbTime((float)rvTime);
-        reverb->setHighFreqRTRatio(rvHF);
+        for (auto reverb : synth->reverbFXs())
+        {
+            reverb->setInGain((float)rvGain);
+            reverb->setReverbMix((float)rvMix);
+            reverb->setReverbTime((float)rvTime);
+            reverb->setHighFreqRTRatio(rvHF);
+        }
 
 
         // Synth chorus
-        ChorusFX *chorus = synth->chorusFX();
-
         bool cOn = settings->value("SynthFXChorusOn", false).toBool();
 
         int cWf  = settings->value("SynthFXChorusWaveform", 1).toInt();
@@ -275,32 +268,19 @@ MainWindow::MainWindow(QWidget *parent) :
         PhaseType lPhase = static_cast<PhaseType>(cPh);
 
         if (cOn)
-            chorus->on();
+            for (auto chorus : synth->chorusFXs())
+                chorus->on();
 
-        chorus->setWaveform(lWaveform);
-        chorus->setPhase(lPhase);
-        chorus->setWetDryMix((float)cWet);
-        chorus->setDepth((float)cDep);
-        chorus->setFeedback((float)cFb);
-        chorus->setFrequency((float)cFq);
-        chorus->setDelay((float)cDl);
-
-
-        // Create Synth effect dialog
-        eq31Dlg = new Equalizer31BandDialog(this, eq);
-        eq31Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
-        eq31Dlg->adjustSize();
-        eq31Dlg->setFixedSize(eq31Dlg->size());
-
-        reverbDlg = new ReverbDialog(this, reverb);
-        reverbDlg->setWindowTitle("เอฟเฟ็กต์เสียงก้อง : Reverb");
-        reverbDlg->adjustSize();
-        reverbDlg->setFixedSize(reverbDlg->size());
-
-        chorusDlg = new ChorusDialog(this, chorus);
-        chorusDlg->setWindowTitle("เอฟเฟ็กต์เสียงประสาน : Chorus");
-        chorusDlg->adjustSize();
-        chorusDlg->setFixedSize(chorusDlg->size());
+        for (auto chorus : synth->chorusFXs())
+        {
+            chorus->setWaveform(lWaveform);
+            chorus->setPhase(lPhase);
+            chorus->setWetDryMix((float)cWet);
+            chorus->setDepth((float)cDep);
+            chorus->setFeedback((float)cFb);
+            chorus->setFrequency((float)cFq);
+            chorus->setDelay((float)cDl);
+        }
 
         // Create synth mixer
         synthMix = new SynthMixerDialog(this, this);
@@ -453,7 +433,7 @@ MainWindow::~MainWindow()
 
     { // Write synth FX settings
         // Synth EQ
-        Equalizer31BandFX *eq = player->midiSynthesizer()->equalizer31BandFX();
+        Equalizer31BandFX *eq = player->midiSynthesizer()->equalizer31BandFXs()[0];
         std::map<EQFrequency31Range, float> eqgain = eq->gain();
 
         settings->setValue("SynthFXEQOn", eq->isOn());
@@ -468,7 +448,7 @@ MainWindow::~MainWindow()
         settings->endArray();
 
         // Synth reverb
-        ReverbFX *reverb = player->midiSynthesizer()->reverbFX();
+        ReverbFX *reverb = player->midiSynthesizer()->reverbFXs()[0];
         settings->setValue("SynthFXReverbOn", reverb->isOn());
         settings->setValue("SynthFXReverbInGain", (int)reverb->inGain());
         settings->setValue("SynthFXReverbMix", (int)reverb->reverbMix());
@@ -477,7 +457,7 @@ MainWindow::~MainWindow()
 
 
         // Synth chorus
-        ChorusFX *chorus = player->midiSynthesizer()->chorusFX();
+        ChorusFX *chorus = player->midiSynthesizer()->chorusFXs()[0];
         settings->setValue("SynthFXChorusOn", chorus->isOn());
 
         int cWf  = static_cast<int>(chorus->waveform());
@@ -493,11 +473,6 @@ MainWindow::~MainWindow()
     }
 
     delete synthMix;
-    // Delete Synth effect dialog
-    delete eq31Dlg;
-    delete reverbDlg;
-    delete chorusDlg;
-
 
     settings->setValue("LastOpenDir", Utils::LAST_OPEN_DIR);
     settings->setValue("MidiVolume", ui->sliderVolume->value());
@@ -1378,9 +1353,9 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionSettings, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
     connect(&actionMappChanel, SIGNAL(triggered()), this, SLOT(showMapMidiChannelDialog()));
     connect(&actionShowSynthMixDlg, SIGNAL(triggered()), synthMix, SLOT(show()));
-    connect(&actionShowEqDlg, SIGNAL(triggered()), eq31Dlg, SLOT(show()));
-    connect(&actionShowReverbDlg, SIGNAL(triggered()), reverbDlg, SLOT(show()));
-    connect(&actionShowChorusDlg, SIGNAL(triggered()), chorusDlg, SLOT(show()));
+    connect(&actionShowEqDlg, SIGNAL(triggered()), this, SLOT(showEqDialog()));
+    connect(&actionShowReverbDlg, SIGNAL(triggered()), this, SLOT(showReverbDialog()));
+    connect(&actionShowChorusDlg, SIGNAL(triggered()), this, SLOT(showChorusDialog()));
     connect(&actionMapSF, SIGNAL(triggered()), this, SLOT(showMapSFDialog()));
     connect(&actionSecondMonitor, SIGNAL(triggered()), this, SLOT(showSecondMonitor()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
@@ -1415,6 +1390,43 @@ void MainWindow::showSettingsDialog()
     d.adjustSize();
     d.setMinimumSize(d.size());
     d.exec();
+}
+
+void MainWindow::showEqDialog()
+{
+    if (Equalizer31BandDialog::isOpenned())
+        return;
+
+    Equalizer31BandDialog *dlg = new Equalizer31BandDialog(
+                this, player->midiSynthesizer()->equalizer31BandFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
+}
+
+void MainWindow::showReverbDialog()
+{
+    if (ReverbDialog::isOpenned())
+        return;
+
+    ReverbDialog *dlg = new ReverbDialog(this, player->midiSynthesizer()->reverbFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
+}
+
+void MainWindow::showChorusDialog()
+{
+    if (ChorusDialog::isOpenned())
+        return;
+
+    ChorusDialog *dlg = new ChorusDialog(this, player->midiSynthesizer()->chorusFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
 }
 
 void MainWindow::showMapMidiChannelDialog()

@@ -73,8 +73,7 @@ SOURCES += main.cpp\
     FXDialogs/EchoFXDialog.cpp \
     Widgets/PlaylistWidget.cpp \
     Dialogs/DialogHelper.cpp \
-    Dialogs/SpeakerDialog.cpp \
-    Midi/MixerManager.cpp
+    Dialogs/SpeakerDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -140,8 +139,7 @@ HEADERS  += MainWindow.h \
     Config.h \
     Widgets/PlaylistWidget.h \
     Dialogs/DialogHelper.h \
-    Dialogs/SpeakerDialog.h \
-    Midi/MixerManager.h
+    Dialogs/SpeakerDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \

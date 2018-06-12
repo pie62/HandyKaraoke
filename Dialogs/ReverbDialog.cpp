@@ -1,13 +1,15 @@
 #include "ReverbDialog.h"
 #include "ui_ReverbDialog.h"
 
-ReverbDialog::ReverbDialog(QWidget *parent, ReverbFX *reverbFX) :
+ReverbDialog::ReverbDialog(QWidget *parent, QList<ReverbFX *> reverbs) :
     QDialog(parent),
     ui(new Ui::ReverbDialog)
 {
     ui->setupUi(this);
 
-    rv = reverbFX;
+    this->reverbs = reverbs;
+
+    auto rv = reverbs[0];
 
     if (rv != nullptr)
     {
@@ -36,15 +38,35 @@ ReverbDialog::~ReverbDialog()
     delete ui;
 }
 
+bool ReverbDialog::openned = false;
+
+bool ReverbDialog::isOpenned()
+{
+    return openned;
+}
+
+void ReverbDialog::showEvent(QShowEvent *)
+{
+    openned = true;
+}
+
+void ReverbDialog::closeEvent(QCloseEvent *)
+{
+    openned = false;
+}
+
 void ReverbDialog::onSwitchChanged(bool sw)
 {
-    if (rv == nullptr)
+    if (reverbs[0] == nullptr)
         return;
 
-    if (sw)
-        rv->on();
-    else
-        rv->off();
+    for (auto rv : reverbs)
+    {
+        if (sw)
+            rv->on();
+        else
+            rv->off();
+    }
 
     emit switchChanged(sw);
 }
@@ -96,8 +118,11 @@ void ReverbDialog::setInGain(int ing)
     ui->dialInGain->setValue(ing);
     ui->spinInGain->setValue(ing);
 
-    if (rv != nullptr)
-        rv->setInGain((float)ing);
+    for (auto rv : reverbs)
+    {
+        if (rv != nullptr)
+            rv->setInGain((float)ing);
+    }
 
     connectAll();
 }
@@ -109,8 +134,11 @@ void ReverbDialog::setReverbMix(int m)
     ui->dialRvMix->setValue(m);
     ui->spinRvMix->setValue(m);
 
-    if (rv != nullptr)
-        rv->setReverbMix((float)m);
+    for (auto rv : reverbs)
+    {
+        if (rv != nullptr)
+            rv->setReverbMix((float)m);
+    }
 
     connectAll();
 }
@@ -122,8 +150,11 @@ void ReverbDialog::setReverbTime(int t)
     ui->dialRvTime->setValue(t);
     ui->spinRvTime->setValue(t);
 
-    if (rv != nullptr)
-        rv->setReverbTime((float)t);
+    for (auto rv : reverbs)
+    {
+        if (rv != nullptr)
+            rv->setReverbTime((float)t);
+    }
 
     connectAll();
 }
@@ -135,8 +166,11 @@ void ReverbDialog::setHighFreqRTRatio(float hf)
     ui->dialHF->setValue(hf*1000);
     ui->spinHF->setValue(hf);
 
-    if (rv != nullptr)
-        rv->setHighFreqRTRatio(hf);
+    for (auto rv : reverbs)
+    {
+        if (rv != nullptr)
+            rv->setHighFreqRTRatio(hf);
+    }
 
     connectAll();
 }

@@ -12,22 +12,28 @@
 #include <QDebug>
 
 
-MidiSynthesizer::MidiSynthesizer(QObject *parent) :
-    QObject(parent),
-    mixers(outDevices)
+MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 {   
-    for (int i=0; i<129; i++) {
+    // create mixers
+    for (int dv : outDevices.keys())
+    {
+        MixerHandle mixer;
+        mixer.handle = 0;
+
+        mixer.eq = new Equalizer31BandFX();
+        mixer.reverb = new ReverbFX();
+        mixer.chorus = new ChorusFX();
+
+        mixers.append(mixer);
+    }
+
+    for (int i=0; i<128; i++) {
         instmSf.append(0);
     }
 
     for (int i=0; i<16; i++) {
         drumSf.append(0);
     }
-
-    eq = new Equalizer31BandFX(0);
-    reverb = new ReverbFX(0);
-    chorus = new ChorusFX(0);
-
 
     BASS_VST_INFO vstinfo;
     for (int i=0; i<4; i++)
@@ -78,16 +84,22 @@ MidiSynthesizer::~MidiSynthesizer()
     }
     synth_HSOUNDFONT.clear();
 
-    // Fx ------------
-    delete eq;
-    delete reverb;
-    delete chorus;
-
+    // free instruments fx
     for (Instrument inst : instMap.values())
     {
         for (FX *fx : inst.FXs)
             delete fx;
     }
+
+
+    // free mixer fx
+    for (MixerHandle mixer : mixers)
+    {
+        delete mixer.eq;
+        delete mixer.reverb;
+        delete mixer.chorus;
+    }
+    mixers.clear();
 
     // --------------
 
@@ -105,11 +117,26 @@ bool MidiSynthesizer::open()
 
     openned = true;
 
-    // create mixer, bus
-    mixers.open(defaultDev, useFloat);
+    DWORD f = useFloat ? BASS_SAMPLE_FLOAT : 0;
 
-    // create midi stream
-    for (int i=0; i<HANDLE_MIDI_COUNT; i++)
+    // create mixer, bus
+    for (int i=0; i<mixers.count(); i++)
+    {
+        MixerHandle mixer = mixers[i];
+        mixer.handle = BASS_Mixer_StreamCreate(44100, 2, f);
+        mixer.eq->setStreamHandle(mixer.handle);
+        mixer.reverb->setStreamHandle(mixer.handle);
+        mixer.chorus->setStreamHandle(mixer.handle);
+
+        DWORD device = (i == 0) ? defaultDev : outDevices.keys()[i];
+        BASS_ChannelSetDevice(mixer.handle, device);
+        BASS_ChannelPlay(mixer.handle, false);
+
+        mixers[i] = mixer;
+    }
+
+    // create midi and bus stream
+    for (int i=0; i<HANDLE_STREAM_COUNT; i++)
     {
         InstrumentType t = static_cast<InstrumentType>(i);
         handles[t] = createStream(t);
@@ -125,10 +152,7 @@ bool MidiSynthesizer::open()
         setSolo(t, instMap[t].solo);
         setBusGroup(t, instMap[t].bus);  // speaker will set here
 
-        if (t >= InstrumentType::BusGroup1)
-            continue;
-
-        // Set stream handle to FX
+        // Set fx to stream handle
         for (FX *fx : instMap[t].FXs)
             fx->setStreamHandle(handles[t]);
     }
@@ -136,14 +160,6 @@ bool MidiSynthesizer::open()
     setSfToStream();
     setMapSoundfontIndex(instmSf, drumSf);
     setVolume(synth_volume);
-
-    // Set fx to mixer
-    for (DWORD mix : mixers.mixerHandles())
-    {
-        eq->setStreamHandle(mix);
-        reverb->setStreamHandle(mix);
-        chorus->setStreamHandle(mix);
-    }
 
     return true;
 }
@@ -164,12 +180,7 @@ void MidiSynthesizer::close()
         }
     }
 
-    { // mixer fx
-        eq->setStreamHandle(0);
-        reverb->setStreamHandle(0);
-        chorus->setStreamHandle(0);
-    }
-
+    // clear handles
     for (InstrumentType t: handles.keys())
     {
         if (t >= InstrumentType::BusGroup1)
@@ -191,10 +202,23 @@ void MidiSynthesizer::close()
         handles[t] = 0;
     }
 
+    // clear mixers fx
+    for (int i=0; i<mixers.count(); i++)
+    {
+        MixerHandle mixer = mixers[i];
+        mixer.eq->setStreamHandle(0);
+        mixer.reverb->setStreamHandle(0);
+        mixer.chorus->setStreamHandle(0);
+
+        BASS_ChannelStop(mixer.handle);
+        BASS_StreamFree(mixer.handle);
+
+        mixer.handle = 0;
+        mixers[i] = mixer;
+    }
+
     // compact soundfont
     BASS_MIDI_FontCompact(0);
-
-    mixers.close();
 
     openned = false;
 }
@@ -208,7 +232,7 @@ bool MidiSynthesizer::setDefaultDevice(int dv)
 {
     if (openned)
     {
-        DWORD mix = mixers.mixerHandle(0);
+        DWORD mix = mixers[0].handle;
         BASS_ChannelStop(mix);
         bool rs = BASS_ChannelSetDevice(mix, dv);
         BASS_ChannelPlay(mix, false);
@@ -238,8 +262,8 @@ bool MidiSynthesizer::setDefaultDevice(int dv)
 void MidiSynthesizer::setVolume(float vol)
 {
     synth_volume = vol;
-    for (DWORD mix : mixers.mixerHandles())
-        BASS_ChannelSetAttribute(mix, BASS_ATTRIB_VOL, vol);
+    for (MixerHandle mix : mixers)
+        BASS_ChannelSetAttribute(mix.handle, BASS_ATTRIB_VOL, vol);
 }
 
 bool MidiSynthesizer::addSoundfont(const QString &sfFile)
@@ -729,9 +753,6 @@ SpeakerType MidiSynthesizer::speaker(InstrumentType t)
 
 void MidiSynthesizer::setDevice(InstrumentType t, int device)
 {
-    if (t >= InstrumentType::BusGroup1)
-        return;
-
     if (device < 0 || device >= audioDevices().count())
         return;
 
@@ -740,14 +761,17 @@ void MidiSynthesizer::setDevice(InstrumentType t, int device)
     if (!openned)
         return;
 
-    BASS_Mixer_ChannelRemove(handles[t]);
+    if (t < InstrumentType::BusGroup1 && instMap[t].bus != -1)
+        return;
+
     DWORD flag = MidiHelper::getSpeakerFlag(instMap[t].speaker);
-    mixers.moveChannel(handles[t], instMap[t].device, instMap[t].bus, flag);
+    BASS_Mixer_ChannelRemove(handles[t]);
+    BASS_Mixer_StreamAddChannel(mixers[device].handle, handles[t], flag);
 }
 
 void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
 {
-    if (static_cast<int>(t) >= HANDLE_MIDI_COUNT)
+    if (t >= InstrumentType::BusGroup1)
         return;
 
     instMap[t].bus = group;
@@ -755,11 +779,20 @@ void MidiSynthesizer::setBusGroup(InstrumentType t, int group)
     if (!openned)
         return;
 
-    BASS_Mixer_ChannelRemove(handles[t]);
-
     DWORD flag = MidiHelper::getSpeakerFlag(instMap[t].speaker);
 
-    mixers.moveChannel(handles[t], instMap[t].device, instMap[t].bus, flag);
+    BASS_Mixer_ChannelRemove(handles[t]);
+
+    if (group == -1)
+    {
+        DWORD mix = mixers[instMap[t].device].handle;
+        BASS_Mixer_StreamAddChannel(mix, handles[t], flag);
+    }
+    else
+    {
+        InstrumentType busType = static_cast<InstrumentType>(group + HANDLE_BUS_START);
+        BASS_Mixer_StreamAddChannel(handles[busType], handles[t], flag);
+    }
 }
 
 void MidiSynthesizer::setVolume(InstrumentType t, int volume)
@@ -777,16 +810,7 @@ void MidiSynthesizer::setVolume(InstrumentType t, int volume)
     if (!instMap[t].enable)
         return;
 
-    if (t < InstrumentType::BusGroup1)
-        BASS_ChannelSetAttribute(handles[t], BASS_ATTRIB_VOL, instMap[t].volume / 100.0f);
-    else
-    {
-        int busNumber = static_cast<int>(t) - HANDLE_BUS_START;
-        for (int i=0; i<mixers.mixerCount(); i++)
-            BASS_ChannelSetAttribute(mixers.busHandle(i, busNumber),
-                                     BASS_ATTRIB_VOL,
-                                     instMap[t].volume / 100.0f);
-    }
+    BASS_ChannelSetAttribute(handles[t], BASS_ATTRIB_VOL, instMap[t].volume / 100.0f);
 }
 
 void MidiSynthesizer::setMute(InstrumentType t, bool m)
@@ -906,6 +930,36 @@ bool MidiSynthesizer::isSoundFontFile(const QString &sfile)
     BASS_MIDI_FontFree(f);
 
     return result;
+}
+
+QList<Equalizer31BandFX *> MidiSynthesizer::equalizer31BandFXs()
+{
+    QList<Equalizer31BandFX *> eqs;
+
+    for (MixerHandle mix : mixers)
+        eqs.append(mix.eq);
+
+    return eqs;
+}
+
+QList<ReverbFX *> MidiSynthesizer::reverbFXs()
+{
+    QList<ReverbFX *> rvs;
+
+    for (MixerHandle mix : mixers)
+        rvs.append(mix.reverb);
+
+    return rvs;
+}
+
+QList<ChorusFX *> MidiSynthesizer::chorusFXs()
+{
+    QList<ChorusFX *> chs;
+
+    for (MixerHandle mix : mixers)
+        chs.append(mix.chorus);
+
+    return chs;
 }
 
 void MidiSynthesizer::setUsetFloattingPoint(bool use)

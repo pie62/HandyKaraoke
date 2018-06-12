@@ -49,9 +49,9 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     this->setMinimumSize(970, height());
     this->setMaximumHeight(height());
 
-    setBtnEqIcon(synth->equalizer31BandFX()->isOn());
-    setBtnReverbIcon(synth->reverbFX()->isOn());
-    setBtnChorusIcon(synth->chorusFX()->isOn());
+    setBtnEqIcon(synth->equalizer31BandFXs()[0]->isOn());
+    setBtnReverbIcon(synth->reverbFXs()[0]->isOn());
+    setBtnChorusIcon(synth->chorusFXs()[0]->isOn());
 
 
     { // Settings
@@ -138,26 +138,12 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     #endif
 
 
-    connect(ui->btnEq, SIGNAL(clicked()),
-            mainWin->equalizer31BandDialog(), SLOT(show()));
-    connect(ui->btnReverb, SIGNAL(clicked()),
-            mainWin->reverbDialog(), SLOT(show()));
-    connect(ui->btnChorus, SIGNAL(clicked()),
-            mainWin->chorusDialog(), SLOT(show()));
+    connect(ui->btnEq, SIGNAL(clicked()), this, SLOT(showEqDialog()));
+    connect(ui->btnReverb, SIGNAL(clicked()), this, SLOT(showReverbDialog()));
+    connect(ui->btnChorus, SIGNAL(clicked()), this, SLOT(showChorusDialog()));
 
-    connect(mainWin->equalizer31BandDialog(), SIGNAL(switchChanged(bool)),
-            this, SLOT(setBtnEqIcon(bool)));
-    connect(mainWin->reverbDialog(), SIGNAL(switchChanged(bool)),
-            this, SLOT(setBtnReverbIcon(bool)));
-
-    connect(mainWin->chorusDialog(), SIGNAL(switchChanged(bool)),
-            this, SLOT(setBtnChorusIcon(bool)));
-
-    connect(&signalVstActionMapper, SIGNAL(mapped(QString)),
-            this, SLOT(addFX(QString)));
-
-    connect(&signalBusActionMapper, SIGNAL(mapped(int)),
-            this, SLOT(setBusGroup(int)));
+    connect(&signalVstActionMapper, SIGNAL(mapped(QString)), this, SLOT(addFX(QString)));
+    connect(&signalBusActionMapper, SIGNAL(mapped(int)), this, SLOT(setBusGroup(int)));
 }
 
 SynthMixerDialog::~SynthMixerDialog()
@@ -311,6 +297,51 @@ InstCh *SynthMixerDialog::mixChannel(InstrumentType t)
 QMap<InstrumentType, InstCh *> SynthMixerDialog::mixChannelMap()
 {
     return chInstMap;
+}
+
+void SynthMixerDialog::showEqDialog()
+{
+    if (Equalizer31BandDialog::isOpenned())
+        return;
+
+    Equalizer31BandDialog *dlg = new Equalizer31BandDialog(this, synth->equalizer31BandFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(dlg, SIGNAL(switchChanged(bool)), this, SLOT(setBtnEqIcon(bool)));
+
+    dlg->show();
+}
+
+void SynthMixerDialog::showReverbDialog()
+{
+    if (ReverbDialog::isOpenned())
+        return;
+
+    ReverbDialog *dlg = new ReverbDialog(this, synth->reverbFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(dlg, SIGNAL(switchChanged(bool)), this, SLOT(setBtnReverbIcon(bool)));
+
+    dlg->show();
+}
+
+void SynthMixerDialog::showChorusDialog()
+{
+    if (ChorusDialog::isOpenned())
+        return;
+
+    ChorusDialog *dlg = new ChorusDialog(this, synth->chorusFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(dlg, SIGNAL(switchChanged(bool)), this, SLOT(setBtnChorusIcon(bool)));
+
+    dlg->show();
 }
 
 void SynthMixerDialog::setBtnEqIcon(bool s)

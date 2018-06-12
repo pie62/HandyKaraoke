@@ -15,11 +15,17 @@ class ReverbDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ReverbDialog(QWidget *parent = 0, ReverbFX *reverbFX = nullptr);
+    explicit ReverbDialog(QWidget *parent = 0, QList<ReverbFX *> reverbs = QList<ReverbFX *>());
     ~ReverbDialog();
+
+    static bool isOpenned();
 
 signals:
     void switchChanged(bool s);
+
+protected:
+    void showEvent(QShowEvent *);
+    void closeEvent(QCloseEvent *);
 
 private slots:
     void onSwitchChanged(bool sw);
@@ -40,7 +46,9 @@ private slots:
 private:
     Ui::ReverbDialog *ui;
 
-    ReverbFX *rv;
+    QList<ReverbFX *> reverbs;
+
+    static bool openned;
 };
 
 #endif // REVERBDIALOG_H
