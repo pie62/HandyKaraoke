@@ -27,6 +27,9 @@ public:
     SongDatabase();
     ~SongDatabase();
 
+    bool isNewVersion();
+    void updateToNewVersion();
+
     int count();
     Song* currentSong() { return song; }
     QString searchText() { return _searchText; }
@@ -69,6 +72,10 @@ protected:
     void run();
 
 private:
+    void createIndex();
+    void dropIndex();
+
+private:
     QSqlDatabase db;
     Song *song;
     SearchType searchType;
@@ -83,10 +90,6 @@ private:
     bool upTing = false;
 
     int currentResultIndex = -1;
-
-    void createIndex();
-    void dropIndex();
-    void checkAddNoCaseIndex();
 };
 
 #endif // SONGDATABASE_H

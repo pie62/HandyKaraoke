@@ -17,6 +17,7 @@
 
 void registerMetaType();
 
+void checkDatabase(QSplashScreen *splash, SongDatabase *db);
 void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth);
 
 #ifndef __linux__
@@ -78,6 +79,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.setWindowIcon(QIcon(":/Icons/App/icon.png"));
 
+    checkDatabase(splash, w.database());
     loadSoundfonts(splash, w.midiPlayer()->midiSynthesizer());
 
     #ifndef __linux__
@@ -115,6 +117,17 @@ void registerMetaType()
 
     //qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
     qRegisterMetaTypeStreamOperators<QList<QList<float>>>("QList<QList<float>>");
+}
+
+void checkDatabase(QSplashScreen *splash, SongDatabase *db)
+{
+    if (db->isNewVersion())
+        return;
+
+    splash->showMessage("กำลังปรับปรุงฐานข้อมูลเพลง", Qt::AlignBottom|Qt::AlignRight);
+    qApp->processEvents();
+
+    db->updateToNewVersion();
 }
 
 void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)

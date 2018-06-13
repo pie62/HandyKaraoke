@@ -32,12 +32,29 @@ SongDatabase::SongDatabase()
     if (db.open()) {
 
         if (hasDb == false) {
-            QString sql = "CREATE TABLE IF NOT EXISTS songs ("
-                  "id TEXT,name TEXT,artist TEXT,"
-                  "keyname TEXT,tempo INTEGER,songtype "
-                  "TEXT,lyrics TEXT,path TEXT); ";
+            QString sql =
+                    "CREATE TABLE songs ("
+                        "id       TEXT    COLLATE NOCASE,"
+                        "name     TEXT    COLLATE NOCASE,"
+                        "artist   TEXT    COLLATE NOCASE,"
+                        "keyname  TEXT,"
+                        "tempo    INTEGER,"
+                        "songtype TEXT,"
+                        "lyrics   TEXT,"
+                        "path     TEXT"
+                    ")";
 
             QSqlQuery query;
+            query.exec(sql);
+            query.finish();
+            query.clear();
+
+            sql = "CREATE TABLE IF NOT EXISTS miscellaneous ("
+                    "name TEXT,"
+                    "value_str TEXT,"
+                    "value_num INTEGER"
+                  ")";
+
             query.exec(sql);
             query.finish();
             query.clear();
@@ -48,8 +65,6 @@ SongDatabase::SongDatabase()
     }
 
     db.open();
-
-    //this->checkAddNoCaseIndex();
 }
 
 SongDatabase::~SongDatabase()
@@ -58,6 +73,41 @@ SongDatabase::~SongDatabase()
         db.close();
     }
     delete song;
+}
+
+bool SongDatabase::isNewVersion()
+{
+    QSqlQuery q;
+    bool rs = q.exec("Select * from miscellaneous");
+    q.finish();
+    q.clear();
+
+    return rs;
+}
+
+void SongDatabase::updateToNewVersion()
+{
+    QFile file(":/update-database.sql");
+    file.open(QIODevice::ReadOnly);
+
+    QTextStream in(&file);
+    QString sqlString = in.readAll();
+
+    file.close();
+
+    QSqlQuery q;
+
+    QStringList sqlList = sqlString.split(QChar(';'));
+    for (const QString &sql : sqlList)
+    {
+        q.exec(sql);
+        q.finish();
+        q.clear();
+    }
+
+    q.exec("vacuum");
+    q.finish();
+    q.clear();
 }
 
 int SongDatabase::count()
@@ -543,51 +593,25 @@ void SongDatabase::createIndex()
     QSqlQuery query;
     QString sql;
 
-    { // CASE INDEX
-        sql = "CREATE INDEX id_idx ON songs(id); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
+    sql = "CREATE INDEX id_idx ON songs(id); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
 
-        sql = "CREATE INDEX name_idx ON songs(name); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
+    sql = "CREATE INDEX name_idx ON songs(name); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
 
-        sql = "CREATE INDEX artist_idx ON songs(artist); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
+    sql = "CREATE INDEX artist_idx ON songs(artist); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
 
-        sql = "CREATE INDEX compound_idx ON songs(id,name,artist); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
-    }
-
-    { // NO CASE INDEX
-        sql = "CREATE INDEX id_nocase_idx ON songs(id COLLATE NOCASE); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
-
-        sql = "CREATE INDEX name_nocase_idx ON songs(name COLLATE NOCASE); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
-
-        sql = "CREATE INDEX artist_nocase_idx ON songs(artist COLLATE NOCASE); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
-
-        /*
-        sql = "CREATE INDEX compound_nocase_idx ON songs(id COLLATE NOCASE, name COLLATE NOCASE, artist COLLATE NOCASE); ";
-        query.exec(sql);
-        query.finish();
-        query.clear();
-        */
-    }
+    sql = "CREATE INDEX compound_idx ON songs(id,name,artist); ";
+    query.exec(sql);
+    query.finish();
+    query.clear();
 }
 
 void SongDatabase::dropIndex()
@@ -595,96 +619,23 @@ void SongDatabase::dropIndex()
     QSqlQuery q;
     QString sql;
 
-    { // CASE INDEX
-        sql = "DROP INDEX id_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-
-        sql = "DROP INDEX name_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-
-        sql = "DROP INDEX artist_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-
-        sql = "DROP INDEX compound_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-    }
-
-    { // NO CASE INDEX
-        sql = "DROP INDEX id_nocase_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-
-        sql = "DROP INDEX name_nocase_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-
-        sql = "DROP INDEX artist_nocase_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-
-        /*
-        sql = "DROP INDEX compound_nocase_idx; ";
-        q.exec(sql);
-        q.finish();
-        q.clear();
-        */
-    }
-}
-
-void SongDatabase::checkAddNoCaseIndex()
-{
-    QSqlQuery q;
-
-    if (!q.exec("PRAGMA INDEX_LIST(songs)"))
-        return;
-
-    QList<QString> indexNames;
-    while (q.next())
-    {
-        indexNames.append(q.value("name").toString());
-    }
-
+    sql = "DROP INDEX id_idx; ";
+    q.exec(sql);
     q.finish();
     q.clear();
 
-    if (indexNames.indexOf("id_nocase_idx") == -1)
-    {
-        q.exec("CREATE INDEX id_nocase_idx ON songs(id COLLATE NOCASE); ");
-        q.finish();
-        q.clear();
-    }
+    sql = "DROP INDEX name_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
 
-    if (indexNames.indexOf("name_nocase_idx") == -1)
-    {
-        q.exec("CREATE INDEX name_nocase_idx ON songs(name COLLATE NOCASE); ");
-        q.finish();
-        q.clear();
-    }
+    sql = "DROP INDEX artist_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
 
-    if (indexNames.indexOf("artist_nocase_idx") == -1)
-    {
-        q.exec("CREATE INDEX artist_nocase_idx ON songs(artist COLLATE NOCASE); ");
-        q.finish();
-        q.clear();
-    }
-
-    /*
-    if (indexNames.indexOf("compound_nocase_idx") == -1)
-    {
-        q.exec("CREATE INDEX compound_nocase_idx ON songs(id COLLATE NOCASE, name COLLATE NOCASE, artist COLLATE NOCASE); ");
-        q.finish();
-        q.clear();
-    }
-    */
+    sql = "DROP INDEX compound_idx; ";
+    q.exec(sql);
+    q.finish();
+    q.clear();
 }
