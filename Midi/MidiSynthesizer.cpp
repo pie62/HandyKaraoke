@@ -756,6 +756,9 @@ void MidiSynthesizer::setDevice(InstrumentType t, int device)
     if (device < 0 || device >= audioDevices().count())
         return;
 
+    if (t < InstrumentType::BusGroup1 && instMap[t].bus != -1)
+        return;
+
     instMap[t].device = device;
 
     if (!openned)
