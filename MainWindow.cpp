@@ -10,6 +10,12 @@
 #include "Dialogs/AboutDialog.h"
 #include "Dialogs/MapSoundfontDialog.h"
 #include "Dialogs/MapChannelDialog.h"
+#include "Dialogs/BusDialog.h"
+#include "Dialogs/SpeakerDialog.h"
+
+#ifndef __linux__
+#include "Dialogs/VSTDirsDialog.h"
+#endif
 
 #include <QTime>
 #include <QMenu>
@@ -1334,11 +1340,11 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     QAction actionSettings("ตั้งค่า...", this);
     QAction actionMappChanel("แยกช่องสัญญาณ...", this);
-    QAction actionShowSynthMixDlg("Handy Synth Mixer", this);
-    QAction actionShowEqDlg("อีควอไลเซอร์", this);
-    QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
-    QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน", this);
-    QAction actionMapSF("ตารางเลือกใช้ซาวด์ฟ้อนท์", this);
+    QAction actionShowSynthMixDlg("Handy Synth Mixer...", this);
+    QAction actionShowEqDlg("อีควอไลเซอร์...", this);
+    QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง...", this);
+    QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน...", this);
+    QAction actionMapSF("ตารางเลือกใช้ซาวด์ฟ้อนท์...", this);
     QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
     QAction actionAbout("เกี่ยวกับ...", this);
@@ -1368,6 +1374,23 @@ void MainWindow::showContextMenu(const QPoint &pos)
     menu.addAction(&actionMappChanel);
     menu.addSeparator();
     menu.addAction(&actionShowSynthMixDlg);
+
+    // synth mixer tool
+    {
+        QMenu *m = menu.addMenu("Handy Synth Mixer Tool");
+
+        QAction *act = m->addAction("บัสกรุ๊ป...");
+        connect(act, SIGNAL(triggered()), this, SLOT(showBusGroupDialog()));
+
+        act = m->addAction("แยกอุปกรณ์เสียง/ลำโพง...");
+        connect(act, SIGNAL(triggered()), this, SLOT(showSpeakerDialog()));
+
+        #ifndef __linux__
+        act = m->addAction("จัดการ VST && VSTi...");
+        connect(act, SIGNAL(triggered()), this, SLOT(showVSTDirDialog()));
+        #endif
+    }
+
     menu.addAction(&actionShowEqDlg);
     menu.addAction(&actionShowReverbDlg);
     menu.addAction(&actionShowChorusDlg);
@@ -1437,6 +1460,35 @@ void MainWindow::showMapMidiChannelDialog()
     dlg.setMinimumSize(dlg.size());
     dlg.exec();
 }
+
+void MainWindow::showBusGroupDialog()
+{
+    BusDialog dlg(this, &synthMix->mixChannelMap(), player->midiSynthesizer());
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
+    dlg.exec();
+}
+
+void MainWindow::showSpeakerDialog()
+{
+    SpeakerDialog dlg(this, &synthMix->mixChannelMap(), this);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
+    dlg.exec();
+}
+
+#ifndef __linux__
+void MainWindow::showVSTDirDialog()
+{
+    VSTDirsDialog dlg(this, this);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
+    dlg.exec();
+}
+#endif
 
 void MainWindow::minimizeWindow()
 {

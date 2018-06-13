@@ -145,6 +145,12 @@ private slots:
     void showAboutDialog();
     void showAboutQtDialog();
 
+    void showBusGroupDialog();
+    void showSpeakerDialog();
+    #ifndef __linux__
+    void showVSTDirDialog();
+    #endif
+
     void onPositiomTimerTimeOut();
     void onLyricsTimerTimeOut();
     void onPlayerDurationMSChanged(qint64 d);
