@@ -46,7 +46,7 @@ QString DialogHelper::getSpeakerIconName(SpeakerType sp)
     switch (sp) {
 
     case SpeakerType::Default:
-        return ":/Icons/SoundCard/ports/port-front.png";
+        return ":/Icons/SoundCard/speakers.png";
 
     case SpeakerType::FrontStereo:
         return ":/Icons/SoundCard/ports/port-front.png";

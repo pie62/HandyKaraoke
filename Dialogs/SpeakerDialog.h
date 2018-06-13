@@ -23,6 +23,7 @@ private slots:
     void on_btnClose_clicked();
     void showSpeakerMenu(const QPoint &pos);
     void setSpeaker(int number);
+    void setItems(int row);
 
 private:
     Ui::SpeakerDialog *ui;

@@ -106,18 +106,6 @@
         <file>Icons/FXLabel/reverb.png</file>
         <file>Icons/Instruments/vst.png</file>
         <file>Icons/SoundCard/sound-card.png</file>
-        <file>Icons/SoundCard/ports/port-center.png</file>
-        <file>Icons/SoundCard/ports/port-center-left.png</file>
-        <file>Icons/SoundCard/ports/port-center-right.png</file>
-        <file>Icons/SoundCard/ports/port-front.png</file>
-        <file>Icons/SoundCard/ports/port-front-left.png</file>
-        <file>Icons/SoundCard/ports/port-front-right.png</file>
-        <file>Icons/SoundCard/ports/port-rear.png</file>
-        <file>Icons/SoundCard/ports/port-rear-left.png</file>
-        <file>Icons/SoundCard/ports/port-rear-right.png</file>
-        <file>Icons/SoundCard/ports/port-side.png</file>
-        <file>Icons/SoundCard/ports/port-side-left.png</file>
-        <file>Icons/SoundCard/ports/port-side-right.png</file>
         <file>Icons/SoundCard/ports-small/port-sm-center.png</file>
         <file>Icons/SoundCard/ports-small/port-sm-center-left.png</file>
         <file>Icons/SoundCard/ports-small/port-sm-center-right.png</file>
@@ -131,5 +119,19 @@
         <file>Icons/SoundCard/ports-small/port-sm-side-left.png</file>
         <file>Icons/SoundCard/ports-small/port-sm-side-right.png</file>
         <file>Icons/speaker.png</file>
+        <file>Icons/SoundCard/mixer.png</file>
+        <file>Icons/SoundCard/ports/port-center.png</file>
+        <file>Icons/SoundCard/ports/port-center-left.png</file>
+        <file>Icons/SoundCard/ports/port-center-right.png</file>
+        <file>Icons/SoundCard/ports/port-front.png</file>
+        <file>Icons/SoundCard/ports/port-front-left.png</file>
+        <file>Icons/SoundCard/ports/port-front-right.png</file>
+        <file>Icons/SoundCard/ports/port-rear.png</file>
+        <file>Icons/SoundCard/ports/port-rear-left.png</file>
+        <file>Icons/SoundCard/ports/port-rear-right.png</file>
+        <file>Icons/SoundCard/ports/port-side.png</file>
+        <file>Icons/SoundCard/ports/port-side-left.png</file>
+        <file>Icons/SoundCard/ports/port-side-right.png</file>
+        <file>Icons/SoundCard/speakers.png</file>
     </qresource>
 </RCC>

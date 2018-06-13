@@ -7,6 +7,9 @@
 #include <Config.h>
 #include "Dialogs/DialogHelper.h"
 
+#define ICON_SOUNDCARD  ":/Icons/SoundCard/sound-card.png"
+#define ICON_MIXER      ":/Icons/SoundCard/mixer.png"
+
 SpeakerDialog::SpeakerDialog(QWidget *parent, QMap<InstrumentType, InstCh *> *chInstMap, MainWindow *mainWindow) :
     QDialog(parent),
     ui(new Ui::SpeakerDialog)
@@ -24,30 +27,15 @@ SpeakerDialog::SpeakerDialog(QWidget *parent, QMap<InstrumentType, InstCh *> *ch
     // setup speaker table
     for (int i=0; i<chInstMap->keys().count(); i++)
     {
-        InstrumentType t = chInstMap->keys()[i];
-
-        if (t >= InstrumentType::BusGroup1)
-            break;
-
-        QString deviceName;
-        if (synth->speaker(t) == SpeakerType::Default)
-            deviceName = "Default Audio Device";
-        else
-            deviceName = deviceNames[synth->device(t)];
-
-        QString speakerName = DialogHelper::getSpeakerName(synth->speaker(t));
-
-        QTableWidgetItem *nameItem = new QTableWidgetItem(chInstMap->value(t)->fullInstrumentName());
-        QTableWidgetItem *deviceItem = new QTableWidgetItem(deviceName);
-        QTableWidgetItem *speakerItem = new QTableWidgetItem(speakerName);
-
-        deviceItem->setIcon(QIcon(":/Icons/SoundCard/sound-card.png"));
-        speakerItem->setIcon(QIcon(DialogHelper::getSpeakerIconName(synth->speaker(t))));
+        QString name = chInstMap->values()[i]->fullInstrumentName();
+        QTableWidgetItem *nameItem = new QTableWidgetItem(name);
 
         ui->tableSpeaker->insertRow(i);
         ui->tableSpeaker->setItem(i, 0, nameItem);
-        ui->tableSpeaker->setItem(i, 1, deviceItem);
-        ui->tableSpeaker->setItem(i, 2, speakerItem);
+        ui->tableSpeaker->setItem(i, 1, new QTableWidgetItem());
+        ui->tableSpeaker->setItem(i, 2, new QTableWidgetItem());
+
+        setItems(i);
     }
 
     QHeaderView *header = ui->tableSpeaker->horizontalHeader();
@@ -114,26 +102,7 @@ void SpeakerDialog::setSpeaker(int number)
         synth->setDevice(instType, device);
         synth->setSpeaker(instType, speaker);
 
-        if (speaker == SpeakerType::Default)
-        {
-            QTableWidgetItem *item =  ui->tableSpeaker->item(row, 1);
-            item->setIcon(QIcon(":/Icons/SoundCard/sound-card.png"));
-            item->setText("Default Audio Device");
-
-            item =  ui->tableSpeaker->item(row, 2);
-            item->setIcon(QIcon(DialogHelper::getSpeakerIconName(SpeakerType::Default)));
-            item->setText(DialogHelper::getSpeakerName(SpeakerType::Default));
-        }
-        else
-        {
-            QTableWidgetItem *item =  ui->tableSpeaker->item(row, 1);
-            item->setIcon(QIcon(":/Icons/SoundCard/sound-card.png"));
-            item->setText(deviceNames[device]);
-
-            item =  ui->tableSpeaker->item(row, 2);
-            item->setIcon(QIcon(DialogHelper::getSpeakerIconName(speaker)));
-            item->setText(DialogHelper::getSpeakerName(speaker));
-        }
+        setItems(row);
 
         settings.setArrayIndex(row);
         settings.setValue("Device", synth->device(instType));
@@ -158,4 +127,45 @@ void SpeakerDialog::setSpeaker(int number)
             break;
         }
     }
+}
+
+void SpeakerDialog::setItems(int row)
+{
+    QTableWidgetItem *itemDevice = ui->tableSpeaker->item(row, 1);
+    QTableWidgetItem *itemSpeaker = ui->tableSpeaker->item(row, 2);
+
+    auto t = static_cast<InstrumentType>(row);
+
+
+    // set device icon, name
+    QIcon iconDevice;
+    QString nameDevice;
+    if (t < InstrumentType::BusGroup1 && synth->busGroup(t) != -1)
+    {
+        auto busType = static_cast<InstrumentType>(synth->busGroup(t) + synth->HANDLE_BUS_START);
+        iconDevice.addFile(ICON_MIXER);
+        nameDevice = (*chInstMap)[busType]->fullInstrumentName();
+    }
+    else
+    {
+        int device = synth->device(t);
+        iconDevice.addFile(ICON_SOUNDCARD);
+        nameDevice = (device == 0) ? "Default Audio Device" : deviceNames[device];
+    }
+
+    itemDevice->setIcon(iconDevice);
+    itemDevice->setText(nameDevice);
+
+
+    // set speaker icon, name
+    QIcon iconSpeaker;
+    QString nameSpeaker;
+    iconSpeaker.addFile(DialogHelper::getSpeakerIconName(synth->speaker(t)));
+    nameSpeaker = DialogHelper::getSpeakerName(synth->speaker(t));
+
+    itemSpeaker->setIcon(iconSpeaker);
+    itemSpeaker->setText(nameSpeaker);
+
+    if (t >= InstrumentType::BusGroup1)
+        itemSpeaker->setFlags(itemSpeaker->flags() & ~Qt::ItemIsEnabled);
 }
