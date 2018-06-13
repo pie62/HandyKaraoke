@@ -1,7 +1,6 @@
 #include "AutoWahFXDialog.h"
 #include "ui_AutoWahFXDialog.h"
 
-#include <QDebug>
 
 AutoWahFXDialog::AutoWahFXDialog(QWidget *parent, AutoWahFX *fx) :
     QDialog(parent),

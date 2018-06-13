@@ -9,8 +9,6 @@
 
 #include <cstring>
 
-#include <QDebug>
-
 
 MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 {   

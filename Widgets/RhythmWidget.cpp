@@ -2,7 +2,7 @@
 #include "ui_RhythmWidget.h"
 
 #include <QPainter>
-#include <QDebug>
+
 
 RhythmWidget::RhythmWidget(QWidget *parent) :
     QWidget(parent),

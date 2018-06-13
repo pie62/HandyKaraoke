@@ -26,8 +26,6 @@
 #include <QFileDialog>
 #include <QWindow>
 
-#include <QDebug>
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
