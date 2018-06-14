@@ -25,7 +25,10 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiSynthesizer *synth) 
         int sfIndex = synth->getMapSoundfontIndex()[i];
 
         QTableWidgetItem *item1 = new QTableWidgetItem(instNames[i]);
-        QTableWidgetItem *item2 = new QTableWidgetItem(sfNames[sfIndex]);
+        QTableWidgetItem *item2 = new QTableWidgetItem();
+
+        if (sfIndex < sfNames.count())
+            item2->setText(sfNames[sfIndex]);
 
         ui->tableInst->insertRow(i);
         ui->tableInst->setItem(i, 0, item1);
@@ -37,7 +40,11 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiSynthesizer *synth) 
     for (int i=0; i<16; i++)
     {
         int sfIndex = synth->getDrumMapSfIndex()[i];
-        QTableWidgetItem *item = new QTableWidgetItem(sfNames[sfIndex]);
+        QTableWidgetItem *item = new QTableWidgetItem();
+
+        if (sfIndex < sfNames.count())
+            item->setText(sfNames[sfIndex]);
+
         ui->tableDrum->setItem(i, 1, item);
     }
 
@@ -57,6 +64,9 @@ MapSoundfontDialog::~MapSoundfontDialog()
 
 void MapSoundfontDialog::showInstSoundfontsMenu(const QPoint &pos)
 {
+    if (sfNames.count() == 0)
+        return;
+
     this->selectedInstTable = true;
 
     QMenu menu(this);
@@ -69,6 +79,9 @@ void MapSoundfontDialog::showInstSoundfontsMenu(const QPoint &pos)
 
 void MapSoundfontDialog::showDrumSoundfontsMenu(const QPoint &pos)
 {
+    if (sfNames.count() == 0)
+        return;
+
     this->selectedInstTable = false;
 
     QMenu menu(this);
