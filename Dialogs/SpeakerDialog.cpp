@@ -168,4 +168,21 @@ void SpeakerDialog::setItems(int row)
 
     if (t >= InstrumentType::BusGroup1)
         itemSpeaker->setFlags(itemSpeaker->flags() & ~Qt::ItemIsEnabled);
+
+    #ifdef __linux__
+    if (t >= InstrumentType::VSTi1 && t <= InstrumentType::VSTi4)
+    {
+        auto item = ui->tableSpeaker->item(row, 0);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+
+        item = ui->tableSpeaker->item(row, 1);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+
+        item = ui->tableSpeaker->item(row, 2);
+        item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+        item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+    }
+    #endif
 }

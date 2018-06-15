@@ -13,7 +13,7 @@ SongDetail::SongDetail(QWidget *parent) :
         QFont f = ui->label->font();
         f.setBold(true);
         f.setFamily(fontName);
-        f.setPointSize(14);
+        f.setPointSize(13);
 
         ui->label->setFont(f);
         ui->label_2->setFont(f);

@@ -51,7 +51,6 @@ SOURCES += main.cpp\
     Midi/HNKFile.cpp \
     BASSFX/FX.cpp \
     Widgets/CustomFXList.cpp \
-    Dialogs/VSTDialog.cpp \
     Dialogs/BusDialog.cpp \
     Dialogs/SynthMixerDialog.cpp \
     Dialogs/SecondMonitorDialog.cpp \
@@ -115,7 +114,6 @@ HEADERS  += MainWindow.h \
     Midi/lz77.h \
     BASSFX/FX.h \
     Widgets/CustomFXList.h \
-    Dialogs/VSTDialog.h \
     Dialogs/BusDialog.h \
     Dialogs/SecondMonitorDialog.h \
     Midi/MidiSequencer.h \
@@ -182,10 +180,12 @@ win32 {
 
     SOURCES += Midi/rtmidi/RtMidi.cpp \
         Dialogs/VSTDirsDialog.cpp \
+        Dialogs/VSTDialog.cpp \
         BASSFX/VSTFX.cpp
 
     HEADERS  += Midi/rtmidi/RtMidi.h \
         Dialogs/VSTDirsDialog.h \
+        Dialogs/VSTDialog.h \
         BASSFX/VSTFX.h
 
     FORMS += Dialogs/VSTDirsDialog.ui

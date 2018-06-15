@@ -29,7 +29,8 @@ public:
     #endif
     void setFXToSynth();
     InstCh* mixChannel(InstrumentType t);
-    QMap<InstrumentType, InstCh*> mixChannelMap();
+    QMap<InstrumentType, InstCh *> mixChannelMap();
+    QMap<InstrumentType, InstCh *> *mixChannelMapPtr();
 
 
 private slots:

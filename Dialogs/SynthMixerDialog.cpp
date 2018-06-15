@@ -129,6 +129,11 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
             synth->setSolo(t, s);
             synth->setUseVSTi(t, v);
             synth->setSpeaker(t, static_cast<SpeakerType>(sp));
+
+            #ifdef __linux__
+            if (t >= InstrumentType::VSTi1 && t <= InstrumentType::VSTi4)
+                ich->setEnabled(false);
+            #endif
         }
         st.endArray();
     }
@@ -167,6 +172,7 @@ SynthMixerDialog::~SynthMixerDialog()
         st.setValue("PeakHoldMs", vu->peakHoldMs());
 
 
+        #ifndef __linux__
         st.beginWriteArray("VSTiGroup");
         for (int i=0; i<4; i++)
         {
@@ -177,6 +183,7 @@ SynthMixerDialog::~SynthMixerDialog()
             st.setValue("VstiParams", QVariant::fromValue(synth->vstiParams(i)));
         }
         st.endArray();
+        #endif
 
 
         QStringList busNames;
@@ -297,6 +304,11 @@ InstCh *SynthMixerDialog::mixChannel(InstrumentType t)
 QMap<InstrumentType, InstCh *> SynthMixerDialog::mixChannelMap()
 {
     return chInstMap;
+}
+
+QMap<InstrumentType, InstCh *> *SynthMixerDialog::mixChannelMapPtr()
+{
+    return &chInstMap;
 }
 
 void SynthMixerDialog::showEqDialog()

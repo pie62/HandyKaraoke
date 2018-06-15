@@ -33,6 +33,7 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         drumSf.append(0);
     }
 
+    #ifndef __linux__
     BASS_VST_INFO vstinfo;
     for (int i=0; i<4; i++)
     {
@@ -41,6 +42,7 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         mVstiTempProgram[i] = 0;
         mVstiTempParams[i] = QList<float>();
     }
+    #endif
 
 
     // Map inst
@@ -189,10 +191,12 @@ void MidiSynthesizer::close()
         if (t==InstrumentType::VSTi1 || t==InstrumentType::VSTi2
          || t==InstrumentType::VSTi3 || t==InstrumentType::VSTi4)
         {
+            #ifndef __linux__
             int vIndex = static_cast<int>(t) - HANDLE_VSTI_START;
             mVstiTempProgram[vIndex] = BASS_VST_GetProgram(h);
             mVstiTempParams[vIndex] = FX::getVSTParams(h);
             BASS_VST_ChannelFree(h);
+            #endif
         }
         else
             BASS_StreamFree(h);
@@ -475,8 +479,10 @@ void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)
             BASS_MIDI_StreamEvent(getDrumHandleFromNote(note), 9, MIDI_EVENT_NOTE, MAKEWORD(note, 0));
         else
         {
+            #ifndef __linux__
             InstrumentType t = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
             BASS_VST_ProcessEvent(handles[t], 9, MIDI_EVENT_NOTE, MAKEWORD(note, 0));
+            #endif
         }
     }
     else
@@ -486,8 +492,10 @@ void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)
             BASS_MIDI_StreamEvent(handles[chInstType[ch]], ch, MIDI_EVENT_NOTE, MAKEWORD(note, 0));
         else
         {
+            #ifndef __linux__
             InstrumentType t = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
             BASS_VST_ProcessEvent(handles[t], ch, MIDI_EVENT_NOTE, MAKEWORD(note, 0));
+            #endif
         }
     }
 }
@@ -508,9 +516,11 @@ void MidiSynthesizer::sendNoteOn(int ch, int note, int velocity)
         }
         else
         {
+            #ifndef __linux__
             InstrumentType t = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
             BASS_VST_ProcessEvent(handles[t], 9, MIDI_EVENT_NOTE, MAKEWORD(note, velocity));
             emit noteOnSended(t, instMap[t].bus, 9, note, velocity);
+            #endif
         }
     }
     else
@@ -524,9 +534,11 @@ void MidiSynthesizer::sendNoteOn(int ch, int note, int velocity)
         }
         else
         {
+            #ifndef __linux__
             InstrumentType t = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
             BASS_VST_ProcessEvent(handles[t], ch, MIDI_EVENT_NOTE, MAKEWORD(note, velocity));
             emit noteOnSended(t, instMap[t].bus, ch, note, velocity);
+            #endif
         }
     }
 }
@@ -543,8 +555,10 @@ void MidiSynthesizer::sendNoteAftertouch(int ch, int note, int value)
             BASS_MIDI_StreamEvent(getDrumHandleFromNote(note), 9, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
         else
         {
+            #ifndef __linux__
             InstrumentType t = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
             BASS_VST_ProcessEvent(handles[t], 9, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
+            #endif
         }
     }
     else
@@ -554,8 +568,10 @@ void MidiSynthesizer::sendNoteAftertouch(int ch, int note, int value)
             BASS_MIDI_StreamEvent(handles[chInstType[ch]], ch, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
         else
         {
+            #ifndef __linux__
             InstrumentType t = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
             BASS_VST_ProcessEvent(handles[t], ch, MIDI_EVENT_KEYPRES, MAKEWORD(note, value));
+            #endif
         }
     }
 }
@@ -648,8 +664,10 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
             if (i < HANDLE_VSTI_START)
                 BASS_MIDI_StreamEvents(h, BASS_MIDI_EVENTS_RAW, data, 3);
+            #ifndef __linux__
             else
                 BASS_VST_ProcessEventRaw(h, (void*)data, 3);
+            #endif
         }
         return;
     }
@@ -683,8 +701,10 @@ void MidiSynthesizer::sendPitchBend(int ch, int value)
             BASS_MIDI_StreamEvent(handles[chInstType[ch]], ch, MIDI_EVENT_PITCH, value);
         else
         {
+            #ifndef __linux__
             InstrumentType t = static_cast<InstrumentType>(vstiIndex + HANDLE_VSTI_START);
             BASS_VST_ProcessEvent(handles[t], ch, MIDI_EVENT_PITCH, value);
+            #endif
         }
     }
 }
@@ -864,6 +884,7 @@ void MidiSynthesizer::setUseVSTi(InstrumentType t, int vstiIndex)
     if (vstiIndex < -1 || vstiIndex > 4)
         return;
 
+    #ifndef __linux__
     int oldVstiIndex = instMap[t].vsti;
     instMap[t].vsti = vstiIndex;
 
@@ -873,6 +894,7 @@ void MidiSynthesizer::setUseVSTi(InstrumentType t, int vstiIndex)
         for (int ch=0; ch<16; ch++)
             BASS_VST_ProcessEvent(handles[type], ch, MIDI_EVENT_NOTESOFF, 0);
     }
+    #endif
 }
 
 void MidiSynthesizer::setSpeaker(InstrumentType t, SpeakerType speaker)
@@ -886,7 +908,9 @@ void MidiSynthesizer::setSpeaker(InstrumentType t, SpeakerType speaker)
         return;
 
     BASS_Mixer_ChannelRemove(handles[t]);
+    #ifndef __linux__
     BASS_VST_ChannelFree(handles[t]);
+    #endif
     BASS_StreamFree(handles[t]);
 
     handles[t] = createStream(t);
@@ -1232,6 +1256,8 @@ void MidiSynthesizer::removeVSTiFile(int vstiIndex)
     mVstiTempParams[vstiIndex].clear();
 }
 
+#endif
+
 DWORD MidiSynthesizer::createStream(InstrumentType t)
 {
     int index = static_cast<int>(t);
@@ -1284,16 +1310,16 @@ DWORD MidiSynthesizer::createStream(InstrumentType t)
     }
 }
 
-#endif
-
 void MidiSynthesizer::sendToAllMidiStream(int ch, DWORD eventType, DWORD param)
 {
     for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
         HSTREAM stream = handles[static_cast<InstrumentType>(i)];
         if (i < HANDLE_VSTI_START)
             BASS_MIDI_StreamEvent(stream, ch, eventType, param);
+        #ifndef __linux__
         else
             BASS_VST_ProcessEvent(stream, ch, eventType, param);
+        #endif
     }
 }
 

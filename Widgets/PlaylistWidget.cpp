@@ -10,12 +10,12 @@ PlaylistWidget::PlaylistWidget(QWidget *parent) :
     #ifdef __linux__
     { // UI Font in linux
         QString fontName = "TH Sarabun New Bold";
-        QFont f = this->font();
+        QFont f = ui->lbPlaylist->font();
         f.setBold(true);
         f.setFamily(fontName);
         f.setPointSize(f.pointSize() - 10);
 
-        ui->label->setFont(f);
+        ui->lbPlaylist->setFont(f);
 
         f.setPointSize(f.pointSize() - 2);
         ui->tableWidget->setFont(f);

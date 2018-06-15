@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     }
 
     { // set style
-        QSettings *s = new QSettings("Style.conf", QSettings::IniFormat);
+        QSettings *s = new QSettings("Style.ini", QSettings::IniFormat);
 
         #ifdef __linux__
         bool useFusion = s->value("Fusion", true).toBool();

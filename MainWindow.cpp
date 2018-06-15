@@ -383,7 +383,7 @@ MainWindow::MainWindow(QWidget *parent) :
             QFont f = ui->lbSearch->font();
             f.setBold(true);
             f.setFamily(fontName);
-            f.setPointSize(f.pointSize() - 10);
+            f.setPointSize(f.pointSize() - 12);
 
             ui->lbSearch->setFont(f);
             ui->lbArtist->setFont(f);
@@ -392,11 +392,6 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->lbName->setFont(f);
             ui->lbTempoKey->setFont(f);
             ui->lbType->setFont(f);
-
-            ui->lbPlaylist->setFont(f);
-
-            f.setPointSize(f.pointSize() - 2);
-            ui->playlist->setFont(f);
 
             f.setPointSize(f.pointSize() - 4);
             ui->lbLyrics->setFont(f);
@@ -1461,7 +1456,7 @@ void MainWindow::showMapMidiChannelDialog()
 
 void MainWindow::showBusGroupDialog()
 {
-    BusDialog dlg(this, &synthMix->mixChannelMap(), player->midiSynthesizer());
+    BusDialog dlg(this, synthMix->mixChannelMapPtr(), player->midiSynthesizer());
     dlg.setModal(true);
     dlg.adjustSize();
     dlg.setMinimumSize(dlg.size());
@@ -1470,7 +1465,7 @@ void MainWindow::showBusGroupDialog()
 
 void MainWindow::showSpeakerDialog()
 {
-    SpeakerDialog dlg(this, &synthMix->mixChannelMap(), this);
+    SpeakerDialog dlg(this, synthMix->mixChannelMapPtr(), this);
     dlg.setModal(true);
     dlg.adjustSize();
     dlg.setMinimumSize(dlg.size());

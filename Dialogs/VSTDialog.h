@@ -4,7 +4,9 @@
 #include <QDialog>
 
 #include <bass.h>
+#ifndef __linux__
 #include <bass_vst.h>
+#endif
 
 class VSTDialog : public QDialog
 {
