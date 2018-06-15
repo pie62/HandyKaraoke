@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv); 
 
-    QCoreApplication::setApplicationName("Handy Karaoke");
+    QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
     QCoreApplication::setApplicationVersion(VER_FILEVERSION_STR);
-    QCoreApplication::setOrganizationName("Handy Karaoke");
-    QCoreApplication::setOrganizationDomain("https://github.com/pie62/HandyKaraoke");
+    QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
+    QCoreApplication::setOrganizationDomain(VER_COMPANYDOMAIN_STR);
 
     registerMetaType();
 
