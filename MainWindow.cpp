@@ -1,6 +1,15 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include <QTime>
+#include <QMenu>
+#include <QCloseEvent>
+#include <QMessageBox>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileDialog>
+#include <QWindow>
+
 #include "Config.h"
 #include "Utils.h"
 #include "DrumPadsKey.h"
@@ -16,15 +25,6 @@
 #ifndef __linux__
 #include "Dialogs/VSTDirsDialog.h"
 #endif
-
-#include <QTime>
-#include <QMenu>
-#include <QCloseEvent>
-#include <QMessageBox>
-#include <QDir>
-#include <QDirIterator>
-#include <QFileDialog>
-#include <QWindow>
 
 
 MainWindow::MainWindow(QWidget *parent) :

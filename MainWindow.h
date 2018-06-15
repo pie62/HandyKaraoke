@@ -1,19 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "SongDatabase.h"
-#include "Midi/MidiPlayer.h"
-
-#include <LyricsWidget.h>
-#include <Detail.h>
-#include <ChannelMixer.h>
-
-#include "Dialogs/SynthMixerDialog.h"
-#include "Dialogs/Equalizer31BandDialog.h"
-#include "Dialogs/ReverbDialog.h"
-#include "Dialogs/ChorusDialog.h"
-#include "Dialogs/SecondMonitorDialog.h"
-
 #include <QMainWindow>
 #include <QTimer>
 #include <QKeyEvent>
@@ -24,6 +11,20 @@
 #include <QWinTaskbarButton>
 #include <QWinTaskbarProgress>
 #endif
+
+#include <LyricsWidget.h>
+#include <Detail.h>
+#include <ChannelMixer.h>
+
+#include "SongDatabase.h"
+
+#include "Midi/MidiPlayer.h"
+
+#include "Dialogs/SynthMixerDialog.h"
+#include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/ReverbDialog.h"
+#include "Dialogs/ChorusDialog.h"
+#include "Dialogs/SecondMonitorDialog.h"
 
 
 namespace Ui {
@@ -117,8 +118,6 @@ private:
     #ifdef _WIN32
     QWinTaskbarButton *taskbarButton;
     #endif
-
-    QList<DWORD> streams;
 
 private slots:
     void showFrameSearch();
