@@ -1658,35 +1658,9 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="btnSfFinish">
+              <widget class="QCheckBox" name="chbSfLoadAll">
                <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="icons.qrc">
-                 <normaloff>:/Icons/correct-symbol.png</normaloff>:/Icons/correct-symbol.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnSfCancel">
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="icons.qrc">
-                 <normaloff>:/Icons/delete.png</normaloff>:/Icons/delete.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnSfEdit">
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="icons.qrc">
-                 <normaloff>:/Icons/pencil_yellow.png</normaloff>:/Icons/pencil_yellow.png</iconset>
+                <string>อ่านค่าทุกเสียง</string>
                </property>
               </widget>
              </item>
@@ -1751,7 +1725,7 @@
          <item>
           <widget class="QPushButton" name="btnSfMap">
            <property name="text">
-            <string>การเลือกใช้ซาวด์ฟ้อนท์</string>
+            <string>ตารางเลือกใช้ซาวด์ฟ้อนท์</string>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">

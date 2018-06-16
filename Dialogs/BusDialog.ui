@@ -22,7 +22,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>ตัวจัดการ Bus Group</string>
+   <string>บัสกรุ๊ป</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -47,7 +47,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>รายการใช้ Bus</string>
+       <string>ตารางใช้งานบัส</string>
       </attribute>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -55,12 +55,18 @@
          <property name="contextMenuPolicy">
           <enum>Qt::CustomContextMenu</enum>
          </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>23</number>
+         </attribute>
          <column>
           <property name="text">
-           <string>ชิ้นดนตรี้</string>
+           <string>เครื่องดนตรี</string>
           </property>
          </column>
          <column>
@@ -74,7 +80,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>ชื่อ Bus</string>
+       <string>ชื่อบัส</string>
       </attribute>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
@@ -85,6 +91,9 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>23</number>
+         </attribute>
          <column>
           <property name="text">
            <string>ชื่อเต็ม</string>

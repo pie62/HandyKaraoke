@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Reverb</string>
+   <string>เอฟเฟ็กต์เสียงก้อง : Reverb</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>

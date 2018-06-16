@@ -2,21 +2,11 @@
 #define MIDIHELPER_H
 
 #include <QObject>
+#include <bass.h>
 
 enum class InstrumentType;
+enum class SpeakerType;
 
-//struct Beat
-//{
-//    int nBeat;
-//    int nBeatInBar;
-//    int currentBar;
-//    Beat() : nBeat(0), nBeatInBar(0), currentBar(0) {}
-//    QString toString() {
-//        return QString("nBeat " + QString::number(nBeat) +
-//                       " nBeatInBar " + QString::number(nBeatInBar) +
-//                       " currentBar " + QString::number(currentBar));
-//    }
-//};
 typedef struct SignatureBeat
 {
     int nBeat;
@@ -41,6 +31,9 @@ public:
 
     static InstrumentType getInstrumentDrumType(int drumNote);
     static InstrumentType getInstrumentType(int instNumber);
+
+    static DWORD getSpeakerFlag(SpeakerType speaker);
+    static bool isStereoSpeaker(SpeakerType speaker);
 };
 
 enum class InstrumentType
@@ -89,6 +82,11 @@ enum class InstrumentType
     ThaiChap,
     PercussionEtc,
 
+    VSTi1,
+    VSTi2,
+    VSTi3,
+    VSTi4,
+
     BusGroup1,
     BusGroup2,
     BusGroup3,
@@ -105,6 +103,27 @@ enum class InstrumentType
     BusGroup14,
     BusGroup15,
     BusGroup16
+};
+
+enum class SpeakerType
+{
+    Default,
+
+    FrontStereo,
+    FrontLeft,
+    FrontRight,
+
+    RearStereo,
+    RearLeft,
+    RearRight,
+
+    CenterStereo,
+    CenterMono,
+    SubwooferMono,
+
+    SideStereo,
+    SideLeft,
+    SideRight
 };
 
 #endif // MIDIHELPER_H

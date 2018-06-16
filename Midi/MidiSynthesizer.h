@@ -1,23 +1,29 @@
 #ifndef MIDISYNTHESIZER_H
 #define MIDISYNTHESIZER_H
 
+#include <QObject>
+#include <QMap>
+
 #include <bass.h>
 #include <bassmidi.h>
 #include <bassmix.h>
 #include <bass_fx.h>
 
+#include "Midi/MidiHelper.h"
 #include "BASSFX/FX.h"
 #include "BASSFX/Equalizer31BandFX.h"
 #include "BASSFX/ReverbFX.h"
 #include "BASSFX/ChorusFX.h"
 
-#include "Midi/MidiHelper.h"
+typedef struct
+{
+    DWORD handle;
+    Equalizer31BandFX *eq;
+    ReverbFX *reverb;
+    ChorusFX *chorus;
+} MixerHandle;
 
-#include <QObject>
-#include <QMap>
-
-
-struct Instrument
+typedef struct
 {
     InstrumentType type;
     bool mute;
@@ -25,16 +31,19 @@ struct Instrument
     bool enable;
     int volume;
     int bus;
+    int vsti;
+    int device;
+    SpeakerType speaker;
     QList<FX*> FXs;
-};
+} Instrument;
 
-struct VSTNamePath
+typedef struct
 {
     unsigned int uniqueID;
     QString vstName;
     QString vstvendor;
     QString vstPath;
-};
+} VSTNamePath;
 
 class MidiSynthesizer : public QObject
 {
@@ -45,19 +54,24 @@ public:
     ~MidiSynthesizer();
 
     bool isOpened() { return openned; }
-    QStringList soundfontFiles() { return sfFiles; }
 
     bool open();
     void close();
 
-    int outPutDevice();
-    bool setOutputDevice(int dv);
-    void setSoundFonts(QStringList &soundfonsFiles);
+    int defaultDevice();
+    bool setDefaultDevice(int dv);
     void setVolume(float vol);
     float volume() { return synth_volume; }
 
+    QStringList soundfontFiles() { return sfFiles; }
+    bool addSoundfont(const QString &sfFile);
+    void removeSoundfont(int sfIndex);
+    void swapSoundfont(int sfIndex, int toIndex);
     float soundfontVolume(int sfIndex);
     void setSoundfontVolume(int sfIndex, float sfvl);
+    void compactSoundfont();
+    bool isLoadAllSoundfont() { return sfLoadAll; }
+    void setLoadAllSoundfont(bool loadAll);
 
     // std::vector<int> size 129
     //      1-128 all intrument
@@ -83,23 +97,30 @@ public:
     // Instrument Maper
     QMap<InstrumentType, Instrument> instrumentMap() { return instMap; }
     Instrument instrument(InstrumentType t) { return instMap.value(t); }
-    int busGroup(InstrumentType t);
-    int volume(InstrumentType t);
+    int  device(InstrumentType t);
+    int  busGroup(InstrumentType t);
+    int  volume(InstrumentType t);
     bool isMute(InstrumentType t);
     bool isSolo(InstrumentType t);
+    int  useVSTi(InstrumentType t);
+    SpeakerType speaker(InstrumentType t);
+    void setDevice(InstrumentType t, int device);
     void setBusGroup(InstrumentType t, int group);
     void setVolume(InstrumentType t, int volume);
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
+    void setUseVSTi(InstrumentType t, int vstiIndex);
+    void setSpeaker(InstrumentType t, SpeakerType speaker);
 
 
-    static std::vector<std::string> audioDevices();
+    static QStringList audioDevices();
+    static void audioDevices(const QMap<int, QString> &devices);
     static bool isSoundFontFile(const QString &sfile);
 
     // Fx ----------------------
-    Equalizer31BandFX* equalizer31BandFX() { return eq; }
-    ReverbFX* reverbFX() { return reverb; }
-    ChorusFX* chorusFX() { return chorus; }
+    QList<Equalizer31BandFX *> equalizer31BandFXs();
+    QList<ReverbFX *> reverbFXs();
+    QList<ChorusFX *> chorusFXs();
 
     QMap<uint, VSTNamePath> VSTList() { return _vstList; }
     void setVSTList(const QMap<uint, VSTNamePath> &listMap) { _vstList = listMap; }
@@ -122,11 +143,38 @@ public:
     QList<int> fxProgram(InstrumentType type);
     QList<QList<float>> fxParams(InstrumentType type);
 
+    #ifndef __linux__
+    BASS_VST_INFO vstiInfo(int vstiIndex);
+    QStringList vstiFiles();
+    QString vstiFile(int vstiIndex);
+    DWORD vstiHandle(int vstiIndex);
+    int vstiProgram(int vstiIndex);
+    QList<float> vstiParams(int vstiIndex);
+    DWORD setVSTiFile(int vstiIndex, const QString &file);
+    void removeVSTiFile(int vstiIndex);
+    #endif
+
+    const int HANDLE_STREAM_COUNT = 62;
+    const int HANDLE_MIDI_COUNT = 46;
+    const int HANDLE_VSTI_START = 42;
+    const int HANDLE_BUS_COUNT = 16;
+    const int HANDLE_BUS_START = 46;
+
 signals:
     void noteOnSended(InstrumentType t, int bus, int ch, int note, int velocity);
 
 private:
-    HSTREAM mixHandle;
+    DWORD createStream(InstrumentType t);
+
+    void sendToAllMidiStream(int ch, DWORD eventType, DWORD param);
+    void setSfToStream();
+    void calculateEnable();
+    HSTREAM getDrumHandleFromNote(int drumNote);
+
+private:
+    QList<MixerHandle> mixers;
+    //MixerManager mixers;
+    //HSTREAM mixHandle;
     QMap<InstrumentType, HSTREAM> handles;
     QList<HSOUNDFONT> synth_HSOUNDFONT;
     QStringList sfFiles;
@@ -135,10 +183,12 @@ private:
     QMap<InstrumentType, Instrument> instMap;
     InstrumentType chInstType[16];
 
-    // FX
-    Equalizer31BandFX *eq;
-    ReverbFX *reverb;
-    ChorusFX *chorus;
+    #ifndef __linux__
+    QString mVstiFiles[4];
+    BASS_VST_INFO mVstiInfos[4];
+    int mVstiTempProgram[4];
+    QList<float> mVstiTempParams[4];
+    #endif
 
     // unique ID,  VSTNamePAth
     QMap<uint, VSTNamePath> _vstList;
@@ -148,17 +198,15 @@ private:
     bool openned = false;
     bool useSolo = false;
 
-    int outDev = 1;
+    int defaultDev = 1;
     bool useFloat = true;
     bool useFX = false;
+    bool sfLoadAll = false;
 
     DWORD RPNType = 0;
 
-    void sendToAllMidiStream(int ch, DWORD eventType, DWORD param);
-    void setSfToStream();
-    void calculateEnable();
-    HSTREAM getDrumHandleFromNote(int drumNote);
-    std::vector<int> getChannelsFromType(InstrumentType t);
+    // device number, name
+    static QMap<int, QString> outDevices;
 };
 
 #endif // MIDISYNTHESIZER_H

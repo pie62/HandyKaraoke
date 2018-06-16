@@ -28,11 +28,19 @@ public:
     void setVSTVendorMenu();
     #endif
     void setFXToSynth();
+    InstCh* mixChannel(InstrumentType t);
+    QMap<InstrumentType, InstCh *> mixChannelMap();
+    QMap<InstrumentType, InstCh *> *mixChannelMapPtr();
+
 
 private slots:
+    void showEqDialog();
+    void showReverbDialog();
+    void showChorusDialog();
     void setBtnEqIcon(bool s);
     void setBtnReverbIcon(bool s);
     void setBtnChorusIcon(bool s);
+
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
     void setMixLevel(InstrumentType t, int level);
@@ -47,12 +55,12 @@ private slots:
     FX* addFX(const QString &uidStr, bool bypass = false);
     void byPassFX(InstrumentType type, int fxIndex, bool bypass);
     void showFxDialog(InstrumentType type, int fxIndex);
-    void onVSTDialogClosing(uint32_t fx);
     void showFXRemoveMenu(InstrumentType type, int fxIndex, const QPoint &pos);
+    void showVSTiDialog(InstrumentType vstiIndexType);
     void removeFX();
 
     void on_btnBus_clicked();
-
+    void on_btnSpeakers_clicked();
     void on_btnVSTDirs_clicked();
 
 protected:

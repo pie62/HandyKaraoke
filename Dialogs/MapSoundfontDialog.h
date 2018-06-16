@@ -2,9 +2,9 @@
 #define MAPSOUNDFONTDIALOG_H
 
 #include <QDialog>
-#include <QTreeWidgetItem>
+#include <QTableWidget>
+#include <QSignalMapper>
 
-#include "ComboBoxItem.h"
 #include "Midi/MidiPlayer.h"
 
 namespace Ui {
@@ -16,28 +16,27 @@ class MapSoundfontDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit MapSoundfontDialog(QWidget *parent = 0, MidiPlayer *player = nullptr);
+    explicit MapSoundfontDialog(QWidget *parent = 0, MidiSynthesizer *synth = nullptr);
     ~MapSoundfontDialog();
 
 private slots:
-    void onComboBoxItemsActivated(int row, int index);
-    void onComboBoxDrumActivated(int row, int index);
+    void showInstSoundfontsMenu(const QPoint& pos);
+    void showDrumSoundfontsMenu(const QPoint& pos);
+    void setMapSoundfontsIndex(int sfIndex);
 
-    void on_btnOk_clicked();
+    void on_btnClose_clicked();
 
-    void on_btnCancel_clicked();
+private:
+    void createSoundfontsListMenu(QMenu *menu, QSignalMapper *signalMapper);
 
 private:
     Ui::MapSoundfontDialog *ui;
 
-    QList<QTreeWidgetItem*> treeWidgetItems;
-    QList<ComboBoxItem*> comboBoxItems;
-    QList<ComboBoxItem*> comboBoxDrum;
+    // true = instruments table, false = drum table
+    bool selectedInstTable = true;
 
-    QList<int> instMap;
-    QList<int> drumMap;
-
-    MidiPlayer *player = nullptr;
+    MidiSynthesizer *synth = nullptr;
+    QStringList sfNames;
 };
 
 #endif // MAPSOUNDFONTDIALOG_H

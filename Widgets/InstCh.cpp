@@ -5,6 +5,7 @@
 #include <QToolTip>
 #include <QScrollBar>
 #include <QCursor>
+#include <QMouseEvent>
 
 
 InstCh::InstCh(QWidget *parent) :
@@ -170,6 +171,12 @@ void InstCh::peak(int v)
         return;
 
     ui->vuBar->peak(v);
+}
+
+void InstCh::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && ui->lbImage->underMouse())
+        emit imageDoubleClicked(instType);
 }
 
 void InstCh::onBtnMuteClicked()

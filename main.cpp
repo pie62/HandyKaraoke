@@ -6,8 +6,10 @@
 #include <QMetaType>
 #include <QStyleFactory>
 
-#include "version.h"
 #include "BASSFX/VSTFX.h"
+#include "version.h"
+#include "Config.h"
+#include "Utils.h"
 
 #ifdef __linux__
 #include <QFontDatabase>
@@ -15,7 +17,11 @@
 
 void registerMetaType();
 
+void checkDatabase(QSplashScreen *splash, SongDatabase *db);
+void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth);
+
 #ifndef __linux__
+void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth);
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth);
 #endif
 
@@ -23,10 +29,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv); 
 
-    QCoreApplication::setApplicationName("handy-karaoke");
+    QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
     QCoreApplication::setApplicationVersion(VER_FILEVERSION_STR);
-    QCoreApplication::setOrganizationName("HandyKaraoke");
-    QCoreApplication::setOrganizationDomain("https://github.com/pie62/HandyKaraoke");
+    QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
+    QCoreApplication::setOrganizationDomain(VER_COMPANYDOMAIN_STR);
 
     registerMetaType();
 
@@ -37,6 +43,16 @@ int main(int argc, char *argv[])
 
     splash->showMessage("กำลังเริ่มโปรแกรม...", Qt::AlignBottom|Qt::AlignRight);
     qApp->processEvents();
+
+    { // Config Dir
+        QDir dir(ALL_DATA_DIR_PATH);
+        if (!dir.exists())
+            dir.mkpath(ALL_DATA_DIR_PATH);
+
+        dir.setPath(CONFIG_DIR_PATH);
+        if (!dir.exists())
+            dir.mkpath(CONFIG_DIR_PATH);
+    }
 
     { // set style
         QSettings *s = new QSettings("Style.ini", QSettings::IniFormat);
@@ -63,7 +79,11 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.setWindowIcon(QIcon(":/Icons/App/icon.png"));
 
+    checkDatabase(splash, w.database());
+    loadSoundfonts(splash, w.midiPlayer()->midiSynthesizer());
+
     #ifndef __linux__
+    loadVSTi(splash, w.midiPlayer()->midiSynthesizer());
     makeVSTList(splash, w.midiPlayer()->midiSynthesizer());
     w.synthMixerDialog()->setVSTVendorMenu();
     #endif
@@ -83,28 +103,103 @@ void registerMetaType()
 {
     qRegisterMetaType<InstrumentType>("InstrumentType");
 
-    qRegisterMetaType<QList<int>>("QList<int>");
+    //<QList<int>>("QList<int>");
     qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 
-    qRegisterMetaType<QList<uint>>("QList<uint>");
+    //qRegisterMetaType<QList<uint>>("QList<uint>");
     qRegisterMetaTypeStreamOperators<QList<uint>>("QList<uint>");
 
-    qRegisterMetaType<QList<float>>("QList<float>");
+    //qRegisterMetaType<QList<float>>("QList<float>");
     qRegisterMetaTypeStreamOperators<QList<float>>("QList<float>");
 
-    qRegisterMetaType<QList<bool>>("QList<bool>");
+    //qRegisterMetaType<QList<bool>>("QList<bool>");
     qRegisterMetaTypeStreamOperators<QList<bool>>("QList<bool>");
 
-    qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
+    //qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
     qRegisterMetaTypeStreamOperators<QList<QList<float>>>("QList<QList<float>>");
 }
 
+void checkDatabase(QSplashScreen *splash, SongDatabase *db)
+{
+    if (db->isNewVersion())
+        return;
+
+    splash->showMessage("กำลังปรับปรุงฐานข้อมูลเพลง", Qt::AlignBottom|Qt::AlignRight);
+    qApp->processEvents();
+
+    db->updateToNewVersion();
+}
+
+void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)
+{
+    QSettings settings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+
+    synth->setLoadAllSoundfont(settings.value("SynthSoundfontsLoadAll", false).toBool());
+
+    // set soundfont to synth
+    QStringList sfList = settings.value("SynthSoundfonts", QStringList()).toStringList();
+    settings.beginReadArray("SynthSoundfontsVolume");
+    for (int i=0; i<sfList.count(); i++)
+    {
+        settings.setArrayIndex(i);
+        int volume = settings.value("SoundfontVolume", 100).toInt();
+
+        splash->showMessage("กำลังโหลด : " + QFileInfo(sfList.at(i)).fileName(), Qt::AlignBottom|Qt::AlignRight);
+        qApp->processEvents();
+
+        if (synth->addSoundfont(sfList.at(i)))
+            synth->setSoundfontVolume(i, volume / 100.0f);
+    }
+    settings.endArray();
+
+
+    // set Map soundfont
+     QList<int> sfMap     = settings.value("SynthSoundfontsMap").value<QList<int>>();
+     QList<int> sfDrumMap = settings.value("SynthSoundfontsDrumMap").value<QList<int>>();
+
+     if (sfMap.count() == 0)
+         sfMap = synth->getMapSoundfontIndex();
+     if (sfDrumMap.count() == 0)
+         sfDrumMap = synth->getDrumMapSfIndex();
+
+     synth->setMapSoundfontIndex(sfMap, sfDrumMap);
+}
 
 #ifndef __linux__
 
+void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
+{
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+
+    st.beginReadArray("VSTiGroup");
+    for (int i=0; i<4; i++)
+    {
+        st.setArrayIndex(i);
+
+        QString      filePath    = st.value("VstiFilePath", "").toString();
+        int          program     = st.value("VstiPrograms", 0).toInt();
+        QList<float> params      = st.value("VstiParams").value<QList<float>>();
+
+        if (filePath == "")
+            continue;
+
+        splash->showMessage("กำลังโหลด : " + QFileInfo(filePath).fileName(), Qt::AlignBottom|Qt::AlignRight);
+        qApp->processEvents();
+
+        DWORD vsti = synth->setVSTiFile(i, filePath);
+
+        if (vsti != 0)
+        {
+            BASS_VST_SetProgram(vsti, program);
+            FX::setVSTParams(vsti, params);
+        }
+    }
+    st.endArray();
+}
+
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 {
-    QSettings st;
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     QStringList dirs = st.value("VSTDirs", QStringList()).toStringList();
 
     QStringList vstDirs;
@@ -122,24 +217,19 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 
             it.next();
 
-            splash->showMessage("Reading : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
+            splash->showMessage("กำลังตรวจสอบ : " + it.fileName(), Qt::AlignBottom|Qt::AlignRight);
             qApp->processEvents();
 
-            BASS_VST_INFO info;
-            if (!VSTFX::isVSTFile(it.filePath(), &info))
+            VSTNamePath info;
+
+            if (!Utils::vstInfo(it.filePath(), &info))
                 continue;
 
-            VSTNamePath v;
-            v.uniqueID = info.uniqueID;
-            v.vstName = info.effectName;
-            v.vstvendor = info.vendorName;
-            v.vstPath = it.filePath();
-
-            vstList[info.uniqueID] = v;
+            vstList[info.uniqueID] = info;
         }
     }
 
-     synth->setVSTList(vstList);
+    synth->setVSTList(vstList);
 }
 
 #endif

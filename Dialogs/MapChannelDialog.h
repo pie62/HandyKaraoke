@@ -30,7 +30,7 @@ private:
     MidiPlayer *player;
     QSignalMapper *signalMapper = nullptr;
     QString synthStr = "Midi Synthesizer (SoundFont)";
-    std::vector<std::string> devices;
+    QStringList devices;
 };
 
 #endif // MAPCHANNELDIALOG_H

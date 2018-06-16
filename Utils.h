@@ -2,6 +2,11 @@
 #define UTILS_H
 
 #include <QFile>
+#include <QMenu>
+#include <QSignalMapper>
+
+#include "Song.h"
+#include "Midi/MidiSynthesizer.h"
 
 #ifdef _WIN32
 typedef __int32 int32_t;
@@ -20,6 +25,13 @@ public:
     static QString readLyrics(const QByteArray &data);
 
     static uint concurentThreadsSupported();
+
+    static bool vstInfo(const QString &vstPath, VSTNamePath *info);
+
+    static bool savePlaylist(const QString &filePath, const QList<Song*> &songs);
+    static bool loadPlaylist(const QString &filePath, QList<Song*> &songs);
+
+    static QString LAST_OPEN_DIR;
 };
 
 #endif // UTILS_H

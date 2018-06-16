@@ -8,6 +8,14 @@
 
 #include <QObject>
 
+enum class PlayerState
+{
+    Playing,
+    Stopped,
+    Paused,
+    Finished
+};
+
 class MidiPlayer : public QObject
 {
     Q_OBJECT
@@ -15,8 +23,8 @@ public:
     explicit MidiPlayer(QObject *parent = nullptr);
     ~MidiPlayer();
 
-    static std::vector<std::string> midiDevices();
-    static std::vector<std::string> midiInDevices();
+    static QStringList midiDevices();
+    static QStringList midiInDevices();
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
     static int getNumberBeatInBar(int numerator, int denominator);
@@ -38,10 +46,13 @@ public:
 
     MidiFile* midiFile();
 
+    bool isUsedMidiSynthesizer();
+
     bool isPlayerPlaying();
     bool isPlayerStopped();
     bool isPlayerPaused();
     bool isPlayerFinished();
+    PlayerState playerState();
 
     long durationMs();
     long positionMs();

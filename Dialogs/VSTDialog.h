@@ -1,27 +1,31 @@
 #ifndef VSTDIALOG_H
 #define VSTDIALOG_H
 
-#include <cstdint>
 #include <QDialog>
+
+#include <bass.h>
+#ifndef __linux__
+#include <bass_vst.h>
+#endif
 
 class VSTDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit VSTDialog(QWidget *parent = nullptr, uint32_t fxHandle = 0);
+    explicit VSTDialog(QWidget *parent = nullptr, DWORD fxHandle = 0, const QString &instName = QString());
 
-    uint32_t getFxHandle() { return fxHandle; }
-
-signals:
-    void closing(uint32_t fx);
+    DWORD getFxHandle() { return fxHandle; }
+    bool isCanOpen() { return canOpen; }
 
 public slots:
 
 protected:
+    void showEvent(QShowEvent *event);
     void closeEvent(QCloseEvent *event);
 
 private:
-    uint32_t fxHandle;
+    DWORD fxHandle;
+    bool canOpen = false;
 };
 
 #endif // VSTDIALOG_H

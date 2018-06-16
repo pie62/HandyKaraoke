@@ -2,6 +2,11 @@
 
 #include <QtMath>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <mmsystem.h>
+#endif
+
 
 MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
 {
@@ -11,6 +16,11 @@ MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
     _midiSeq.push_back(seq2);
 
     _midiSynth  = new MidiSynthesizer();
+
+    if (midiDevices().size() > 0)
+    {
+        setMidiOut(0);
+    }
 
     connect(seq1, SIGNAL(playingEvent(MidiEvent*)),
             this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
@@ -43,23 +53,49 @@ MidiPlayer::~MidiPlayer()
     delete _midiSynth;
 }
 
-std::vector<std::string> MidiPlayer::midiDevices()
+QStringList MidiPlayer::midiDevices()
 {
-    std::vector<std::string> outName;
+    QStringList outName;
+
+    #ifdef _WIN32
+    UINT outCount = midiOutGetNumDevs();
+    for (UINT i=0; i<outCount; i++)
+    {
+        MIDIOUTCAPS outCaps;
+        if (midiOutGetDevCaps(i, &outCaps, sizeof(MIDIOUTCAPS))  != MMSYSERR_NOERROR)
+            continue;
+        outName.append(QString::fromStdWString(outCaps.szPname));
+    }
+    #else
     MidiOut o;
     for (int i=0; i<o.getPortCount(); i++) {
-        outName.push_back(o.getPortName(i));
+        outName.append(QString::fromStdString(o.getPortName(i)));
     }
+    #endif
+
     return outName;
 }
 
-std::vector<std::string> MidiPlayer::midiInDevices()
+QStringList MidiPlayer::midiInDevices()
 {
-    std::vector<std::string> inName;
+    QStringList inName;
+
+    #ifdef _WIN32
+    UINT inCount = midiInGetNumDevs();
+    for (UINT i=0; i<inCount; i++)
+    {
+        MIDIINCAPS inCaps;
+        if (midiInGetDevCaps(i, &inCaps, sizeof(MIDIINCAPS))  != MMSYSERR_NOERROR)
+            continue;
+        inName.append(QString::fromStdWString(inCaps.szPname));
+    }
+    #else
     RtMidiIn in;
     for (int i=0; i<in.getPortCount(); i++) {
-        inName.push_back(in.getPortName(i));
+        inName.append(QString::fromStdString(in.getPortName(i)));
     }
+    #endif
+
     return inName;
 }
 
@@ -100,7 +136,21 @@ int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
             break;
     }
 
-    return value > 0 ? value : 1;
+    if (value == 16 || value == 8)
+        value = 4;
+
+    switch (value)
+    {
+        case 16:
+        case 8:
+            value = 4;
+            break;
+        case 12:
+            value = 6;
+            break;
+    }
+
+    return value;
 }
 
 QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
@@ -109,10 +159,15 @@ QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
     uint32_t t = midi->events().back()->tick();
     ushort bCount = midi->beatFromTick(t);
 
-    for (MidiEvent *evt : midi->timeSignatureEvents()) {
+    for (MidiEvent *evt : midi->timeSignatureEvents())
+    {
+        int nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+        if (nBeatInBar <= 0)
+            continue;
+
         SignatureBeat sb;
         sb.nBeat = midi->beatFromTick(evt->tick());
-        sb.nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+        sb.nBeatInBar = nBeatInBar;
         beats.append(sb);
     }
 
@@ -122,6 +177,17 @@ QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
 MidiFile *MidiPlayer::midiFile()
 {
     return _midiSeq[_seqIndex]->midiFile();
+}
+
+bool MidiPlayer::isUsedMidiSynthesizer()
+{
+    for (int i=0; i<16; i++)
+    {
+        if (_midiChannels[i].port() == -1)
+            return true;
+    }
+
+    return false;
 }
 
 bool MidiPlayer::isPlayerPlaying()
@@ -142,6 +208,18 @@ bool MidiPlayer::isPlayerPaused()
 bool MidiPlayer::isPlayerFinished()
 {
     return _midiSeq[_seqIndex]->isSeqFinished();
+}
+
+PlayerState MidiPlayer::playerState()
+{
+    if (isPlayerFinished())
+        return PlayerState::Finished;
+    else if (isPlayerPlaying())
+        return PlayerState::Playing;
+    else if (isPlayerPaused())
+        return PlayerState::Paused;
+    else
+        return PlayerState::Stopped;
 }
 
 long MidiPlayer::durationMs()
@@ -272,6 +350,9 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
         _midiChannels[i].setInstrumentType(InstrumentType::Piano);
     }
     _midiChannels[9].setInstrumentType(InstrumentType::PercussionEtc);
+
+    _midiSynth->compactSoundfont();
+
     emit loaded();
 
     return true;
@@ -787,6 +868,7 @@ void MidiPlayer::calculateUsedPort()
         if (p == -1)
             usedSynth = true;
     }
+
     // remove port not used
     if (!usedSynth) {
         _midiSynth->close();

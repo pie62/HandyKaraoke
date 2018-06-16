@@ -1,19 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "SongDatabase.h"
-#include "Midi/MidiPlayer.h"
-
-#include <LyricsWidget.h>
-#include <Detail.h>
-#include <ChannelMixer.h>
-
-#include "Dialogs/SynthMixerDialog.h"
-#include "Dialogs/Equalizer31BandDialog.h"
-#include "Dialogs/ReverbDialog.h"
-#include "Dialogs/ChorusDialog.h"
-#include "Dialogs/SecondMonitorDialog.h"
-
 #include <QMainWindow>
 #include <QTimer>
 #include <QKeyEvent>
@@ -24,6 +11,20 @@
 #include <QWinTaskbarButton>
 #include <QWinTaskbarProgress>
 #endif
+
+#include <LyricsWidget.h>
+#include <Detail.h>
+#include <ChannelMixer.h>
+
+#include "SongDatabase.h"
+
+#include "Midi/MidiPlayer.h"
+
+#include "Dialogs/SynthMixerDialog.h"
+#include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/ReverbDialog.h"
+#include "Dialogs/ChorusDialog.h"
+#include "Dialogs/SecondMonitorDialog.h"
 
 
 namespace Ui {
@@ -55,15 +56,12 @@ public:
     void setBackgroundColor(const QString &colorName);
     void setBackgroundImage(const QString &img);
 
+
     // Synth Mixer
     SynthMixerDialog* synthMixerDialog() { return synthMix; }
-    // Synth effect dialog
-    Equalizer31BandDialog* equalizer31BandDialog() { return eq31Dlg; }
-    ReverbDialog* reverbDialog() { return reverbDlg; }
-    ChorusDialog* chorusDialog() { return chorusDlg; }
 
 public slots:
-    void play(int index);
+    void play(int index, int position = 0);
     void pause();
     void resume();
     void stop();
@@ -123,7 +121,7 @@ private:
 
 private slots:
     void showFrameSearch();
-    void showFramePlaylist();
+    void showPlaylist();
     void showSongDetail();
     void showChMix();
     void onChMixMouseLeaved();
@@ -135,6 +133,9 @@ private slots:
 
     void showContextMenu(const QPoint &pos);
     void showSettingsDialog();
+    void showEqDialog();
+    void showReverbDialog();
+    void showChorusDialog();
     void showMapMidiChannelDialog();
     void minimizeWindow();
     void showMapSFDialog();
@@ -142,6 +143,12 @@ private slots:
     void showFullScreenOrNormal();
     void showAboutDialog();
     void showAboutQtDialog();
+
+    void showBusGroupDialog();
+    void showSpeakerDialog();
+    #ifndef __linux__
+    void showVSTDirDialog();
+    #endif
 
     void onPositiomTimerTimeOut();
     void onLyricsTimerTimeOut();
@@ -166,6 +173,9 @@ private slots:
     void preSetTranspose(int transpose);
 
     void sendDrumPads(QKeyEvent *key, bool noteOn);
+
+    void savePlaylist();
+    void loadPlaylist();
 };
 
 #endif // MAINWINDOW_H

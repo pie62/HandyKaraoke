@@ -1,7 +1,16 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include <QTime>
+#include <QMenu>
+#include <QCloseEvent>
+#include <QMessageBox>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileDialog>
+#include <QWindow>
 
+#include "Config.h"
 #include "Utils.h"
 #include "DrumPadsKey.h"
 #include "SettingsDialog.h"
@@ -10,24 +19,35 @@
 #include "Dialogs/AboutDialog.h"
 #include "Dialogs/MapSoundfontDialog.h"
 #include "Dialogs/MapChannelDialog.h"
+#include "Dialogs/BusDialog.h"
+#include "Dialogs/SpeakerDialog.h"
 
-#include <QTime>
-#include <QMenu>
-#include <QCloseEvent>
-#include <QMessageBox>
-#include <QDir>
-#include <QDirIterator>
-#include <QWindow>
-
-#include <QDebug>
+#ifndef __linux__
+#include "Dialogs/VSTDirsDialog.h"
+#endif
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    // Init BASS
-    BASS_Init(-1, 44100, 0, NULL, NULL);
+
+    // List audio device and Init BASS
+    {
+        QMap<int, QString> dvs;
+        int a, count=0;
+        BASS_DEVICEINFO info;
+        for (a=0; BASS_GetDeviceInfo(a, &info); a++) {
+            if (info.flags&BASS_DEVICE_ENABLED) { // device is enabled
+                BASS_Init(a, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
+                dvs[a] =  QString(info.name);
+                count++; // count it
+            }
+        }
+        MidiSynthesizer::audioDevices(dvs);
+    }
+
+    BASS_SetDevice(1);
     BASS_FX_GetVersion();
 
     auto concurentThreadsSupported = Utils::concurentThreadsSupported();
@@ -39,8 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
     BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
     // End Init BASS
 
-    //TEst
-
 
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
@@ -51,7 +69,8 @@ MainWindow::MainWindow(QWidget *parent) :
     taskbarButton = new QWinTaskbarButton();
     #endif
 
-    settings = new QSettings();
+    settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
 
@@ -124,13 +143,13 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
 
-        int w     = settings->value("WindowWidth", this->minimumWidth()).toInt();
-        int h     = settings->value("WindowHeight", this->minimumHeight()).toInt();
-        bool max  = settings->value("WindowMaximized", false).toBool();
-        bool full = settings->value("WindowFullScreen", false).toBool();
+        int w       = settings->value("WindowWidth", this->minimumWidth()).toInt();
+        int h       = settings->value("WindowHeight", this->minimumHeight()).toInt();
+        bool maximum= settings->value("WindowMaximized", false).toBool();
+        bool full   = settings->value("WindowFullScreen", false).toBool();
 
         this->resize(w, h);
-        if (max) {
+        if (maximum) {
             this->showMaximized();
         } else {
             if (full) {
@@ -184,8 +203,8 @@ MainWindow::MainWindow(QWidget *parent) :
         MidiSynthesizer *synth = player->midiSynthesizer();
 
         // Audio out
-        int aout = settings->value("AudioOut", 1).toInt();
-        synth->setOutputDevice(aout);
+        int aout = settings->value("SynthDefaultDevice", 1).toInt();
+        synth->setDefaultDevice(aout);
 
         // floating and fx
         bool useFloat = settings->value("SynthFloatPoint", true).toBool();
@@ -193,71 +212,31 @@ MainWindow::MainWindow(QWidget *parent) :
         synth->setUsetFloattingPoint(useFloat);
         synth->setUseFXRC(useFX);
 
-        // Synth soundfont
-        //QList<QString> sfs;
-        QStringList sfList = settings->value("SynthSoundfonts", QStringList()).toStringList();
-
-        // Synth soundfont volume
-        QList<int> sfvl;
-        int idx=0;
-        settings->beginReadArray("SynthSoundfontsVolume");
-        for (const QString &s : sfList) {
-            settings->setArrayIndex(idx);
-            sfvl.append(settings->value("SoundfontVolume", 100).toInt());
-            idx++;
-        }
-        settings->endArray();
-
-        synth->setSoundFonts(sfList);
-
-        for (int i=0; i<sfvl.size(); i++) {
-            synth->setSoundfontVolume(i, sfvl.at(i) / 100.0f);
-        }
-        // -----------
-
-        // Synth Map soundfont
-        QList<int> sfMap = synth->getMapSoundfontIndex();
-        settings->beginReadArray("SynthSoundfontsMap");
-        for (int i=0; i<128; i++) {
-            settings->setArrayIndex(i);
-            sfMap[i] = settings->value("mapTo", 0).toInt();
-        }
-        settings->endArray();
-
-
-        QList<int> sfDrumMap = synth->getDrumMapSfIndex();
-        settings->beginReadArray("SynthSoundfontsDrumMap");
-        for (int i=0; i<16; i++) {
-            settings->setArrayIndex(i);
-            sfDrumMap[i] = settings->value("mapTo", 0).toInt();
-        }
-        settings->endArray();
-
-        synth->setMapSoundfontIndex(sfMap, sfDrumMap);
-
+        // Soundfonts and Soundfonts map
+        // move to setup in main function (main.cpp)
 
         // Synth EQ
-        Equalizer31BandFX *eq = synth->equalizer31BandFX();
-        std::map<EQFrequency31Range, float> eqgain = eq->gain();
+        auto eqs = synth->equalizer31BandFXs();
+        std::map<EQFrequency31Range, float> eqgain = eqs[0]->gain();
 
         bool eqon = settings->value("SynthFXEQOn", false).toBool();
         if (eqon)
-            eq->on();
+            for (auto eq : eqs)
+                eq->on();
 
         int gi =0;
         settings->beginReadArray("SynthFXEQGain");
         for (const auto& g : eqgain) {
             settings->setArrayIndex(gi);
             float gain = settings->value("gain", 0.0f).toFloat();
-            eq->setGain(g.first, gain);
+            for (auto eq : eqs)
+                eq->setGain(g.first, gain);
             gi++;
         }
         settings->endArray();
 
 
         // Synth reverb
-        ReverbFX *reverb = synth->reverbFX();
-
         bool rvOn   = settings->value("SynthFXReverbOn", false).toBool();
         int rvGain  = settings->value("SynthFXReverbInGain", 0).toInt();
         int rvMix   = settings->value("SynthFXReverbMix", 0).toInt();
@@ -265,17 +244,19 @@ MainWindow::MainWindow(QWidget *parent) :
         float rvHF  = settings->value("SynthFXReverbHF", 0.001).toFloat();
 
         if (rvOn)
-            reverb->on();
+            for (auto reverb : synth->reverbFXs())
+                reverb->on();
 
-        reverb->setInGain((float)rvGain);
-        reverb->setReverbMix((float)rvMix);
-        reverb->setReverbTime((float)rvTime);
-        reverb->setHighFreqRTRatio(rvHF);
+        for (auto reverb : synth->reverbFXs())
+        {
+            reverb->setInGain((float)rvGain);
+            reverb->setReverbMix((float)rvMix);
+            reverb->setReverbTime((float)rvTime);
+            reverb->setHighFreqRTRatio(rvHF);
+        }
 
 
         // Synth chorus
-        ChorusFX *chorus = synth->chorusFX();
-
         bool cOn = settings->value("SynthFXChorusOn", false).toBool();
 
         int cWf  = settings->value("SynthFXChorusWaveform", 1).toInt();
@@ -291,32 +272,19 @@ MainWindow::MainWindow(QWidget *parent) :
         PhaseType lPhase = static_cast<PhaseType>(cPh);
 
         if (cOn)
-            chorus->on();
+            for (auto chorus : synth->chorusFXs())
+                chorus->on();
 
-        chorus->setWaveform(lWaveform);
-        chorus->setPhase(lPhase);
-        chorus->setWetDryMix((float)cWet);
-        chorus->setDepth((float)cDep);
-        chorus->setFeedback((float)cFb);
-        chorus->setFrequency((float)cFq);
-        chorus->setDelay((float)cDl);
-
-
-        // Create Synth effect dialog
-        eq31Dlg = new Equalizer31BandDialog(this, eq);
-        eq31Dlg->setWindowTitle("อีควอไลเซอร์ : Equalizer");
-        eq31Dlg->adjustSize();
-        eq31Dlg->setFixedSize(eq31Dlg->size());
-
-        reverbDlg = new ReverbDialog(this, reverb);
-        reverbDlg->setWindowTitle("เอฟเฟ็กต์เสียงก้อง : Reverb");
-        reverbDlg->adjustSize();
-        reverbDlg->setFixedSize(reverbDlg->size());
-
-        chorusDlg = new ChorusDialog(this, chorus);
-        chorusDlg->setWindowTitle("เอฟเฟ็กต์เสียงประสาน : Chorus");
-        chorusDlg->adjustSize();
-        chorusDlg->setFixedSize(chorusDlg->size());
+        for (auto chorus : synth->chorusFXs())
+        {
+            chorus->setWaveform(lWaveform);
+            chorus->setPhase(lPhase);
+            chorus->setWetDryMix((float)cWet);
+            chorus->setDepth((float)cDep);
+            chorus->setFeedback((float)cFb);
+            chorus->setFrequency((float)cFq);
+            chorus->setDelay((float)cDl);
+        }
 
         // Create synth mixer
         synthMix = new SynthMixerDialog(this, this);
@@ -381,18 +349,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     { // Init UI
+        this->setWindowTitle(QApplication::applicationName() + "  " + QApplication::applicationVersion());
+
+        Utils::LAST_OPEN_DIR = settings->value("LastOpenDir", QDir::homePath()).toString();
+
         updateDetail->hide();
         updateDetail->resize(250, 60);
         updateDetail->setText("กำลังปรับปรุงฐานข้อมูล");
 
         ui->detail->hide();
         ui->frameSearch->hide();
-        ui->framePlaylist->hide();
+        ui->playlistWidget->hide();
         ui->songDetail->hide();
         ui->sliderVolume->setValue(player->volume());
 
-        ui->framePlaylist->setMinimumHeight(243);
-        ui->framePlaylist->setMaximumHeight(243);
+        // 249
+        ui->playlistWidget->setMinimumHeight(305);
+        ui->playlistWidget->setMaximumHeight(305);
 
         { // Playback control
             ui->btnPlay->setIconFiles(":/Icons/play-white", ":/Icons/play-blue");
@@ -410,7 +383,7 @@ MainWindow::MainWindow(QWidget *parent) :
             QFont f = ui->lbSearch->font();
             f.setBold(true);
             f.setFamily(fontName);
-            f.setPointSize(f.pointSize() - 10);
+            f.setPointSize(f.pointSize() - 12);
 
             ui->lbSearch->setFont(f);
             ui->lbArtist->setFont(f);
@@ -419,11 +392,6 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->lbName->setFont(f);
             ui->lbTempoKey->setFont(f);
             ui->lbType->setFont(f);
-
-            ui->lbPlaylist->setFont(f);
-
-            f.setPointSize(f.pointSize() - 2);
-            ui->playlist->setFont(f);
 
             f.setPointSize(f.pointSize() - 4);
             ui->lbLyrics->setFont(f);
@@ -435,8 +403,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(db, SIGNAL(updatePositionChanged(int)), this, SLOT(onDbUpdateChanged(int)));
 
         connect(timer1, SIGNAL(timeout()), this, SLOT(showCurrentTime()));
-        //connect(timer2, SIGNAL(timeout()), ui->frameSearch, SLOT(hide()));
-        //connect(timer2, SIGNAL(timeout()), ui->framePlaylist, SLOT(hide()));
         connect(timer2, SIGNAL(timeout()), this, SLOT(hideUIFrame()));
 
         connect(positionTimer, SIGNAL(timeout()), this, SLOT(onPositiomTimerTimeOut()));
@@ -466,7 +432,7 @@ MainWindow::~MainWindow()
 
     { // Write synth FX settings
         // Synth EQ
-        Equalizer31BandFX *eq = player->midiSynthesizer()->equalizer31BandFX();
+        Equalizer31BandFX *eq = player->midiSynthesizer()->equalizer31BandFXs()[0];
         std::map<EQFrequency31Range, float> eqgain = eq->gain();
 
         settings->setValue("SynthFXEQOn", eq->isOn());
@@ -481,7 +447,7 @@ MainWindow::~MainWindow()
         settings->endArray();
 
         // Synth reverb
-        ReverbFX *reverb = player->midiSynthesizer()->reverbFX();
+        ReverbFX *reverb = player->midiSynthesizer()->reverbFXs()[0];
         settings->setValue("SynthFXReverbOn", reverb->isOn());
         settings->setValue("SynthFXReverbInGain", (int)reverb->inGain());
         settings->setValue("SynthFXReverbMix", (int)reverb->reverbMix());
@@ -490,7 +456,7 @@ MainWindow::~MainWindow()
 
 
         // Synth chorus
-        ChorusFX *chorus = player->midiSynthesizer()->chorusFX();
+        ChorusFX *chorus = player->midiSynthesizer()->chorusFXs()[0];
         settings->setValue("SynthFXChorusOn", chorus->isOn());
 
         int cWf  = static_cast<int>(chorus->waveform());
@@ -506,12 +472,8 @@ MainWindow::~MainWindow()
     }
 
     delete synthMix;
-    // Delete Synth effect dialog
-    delete eq31Dlg;
-    delete reverbDlg;
-    delete chorusDlg;
 
-
+    settings->setValue("LastOpenDir", Utils::LAST_OPEN_DIR);
     settings->setValue("MidiVolume", ui->sliderVolume->value());
     if (this->isFullScreen()) {
         settings->setValue("WindowFullScreen", true);
@@ -575,19 +537,33 @@ void MainWindow::setBackgroundImage(const QString &img)
     }
 }
 
-void MainWindow::play(int index)
+void MainWindow::play(int index, int position)
 {
     stop();
-    if (index == -1 && playingSong.id() != "") {
+    if (index == -1 && playingSong.id() != "")
+    {
         lyrWidget->reset();
         lyrWidget->show();
-        if (secondLyr != nullptr) {
+        if (secondLyr != nullptr)
+        {
             secondLyr->reset();
             secondLyr->show();
         }
+        if (position > 0)
+        {
+            lyrWidget->setSeekPositionCursor(position);
+            if (secondLyr != nullptr)
+                secondLyr->setSeekPositionCursor(position);
+        }
+
         #ifdef _WIN32
+        taskbarButton->progress()->resume();
         taskbarButton->progress()->show();
         #endif
+
+        if (position > 0)
+            player->setPositionTick(position);
+
         player->play();
         positionTimer->start();
         lyricsTimer->start();
@@ -601,7 +577,7 @@ void MainWindow::play(int index)
     if (remove_playlist) {
         delete s; // delete playlist in "index"
         playlist.removeAt(index);
-        delete ui->playlist->takeItem(index);
+        ui->playlistWidget->removeRow(index);
         playingIndex = -1;
     }
 
@@ -684,7 +660,7 @@ void MainWindow::play(int index)
     ui->rhmWidget->setBeat(MidiPlayer::CalculateBeats(player->midiFile()), player->beatCount());
 
     ui->frameSearch->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
     ui->chMix->hide();
     ui->expandChMix->hide();
 
@@ -822,10 +798,76 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     if (event->modifiers() == Qt::ControlModifier) {
         switch (event->key()) {
             case Qt::Key_Up:
-                ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetTranspose(db->currentSong()->transpose() + 1);
+                }
+                else if (ui->playlistWidget->isVisible())
+                {
+                    int i = ui->playlistWidget->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setTranspose(s->transpose() + 1);
+                    ui->playlistWidget->updateDetail(i, s);
+                    timer2->start(playlist_timeout);
+                }
+                else
+                {
+                    ui->sliderVolume->setValue(ui->sliderVolume->value() + 5);
+                }
                 break;
             case Qt::Key_Down:
-                ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetTranspose(db->currentSong()->transpose() - 1);
+                }
+                else if (ui->playlistWidget->isVisible())
+                {
+                    int i = ui->playlistWidget->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setTranspose(s->transpose() - 1);
+                    ui->playlistWidget->updateDetail(i, s);
+                    timer2->start(playlist_timeout);
+                }
+                else
+                {
+                    ui->sliderVolume->setValue(ui->sliderVolume->value() - 5);
+                }
+                break;
+            case Qt::Key_Right:
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetBpmSpeed(db->currentSong()->bpmSpeed() + 1);
+                }
+                else if (ui->playlistWidget->isVisible())
+                {
+                    int i = ui->playlistWidget->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setBpmSpeed(s->bpmSpeed() + 1);
+                    ui->playlistWidget->updateDetail(i, s);
+                    timer2->start(playlist_timeout);
+                }
+                break;
+            case Qt::Key_Left:
+                if (ui->frameSearch->isVisible())
+                {
+                    preSetBpmSpeed(db->currentSong()->bpmSpeed() - 1);
+                }
+                else if (ui->playlistWidget->isVisible())
+                {
+                    int i = ui->playlistWidget->currentRow();
+                    if (i < 0)
+                        break;
+                    Song *s = playlist[i];
+                    s->setBpmSpeed(s->bpmSpeed() - 1);
+                    ui->playlistWidget->updateDetail(i, s);
+                    timer2->start(playlist_timeout);
+                }
                 break;
             case Qt::Key_X:
                 if (ui->frameSearch->isVisible()) {
@@ -836,30 +878,46 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 }
                 break;
             case Qt::Key_Equal:
-                if (ui->playlist->isVisible()) {
-                    int i = ui->playlist->currentRow();
-                    if (i >= ui->playlist->count() -1)
+                if (ui->playlistWidget->isVisible()) {
+                    int i = ui->playlistWidget->currentRow();
+                    if (i >= ui->playlistWidget->rowCount() -1)
                         break;
 
                     playlist.swap(i, i+1);
-                    QListWidgetItem *item = ui->playlist->takeItem(i);
-                    ui->playlist->insertItem(i+1, item);
-                    ui->playlist->setCurrentRow(i+1);
+                    ui->playlistWidget->swapRow(i, i+1);
+                    ui->playlistWidget->setCurrentRow(i+1);
                     timer2->start(playlist_timeout);
                 }
                 break;
             case Qt::Key_Minus:
-                if (ui->playlist->isVisible()) {
-                    int i = ui->playlist->currentRow();
+                if (ui->playlistWidget->isVisible()) {
+                    int i = ui->playlistWidget->currentRow();
                     if (i == 0)
                         break;
 
                     playlist.swap(i, i-1);
-                    QListWidgetItem *item = ui->playlist->takeItem(i);
-                    ui->playlist->insertItem(i-1, item);
-                    ui->playlist->setCurrentRow(i-1);
+                    ui->playlistWidget->swapRow(i, i-1);
+                    ui->playlistWidget->setCurrentRow(i-1);
                     timer2->start(playlist_timeout);
                 }
+                break;
+            case Qt::Key_S:
+                if (ui->playlistWidget->isVisible())
+                {
+                    timer2->stop();
+                    savePlaylist();
+                    timer2->start(playlist_timeout);
+                }
+                break;
+            case Qt::Key_O:
+                if (ui->playlistWidget->isVisible())
+                {
+                    timer2->stop();
+                    loadPlaylist();
+                    timer2->start(playlist_timeout);
+                }
+                else
+                    this->sendDrumPads(event, true);
                 break;
             default:
                 this->sendDrumPads(event, true);
@@ -902,11 +960,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             preSetTranspose(db->currentSong()->transpose() + 1);
             break;
         }
-        player->setTranspose(player->transpose()+1);
+        playingSong.setTranspose(player->transpose() + 1);
+        player->setTranspose(player->transpose() + 1);
         int trp = player->transpose();
         QString t;
         if (trp > 0) t = "+" + QString::number(trp);
         else t = QString::number(trp);
+        ui->songDetail->setDetail(&playingSong);
+        ui->songDetail->adjustSize();
         ui->detail->setDetail("คีย์เพลง ", t);
         ui->detail->show();
         detailTimer->start(3000);
@@ -920,22 +981,25 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             preSetTranspose(db->currentSong()->transpose() - 1);
             break;
         }
-        if (ui->framePlaylist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i<0)
                 break;
             delete playlist.at(i);
             playlist.removeAt(i);
-            delete ui->playlist->takeItem(i);
-            showFramePlaylist();
+            ui->playlistWidget->removeRow(i);
+            showPlaylist();
             timer2->start(playlist_timeout);
             break;
         }
-        player->setTranspose(player->transpose()-1);
+        playingSong.setTranspose(player->transpose() - 1);
+        player->setTranspose(player->transpose() - 1);
         int trp = player->transpose();
         QString t;
         if (trp > 0) t = "+" + QString::number(trp);
         else t = QString::number(trp);
+        ui->songDetail->setDetail(&playingSong);
+        ui->songDetail->adjustSize();
         ui->detail->setDetail("คีย์เพลง ", t);
         ui->detail->show();
         detailTimer->start(3000);
@@ -947,13 +1011,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_PageUp:
         if (ui->frameSearch->isVisible()) {
             preSetBpmSpeed(db->currentSong()->bpmSpeed() + 1);
-        } else if (ui->framePlaylist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        } else if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i < 0)
                 break;
             Song *s = playlist[i];
             s->setBpmSpeed(s->bpmSpeed() + 1);
-            ui->playlist->item(i)->setText(s->detail());
+            ui->playlistWidget->updateDetail(i, s);
             timer2->start(playlist_timeout);
         } else {
             addBpmSpeed(1);
@@ -962,13 +1026,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_PageDown:
         if (ui->frameSearch->isVisible()) {
             preSetBpmSpeed(db->currentSong()->bpmSpeed() - 1);
-        } else if (ui->framePlaylist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        } else if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i < 0)
                 break;
             Song *s = playlist[i];
             s->setBpmSpeed(s->bpmSpeed() - 1);
-            ui->playlist->item(i)->setText(s->detail());
+            ui->playlistWidget->updateDetail(i, s);
             timer2->start(playlist_timeout);
         } else {
             addBpmSpeed(-1);
@@ -987,32 +1051,30 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_Up:
-        if (ui->framePlaylist->isVisible()) {
-            if (ui->playlist->currentRow() > 0 )
-                ui->playlist->setCurrentRow( ui->playlist->currentRow() - 1 );
+        if (ui->playlistWidget->isVisible()) {
+            if (ui->playlistWidget->currentRow() > 0 )
+                ui->playlistWidget->setCurrentRow( ui->playlistWidget->currentRow() - 1 );
             timer2->start(playlist_timeout);
         } else {
             ui->frameSearch->hide();
-            if (ui->playlist->currentRow() == -1)
-                ui->playlist->setCurrentRow(0);
-            showFramePlaylist();
+            if (ui->playlistWidget->currentRow() == -1)
+                ui->playlistWidget->setCurrentRow(0);
+            showPlaylist();
             ui->chMix->hide();
             ui->expandChMix->hide();
             timer2->start(playlist_timeout);
         }
         break;
     case Qt::Key_Down:
-        if (ui->framePlaylist->isVisible()) {
-            if (ui->playlist->currentRow() < ui->playlist->count() - 1 )
-                ui->playlist->setCurrentRow( ui->playlist->currentRow() + 1 );
+        if (ui->playlistWidget->isVisible()) {
+            if (ui->playlistWidget->currentRow() < ui->playlistWidget->rowCount() - 1 )
+                ui->playlistWidget->setCurrentRow( ui->playlistWidget->currentRow() + 1 );
             timer2->start(playlist_timeout);
         } else {
             ui->frameSearch->hide();
-            if (playingIndex == -1)
-                ui->playlist->setCurrentRow(0);
-            else
-                ui->playlist->setCurrentRow(playingIndex);
-            showFramePlaylist();
+            if (ui->playlistWidget->currentRow() == -1)
+                ui->playlistWidget->setCurrentRow(0);
+            showPlaylist();
             ui->chMix->hide();
             ui->expandChMix->hide();
             timer2->start(playlist_timeout);
@@ -1030,7 +1092,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             searchBoxChangeBpm = false;
             db->currentSong()->setBpmSpeed(0);
             db->currentSong()->setTranspose(0);
-            ui->framePlaylist->hide();
+            ui->playlistWidget->hide();
             if (ui->lbId->text() == "")
                 setFrameSearch( db->search("") );
             ui->lbSearch->setText("_");
@@ -1052,7 +1114,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             searchBoxChangeBpm = false;
             db->currentSong()->setBpmSpeed(0);
             db->currentSong()->setTranspose(0);
-            ui->framePlaylist->hide();
+            ui->playlistWidget->hide();
             if (ui->lbId->text() == "")
                 setFrameSearch( db->search("") );
             ui->lbSearch->setText("_");
@@ -1087,15 +1149,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Return:
         if (ui->frameSearch->isVisible()) {
             Song *s = db->currentSong();
-            ui->playlist->addItem(s->detail());
-            QSize size;
-            size.setHeight(57);
-            ui->playlist->item(ui->playlist->count() - 1)->setSizeHint(size);
+            ui->playlistWidget->addSong(s);
 
-            // Test
-            Song *sToAdd = new Song();
-            *sToAdd = *s;
-            playlist.append(sToAdd);
+            Song *songToAdd = new Song();
+            *songToAdd = *s;
+            playlist.append(songToAdd);
 
             if (auto_playnext && playlist.count() == 1 && player->isPlayerStopped()) {
                 play(0);
@@ -1103,9 +1161,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 hideUIFrame();
             }
         }
-        if (ui->framePlaylist->isVisible() && ui->playlist->count() > 0) {
-            ui->framePlaylist->hide();
-            play(ui->playlist->currentRow());
+        if (ui->playlistWidget->isVisible() && ui->playlistWidget->rowCount() > 0) {
+            ui->playlistWidget->hide();
+            play(ui->playlistWidget->currentRow());
         }
         break;
     case Qt::Key_Space:
@@ -1115,28 +1173,26 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             break;
         }
     case Qt::Key_Plus:
-        if (ui->playlist->isVisible()) {
-            int i = ui->playlist->currentRow();
-            if (i >= ui->playlist->count() -1)
+        if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
+            if (i >= ui->playlistWidget->rowCount() -1)
                 break;
 
             playlist.swap(i, i+1);
-            QListWidgetItem *item = ui->playlist->takeItem(i);
-            ui->playlist->insertItem(i+1, item);
-            ui->playlist->setCurrentRow(i+1);
+            ui->playlistWidget->swapRow(i, i+1);
+            ui->playlistWidget->setCurrentRow(i+1);
             timer2->start(playlist_timeout);
             break;
         }
     case Qt::Key_Minus:
-        if (ui->playlist->isVisible()) {
-            int i = ui->playlist->currentRow();
+        if (ui->playlistWidget->isVisible()) {
+            int i = ui->playlistWidget->currentRow();
             if (i == 0)
                 break;
 
             playlist.swap(i, i-1);
-            QListWidgetItem *item = ui->playlist->takeItem(i);
-            ui->playlist->insertItem(i-1, item);
-            ui->playlist->setCurrentRow(i-1);
+            ui->playlistWidget->swapRow(i, i-1);
+            ui->playlistWidget->setCurrentRow(i-1);
             timer2->start(playlist_timeout);
             break;
         }
@@ -1176,19 +1232,19 @@ void MainWindow::showFrameSearch()
     ui->chMix->hide();
     ui->expandChMix->hide();
     ui->songDetail->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
 
     ui->frameSearch->show();
 }
 
-void MainWindow::showFramePlaylist()
+void MainWindow::showPlaylist()
 {
     ui->chMix->hide();
     ui->expandChMix->hide();
     ui->songDetail->hide();
     ui->frameSearch->hide();
 
-    ui->framePlaylist->show();
+    ui->playlistWidget->show();
 }
 
 void MainWindow::showSongDetail()
@@ -1196,7 +1252,7 @@ void MainWindow::showSongDetail()
     ui->chMix->hide();
     ui->expandChMix->hide();
     ui->frameSearch->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
 
     ui->songDetail->show();
 }
@@ -1204,7 +1260,7 @@ void MainWindow::showSongDetail()
 
 void MainWindow::showChMix()
 {
-    if (ui->framePlaylist->isVisible()
+    if (ui->playlistWidget->isVisible()
             || ui->frameSearch->isVisible()
             || ui->songDetail->isVisible())
     {
@@ -1240,7 +1296,7 @@ void MainWindow::onChMixLockChanged(bool lock)
 void MainWindow::hideUIFrame()
 {
     ui->frameSearch->hide();
-    ui->framePlaylist->hide();
+    ui->playlistWidget->hide();
     ui->songDetail->hide();
 
     if (ui->chMix->isLock()) {
@@ -1277,11 +1333,11 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     QAction actionSettings("ตั้งค่า...", this);
     QAction actionMappChanel("แยกช่องสัญญาณ...", this);
-    QAction actionShowSynthMixDlg("Handy Synth Mixer", this);
-    QAction actionShowEqDlg("อีควอไลเซอร์", this);
-    QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
-    QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน", this);
-    QAction actionMapSF("การเลือกใช้ซาวด์ฟ้อนท์", this);
+    QAction actionShowSynthMixDlg("Handy Synth Mixer...", this);
+    QAction actionShowEqDlg("อีควอไลเซอร์...", this);
+    QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง...", this);
+    QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน...", this);
+    QAction actionMapSF("ตารางเลือกใช้ซาวด์ฟ้อนท์...", this);
     QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
     QAction actionAbout("เกี่ยวกับ...", this);
@@ -1296,9 +1352,9 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionSettings, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
     connect(&actionMappChanel, SIGNAL(triggered()), this, SLOT(showMapMidiChannelDialog()));
     connect(&actionShowSynthMixDlg, SIGNAL(triggered()), synthMix, SLOT(show()));
-    connect(&actionShowEqDlg, SIGNAL(triggered()), eq31Dlg, SLOT(show()));
-    connect(&actionShowReverbDlg, SIGNAL(triggered()), reverbDlg, SLOT(show()));
-    connect(&actionShowChorusDlg, SIGNAL(triggered()), chorusDlg, SLOT(show()));
+    connect(&actionShowEqDlg, SIGNAL(triggered()), this, SLOT(showEqDialog()));
+    connect(&actionShowReverbDlg, SIGNAL(triggered()), this, SLOT(showReverbDialog()));
+    connect(&actionShowChorusDlg, SIGNAL(triggered()), this, SLOT(showChorusDialog()));
     connect(&actionMapSF, SIGNAL(triggered()), this, SLOT(showMapSFDialog()));
     connect(&actionSecondMonitor, SIGNAL(triggered()), this, SLOT(showSecondMonitor()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
@@ -1311,6 +1367,23 @@ void MainWindow::showContextMenu(const QPoint &pos)
     menu.addAction(&actionMappChanel);
     menu.addSeparator();
     menu.addAction(&actionShowSynthMixDlg);
+
+    // synth mixer tool
+    {
+        QMenu *m = menu.addMenu("Handy Synth Mixer Tool");
+
+        QAction *act = m->addAction("บัสกรุ๊ป...");
+        connect(act, SIGNAL(triggered()), this, SLOT(showBusGroupDialog()));
+
+        act = m->addAction("แยกอุปกรณ์เสียง/ลำโพง...");
+        connect(act, SIGNAL(triggered()), this, SLOT(showSpeakerDialog()));
+
+        #ifndef __linux__
+        act = m->addAction("จัดการ VST && VSTi...");
+        connect(act, SIGNAL(triggered()), this, SLOT(showVSTDirDialog()));
+        #endif
+    }
+
     menu.addAction(&actionShowEqDlg);
     menu.addAction(&actionShowReverbDlg);
     menu.addAction(&actionShowChorusDlg);
@@ -1335,6 +1408,43 @@ void MainWindow::showSettingsDialog()
     d.exec();
 }
 
+void MainWindow::showEqDialog()
+{
+    if (Equalizer31BandDialog::isOpenned())
+        return;
+
+    Equalizer31BandDialog *dlg = new Equalizer31BandDialog(
+                this, player->midiSynthesizer()->equalizer31BandFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
+}
+
+void MainWindow::showReverbDialog()
+{
+    if (ReverbDialog::isOpenned())
+        return;
+
+    ReverbDialog *dlg = new ReverbDialog(this, player->midiSynthesizer()->reverbFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
+}
+
+void MainWindow::showChorusDialog()
+{
+    if (ChorusDialog::isOpenned())
+        return;
+
+    ChorusDialog *dlg = new ChorusDialog(this, player->midiSynthesizer()->chorusFXs());
+    dlg->adjustSize();
+    dlg->setFixedSize(dlg->size());
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
+}
+
 void MainWindow::showMapMidiChannelDialog()
 {
     MapChannelDialog dlg(this, player);
@@ -1344,6 +1454,35 @@ void MainWindow::showMapMidiChannelDialog()
     dlg.exec();
 }
 
+void MainWindow::showBusGroupDialog()
+{
+    BusDialog dlg(this, synthMix->mixChannelMapPtr(), player->midiSynthesizer());
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
+    dlg.exec();
+}
+
+void MainWindow::showSpeakerDialog()
+{
+    SpeakerDialog dlg(this, synthMix->mixChannelMapPtr(), this);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
+    dlg.exec();
+}
+
+#ifndef __linux__
+void MainWindow::showVSTDirDialog()
+{
+    VSTDirsDialog dlg(this, this);
+    dlg.setModal(true);
+    dlg.adjustSize();
+    dlg.setMinimumSize(dlg.size());
+    dlg.exec();
+}
+#endif
+
 void MainWindow::minimizeWindow()
 {
     setWindowState(Qt::WindowMinimized);
@@ -1351,7 +1490,7 @@ void MainWindow::minimizeWindow()
 
 void MainWindow::showMapSFDialog()
 {
-    MapSoundfontDialog msfDlg(this, player);
+    MapSoundfontDialog msfDlg(this, player->midiSynthesizer());
     msfDlg.setModal(true);
     msfDlg.setMinimumSize(msfDlg.size());
     msfDlg.exec();
@@ -1643,5 +1782,54 @@ void MainWindow::sendDrumPads(QKeyEvent *key, bool noteOn)
             break;
         default:
             break;
+    }
+}
+
+void MainWindow::savePlaylist()
+{
+    if (playlist.count() == 0)
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("บันทึกรายการเล่น"),
+                                                    Utils::LAST_OPEN_DIR,
+                                                    HANDY_PLAYLIST_FILTER_TEXT);
+
+    if (fileName == "")
+        return;
+
+    Utils::LAST_OPEN_DIR = QFileInfo(fileName).dir().absolutePath();
+
+    if (!Utils::savePlaylist(fileName, playlist))
+    {
+        QMessageBox::critical(this, tr("บันทึกรายการเล่นล้มเหลว"),
+                              tr("ไม่สามารถบันทึกรายการเล่นได้\nโปรดลองอีกครั้ง"));
+    }
+}
+
+void MainWindow::loadPlaylist()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("เปิดรายการเล่น"),
+                                                    Utils::LAST_OPEN_DIR,
+                                                    HANDY_PLAYLIST_FILTER_TEXT);
+
+    if (fileName == "")
+        return;
+
+    Utils::LAST_OPEN_DIR = QFileInfo(fileName).dir().absolutePath();
+
+    QList<Song*> songs;
+    if (Utils::loadPlaylist(fileName, songs))
+    {
+        for (Song *s : playlist)
+            delete s;
+        playlist.clear();
+        playlist = songs;
+        ui->playlistWidget->setPlaylist(playlist);
+        playingIndex = -1;
+    }
+    else
+    {
+        QMessageBox::critical(this, tr("เปิดรายการเล่นล้มเหลว"),
+                              tr("ไม่สามารถเปิดรายการเล่นได้\nโปรดลองอีกครั้ง"));
     }
 }

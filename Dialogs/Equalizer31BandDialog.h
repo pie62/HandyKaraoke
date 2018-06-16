@@ -19,11 +19,17 @@ class Equalizer31BandDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit Equalizer31BandDialog(QWidget *parent = 0, Equalizer31BandFX *eqfx = nullptr);
+    explicit Equalizer31BandDialog(QWidget *parent = 0, QList<Equalizer31BandFX *> eqfxs = QList<Equalizer31BandFX *>());
     ~Equalizer31BandDialog();
+
+    static bool isOpenned();
 
 signals:
     void switchChanged(bool s);
+
+protected:
+    void showEvent(QShowEvent *);
+    void closeEvent(QCloseEvent *);
 
 private slots:
     void mapLabelDb();
@@ -39,7 +45,7 @@ private slots:
 private:
     Ui::Equalizer31BandDialog *ui;
 
-    Equalizer31BandFX *eqfx;
+    QList<Equalizer31BandFX *> eqfxs;
 
     QMap<EQFrequency31Range, QLabel*> lbdbMap;
     QMap<EQFrequency31Range, Slider*> sliderMap;
@@ -47,6 +53,8 @@ private:
     QSignalMapper *signalLevelMapper;
     QSignalMapper *signalUserLevelMapper;
     QSignalMapper *signalMouseDoubleClick;
+
+    static bool openned;
 };
 
 #endif // EQUALIZER31BANDDIALOG_H

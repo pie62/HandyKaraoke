@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Equalizer</string>
+   <string>อีควอไลเซอร์ : Equalizer</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>

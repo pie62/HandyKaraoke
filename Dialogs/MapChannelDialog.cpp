@@ -2,6 +2,8 @@
 #include "ui_MapChannelDialog.h"
 
 #include "Midi/MidiPlayer.h"
+#include "Config.h"
+
 #include <QMenu>
 #include <QSettings>
 
@@ -27,7 +29,7 @@ MapChannelDialog::MapChannelDialog(QWidget *parent, MidiPlayer *player) :
         if (port == -1) {
             itemPort->setText(synthStr);
         } else {
-            itemPort->setText(QString::fromStdString(devices[port]));
+            itemPort->setText((devices[port]));
         }
         ui->tableWidget->setItem(i, 1, itemPort);
     }
@@ -53,7 +55,7 @@ void MapChannelDialog::on_tableWidget_customContextMenuRequested(const QPoint &p
     connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(setMapMidiOut(int)));
 
     for (int i=0; i<devices.size(); i++) {
-        QString portName = QString::fromStdString(devices[i]);
+        QString portName = devices[i];
         QAction *action = menu.addAction(portName);
         connect(action, SIGNAL(triggered()), signalMapper, SLOT(map()));
         signalMapper->setMapping(action, i);
@@ -75,7 +77,7 @@ void MapChannelDialog::setMapMidiOut(int port)
         if (port == -1) {
             item->setText(synthStr);
         } else {
-            item->setText(QString::fromStdString(devices[port]));
+            item->setText(devices[port]);
         }
     }
 
@@ -84,7 +86,7 @@ void MapChannelDialog::setMapMidiOut(int port)
         ports.append(player->midiChannel()[i].port());
     }
 
-    QSettings st;
+    QSettings st(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     st.setValue("MidiChannelMapper", QVariant::fromValue(ports));
 }
 

@@ -19,7 +19,7 @@ int MidiSequencer::beatCount()
     if (_midi->events().count() == 0) {
         return 0;
     } else {
-        return _midi->beatFromTick(_midi->events().back()->tick());
+        return _midi->beatFromTick(durationTick());
     }
 }
 
@@ -39,16 +39,7 @@ int MidiSequencer::positionTick()
 
 int MidiSequencer::durationTick()
 {
-    for (int i = _midi->events().count() - 1;  i>=0; i--)
-    {
-        MidiEvent *e = _midi->events()[i];
-
-        if (e->eventType() == MidiEventType::Meta
-                || e->eventType() == MidiEventType::SysEx)
-            continue;
-
-        return e->tick();
-    }
+    return _midi->events().back()->tick();
 }
 
 long MidiSequencer::positionMs()

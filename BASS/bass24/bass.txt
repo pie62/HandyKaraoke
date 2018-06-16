@@ -1,5 +1,5 @@
 BASS 2.4
-Copyright (c) 1999-2016 Un4seen Developments Ltd. All rights reserved.
+Copyright (c) 1999-2018 Un4seen Developments Ltd. All rights reserved.
 
 Files that you should have found in the BASS package
 ====================================================
@@ -465,16 +465,16 @@ Requirements
 ============
 Win32 version
 -------------
-BASS requires DirectSound for playback and recording, but decoding is still
-possible without it. DirectSound has been included with all Windows versions
-since Windows 98. 32-bit and 64-bit Windows are supported.
+BASS requires WASAPI or DirectSound for playback and recording, but decoding is
+still possible without them. DirectSound has been included with all Windows
+versions since Windows 98. On Windows Vista and above, the default is to WASAPI
+instead of DirectSound for playback. 32-bit and 64-bit Windows are supported.
 
 MacOSX version
 --------------
-BASS uses CoreAudio for playback and recording, so there are no special
-library/driver requirements. 32-bit (i386) and 64-bit (x86_64) architectures
-are supported in a single universal library. OSX 10.4 or above is
-recommended.
+OSX 10.5 or above is required. BASS uses CoreAudio for playback and recording,
+so there are no special library/driver requirements. 32-bit (i386) and 64-bit
+(x86_64) architectures are supported in a single universal library.
 
 Linux version
 -------------
@@ -723,6 +723,97 @@ There are of course bug fixes and other little improvements made along
 the way too! To make upgrading simpler, all functions affected by a
 change to the BASS interface are listed.
 
+2.4.13.8 - 6/2/2018
+-------------------
+* Indication of a file's original sample format being floating-point
+	BASS_ORIGRES_FLOAT (BASS_CHANNELINFO/SAMPLE flag)
+* Some extra sample data is retained to account for device latency in data retrieval
+	BASS_ChannelGetData
+* FFT window is shortened to match amount of available data when less than FFT size
+	BASS_ChannelGetData
+* FFT level adjusted to be approx the same regardless of amount of available data
+	BASS_ChannelGetData
+* Fix for crash when decoding channels are dissociated from a device
+	BASS_NODEVICE (BASS_ChannelSetDevice option)
+
+2.4.13 - 19/12/2017
+-------------------
+* WASAPI output on Windows (DirectSound is fallback/optional)
+	BASS_DEVICE_DSOUND (BASS_Init flag)
+	BASS_CONFIG_DEV_BUFFER/NONSTOP (BASS_SetConfig options)
+	BASS_CONFIG_SRC/_SAMPLE (BASS_SetConfig options)
+	BASS_ATTRIB_SRC/NORAMP (BASS_ChannelSetAttribute options)
+* Default output device following support extended to Windows Vista and OSX
+	BASS_CONFIG_DEV_DEFAULT (BASS_SetConfig option)
+* Seamless playback buffer length changing
+	BASS_ATTRIB_BUFFER (BASS_ChannelSetAttribute option)
+	SYNTH example updated
+* Access to the final output mix for applying DSP/FX
+	STREAMPROC_DEVICE (BASS_StreamCreate option)
+	BASS_CTYPE_STREAM_DEVICE
+	FXTEST example updated
+* Dissociating of decoding channels from a device
+	BASS_NODEVICE (BASS_ChannelSetDevice option)
+* Volume attribute levels above 1.0 for amplification
+	BASS_ATTRIB_VOL (BASS_ChannelSetAttribute option)
+* Logarithmic attribute slides
+	BASS_SLIDE_LOG (BASS_ChannelSlideAttribute flag)
+* Volume & panning attribute affected level retrieval
+	BASS_LEVEL_VOLPAN (BASS_ChannelGetLevelEx flag)
+* Volume level adjustment effect
+	BASS_FX_VOLUME (BASS_ChannelSetFX type)
+	BASS_FX_VOLUME_PARAM structure
+* Asynchronous pre-buffering
+	BASS_CONFIG_NET_PREBUF_WAIT (BASS_SetConfig option)
+	BASS_StreamCreateURL/FileUser
+	CONTEST and NETRADIO examples updated
+* Decoding channels can be dissociated from a device
+	BASS_ChannelSetDevice
+* Resetting of user file streams/decoders
+	BASS_POS_RESET (BASS_ChannelSetPosition flag)
+* Relative seeking
+	BASS_POS_RELATIVE (BASS_ChannelSetPosition flag)
+* RIFF cue points chunk retrieval
+	BASS_TAG_RIFF_CUE (BASS_ChannelGetTags type)
+	TAG_CUE structure
+* RIFF sample chunk retrieval
+	BASS_TAG_RIFF_SMPL (BASS_ChannelGetTags type)
+	TAG_SMPL structure
+* Support for Category/Description/Grouping/Keywords/Lyrics MP4 tags
+	BASS_TAG_MP4 (BASS_ChannelGetTags type)
+* Separate channel type for dummy streams
+	BASS_CTYPE_STREAM_DUMMY
+* Stalled internet stream buffering progress retrieval
+	BASS_FILEPOS_BUFFERING (BASS_StreamGetFilePosition mode)
+	CONTEST and NETRADIO examples updated
+* Playlist recursion depth config option
+	BASS_CONFIG_NET_PLAYLIST_DEPTH (BASS_SetConfig options)
+* Push file system read functions can now return 0 without ending the file
+	STREAMFILE_BUFFERPUSH (BASS_StreamCreateFileUser system)
+	FILEREADPROC
+* 16 point SRC is used by default when SSE is available
+	BASS_CONFIG_SRC (BASS_SetConfig option)
+* Mono downmixing for all file formats in sample loading
+	BASS_SAMPLE_MONO (BASS_SampleLoad flag)
+* Mono OGG stream downmixing
+	BASS_SAMPLE_MONO (BASS_StreamCreateFile/User/URL flag)
+* Media Foundation availability detection
+	BASS_CONFIG_MF_DISABLE (BASS_GetConfig option)
+	PLUGINS example updated
+* AudioTrack output on Android
+	BASS_DEVICE_AUDIOTRACK (BASS_Init flag)
+* Support for Android Media codecs
+	BASS_StreamCreateFile/User/URL
+	BASS_TAG_AM_MIME/NAME (BASS_ChannelGetTags type)
+	BASS_CONFIG_AM_DISABLE (BASS_SetConfig option)
+* Panning fix for MOD files created with ScreamTracker 3
+	BASS_MusicLoad
+* Fix for compressor and distotion DX8 effects with floating-point data on Windows
+	BASS_FX_DX8_COMPRESSOR/DISTORTION (BASS_ChannelSetFX types)
+* Fix for plugin freeing issue on 64-bit platforms (HPLUGIN is not library address any more)
+	BASS_PluginLoad
+	BASS_PluginFree
+
 2.4.12 - 10/3/2016
 ------------------
 * DSP/FX chain order modification
@@ -792,16 +883,16 @@ change to the BASS interface are listed.
 * Device type information
 	BASS_DEVICE_TYPE_xxx (BASS_DEVICEINFO flags)
 * Unicode support for recording input names
-	BASS_CONFIG_UNICODE
+	BASS_CONFIG_UNICODE (BASS_SetConfig option)
 	BASS_RecordGetInputName
 * File size retrieval
 	BASS_FILEPOS_SIZE (BASS_StreamGetFilePosition mode)
 * Asynchronous file reading buffer level retrieval
 	BASS_FILEPOS_ASYNCBUF (BASS_StreamGetFilePosition mode)
 * MPEG data search limit raised to 1MB
-	BASS_CONFIG_VERIFY
+	BASS_CONFIG_VERIFY (BASS_SetConfig option)
 * Separate MPEG data search limit for internet/buffered streams
-	BASS_CONFIG_VERIFY_NET
+	BASS_CONFIG_VERIFY_NET (BASS_SetConfig option)
 * Support for iTunes gapless info with Media Foundation and CoreAudio codecs
 	BASS_StreamCreateFile/User
 * Airplay receiver enumeration and selection on OSX
@@ -931,7 +1022,7 @@ change to the BASS interface are listed.
 * Acceptance of self-signed and invalid certificates
 	BASS_StreamCreateURL
 * Internet stream reading timeout
-	BASS_CONFIG_NET_READTIMEOUT
+	BASS_CONFIG_NET_READTIMEOUT (BASS_SetConfig option)
 * Support for removing a DSP within its DSPPROC
 	BASS_ChannelRemoveDSP
 * Buffer bypassing for lower latency output (not available on Windows)
@@ -1034,7 +1125,7 @@ change to the BASS interface are listed.
 2.4 - 2/4/2008
 --------------
 * "Push" streaming
-	STREAMPROC_PUSH (BASS_StreamCreate "proc")
+	STREAMPROC_PUSH (BASS_StreamCreate option)
 	BASS_StreamPutData
 	LIVEFX and MULTI examples updated
 * "Push" buffered file streaming
@@ -1086,7 +1177,7 @@ change to the BASS interface are listed.
 	BASS_SetVolume
 	BASS_GetVolume
 * Multiple update threads
-	BASS_CONFIG_UPDATETHREADS
+	BASS_CONFIG_UPDATETHREADS (BASS_SetConfig option)
 	BASSTEST example updated
 * Global volume range increased to 10000
 	BASS_CONFIG_GVOL_SAMPLE/STREAM/MUSIC (BASS_SetConfig options)
@@ -1161,14 +1252,14 @@ change to the BASS interface are listed.
 * FX state resetting
 	BASS_FXReset
 * PLS/M3U playlist URL processing
-	BASS_CONFIG_NET_PLAYLIST
+	BASS_CONFIG_NET_PLAYLIST (BASS_SetConfig option)
 	NETRADIO example updated
 * Internet stream connection status retrieval
 	BASS_FILEPOS_CONNECTED (BASS_StreamGetFilePosition mode)
 * Lyrics3v2 tags
 	BASS_TAG_LYRICS3 (BASS_ChannelGetTags type)
 * IT virtual channel configuration
-	BASS_CONFIG_MUSIC_VIRTUAL
+	BASS_CONFIG_MUSIC_VIRTUAL (BASS_SetConfig option)
 * Accurate speaker detection on Vista
 	BASS_INFO (speakers member)
 * Device output/input rate retrieval on Vista
@@ -1288,7 +1379,7 @@ change to the BASS interface are listed.
 * Recording master control
 	BASS_RecordGetInput
 	BASS_RecordSetInput
-* Adjustable prebuffering
+* Adjustable pre-buffering
 	BASS_ChannelPreBuf
 * Floating-point data retrieval
 	BASS_DATA_FLOAT (BASS_ChannelGetData flag)
@@ -1346,7 +1437,7 @@ change to the BASS interface are listed.
 	BASS_MusicPlay *removed*
 	BASS_MusicPlayEx *removed*
 	BASS_ChannelResume *removed*
-* Stream/MOD prebuffering functions combined
+* Stream/MOD pre-buffering functions combined
 	BASS_ChannelPreBuf
 	BASS_StreamPreBuf *removed*
 	BASS_MusicPreBuf *removed*
@@ -1390,7 +1481,7 @@ change to the BASS interface are listed.
 	BASS_STREAM_STATUS (BASS_StreamCreateURL flag)
 	DOWNLOADPROC
 	NETRADIO example updated (Delphi version also added)
-* Adjustable internet stream prebuffering
+* Adjustable internet stream pre-buffering
 	BASS_CONFIG_NET_PREBUF (BASS_SetConfig option)
 * Option to bypass proxy server
 	BASS_CONFIG_NET_NOPROXY (BASS_SetConfig option)

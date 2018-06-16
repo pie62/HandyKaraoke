@@ -1,6 +1,8 @@
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 
+#include "Config.h"
+#include "Utils.h"
 #include "Midi/MidiHelper.h"
 #include "Dialogs/MapSoundfontDialog.h"
 #include "Dialogs/MapChannelDialog.h"
@@ -17,7 +19,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 {
     ui->setupUi(this);
     this->mainWin = m;
-    settings = new QSettings();
+    settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     db = mainWin->database();
 
 
@@ -165,31 +167,21 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
     { // Synth tab
         MidiSynthesizer *synth =  mainWin->midiPlayer()->midiSynthesizer();
-        for (int i=0; i<synth->soundfontFiles().count(); i++) {
-            ui->listsfFiles->addItem(synth->soundfontFiles().at(i));
-        }
-        if (mainWin->midiPlayer()->midiSynthesizer()->soundfontFiles().size() == 0) {
-            ui->sliderSfVolume->setEnabled(false);
-        }
 
-        ui->btnSfAdd->setEnabled(false);
-        ui->btnSfRemove->setEnabled(false);
-        ui->btnSfUp->setEnabled(false);
-        ui->btnSfDown->setEnabled(false);
-        ui->btnSfFinish->setEnabled(false);
-        ui->btnSfCancel->setEnabled(false);
+        ui->chbSfLoadAll->setChecked(synth->isLoadAllSoundfont());
+        ui->listsfFiles->addItems(synth->soundfontFiles());
 
-        if (synth->equalizer31BandFX()->isOn())
+        if (synth->equalizer31BandFXs()[0]->isOn())
             ui->btnEq->setIcon(QIcon(":/Icons/circle_green.png"));
         else
             ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
 
-        if (synth->reverbFX()->isOn())
+        if (synth->reverbFXs()[0]->isOn())
             ui->btnReverb->setIcon(QIcon(":/Icons/circle_green.png"));
         else
             ui->btnReverb->setIcon(QIcon(":/Icons/circle_red.png"));
 
-        if (synth->chorusFX()->isOn())
+        if (synth->chorusFXs()[0]->isOn())
             ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
         else
             ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));
@@ -200,12 +192,25 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 
         connect(ui->listsfFiles, SIGNAL(currentRowChanged(int)),
                 this, SLOT(onListSfCurrentRowChanged(int)));
+
+        connect(ui->chbSfLoadAll, SIGNAL(toggled(bool)),
+                this, SLOT(onChbSfLoadAllToggled(bool)));
     }
 
 }
 
 SettingsDialog::~SettingsDialog()
 {
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+
+    // setting soundfont volume
+    settings->beginWriteArray("SynthSoundfontsVolume");
+    for (int i=0; i<ui->listsfFiles->count(); i++) {
+        settings->setArrayIndex(i);
+        settings->setValue("SoundfontVolume", (int)(synth->soundfontVolume(i) * 100));
+    }
+    settings->endArray();
+
     delete settings;
     delete ui;
 }
@@ -242,8 +247,8 @@ void SettingsDialog::initDeviceTab()
     int dfd = player->midiOutPortNumber();
 
 
-    for (std::string d : MidiPlayer::midiDevices()) {
-        ui->cbMidiOut->addItem(QString::fromStdString(d));
+    for (QString d : MidiPlayer::midiDevices()) {
+        ui->cbMidiOut->addItem(d);
     }
     ui->cbMidiOut->addItem("Midi Synthesizer (SoundFont)");
     if (dfd == -1)
@@ -254,19 +259,20 @@ void SettingsDialog::initDeviceTab()
 
     // Midi In device
     ui->cbMidiIn->addItem("None");
-    for (std::string deviceName : MidiPlayer::midiInDevices()) {
-        ui->cbMidiIn->addItem(QString::fromStdString(deviceName));
+    for (QString deviceName : MidiPlayer::midiInDevices()) {
+        ui->cbMidiIn->addItem(deviceName);
     }
     ui->cbMidiIn->setCurrentIndex(player->midiInPortNumber()+1);
 
 
     // Audio devices
-    std::vector<std::string> dvnames = MidiSynthesizer::audioDevices();
-    int aSelected = 1;
-    for (int i=0; i<dvnames.size(); i++) {
-        ui->cbAudioOut->addItem(QString::fromStdString(dvnames[i]));
-        if (i == player->midiSynthesizer()->outPutDevice())
-            aSelected = i;
+    QStringList dvnames = MidiSynthesizer::audioDevices();
+    int aSelected = 0;
+    for (int i=1; i<dvnames.count(); i++)
+    {
+        ui->cbAudioOut->addItem(dvnames[i]);
+        if (i == player->midiSynthesizer()->defaultDevice())
+            aSelected = i-1;
     }
     ui->cbAudioOut->setCurrentIndex(aSelected);
 
@@ -397,7 +403,7 @@ void SettingsDialog::on_btnBgImg_clicked()
 {
     //QStringList filters;
     //filters << "Image files (*.png *.PNG *.jpg *.JPG)";
-    QString f = QFileDialog::getOpenFileName(this, "Select File", QDir::currentPath(),
+    QString f = QFileDialog::getOpenFileName(this, "Select File", Utils::LAST_OPEN_DIR,
                                              "Image files (*.png *.PNG *.jpg *.JPG)");
     if (f != "") {
         settings->setValue("BackgroundImage", f);
@@ -405,16 +411,20 @@ void SettingsDialog::on_btnBgImg_clicked()
         mainWin->setBackgroundImage(f);
         if (mainWin->secondMonitorDlg() != nullptr)
             mainWin->secondMonitorDlg()->setBackgroundImage(f);
+
+        Utils::LAST_OPEN_DIR = QFileInfo(f).dir().absolutePath();//QDir().absoluteFilePath(f);
     }
 }
 
 void SettingsDialog::on_btnNCNPath_clicked()
 {
-    QString path = QFileDialog::getExistingDirectory(this, tr("เลือกที่เก็บไฟล์เพลง NCN"), QDir::currentPath(),
+    QString path = QFileDialog::getExistingDirectory(this, tr("เลือกที่เก็บไฟล์เพลง NCN"), Utils::LAST_OPEN_DIR,
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (path == "")
         return;
+
+    Utils::LAST_OPEN_DIR = path;
 
     if (db->isNCNPath(path)) {
         settings->setValue("NCNPath", path);
@@ -431,11 +441,13 @@ void SettingsDialog::on_btnNCNPath_clicked()
 void SettingsDialog::on_btnHNKPath_clicked()
 {
     QString path = QFileDialog::getExistingDirectory(
-                this, tr("เลือกที่เก็บไฟล์เพลง HNK"), QDir::currentPath(),
+                this, tr("เลือกที่เก็บไฟล์เพลง HNK"), Utils::LAST_OPEN_DIR,
                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (path == "")
         return;
+
+    Utils::LAST_OPEN_DIR = path;
 
     ui->leHNKPath->setText(path);
     db->setHNKPath(path);
@@ -522,11 +534,9 @@ void SettingsDialog::on_cbAudioOut_activated(int index)
         return;
     }*/
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
-    if (index == synth->outPutDevice())
-        return;
 
-    synth->setOutputDevice(index);
-    settings->setValue("AudioOut", index);
+    synth->setDefaultDevice(index+1);
+    settings->setValue("SynthDefaultDevice", index+1);
     /*if (BASS_SetDevice(index) == BASS_OK) {
         settings->setValue("defaultAudioDevice", index);
     } else {
@@ -851,129 +861,48 @@ void SettingsDialog::onSpinCurBorderOutWidthValueChanged(int arg1)
         mainWin->secondLyrics()->setCurBorderOutWidth(arg1);
 }
 
-void SettingsDialog::on_btnSfEdit_clicked()
-{
-    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
-    instSfMap = synth->getMapSoundfontIndex();
-    drumSfMap = synth->getDrumMapSfIndex();
-
-    ui->btnSfAdd->setEnabled(true);
-    ui->btnSfRemove->setEnabled(true);
-    ui->btnSfUp->setEnabled(true);
-    ui->btnSfDown->setEnabled(true);
-    ui->btnSfFinish->setEnabled(true);
-    ui->btnSfCancel->setEnabled(true);
-
-    ui->btnSfEdit->setEnabled(false);
-    ui->sliderSfVolume->setEnabled(false);
-
-    ui->btnSfMap->setEnabled(false);
-
-    disconnect(ui->listsfFiles, SIGNAL(currentRowChanged(int)),
-            this, SLOT(onListSfCurrentRowChanged(int)));
-}
-
-void SettingsDialog::on_btnSfFinish_clicked()
-{
-    if (mainWin->midiPlayer()->midiOutPortNumber() == -1
-            && !mainWin->midiPlayer()->isPlayerStopped()) {
-        mainWin->stop();
-    }
-
-    QStringList sfList;
-
-    settings->beginWriteArray("SynthSoundfontsVolume");
-    for (int i=0; i<ui->listsfFiles->count(); i++) {
-        QListWidgetItem *item = ui->listsfFiles->item(i);
-        sfList.append(item->text());
-        settings->setArrayIndex(i);
-        settings->setValue("SoundfontVolume", 100);
-    }
-    settings->endArray();
-
-    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
-    synth->setSoundFonts(sfList);
-    synth->setMapSoundfontIndex(instSfMap, drumSfMap);
-
-    ui->btnSfAdd->setEnabled(false);
-    ui->btnSfRemove->setEnabled(false);
-    ui->btnSfUp->setEnabled(false);
-    ui->btnSfDown->setEnabled(false);
-    ui->btnSfFinish->setEnabled(false);
-    ui->btnSfCancel->setEnabled(false);
-
-    ui->btnSfEdit->setEnabled(true);
-
-    ui->btnSfMap->setEnabled(true);
-
-    if (ui->listsfFiles->count() > 0) {
-        disconnect(ui->sliderSfVolume, SIGNAL(valueChanged(int)),
-                   this, SLOT(onSliderSfValueChanged(int)));
-        ui->sliderSfVolume->setEnabled(true);
-        ui->sliderSfVolume->setValue(100);
-        ui->lbSfVolume->setText(QString::number(100));
-        connect(ui->sliderSfVolume, SIGNAL(valueChanged(int)),
-                   this, SLOT(onSliderSfValueChanged(int)));
-    }
-
-    connect(ui->listsfFiles, SIGNAL(currentRowChanged(int)),
-            this, SLOT(onListSfCurrentRowChanged(int)));
-
-
-    settings->setValue("SynthSoundfonts", sfList);
-
-    settings->beginWriteArray("SynthSoundfontsMap");
-    for (int i=0; i<128; i++) {
-        settings->setArrayIndex(i);
-        settings->setValue("mapTo", instSfMap.at(i));
-    }
-    settings->endArray();
-
-    settings->beginWriteArray("SynthSoundfontsDrumMap");
-    for (int i=0; i<16; i++) {
-        settings->setArrayIndex(i);
-        settings->setValue("mapTo", drumSfMap.at(i));
-    }
-    settings->endArray();
-}
-
 void SettingsDialog::on_btnSfAdd_clicked()
 {
     QStringList sfFiles = QFileDialog::getOpenFileNames(this,
                                                         "เลือกไฟล์ซาวด์ฟ้อนท์",
-                                                        QDir::currentPath(),
+                                                        Utils::LAST_OPEN_DIR,
                                                         "SoundFont (*.sf2 *.SF2 *.sfz *.SFZ)");
 
-    for (const QString &sf : sfFiles) {
-        if (MidiSynthesizer::isSoundFontFile(sf)) {
+    if (sfFiles.count() > 0)
+        Utils::LAST_OPEN_DIR = QFileInfo(sfFiles[0]).dir().absolutePath();
+
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+    for (const QString &sf : sfFiles)
+    {
+        if (synth->addSoundfont(sf))
             ui->listsfFiles->addItem(sf);
-        }
-        else {
+        else
+        {
             QString title = "ไฟล์ซาวด์ฟ้อนท์ไม่ถูกต้อง";
             QString msg = "ไม่สามารถอ่านไฟล์ " + sf + " ได้"
                           "\nโปรดลองเลือกไฟล์อื่น";
             QMessageBox::warning(this, title, msg, QMessageBox::Ok);
         }
     }
+    settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
+    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
+    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
 }
 
 void SettingsDialog::on_btnSfRemove_clicked()
 {
     int i = ui->listsfFiles->currentRow();
-    ui->listsfFiles->takeItem(i);
+    if (i < 0)
+        return;
 
-    for (int idx=0; idx<128; idx++) {
-        if (instSfMap[idx] == i)
-            instSfMap[idx] = 0;
-        else if (instSfMap[idx] > i)
-            instSfMap[idx] = instSfMap[idx] - 1;
-    }
-    for (int idx=0; idx<16; idx++) {
-        if (drumSfMap[idx] == i)
-            drumSfMap[idx] = 0;
-        else if (drumSfMap[idx] > i)
-            drumSfMap[idx] = drumSfMap[idx] - 1;
-    }
+    delete ui->listsfFiles->takeItem(i);
+
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+    synth->removeSoundfont(i);
+
+    settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
+    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
+    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
 }
 
 void SettingsDialog::on_btnSfUp_clicked()
@@ -985,6 +914,13 @@ void SettingsDialog::on_btnSfUp_clicked()
     QListWidgetItem *item = ui->listsfFiles->takeItem(i);
     ui->listsfFiles->insertItem(i-1, item);
     ui->listsfFiles->setCurrentRow(i-1);
+
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+    synth->swapSoundfont(i, i-1);
+
+    settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
+    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
+    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
 }
 
 void SettingsDialog::on_btnSfDown_clicked()
@@ -996,31 +932,13 @@ void SettingsDialog::on_btnSfDown_clicked()
     QListWidgetItem *item = ui->listsfFiles->takeItem(i);
     ui->listsfFiles->insertItem(i+1, item);
     ui->listsfFiles->setCurrentRow(i+1);
-}
 
-void SettingsDialog::on_btnSfCancel_clicked()
-{
-    ui->listsfFiles->clear();
-    for (const QString &sf : mainWin->midiPlayer()->midiSynthesizer()->soundfontFiles()) {
-        ui->listsfFiles->addItem(sf);
-    }
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+    synth->swapSoundfont(i, i+1);
 
-    ui->btnSfAdd->setEnabled(false);
-    ui->btnSfRemove->setEnabled(false);
-    ui->btnSfUp->setEnabled(false);
-    ui->btnSfDown->setEnabled(false);
-    ui->btnSfFinish->setEnabled(false);
-    ui->btnSfCancel->setEnabled(false);
-
-    ui->btnSfEdit->setEnabled(true);
-
-    ui->btnSfMap->setEnabled(true);
-
-    if (ui->listsfFiles->count() > 0)
-        ui->sliderSfVolume->setEnabled(true);
-
-    connect(ui->listsfFiles, SIGNAL(currentRowChanged(int)),
-            this, SLOT(onListSfCurrentRowChanged(int)));
+    settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
+    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
+    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
 }
 
 void SettingsDialog::onSliderSfValueChanged(int value)
@@ -1032,12 +950,6 @@ void SettingsDialog::onSliderSfValueChanged(int value)
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
     synth->setSoundfontVolume(i, value / 100.0f);
     ui->lbSfVolume->setText(QString::number(value));
-
-
-    settings->beginWriteArray("SynthSoundfontsVolume");
-    settings->setArrayIndex(i);
-    settings->setValue("SoundfontVolume", value);
-    settings->endArray();
 }
 
 void SettingsDialog::onListSfCurrentRowChanged(int currentRow)
@@ -1054,12 +966,18 @@ void SettingsDialog::onListSfCurrentRowChanged(int currentRow)
     ui->lbSfVolume->setText(QString::number(v));
 
     connect(ui->sliderSfVolume, SIGNAL(valueChanged(int)),
-               this, SLOT(onSliderSfValueChanged(int)));
+            this, SLOT(onSliderSfValueChanged(int)));
+}
+
+void SettingsDialog::onChbSfLoadAllToggled(bool value)
+{
+    mainWin->midiPlayer()->midiSynthesizer()->setLoadAllSoundfont(value);
+    settings->setValue("SynthSoundfontsLoadAll", value);
 }
 
 void SettingsDialog::on_btnSfMap_clicked()
 {
-    MapSoundfontDialog msfDlg(this, mainWin->midiPlayer());
+    MapSoundfontDialog msfDlg(this, mainWin->midiPlayer()->midiSynthesizer());
     msfDlg.setModal(true);
     msfDlg.setMinimumSize(msfDlg.size());
     msfDlg.exec();
@@ -1067,19 +985,18 @@ void SettingsDialog::on_btnSfMap_clicked()
 
 void SettingsDialog::on_btnEq_clicked()
 {
-    if (mainWin->equalizer31BandDialog()->isVisible())
+    if (Equalizer31BandDialog::isOpenned())
         return;
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
 
-    Equalizer31BandDialog eqdlg(this, synth->equalizer31BandFX());
+    Equalizer31BandDialog eqdlg(this, synth->equalizer31BandFXs());
     eqdlg.setModal(true);
     eqdlg.adjustSize();
     eqdlg.setFixedSize(eqdlg.size());
-    eqdlg.setWindowTitle(mainWin->equalizer31BandDialog()->windowTitle());
     eqdlg.exec();
 
-    if (synth->equalizer31BandFX()->isOn())
+    if (synth->equalizer31BandFXs()[0]->isOn())
         ui->btnEq->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
@@ -1087,19 +1004,18 @@ void SettingsDialog::on_btnEq_clicked()
 
 void SettingsDialog::on_btnReverb_clicked()
 {
-    if (mainWin->reverbDialog()->isVisible())
+    if (ReverbDialog::isOpenned())
         return;
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
 
-    ReverbDialog rvDlg(this, synth->reverbFX());
+    ReverbDialog rvDlg(this, synth->reverbFXs());
     rvDlg.setModal(true);
     rvDlg.adjustSize();
     rvDlg.setFixedSize(rvDlg.size());
-    rvDlg.setWindowTitle(mainWin->reverbDialog()->windowTitle());
     rvDlg.exec();
 
-    if (synth->reverbFX()->isOn())
+    if (synth->reverbFXs()[0]->isOn())
         ui->btnReverb->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnReverb->setIcon(QIcon(":/Icons/circle_red.png"));
@@ -1107,19 +1023,18 @@ void SettingsDialog::on_btnReverb_clicked()
 
 void SettingsDialog::on_btnChorus_clicked()
 {
-    if (mainWin->chorusDialog()->isVisible())
+    if (ChorusDialog::isOpenned())
         return;
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
 
-    ChorusDialog crDlg(this, synth->chorusFX());
+    ChorusDialog crDlg(this, synth->chorusFXs());
     crDlg.setModal(true);
     crDlg.adjustSize();
     crDlg.setFixedSize(crDlg.size());
-    crDlg.setWindowTitle(mainWin->chorusDialog()->windowTitle());
     crDlg.exec();
 
-    if (synth->chorusFX()->isOn())
+    if (synth->chorusFXs()[0]->isOn())
         ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));

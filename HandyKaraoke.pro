@@ -13,7 +13,6 @@ CONFIG += c++11
 TARGET = HandyKaraoke
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         MainWindow.cpp \
     SettingsDialog.cpp \
@@ -52,7 +51,6 @@ SOURCES += main.cpp\
     Midi/HNKFile.cpp \
     BASSFX/FX.cpp \
     Widgets/CustomFXList.cpp \
-    Dialogs/VSTDialog.cpp \
     Dialogs/BusDialog.cpp \
     Dialogs/SynthMixerDialog.cpp \
     Dialogs/SecondMonitorDialog.cpp \
@@ -71,7 +69,10 @@ SOURCES += main.cpp\
     FXDialogs/AutoWahFXDialog.cpp \
     FXDialogs/CompressorFXDialog.cpp \
     FXDialogs/DistortionFXDialog.cpp \
-    FXDialogs/EchoFXDialog.cpp
+    FXDialogs/EchoFXDialog.cpp \
+    Widgets/PlaylistWidget.cpp \
+    Dialogs/DialogHelper.cpp \
+    Dialogs/SpeakerDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -113,7 +114,6 @@ HEADERS  += MainWindow.h \
     Midi/lz77.h \
     BASSFX/FX.h \
     Widgets/CustomFXList.h \
-    Dialogs/VSTDialog.h \
     Dialogs/BusDialog.h \
     Dialogs/SecondMonitorDialog.h \
     Midi/MidiSequencer.h \
@@ -133,7 +133,11 @@ HEADERS  += MainWindow.h \
     FXDialogs/AutoWahFXDialog.h \
     FXDialogs/CompressorFXDialog.h \
     FXDialogs/DistortionFXDialog.h \
-    FXDialogs/EchoFXDialog.h
+    FXDialogs/EchoFXDialog.h \
+    Config.h \
+    Widgets/PlaylistWidget.h \
+    Dialogs/DialogHelper.h \
+    Dialogs/SpeakerDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -161,7 +165,9 @@ FORMS    += MainWindow.ui \
     FXDialogs/AutoWahFXDialog.ui \
     FXDialogs/CompressorFXDialog.ui \
     FXDialogs/DistortionFXDialog.ui \
-    FXDialogs/EchoFXDialog.ui
+    FXDialogs/EchoFXDialog.ui \
+    Widgets/PlaylistWidget.ui \
+    Dialogs/SpeakerDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
@@ -174,10 +180,12 @@ win32 {
 
     SOURCES += Midi/rtmidi/RtMidi.cpp \
         Dialogs/VSTDirsDialog.cpp \
+        Dialogs/VSTDialog.cpp \
         BASSFX/VSTFX.cpp
 
     HEADERS  += Midi/rtmidi/RtMidi.h \
         Dialogs/VSTDirsDialog.h \
+        Dialogs/VSTDialog.h \
         BASSFX/VSTFX.h
 
     FORMS += Dialogs/VSTDirsDialog.ui
@@ -241,7 +249,8 @@ macx {
 }
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
+    app.qrc
 
 #DEFINES += _ATL_XP_TARGETING
 #DEFINES += PSAPI_VERSION=1

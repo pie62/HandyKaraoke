@@ -439,3 +439,54 @@ InstrumentType MidiHelper::getInstrumentType(int instNumber)
 
     return t;
 }
+
+DWORD MidiHelper::getSpeakerFlag(SpeakerType speaker)
+{
+    switch (speaker)
+    {
+    case SpeakerType::Default:
+        return 0;
+
+    case SpeakerType::FrontStereo:
+        return BASS_SPEAKER_FRONT;
+    case SpeakerType::FrontLeft:
+        return BASS_SPEAKER_FRONTLEFT;
+    case SpeakerType::FrontRight:
+        return BASS_SPEAKER_FRONTRIGHT;
+
+    case SpeakerType::RearStereo:
+        return BASS_SPEAKER_REAR;
+    case SpeakerType::RearLeft:
+        return BASS_SPEAKER_REARLEFT;
+    case SpeakerType::RearRight:
+        return BASS_SPEAKER_REARRIGHT;
+
+    case SpeakerType::CenterStereo:
+        return BASS_SPEAKER_CENLFE;
+    case SpeakerType::CenterMono:
+        return BASS_SPEAKER_CENTER;
+    case SpeakerType::SubwooferMono:
+        return BASS_SPEAKER_LFE;
+
+    case SpeakerType::SideStereo:
+        return BASS_SPEAKER_REAR2;
+    case SpeakerType::SideLeft:
+        return BASS_SPEAKER_REAR2LEFT;
+    case SpeakerType::SideRight:
+        return BASS_SPEAKER_REAR2RIGHT;
+    }
+}
+
+bool MidiHelper::isStereoSpeaker(SpeakerType speaker)
+{
+    switch (speaker) {
+    case SpeakerType::Default:
+    case SpeakerType::FrontStereo:
+    case SpeakerType::RearStereo:
+    case SpeakerType::CenterStereo:
+    case SpeakerType::SideStereo:
+        return true;
+    default:
+        return false;
+    }
+}

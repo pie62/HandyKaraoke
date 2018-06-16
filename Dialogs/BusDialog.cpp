@@ -2,7 +2,8 @@
 #include "ui_BusDialog.h"
 
 #include <QMenu>
-#include <QSettings>
+
+#include "Dialogs/DialogHelper.h"
 
 
 BusDialog::BusDialog(QWidget *parent, QMap<InstrumentType, InstCh *> *chInstMap, MidiSynthesizer *synth) :
@@ -18,9 +19,15 @@ BusDialog::BusDialog(QWidget *parent, QMap<InstrumentType, InstCh *> *chInstMap,
     // Tab 1 --------------------------------------------------------
     {
         int i = 0;
-        for (InstrumentType t : chInstMap->keys()) {
+        for (InstrumentType t : chInstMap->keys())
+        {
+            #ifdef __linux__
+            if (t >= InstrumentType::VSTi1)
+                break;
+            #else
             if (t >= InstrumentType::BusGroup1)
                 break;
+            #endif
 
             QTableWidgetItem *nameItem = new QTableWidgetItem(chInstMap->value(t)->fullInstrumentName());
             QTableWidgetItem *busItem;

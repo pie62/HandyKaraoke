@@ -2,13 +2,13 @@
 #include "ui_Equalizer31BandDialog.h"
 
 
-Equalizer31BandDialog::Equalizer31BandDialog(QWidget *parent, Equalizer31BandFX *eqfx) :
+Equalizer31BandDialog::Equalizer31BandDialog(QWidget *parent, QList<Equalizer31BandFX *> eqfxs) :
     QDialog(parent),
     ui(new Ui::Equalizer31BandDialog)
 {
     ui->setupUi(this);
 
-    this->eqfx = eqfx;
+    this->eqfxs = eqfxs;
 
     signalLevelMapper = new QSignalMapper(this);
     signalUserLevelMapper = new QSignalMapper(this);
@@ -17,8 +17,7 @@ Equalizer31BandDialog::Equalizer31BandDialog(QWidget *parent, Equalizer31BandFX 
     mapLabelDb();
     mapSlider();
 
-    int a=0;
-
+    auto eqfx = eqfxs[0];
     if (eqfx != nullptr)
     {
         if (eqfx->isOn())
@@ -44,6 +43,23 @@ Equalizer31BandDialog::~Equalizer31BandDialog()
     lbdbMap.clear();
 
     delete ui;
+}
+
+bool Equalizer31BandDialog::openned = false;
+
+bool Equalizer31BandDialog::isOpenned()
+{
+    return openned;
+}
+
+void Equalizer31BandDialog::showEvent(QShowEvent *)
+{
+    openned = true;
+}
+
+void Equalizer31BandDialog::closeEvent(QCloseEvent *)
+{
+    openned = false;
 }
 
 void Equalizer31BandDialog::mapLabelDb()
@@ -144,10 +160,13 @@ void Equalizer31BandDialog::mapSlider()
 
 void Equalizer31BandDialog::onBtnSwitchUserSwitchChanged(bool switchOn)
 {
-    if (switchOn)
-        eqfx->on();
-    else
-        eqfx->off();
+    for (auto eqfx : eqfxs)
+    {
+        if (switchOn)
+            eqfx->on();
+        else
+            eqfx->off();
+    }
 
     emit switchChanged(switchOn);
 }
@@ -165,10 +184,8 @@ void Equalizer31BandDialog::onSliderUserLevelChanged(int sliderIndex)
     Slider *slider = sliderMap.values()[sliderIndex];
     EQFrequency31Range freq = sliderMap.keys()[sliderIndex];
 
-    if (eqfx == nullptr)
-        return;
-
-    eqfx->setGain(freq, slider->level() / 10.0f);
+    for (auto eqfx : eqfxs)
+        eqfx->setGain(freq, slider->level() / 10.0f);
 }
 
 void Equalizer31BandDialog::onSliderMouseDoubleClicked(int sliderIndex)

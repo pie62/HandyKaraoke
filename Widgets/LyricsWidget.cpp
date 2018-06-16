@@ -81,111 +81,28 @@ void LyricsWidget::setLyrics(const QString &lyr, const QList<long> &curs)
     lyrics = lyr.split("\r\n");
     cursors = curs;
 
+    // ค้นหา บรรทัดว่าง
+    int index = 0;
+    for (QString &l : lyrics)
+    {
+        index += l.length() + 1;
+
+        if (l.length() != 0)
+            continue;
+
+        if (index >= cursors.count())
+            break;
+
+        l = " ";
+        cursors.insert(index, cursors[index]);
+        index++;
+    }
+
     reset();
 }
 
 void LyricsWidget::setPositionCursor(int tick)
 {
-    /*
-    if (cursor_index >= cursors.count())
-        return;
-
-    if (tick < cursors[cursor_index])
-        return;
-
-    if (at_end_line) {
-        at_end_line = false;
-        char_index = 0;
-        cursor_width = 0;
-        cursor_toEnd = 0;
-        isLine1 = !isLine1;
-    }
-
-    if (chars_width.count() == 0 && linesIndex < lyrics.count()) {
-        if (isLine1) {
-            //setTextLine2(lyrics.at(linesIndex));
-            tLine2 = tBuffer;
-            pixLine2 = pixBuffer;
-            pixCurLine2 = pixCurBuffer;
-            update();
-        }
-        else  {
-            //setTextLine1(lyrics.at(linesIndex));
-            tLine1 = tBuffer;
-            pixLine1 = pixBuffer;
-            pixCurLine1 = pixCurBuffer;
-            update();
-        }
-        linesIndex++;
-        QtConcurrent::run(this, &LyricsWidget::setTextBuffertLine);
-
-        isLine1 = !isLine1;
-        cursor_index++;
-
-        chars_width.clear();
-        chars_width = getCharsWidth();
-        return;
-    }
-
-    if (char_index == chars_width.count()) {
-        animation->stop();
-        cursor_width = chars_width.last();
-        at_end_line = true;
-        cursor_index++;
-        update();
-
-        return;
-    }
-
-    if (char_index == 0) {
-        if (linesIndex < lyrics.count()) {
-            if (isLine1) {
-                //setTextLine2(lyrics.at(linesIndex));
-                tLine2 = tBuffer;
-                pixLine2 = pixBuffer;
-                pixCurLine2 = pixCurBuffer;
-                update();
-            }
-            else {
-                //setTextLine1(lyrics.at(linesIndex));
-                tLine1 = tBuffer;
-                pixLine1 = pixBuffer;
-                pixCurLine1 = pixCurBuffer;
-                update();
-            }
-            linesIndex++;
-            QtConcurrent::run(this, &LyricsWidget::setTextBuffertLine);
-        } else {
-            if (isLine1) setTextLine2("");
-            else setTextLine1("");
-        }
-
-        //update();
-
-        chars_width.clear();
-        chars_width = getCharsWidth();
-        updateArea = calculateUpdateArea();
-    }
-
-    if (char_index >= 0 && chars_width.count() != 0) {
-        cursor_toEnd = chars_width.at(char_index);
-    }
-
-    char_index++;
-
-    if (cursor_index == cursors.count() - 1) {
-        cursor_toEnd = chars_width.count() == 0 ? 0 : chars_width.last();
-    }
-
-    cursor_index++;
-
-    animation->stop();
-    animation->setStartValue(cursor_width);
-    animation->setEndValue(cursor_toEnd);
-    animation->start();
-    */
-
-
     if (cursor_index >= cursors.count())
         return;
 
@@ -211,6 +128,7 @@ void LyricsWidget::setPositionCursor(int tick)
 
         chars_width.clear();
         chars_width = getCharsWidth();
+
         return;
     }
 
@@ -228,10 +146,8 @@ void LyricsWidget::setPositionCursor(int tick)
         if (linesIndex < lyrics.count()) {
             if (isLine1)
                 setTextLine2(lyrics.at(linesIndex));
-                //QtConcurrent::run(this, &LyricsWidget::setTextLine2, lyrics.at(linesIndex), true);
             else
                 setTextLine1(lyrics.at(linesIndex));
-                //QtConcurrent::run(this, &LyricsWidget::setTextLine1, lyrics.at(linesIndex), true);
             linesIndex++;
         } else {
             if (isLine1) setTextLine2("");

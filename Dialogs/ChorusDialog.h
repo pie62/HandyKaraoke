@@ -14,11 +14,17 @@ class ChorusDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ChorusDialog(QWidget *parent = 0, ChorusFX *chorusFX = nullptr);
+    explicit ChorusDialog(QWidget *parent = 0, QList<ChorusFX *> choruss = QList<ChorusFX *>());
     ~ChorusDialog();
+
+    static bool isOpenned();
 
 signals:
     void switchChanged(bool s);
+
+protected:
+    void showEvent(QShowEvent *);
+    void closeEvent(QCloseEvent *);
 
 private slots:
     void connectDialAndSpin();
@@ -40,7 +46,9 @@ private slots:
 private:
     Ui::ChorusDialog *ui;
 
-    ChorusFX *chorus;
+    QList<ChorusFX *> choruss;
+
+    static bool openned;
 };
 
 #endif // CHORUSDIALOG_H

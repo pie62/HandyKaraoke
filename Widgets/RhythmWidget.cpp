@@ -2,7 +2,7 @@
 #include "ui_RhythmWidget.h"
 
 #include <QPainter>
-#include <QDebug>
+
 
 RhythmWidget::RhythmWidget(QWidget *parent) :
     QWidget(parent),
@@ -52,13 +52,14 @@ void RhythmWidget::setBeat(const QList<SignatureBeat> &signatureBeats, int beatC
     _beatCount = beatCount;
 
     { // Count bar
-       _barCount= 0;
-        int lastBeat = 0, lastBeatInBar = 0;
+        _barCount = 0;
+        int lastBeat = 0, lastBeatInBar = 0, tempBeatCount = 0;
         for (SignatureBeat sigBeat : signatureBeats) {
             lastBeat = sigBeat.nBeat;
             if (lastBeat > 0) {
-                _barCount += lastBeat / lastBeatInBar;
+                _barCount += (lastBeat - tempBeatCount) / lastBeatInBar;
             }
+            tempBeatCount = lastBeat;
             lastBeatInBar = sigBeat.nBeatInBar;
         }
         _barCount += (beatCount - lastBeat) / lastBeatInBar;
