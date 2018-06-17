@@ -45,7 +45,11 @@ int main(int argc, char *argv[])
     qApp->processEvents();
 
     { // Config Dir
-        QDir dir(ALL_DATA_DIR_PATH);
+        QDir dir(TEMP_DIR_PATH);
+        if (!dir.exists())
+            dir.mkpath(TEMP_DIR_PATH);
+
+        dir.setPath(ALL_DATA_DIR_PATH);
         if (!dir.exists())
             dir.mkpath(ALL_DATA_DIR_PATH);
 

@@ -621,7 +621,7 @@ void MainWindow::play(int index, int position)
             return;
         }
 
-        QFile mid("temp.mid");
+        QFile mid(TEMP_MIDI_DIR_PATH);
         if (mid.exists())
             mid.remove();
 
@@ -629,7 +629,7 @@ void MainWindow::play(int index, int position)
         mid.write(HNKFile::midData(p));
         mid.close();
 
-        if (!player->load("temp.mid", true)) {
+        if (!player->load(TEMP_MIDI_DIR_PATH, true)) {
             QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
                                  "ไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
             mid.remove();
