@@ -37,12 +37,20 @@ MainWindow::MainWindow(QWidget *parent) :
         QMap<int, QString> dvs;
         int a, count=0;
         BASS_DEVICEINFO info;
-        for (a=0; BASS_GetDeviceInfo(a, &info); a++) {
+        for (a=0; BASS_GetDeviceInfo(a, &info); a++)
+        {
+            #ifdef __linux__
+            if (info.flags&BASS_DEVICE_ENABLED && BASS_Init(a, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL)) { // device is enabled
+                dvs[a] =  QString(info.name);
+                count++; // count it
+            }
+            #else
             if (info.flags&BASS_DEVICE_ENABLED) { // device is enabled
                 BASS_Init(a, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
                 dvs[a] =  QString(info.name);
                 count++; // count it
             }
+            #endif
         }
         MidiSynthesizer::audioDevices(dvs);
     }
