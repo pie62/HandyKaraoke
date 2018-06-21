@@ -1519,16 +1519,16 @@ void MainWindow::showSpeakerDialog()
     dlg.exec();
 }
 
-#ifndef __linux__
 void MainWindow::showVSTDirDialog()
 {
+    #ifndef __linux__
     VSTDirsDialog dlg(this, this);
     dlg.setModal(true);
     dlg.adjustSize();
     dlg.setMinimumSize(dlg.size());
     dlg.exec();
+    #endif
 }
-#endif
 
 void MainWindow::minimizeWindow()
 {

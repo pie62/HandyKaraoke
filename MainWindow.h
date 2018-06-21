@@ -153,9 +153,7 @@ private slots:
 
     void showBusGroupDialog();
     void showSpeakerDialog();
-    #ifndef __linux__
     void showVSTDirDialog();
-    #endif
 
     void onPositiomTimerTimeOut();
     void onLyricsTimerTimeOut();
