@@ -41,6 +41,8 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         mVstiInfos[i] = vstinfo;
         mVstiTempProgram[i] = 0;
         mVstiTempParams[i] = QList<float>();
+        mVstiChunk[i] = QByteArray();
+        mVstiChunkLength[i] = 0;
     }
     #endif
 
@@ -195,6 +197,11 @@ void MidiSynthesizer::close()
             int vIndex = static_cast<int>(t) - HANDLE_VSTI_START;
             mVstiTempProgram[vIndex] = BASS_VST_GetProgram(h);
             mVstiTempParams[vIndex] = FX::getVSTParams(h);
+
+            //DWORD length = 0;
+            //mVstiChunk[vIndex] = BASS_VST_GetChunk(h, true, &length);
+            //mVstiChunkLength[vIndex] = length;
+
             BASS_VST_ChannelFree(h);
             #endif
         }
@@ -1183,9 +1190,23 @@ QList<float> MidiSynthesizer::vstiParams(int vstiIndex)
 {
     DWORD h = vstiHandle(vstiIndex);
     if (isOpened() && h != 0)
-        FX::getVSTParams(h);
+        return FX::getVSTParams(h);
     else
         return mVstiTempParams[vstiIndex];
+}
+
+QByteArray MidiSynthesizer::vstiChunk(int vstiIndex, DWORD *length)
+{
+    DWORD h = vstiHandle(vstiIndex);
+    if (isOpened() && h != 0)
+    {
+        return QByteArray(BASS_VST_GetChunk(h, true, length));
+    }
+    else
+    {
+        *length = mVstiChunkLength[vstiIndex];
+        return mVstiChunk[vstiIndex];
+    }
 }
 
 DWORD MidiSynthesizer::setVSTiFile(int vstiIndex, const QString &file)
@@ -1298,6 +1319,7 @@ DWORD MidiSynthesizer::createStream(InstrumentType t)
                 mVstiInfos[vIndex] = info;
                 BASS_VST_SetProgram(h, mVstiTempProgram[vIndex]);
                 FX::setVSTParams(h, mVstiTempParams[vIndex]);
+                //BASS_VST_SetChunk(h, true, mVstiChunk[vIndex], mVstiChunkLength[vIndex]);
             }
             return h; // vsti handle
             #endif

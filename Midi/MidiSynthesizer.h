@@ -150,6 +150,7 @@ public:
     DWORD vstiHandle(int vstiIndex);
     int vstiProgram(int vstiIndex);
     QList<float> vstiParams(int vstiIndex);
+    QByteArray vstiChunk(int vstiIndex, DWORD *length);
     DWORD setVSTiFile(int vstiIndex, const QString &file);
     void removeVSTiFile(int vstiIndex);
     #endif
@@ -188,6 +189,8 @@ private:
     BASS_VST_INFO mVstiInfos[4];
     int mVstiTempProgram[4];
     QList<float> mVstiTempParams[4];
+    QByteArray mVstiChunk[4];
+    DWORD mVstiChunkLength[4];
     #endif
 
     // unique ID,  VSTNamePAth

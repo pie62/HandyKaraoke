@@ -26,6 +26,10 @@
 #include "Dialogs/VSTDirsDialog.h"
 #endif
 
+#ifdef _WIN32
+#include <winsparkle.h>
+#endif
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -422,6 +426,19 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
+    #ifdef _WIN32
+    // WinSparkle
+    QString appcastUrl = "https://raw.githubusercontent.com/pie62/HandyKaraoke-updates-repo/master/appcast.xml";
+    win_sparkle_set_appcast_url(appcastUrl.toStdString().c_str());
+    win_sparkle_init();
+
+    QFile keyFile(":/dsa_pub.pem");
+    keyFile.open(QFile::ReadOnly);
+    win_sparkle_set_dsa_pub_pem(keyFile.readAll().constData());
+    keyFile.close();
+    #endif
+
+
     // Menu
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 }
@@ -429,6 +446,13 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     stop();
+
+
+    #ifdef _WIN32
+    // WinSparkle
+    win_sparkle_cleanup();
+    #endif
+
 
     { // Write synth FX settings
         // Synth EQ

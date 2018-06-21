@@ -180,9 +180,11 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
     {
         st.setArrayIndex(i);
 
-        QString      filePath    = st.value("VstiFilePath", "").toString();
-        int          program     = st.value("VstiPrograms", 0).toInt();
-        QList<float> params      = st.value("VstiParams").value<QList<float>>();
+        QString      filePath   = st.value("VstiFilePath", "").toString();
+        int          program    = st.value("VstiPrograms", 0).toInt();
+        QList<float> params     = st.value("VstiParams").value<QList<float>>();
+        //QByteArray   chunk      = st.value("VstiChunk", QByteArray()).toByteArray();
+        //DWORD        chunkLth   = st.value("VstiChunkLength").value<DWORD>();
 
         if (filePath == "")
             continue;
@@ -196,6 +198,7 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
         {
             BASS_VST_SetProgram(vsti, program);
             FX::setVSTParams(vsti, params);
+            //BASS_VST_SetChunk(vsti, true, chunk.constData(), chunkLth);
         }
     }
     st.endArray();

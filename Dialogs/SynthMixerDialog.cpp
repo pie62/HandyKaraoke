@@ -181,6 +181,9 @@ SynthMixerDialog::~SynthMixerDialog()
             st.setValue("VstiFilePath", synth->vstiFile(i));
             st.setValue("VstiPrograms", synth->vstiProgram(i));
             st.setValue("VstiParams", QVariant::fromValue(synth->vstiParams(i)));
+            //DWORD length = 0;
+            //st.setValue("VstiChunk", synth->vstiChunk(i, &length));
+            //st.setValue("VstiChunkLength",  QVariant::fromValue(length));
         }
         st.endArray();
         #endif

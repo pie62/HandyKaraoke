@@ -190,7 +190,8 @@ win32 {
 
     FORMS += Dialogs/VSTDirsDialog.ui
 
-    INCLUDEPATH += $$PWD/Midi/rtmidi
+    INCLUDEPATH += $$PWD/Midi/rtmidi \
+        $$PWD/3rdParty/WinSparkle/include
 
     contains(QT_ARCH, i386) {
         message("32-bit")
@@ -199,6 +200,7 @@ win32 {
         LIBS += -L$$PWD/BASS/bass_fx24/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24/ -lbassmix
         LIBS += -L$$PWD/BASS/bass_vst24/ -lbass_vst
+        LIBS += -L$$PWD/3rdParty/WinSparkle/x86/ -lWinSparkle
 
         #DEFINES += _ATL_XP_TARGETING
         #DEFINES += PSAPI_VERSION=1
@@ -210,6 +212,7 @@ win32 {
         LIBS += -L$$PWD/BASS/bass_fx24/x64/ -lbass_fx
         LIBS += -L$$PWD/BASS/bassmix24/x64/ -lbassmix
         LIBS += -L$$PWD/BASS/bass_vst24/x64/ -lbass_vst
+        LIBS += -L$$PWD/3rdParty/WinSparkle/x64/ -lWinSparkle
     }
     INCLUDEPATH += $$PWD/BASS/bass24
     INCLUDEPATH += $$PWD/BASS/bassmidi24

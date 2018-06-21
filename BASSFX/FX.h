@@ -56,10 +56,6 @@ public:
     static void setVSTParams(DWORD fxHandle, const QList<float> &params);
     #endif
 
-    static QList<HFX>   createEQ31Band(DWORD stream, int priority = 1);
-    static void         removeEQ31Band(DWORD stream, QList<HFX> fxs);
-    static QList<float> getParamsEQ31Band(QList<HFX> fxs);
-
 protected:
     DWORD stream;
     HFX fx;
