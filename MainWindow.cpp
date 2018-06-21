@@ -438,6 +438,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QString appcastUrl = "https://raw.githubusercontent.com/pie62/HandyKaraoke-updates-repo/master/appcast-x86.xml";
     #endif
     win_sparkle_set_appcast_url(appcastUrl.toStdString().c_str());
+    win_sparkle_set_app_details(qApp->organizationName().toStdWString().c_str(),
+                                qApp->applicationName().toStdWString().c_str(),
+                                qApp->applicationVersion().toStdWString().c_str());
+
     win_sparkle_init();
     win_sparkle_set_shutdown_request_callback(updateShutdownRequest);
 
