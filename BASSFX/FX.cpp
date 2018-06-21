@@ -1,5 +1,4 @@
 #include "FX.h"
-#include <QDebug>
 
 
 FX::FX(int priority)

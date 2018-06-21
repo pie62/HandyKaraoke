@@ -48,6 +48,19 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
             ui->btnBgColor->setEnabled(false);
         }
 
+        #ifdef _WIN32
+        ui->chbAutoCheckUpdate->setChecked(win_sparkle_get_automatic_check_for_updates());
+        ui->spinUpdateInterval->setValue(win_sparkle_get_update_check_interval() / 60 / 60);
+        if (!ui->chbAutoCheckUpdate->isChecked())
+        {
+            ui->lbUpdateInterval->setEnabled(false);
+            ui->spinUpdateInterval->setEnabled(false);
+        }
+        connect(ui->spinUpdateInterval, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinUpdateValueChanged(int)));
+        #else
+        ui->groupBoxUpdate->hide();
+        #endif
 
         connect(ui->spinSearch, SIGNAL(valueChanged(int)), this, SLOT(onSpinSearchValueChanged(int)));
         connect(ui->spinPlaylist, SIGNAL(valueChanged(int)), this, SLOT(onSpinPlaylistValueChanged(int)));
@@ -414,6 +427,23 @@ void SettingsDialog::on_btnBgImg_clicked()
 
         Utils::LAST_OPEN_DIR = QFileInfo(f).dir().absolutePath();//QDir().absoluteFilePath(f);
     }
+}
+
+void SettingsDialog::on_chbAutoCheckUpdate_toggled(bool checked)
+{
+    #ifdef _WIN32
+    win_sparkle_set_automatic_check_for_updates(checked);
+    #endif
+
+    ui->lbUpdateInterval->setEnabled(checked);
+    ui->spinUpdateInterval->setEnabled(checked);
+}
+
+void SettingsDialog::onSpinUpdateValueChanged(int value)
+{
+    #ifdef _WIN32
+    win_sparkle_set_update_check_interval(value * 60 * 60);
+    #endif
 }
 
 void SettingsDialog::on_btnNCNPath_clicked()

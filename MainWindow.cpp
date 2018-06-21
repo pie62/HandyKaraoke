@@ -26,10 +26,6 @@
 #include "Dialogs/VSTDirsDialog.h"
 #endif
 
-#ifdef _WIN32
-#include <winsparkle.h>
-#endif
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -428,9 +424,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     #ifdef _WIN32
     // WinSparkle
-    QString appcastUrl = "https://raw.githubusercontent.com/pie62/HandyKaraoke-updates-repo/master/appcast.xml";
+    #ifdef Q_PROCESSOR_X86_64
+    QString appcastUrl = "https://raw.githubusercontent.com/pie62/HandyKaraoke-updates-repo/master/appcast-x64.xml";
+    #else
+    QString appcastUrl = "https://raw.githubusercontent.com/pie62/HandyKaraoke-updates-repo/master/appcast-x86.xml";
+    #endif
     win_sparkle_set_appcast_url(appcastUrl.toStdString().c_str());
     win_sparkle_init();
+    win_sparkle_set_shutdown_request_callback(updateShutdownRequest);
 
     QFile keyFile(":/dsa_pub.pem");
     keyFile.open(QFile::ReadOnly);
@@ -773,9 +774,19 @@ void MainWindow::playPrevious()
 
 void MainWindow::showEvent(QShowEvent *event)
 {
+    QMainWindow::showEvent(event);
+
     #ifdef _WIN32
     taskbarButton->setWindow(this->windowHandle());
     #endif
+
+    if (firstShow)
+    {
+        #ifdef _WIN32
+        win_sparkle_check_update_without_ui();
+        #endif
+        firstShow = false;
+    }
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
@@ -1251,6 +1262,11 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
+void MainWindow::updateShutdownRequest()
+{
+    qApp->quit();
+}
+
 void MainWindow::showFrameSearch()
 {
     ui->chMix->hide();
@@ -1364,6 +1380,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     QAction actionMapSF("ตารางเลือกใช้ซาวด์ฟ้อนท์...", this);
     QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
     QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
+    QAction actionCheckUpdate(tr("ตรวจสอบอัพเดท..."), this);
     QAction actionAbout("เกี่ยวกับ...", this);
     QAction actionAboutQt("เกี่ยวกับ Qt...", this);
     QAction actionExit("ออกจากโปรแกรม", this);
@@ -1382,6 +1399,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionMapSF, SIGNAL(triggered()), this, SLOT(showMapSFDialog()));
     connect(&actionSecondMonitor, SIGNAL(triggered()), this, SLOT(showSecondMonitor()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
+    connect(&actionCheckUpdate, SIGNAL(triggered()), this, SLOT(showCheckUpdateDialog()));
     connect(&actionAbout, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
     connect(&actionAboutQt, SIGNAL(triggered()), this, SLOT(showAboutQtDialog()));
     connect(&actionExit, SIGNAL(triggered()), this, SLOT(close()));
@@ -1416,6 +1434,11 @@ void MainWindow::showContextMenu(const QPoint &pos)
     menu.addAction(&actionSecondMonitor);
     menu.addAction(&actionFullScreen);
     menu.addSeparator();
+
+    #ifdef _WIN32
+    menu.addAction(&actionCheckUpdate);
+    #endif
+
     menu.addAction(&actionAbout);
     menu.addAction(&actionAboutQt);
     menu.addAction(&actionExit);
@@ -1559,6 +1582,13 @@ void MainWindow::showFullScreenOrNormal()
     } else {
         this->showFullScreen();
     }
+}
+
+void MainWindow::showCheckUpdateDialog()
+{
+    #ifdef _WIN32
+    win_sparkle_check_update_with_ui();
+    #endif
 }
 
 void MainWindow::showAboutDialog()

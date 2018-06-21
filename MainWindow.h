@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #include <QWinTaskbarButton>
 #include <QWinTaskbarProgress>
+#include <winsparkle.h>
 #endif
 
 #include <LyricsWidget.h>
@@ -80,6 +81,9 @@ protected:
     void keyReleaseEvent(QKeyEvent *event);
 
 private:
+    static void updateShutdownRequest();
+
+private:
     Ui::MainWindow *ui;
     QSettings *settings;
     SongDatabase *db;
@@ -119,6 +123,8 @@ private:
     QWinTaskbarButton *taskbarButton;
     #endif
 
+    bool firstShow = true;
+
 private slots:
     void showFrameSearch();
     void showPlaylist();
@@ -141,6 +147,7 @@ private slots:
     void showMapSFDialog();
     void showSecondMonitor();
     void showFullScreenOrNormal();
+    void showCheckUpdateDialog();
     void showAboutDialog();
     void showAboutQtDialog();
 
