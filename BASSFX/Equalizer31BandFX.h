@@ -23,7 +23,7 @@ enum class EQFrequency31Range
 class Equalizer31BandFX : public FX
 {
 private:
-    std::map<EQFrequency31Range, HFX> fxEQ;
+    HFX fx = 0;
     std::map<EQFrequency31Range, float> fxGain;
 
 public:

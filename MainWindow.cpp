@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
 
     BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
-    BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+    BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 10);
     BASS_SetConfig(BASS_CONFIG_MIDI_VOICES, nVoices);
     BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
     // End Init BASS

@@ -48,7 +48,6 @@ Equalizer31BandFX::~Equalizer31BandFX()
         off();
 
     fxGain.clear();
-    fxEQ.clear();
 }
 
 void Equalizer31BandFX::on()
@@ -63,15 +62,17 @@ void Equalizer31BandFX::on()
 
     // -------------------------
 
+    fx = BASS_ChannelSetFX(stream, BASS_FX_BFX_PEAKEQ, priority);
+
     BASS_BFX_PEAKEQ eq;
     eq.fQ = 0;
-    eq.fBandwidth = 2.5f;
+    eq.fBandwidth = 0.3333f;
     eq.lChannel = BASS_BFX_CHANALL;
 
     float eqfreq[31] = { 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160,
                          200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600,
                          2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000 };
-    fxEQ.clear();
+
     int i = 0;
     for (auto const& x : fxGain)
     {
@@ -79,11 +80,7 @@ void Equalizer31BandFX::on()
         eq.fCenter = eqfreq[i];
         eq.fGain = x.second;
 
-        HFX fx = BASS_ChannelSetFX(stream, BASS_FX_BFX_PEAKEQ, priority);
-
         BASS_FXSetParameters(fx, &eq);
-
-        fxEQ[x.first] = fx;
 
         i++;
     }
@@ -101,12 +98,9 @@ void Equalizer31BandFX::off()
 
     //========================
 
-    for (auto const& x : fxEQ)
-    {
-        BASS_ChannelRemoveFX(stream, x.second);
-    }
+    BASS_ChannelRemoveFX(stream, fx);
 
-    fxEQ.clear();
+    fx = 0;
 }
 
 std::map<EQFrequency31Range, float> Equalizer31BandFX::gain()
@@ -136,10 +130,10 @@ void Equalizer31BandFX::setGain(EQFrequency31Range freq, float gain)
 
     BASS_BFX_PEAKEQ eq;
     eq.lBand = static_cast<int>(freq);
-    if (BASS_FXGetParameters(fxEQ[freq], &eq))
+    if (BASS_FXGetParameters(fx, &eq))
     {
         eq.fGain = g;
-        BASS_FXSetParameters(fxEQ[freq], &eq);
+        BASS_FXSetParameters(fx, &eq);
     }
 }
 

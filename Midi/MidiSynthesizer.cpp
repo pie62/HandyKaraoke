@@ -125,7 +125,7 @@ bool MidiSynthesizer::open()
     for (int i=0; i<mixers.count(); i++)
     {
         MixerHandle mixer = mixers[i];
-        mixer.handle = BASS_Mixer_StreamCreate(44100, 2, f);
+        mixer.handle = BASS_Mixer_StreamCreate(44100, 8, f);
         mixer.eq->setStreamHandle(mixer.handle);
         mixer.reverb->setStreamHandle(mixer.handle);
         mixer.chorus->setStreamHandle(mixer.handle);
