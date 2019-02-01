@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>424</width>
-    <height>469</height>
+    <width>441</width>
+    <height>482</height>
    </rect>
   </property>
   <property name="font">
@@ -22,6 +22,85 @@
    <locale language="English" country="UnitedStates"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Presets : </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cbPresets">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="maxVisibleItems">
+        <number>11</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>0. ทั่วไป</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1. ลูกทุ่ง</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2. ลูกกรุง</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3. เพื่อชีวิต</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4. 60's</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>5. สตริง</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>6. ร็อค</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>7. รีมิกซ์</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>8. ลำซิ่ง</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>9. แจ๊ส</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>10. ดนตรีไทย</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">

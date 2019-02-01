@@ -46,6 +46,255 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="QToolButton" name="btnPreset0">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>0. ทั่วไป</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset1">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>1. ลูกทุ่ง</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset2">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>2. ลูกกรุง</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset3">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>3. เพื่อชีวิต</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset4">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>4. 60's</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset5">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>5. สตริง</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset6">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>6. ร็อค</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset7">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>7. รีมิกซ์</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset8">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>8. ลำซิ่ง</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset9">
+         <property name="minimumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>73</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>9. แจ๊ส</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btnPreset10">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>27</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>10. ดนตรีไทย</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -60,6 +309,18 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnMenu">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>27</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>27</height>
+        </size>
+       </property>
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
        </property>

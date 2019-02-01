@@ -20,6 +20,7 @@ public:
     ~MapSoundfontDialog();
 
 private slots:
+    void showSoundfontPreset(int preset);
     void showInstSoundfontsMenu(const QPoint& pos);
     void showDrumSoundfontsMenu(const QPoint& pos);
     void setMapSoundfontsIndex(int sfIndex);

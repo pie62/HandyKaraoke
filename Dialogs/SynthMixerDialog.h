@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QMap>
 #include <QSignalMapper>
+#include <QButtonGroup>
 
 #include "Midi/MidiPlayer.h"
 #include "Widgets/InstCh.h"
@@ -32,6 +33,8 @@ public:
     QMap<InstrumentType, InstCh *> mixChannelMap();
     QMap<InstrumentType, InstCh *> *mixChannelMapPtr();
 
+public slots:
+    void setSoundfontPresets(int presets);
 
 private slots:
     void showEqDialog();
@@ -62,6 +65,8 @@ private slots:
     void toggleWindowParent();
     void setStaysOnTop(bool stay);
 
+    void changeSoundfontPresets(int presets);
+
 protected:
     void showEvent(QShowEvent *);
     void hideEvent(QHideEvent *event);
@@ -80,6 +85,8 @@ private:
     QSignalMapper signalVstActionMapper;
     QSignalMapper signalBusActionMapper;
     QSignalMapper *signalBFXActionMapper = nullptr;
+
+    QButtonGroup btnPresets;
 
     int currentFxIndexToRemove;
 

@@ -158,15 +158,23 @@ void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)
 
 
     // set Map soundfont
-     QList<int> sfMap     = settings.value("SynthSoundfontsMap").value<QList<int>>();
-     QList<int> sfDrumMap = settings.value("SynthSoundfontsDrumMap").value<QList<int>>();
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        QList<int> sfMap     = settings.value(sfKey).value<QList<int>>();
+        QList<int> sfDrumMap = settings.value(drKey).value<QList<int>>();
 
-     if (sfMap.count() == 0)
-         sfMap = synth->getMapSoundfontIndex();
-     if (sfDrumMap.count() == 0)
-         sfDrumMap = synth->getDrumMapSfIndex();
+        if (sfMap.count() == 0)
+            sfMap = synth->getMapSoundfontIndex(i);
+        if (sfDrumMap.count() == 0)
+            sfDrumMap = synth->getDrumMapSfIndex(i);
 
-     synth->setMapSoundfontIndex(sfMap, sfDrumMap);
+        synth->setMapSoundfontIndex(i, sfMap, sfDrumMap);
+    }
 }
 
 #ifndef __linux__

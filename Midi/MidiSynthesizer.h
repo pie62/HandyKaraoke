@@ -15,6 +15,8 @@
 #include "BASSFX/ReverbFX.h"
 #include "BASSFX/ChorusFX.h"
 
+#define SF_PRESET_COUNT 11
+
 typedef struct
 {
     DWORD handle;
@@ -76,9 +78,11 @@ public:
     // std::vector<int> size 129
     //      1-128 all intrument
     //      129 is drum
-    bool setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<int> drumSfIndex);
-    QList<int> getMapSoundfontIndex() { return instmSf; }
-    QList<int> getDrumMapSfIndex() { return drumSf; }
+    bool setMapSoundfontIndex(int presetIndex, QList<int> intrumentSfIndex, QList<int> drumSfIndex);
+    void setSoundfontPresets(int presetIndex);
+    int soundfontPresets() { return sfPreset; }
+    QList<int> getMapSoundfontIndex(int presetIndex) { return instmSf[presetIndex]; }
+    QList<int> getDrumMapSfIndex(int presetIndex) { return drumSf[presetIndex]; }
 
 
     void sendNoteOff(int ch, int note, int velocity);
@@ -178,9 +182,10 @@ private:
     //HSTREAM mixHandle;
     QMap<InstrumentType, HSTREAM> handles;
     QList<HSOUNDFONT> synth_HSOUNDFONT;
+    int sfPreset = 0;
     QStringList sfFiles;
-    QList<int> instmSf;
-    QList<int> drumSf;
+    QList<QList<int>> instmSf;
+    QList<QList<int>> drumSf;
     QMap<InstrumentType, Instrument> instMap;
     InstrumentType chInstType[16];
 

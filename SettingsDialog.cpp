@@ -915,8 +915,17 @@ void SettingsDialog::on_btnSfAdd_clicked()
         }
     }
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::on_btnSfRemove_clicked()
@@ -931,8 +940,17 @@ void SettingsDialog::on_btnSfRemove_clicked()
     synth->removeSoundfont(i);
 
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::on_btnSfUp_clicked()
@@ -949,8 +967,17 @@ void SettingsDialog::on_btnSfUp_clicked()
     synth->swapSoundfont(i, i-1);
 
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::on_btnSfDown_clicked()
@@ -967,8 +994,17 @@ void SettingsDialog::on_btnSfDown_clicked()
     synth->swapSoundfont(i, i+1);
 
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::onSliderSfValueChanged(int value)

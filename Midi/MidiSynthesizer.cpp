@@ -25,12 +25,18 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         mixers.append(mixer);
     }
 
+    QList<int> iSF, dSF;
     for (int i=0; i<128; i++) {
-        instmSf.append(0);
+        iSF.append(0);
     }
 
     for (int i=0; i<16; i++) {
-        drumSf.append(0);
+        dSF.append(0);
+    }
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        instmSf.append(iSF);
+        drumSf.append(dSF);
     }
 
     #ifndef __linux__
@@ -160,7 +166,7 @@ bool MidiSynthesizer::open()
     }
 
     setSfToStream();
-    setMapSoundfontIndex(instmSf, drumSf);
+    setSoundfontPresets(sfPreset);
     setVolume(synth_volume);
 
     return true;
@@ -308,31 +314,33 @@ void MidiSynthesizer::removeSoundfont(int sfIndex)
     if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.count())
         return;
 
-    QList<int> instSfMap = instmSf;
-    QList<int> drumSfMap = drumSf;
+    for (int presetIndex = 0; presetIndex < SF_PRESET_COUNT; presetIndex++) {
+        QList<int> instSfMap = instmSf[presetIndex];
+        QList<int> drumSfMap = drumSf[presetIndex];
 
-    for (int i=0; i<instSfMap.count(); i++)
-    {
-        if (instSfMap[i] == sfIndex)
-            instSfMap[i] = 0;
-        else if (instSfMap[i] > sfIndex)
-            instSfMap[i] = instSfMap[i] - 1;
-    }
+        for (int i=0; i<instSfMap.count(); i++)
+        {
+            if (instSfMap[i] == sfIndex)
+                instSfMap[i] = 0;
+            else if (instSfMap[i] > sfIndex)
+                instSfMap[i] = instSfMap[i] - 1;
+        }
 
-    for (int i=0; i<drumSfMap.count(); i++)
-    {
-        if (drumSfMap[i] == sfIndex)
-            drumSfMap[i] = 0;
-        else if (drumSfMap[i] > sfIndex)
-            drumSfMap[i] = drumSfMap[i] - 1;
+        for (int i=0; i<drumSfMap.count(); i++)
+        {
+            if (drumSfMap[i] == sfIndex)
+                drumSfMap[i] = 0;
+            else if (drumSfMap[i] > sfIndex)
+                drumSfMap[i] = drumSfMap[i] - 1;
+        }
+
+        setMapSoundfontIndex(presetIndex, instSfMap, drumSfMap);
     }
 
     HSOUNDFONT sf = synth_HSOUNDFONT.takeAt(sfIndex);
     BASS_MIDI_FontUnload(sf, -1, -1);
     BASS_MIDI_FontFree(sf);
     sfFiles.removeAt(sfIndex);
-
-    setMapSoundfontIndex(instSfMap, drumSfMap);
 }
 
 void MidiSynthesizer::swapSoundfont(int sfIndex, int toIndex)
@@ -343,29 +351,31 @@ void MidiSynthesizer::swapSoundfont(int sfIndex, int toIndex)
     if (toIndex < 0 || toIndex >= synth_HSOUNDFONT.count())
         return;
 
-    QList<int> instSfMap = instmSf;
-    QList<int> drumSfMap = drumSf;
+    for (int presetIndex = 0; presetIndex < SF_PRESET_COUNT; presetIndex++) {
+        QList<int> instSfMap = instmSf[presetIndex];
+        QList<int> drumSfMap = drumSf[presetIndex];
 
-    for (int i=0; i<instSfMap.count(); i++)
-    {
-        if (instSfMap[i] == 0)
-            continue;
-        if (instSfMap[i] == sfIndex)
-            instSfMap[i] = toIndex;
-    }
+        for (int i=0; i<instSfMap.count(); i++)
+        {
+            if (instSfMap[i] == 0)
+                continue;
+            if (instSfMap[i] == sfIndex)
+                instSfMap[i] = toIndex;
+        }
 
-    for (int i=0; i<drumSfMap.count(); i++)
-    {
-        if (drumSfMap[i] == 0)
-            continue;
-        if (drumSfMap[i] == sfIndex)
-            drumSfMap[i] = toIndex;
+        for (int i=0; i<drumSfMap.count(); i++)
+        {
+            if (drumSfMap[i] == 0)
+                continue;
+            if (drumSfMap[i] == sfIndex)
+                drumSfMap[i] = toIndex;
+        }
+
+        setMapSoundfontIndex(presetIndex, instSfMap, drumSfMap);
     }
 
     synth_HSOUNDFONT.swap(sfIndex, toIndex);
     sfFiles.swap(sfIndex, toIndex);
-
-    setMapSoundfontIndex(instSfMap, drumSfMap);
 }
 
 float MidiSynthesizer::soundfontVolume(int sfIndex)
@@ -404,33 +414,50 @@ void MidiSynthesizer::setLoadAllSoundfont(bool loadAll)
     }
 }
 
-bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<int> drumSfIndex)
+bool MidiSynthesizer::setMapSoundfontIndex(int presetIndex, QList<int> intrumentSfIndex, QList<int> drumSfIndex)
 {
-    instmSf.clear();
-    drumSf.clear();
-    instmSf = intrumentSfIndex;
-    drumSf = drumSfIndex;
+    instmSf[presetIndex].clear();
+    drumSf[presetIndex].clear();
+    instmSf[presetIndex] = intrumentSfIndex;
+    drumSf[presetIndex] = drumSfIndex;
 
     if (intrumentSfIndex.count() < 128 || synth_HSOUNDFONT.count() == 0 || !openned)
         return false;
 
+    if (this->sfPreset == presetIndex) {
+        setSoundfontPresets(presetIndex);
+    }
+
+
+    return true;
+}
+
+void MidiSynthesizer::setSoundfontPresets(int presetIndex)
+{
+    if (presetIndex < 0 || presetIndex >= SF_PRESET_COUNT)
+        return;
+
+    this->sfPreset = presetIndex;
+
+    if (synth_HSOUNDFONT.count() == 0 || !openned)
+        return;
 
     std::vector<BASS_MIDI_FONT> mFonts;
 
     // check instrument use another sf
     for (int i=0; i<128; i++)
     {
-        if (instmSf.at(i) <= 0)
+        if (instmSf[presetIndex].at(i) <= 0)
             continue;
 
-        if (instmSf.at(i) >= synth_HSOUNDFONT.count())
+        if (instmSf[presetIndex].at(i) >= synth_HSOUNDFONT.count())
         {
-            instmSf[i] = 0;
+            instmSf[presetIndex][i] = 0;
             continue;
         }
 
         BASS_MIDI_FONT font;
-        font.font = synth_HSOUNDFONT.at(instmSf.at(i));
+        font.font = synth_HSOUNDFONT.at(instmSf[presetIndex].at(i));
         font.preset = i;
         font.bank = 0;
 
@@ -438,12 +465,13 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
     }
 
     // defaut sf
-    BASS_MIDI_FONT f;
-    f.font = synth_HSOUNDFONT.at(0);
-    f.preset = -1;
-    f.bank = 0;
-
-    mFonts.push_back(f);
+    if (synth_HSOUNDFONT.count() > 0) {
+        BASS_MIDI_FONT f;
+        f.font = synth_HSOUNDFONT.at(0);
+        f.preset = -1;
+        f.bank = 0;
+        mFonts.push_back(f);
+    }
 
     // set to stream
     for (int i=0; i<HANDLE_MIDI_COUNT-4; i++) {
@@ -457,11 +485,11 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
     int li = 0;
     for (int i=startDrum; i<HANDLE_MIDI_COUNT-4; i++)
     {
-        if (drumSf.at(li) < 0 || drumSf.at(li) >= synth_HSOUNDFONT.count())
-            drumSf[li] = 0;
+        if (drumSf[presetIndex].at(li) < 0 || drumSf[presetIndex].at(li) >= synth_HSOUNDFONT.count())
+            drumSf[presetIndex][li] = 0;
 
         BASS_MIDI_FONT font;
-        font.font = synth_HSOUNDFONT.at(drumSf.at(li));
+        font.font = synth_HSOUNDFONT.at(drumSf[presetIndex].at(li));
         font.preset = -1;
         font.bank = 0;
 
@@ -470,8 +498,6 @@ bool MidiSynthesizer::setMapSoundfontIndex(QList<int> intrumentSfIndex, QList<in
 
         li++;
     }
-
-    return true;
 }
 
 void MidiSynthesizer::sendNoteOff(int ch, int note, int velocity)
@@ -933,7 +959,7 @@ void MidiSynthesizer::setSpeaker(InstrumentType t, SpeakerType speaker)
     for (FX *fx : instMap[t].FXs)
         fx->setStreamHandle(handles[t]);
 
-    setMapSoundfontIndex(instmSf, drumSf);
+    setSoundfontPresets(sfPreset);
 }
 
 QStringList MidiSynthesizer::audioDevices()
@@ -1001,13 +1027,10 @@ void MidiSynthesizer::setUsetFloattingPoint(bool use)
 
     useFloat = use;
 
-    QList<int> isf = instmSf;
-    QList<int> dsf = drumSf;
-
     close();
     open();
 
-    setMapSoundfontIndex(isf, dsf);
+    setSoundfontPresets(sfPreset);
 }
 
 void MidiSynthesizer::setUseFXRC(bool use)

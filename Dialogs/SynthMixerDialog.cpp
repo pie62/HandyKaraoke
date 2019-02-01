@@ -50,6 +50,17 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     this->setMinimumSize(970, height());
     this->setMaximumHeight(height());
 
+    btnPresets.addButton(ui->btnPreset0, 0);
+    btnPresets.addButton(ui->btnPreset1, 1);
+    btnPresets.addButton(ui->btnPreset2, 2);
+    btnPresets.addButton(ui->btnPreset3, 3);
+    btnPresets.addButton(ui->btnPreset4, 4);
+    btnPresets.addButton(ui->btnPreset5, 5);
+    btnPresets.addButton(ui->btnPreset6, 6);
+    btnPresets.addButton(ui->btnPreset7, 7);
+    btnPresets.addButton(ui->btnPreset8, 8);
+    btnPresets.addButton(ui->btnPreset9, 9);
+    btnPresets.addButton(ui->btnPreset10, 10);
 
     { // Settings
         QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
@@ -73,6 +84,10 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         ui->splitter->setSizes(splitterSize);
         ui->scrollArea->horizontalScrollBar()->setValue(scroll1);
         ui->scrollArea_2->horizontalScrollBar()->setValue(scroll2);
+
+        // soundfont presets
+        int presets = st.value("SoundfontPresets", 0).toInt();
+        setSoundfontPresets(presets);
 
         // Bus names -----------------------------------
         QStringList n1 = st.value("BusNames", QStringList()).toStringList();
@@ -142,6 +157,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         st.endArray();
     }
 
+    connect(&btnPresets, SIGNAL(buttonClicked(int)), this, SLOT(changeSoundfontPresets(int)));
     connect(&signalVstActionMapper, SIGNAL(mapped(QString)), this, SLOT(addFX(QString)));
     connect(&signalBusActionMapper, SIGNAL(mapped(int)), this, SLOT(setBusGroup(int)));
 }
@@ -158,6 +174,9 @@ SynthMixerDialog::~SynthMixerDialog()
 
         st.setValue("WindowNoParent", parent() == 0);
         st.setValue("WindowStaysOnTop", staysOnTop);
+
+        // soundfont presets
+        st.setValue("SoundfontPresets", synth->soundfontPresets());
 
         LEDVu *vu = chInstMap.first()->vuBar();
         st.setValue("LedColorOn1", vu->ledColorOn1().name());
@@ -310,6 +329,11 @@ QMap<InstrumentType, InstCh *> SynthMixerDialog::mixChannelMap()
 QMap<InstrumentType, InstCh *> *SynthMixerDialog::mixChannelMapPtr()
 {
     return &chInstMap;
+}
+
+void SynthMixerDialog::setSoundfontPresets(int presets)
+{
+    changeSoundfontPresets(presets);
 }
 
 void SynthMixerDialog::showEqDialog()
@@ -953,4 +977,14 @@ void SynthMixerDialog::setStaysOnTop(bool stay)
 
     this->staysOnTop = stay;
     this->show();
+}
+
+void SynthMixerDialog::changeSoundfontPresets(int presets)
+{
+    for (auto btn : btnPresets.buttons()) {
+        btn->setChecked(false);
+    }
+
+    btnPresets.button(presets)->setChecked(true);
+    synth->setSoundfontPresets(presets);
 }
