@@ -8,6 +8,7 @@
 #include <QToolTip>
 #include <QCursor>
 #include <QSettings>
+#include <QMenu>
 
 #include "Config.h"
 
@@ -71,6 +72,8 @@ ChannelMixer::ChannelMixer(QWidget *parent) :
                 this, SLOT(onChMuteChanged(int,bool)));
         connect(chs[i], SIGNAL(soloChanged(int,bool)),
                 this, SLOT(onChSoloChanged(int,bool)));
+        connect(chs[i], SIGNAL(mouseRightClicked(int,QPoint)),
+                this, SLOT(onChMouseRightClicked(int,QPoint)));
 
         // set vu Color
         LEDVu *vb = chs[i]->vuBar();
@@ -263,6 +266,26 @@ void ChannelMixer::onChSoloChanged(int ch, bool s)
         return;
 
     player->setSolo(ch, s);
+}
+
+void ChannelMixer::onChMouseRightClicked(int ch, const QPoint &p)
+{
+    bool tempLock = lock;
+    lock = true;
+
+    QAction act(tr("ล็อคระดับเสียง"), this);
+    act.setCheckable(true);
+    act.setChecked(player->midiChannel()[ch].isLockVol());
+
+    connect(&act, &QAction::triggered, [this, ch](bool checked){
+        player->setLockVolume(ch, checked);
+    });
+
+    QMenu menu(this);
+    menu.addAction(&act);
+    menu.exec(QCursor::pos());
+
+    lock = tempLock;
 }
 
 void ChannelMixer::onCbIntsActivated(int index)

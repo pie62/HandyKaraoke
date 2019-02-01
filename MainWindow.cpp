@@ -1382,6 +1382,9 @@ void MainWindow::setFrameSearch(Song *s)
 
 void MainWindow::showContextMenu(const QPoint &pos)
 {
+    if (ui->chMix->rect().contains(pos))
+        return;
+
     QMenu menu(tr("Context menu"), this);
     menu.setMinimumWidth(230);
 

@@ -76,6 +76,8 @@ public:
     void setPan(int ch, int v);
     void setReverb(int ch, int v);
     void setChorus(int ch, int v);
+    void setLockVolume(int ch, bool lock);
+
     void setPositionTick(int t);
     void setTranspose(int t);
     void setBpmSpeed(int sp);
@@ -123,7 +125,6 @@ private:
     int     _lockDrumNumber  = 0;
     int     _lockSnareNumber = 38;
     int     _lockBassBumber  = 32;
-
 
     void sendEventToDevices(MidiEvent *e);
     void sendAllNotesOff(int ch);

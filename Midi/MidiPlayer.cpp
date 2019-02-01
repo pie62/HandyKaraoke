@@ -342,8 +342,10 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     _midiTranspose = 0;
 
     for (int i=0; i<16; i++) {
+        bool isLockVol = _midiChannels[i].isLockVol();
+        int lockVol = _midiChannels[i].volume();
         _midiChannels[i].setInstrument(0);
-        _midiChannels[i].setVolume(100);
+        _midiChannels[i].setVolume(isLockVol ? lockVol : 100);
         _midiChannels[i].setPan(64);
         _midiChannels[i].setReverb(0);
         _midiChannels[i].setChorus(0);
@@ -414,6 +416,9 @@ void MidiPlayer::setVolume(int ch, int v)
     evt.setEventType(MidiEventType::Controller);
     evt.setData1(7);
     evt.setData2(vl);
+
+    // when lock ch volume ch info is not set
+    _midiChannels[ch].setVolume(vl);
 
     sendEvent(&evt);
 }
@@ -538,6 +543,14 @@ void MidiPlayer::setChorus(int ch, int v)
     evt.setData2(vl);
 
     sendEvent(&evt);
+}
+
+void MidiPlayer::setLockVolume(int ch, bool lock)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    _midiChannels[ch].setLockVol(lock);
 }
 
 void MidiPlayer::setPositionTick(int t)
@@ -747,7 +760,17 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
         }
         case MidiEventType::Controller: {
             switch (e->data1()) {
-            case 7: _midiChannels[ch].setVolume(e->data2()); break;
+            case 7: {
+                if (_midiChannels[ch].isLockVol()) {
+                    _tempEvent = *e;
+                    _tempEvent.setData2(_midiChannels[ch].volume());
+                    _playingEventPtr = &_tempEvent;
+                    e = &_tempEvent;
+                } else {
+                    _midiChannels[ch].setVolume(e->data2());
+                }
+                break;
+            }
             case 10: _midiChannels[ch].setPan(e->data2()); break;
             case 91: _midiChannels[ch].setReverb(e->data2()); break;
             case 93: _midiChannels[ch].setChorus(e->data2()); break;

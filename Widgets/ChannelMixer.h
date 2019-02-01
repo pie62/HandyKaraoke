@@ -51,6 +51,7 @@ private slots:
     void onChSliderValueChanged(int ch, int v);
     void onChMuteChanged(int ch, bool m);
     void onChSoloChanged(int ch, bool s);
+    void onChMouseRightClicked(int ch, const QPoint &p);
     void onCbIntsActivated(int index);
     void onDialPanValueChanged(int value);
     void onDialReverbValueChanged(int value);

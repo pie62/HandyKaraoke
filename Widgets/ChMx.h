@@ -52,6 +52,10 @@ signals:
     void soloChanged(int ch, bool s);
     void sliderValueChanged(int ch, int v);
     void mouseHover(int ch);
+    void mouseRightClicked(int ch, const QPoint &p);
+
+protected:
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private slots:
     void onChLabelMouseHover();

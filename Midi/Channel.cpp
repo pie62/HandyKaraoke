@@ -11,6 +11,7 @@ Channel::Channel()
     cInstrument = 0;
     cMute = false;
     cSolo = false;
+    cLockVolume = false;
 }
 
 Channel::Channel(int number, int outPort)
@@ -24,4 +25,5 @@ Channel::Channel(int number, int outPort)
     cInstrument = 0;
     cMute = false;
     cSolo = false;
+    cLockVolume = false;
 }
