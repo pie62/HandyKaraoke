@@ -156,6 +156,9 @@ SynthMixerDialog::~SynthMixerDialog()
         st.setValue("ScrollInstrument", ui->scrollArea->horizontalScrollBar()->value());
         st.setValue("ScrollBusGroup", ui->scrollArea_2->horizontalScrollBar()->value());
 
+        st.setValue("WindowNoParent", parent() == 0);
+        st.setValue("WindowStaysOnTop", staysOnTop);
+
         LEDVu *vu = chInstMap.first()->vuBar();
         st.setValue("LedColorOn1", vu->ledColorOn1().name());
         st.setValue("LedColorOn2", vu->ledColorOn2().name());
@@ -925,15 +928,12 @@ void SynthMixerDialog::resetChannel()
 void SynthMixerDialog::toggleWindowParent()
 {
     this->close();
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
 
     if (this->parent() == 0) {
         this->setParent(mainWin, Qt::Dialog);
-        st.setValue("WindowNoParent", false);
     } else {
         this->setParent(0, Qt::Window);
         setStaysOnTop(this->staysOnTop);
-        st.setValue("WindowNoParent", true);
     }
 
     this->show();
@@ -951,9 +951,6 @@ void SynthMixerDialog::setStaysOnTop(bool stay)
         this->setParent(mainWin, Qt::Dialog);
     }
 
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
-    st.setValue("WindowStaysOnTop", stay);
     this->staysOnTop = stay;
-
     this->show();
 }
