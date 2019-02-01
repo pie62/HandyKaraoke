@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Handy Karaoke (x64)"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.2.0"
 #define MyAppPublisher "pie62"
 #define MyAppURL "https://github.com/pie62/HandyKaraoke"
 #define MyAppExeName "HandyKaraoke.exe"
@@ -27,7 +27,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=D:\Projects\QtProjects\HandyKaraoke\gpl-3.0.rtf
 OutputDir=C:\Users\Noob\Desktop\HandyKaraoke_setup
-OutputBaseFilename=HandyKaraoke-2.1.0-x64-setup
+OutputBaseFilename=HandyKaraoke-2.2.0-x64-setup
 SetupIconFile=D:\Projects\QtProjects\HandyKaraoke\icon.ico
 Compression=lzma
 SolidCompression=yes
@@ -69,21 +69,21 @@ Source: "C:\Users\Noob\Desktop\hdk-x64\vccorlib120.dll"; DestDir: "{app}"; Flags
 Source: "C:\Users\Noob\Desktop\hdk-x64\VSTChecker_x64.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\Noob\Desktop\hdk-x64\WinSparkle.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "..\hdk-x64\iconengines\qsvgicon.dll"; DestDir: "{app}\iconengines"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qgif.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qicns.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qico.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qjpeg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qsvg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qtga.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qtiff.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qwbmp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\imageformats\qwebp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "..\hdk-x64\platforms\qwindows.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
-Source: "..\hdk-x64\sqldrivers\qsqlite.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
-Source: "..\hdk-x64\sqldrivers\qsqlmysql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
-Source: "..\hdk-x64\sqldrivers\qsqlodbc.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
-Source: "..\hdk-x64\sqldrivers\qsqlpsql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\iconengines\qsvgicon.dll"; DestDir: "{app}\iconengines"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qgif.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qicns.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qico.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qjpeg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qsvg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qtga.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qtiff.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qwbmp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qwebp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\platforms\qwindows.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlite.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlmysql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlodbc.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlpsql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
