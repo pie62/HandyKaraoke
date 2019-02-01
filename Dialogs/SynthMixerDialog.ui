@@ -46,66 +46,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="btnEq">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="text">
-        <string>อีควอไลเซอร์</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/circle_red.png</normaloff>:/Icons/circle_red.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>10</width>
-         <height>10</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnReverb">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="text">
-        <string>เอฟเฟ็กต์เสียงก้อง</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/circle_red.png</normaloff>:/Icons/circle_red.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>10</width>
-         <height>10</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnChorus">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="text">
-        <string>เอฟเฟ็กต์เสียงประสาน</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/circle_red.png</normaloff>:/Icons/circle_red.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>10</width>
-         <height>10</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -119,85 +59,21 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnReset">
+      <widget class="QPushButton" name="btnMenu">
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
        </property>
        <property name="text">
-        <string>รีเซ็ต</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnBus">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>บัสกรุ๊ป</string>
-       </property>
-       <property name="text">
-        <string>บัสกรุ๊ป...</string>
+        <string>Menu</string>
        </property>
        <property name="icon">
         <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/list-ol.png</normaloff>:/Icons/list-ol.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnSpeakers">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>แยกอุปกรณ์เสียง / ลำโพง</string>
-       </property>
-       <property name="text">
-        <string>แยกลำโพง...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/speaker.png</normaloff>:/Icons/speaker.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnVSTDirs">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>ตัวจัดการ VST Effects &amp; VST instruments</string>
-       </property>
-       <property name="text">
-        <string>VST &amp;&amp; VSTi...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/list-alt.png</normaloff>:/Icons/list-alt.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnSettingVu">
-       <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>ตั้งค่า LED Meter</string>
-       </property>
-       <property name="text">
-        <string>VU...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../icons.qrc">
-         <normaloff>:/Icons/bar-chart.png</normaloff>:/Icons/bar-chart.png</iconset>
+         <normaloff>:/Icons/menu.png</normaloff>:/Icons/menu.png</iconset>
        </property>
        <property name="iconSize">
         <size>
-         <width>12</width>
-         <height>12</height>
+         <width>16</width>
+         <height>15</height>
         </size>
        </property>
       </widget>

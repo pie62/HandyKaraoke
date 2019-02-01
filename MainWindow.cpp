@@ -824,6 +824,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    synthMix->close();
+
     QMessageBox::StandardButton resBtn = QMessageBox::question(
                                             this, "ออกจากโปรแกรม",
                                             "ท่านต้องการออกจากโปรแกรม?",

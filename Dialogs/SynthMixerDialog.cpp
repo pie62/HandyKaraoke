@@ -2,6 +2,12 @@
 #include "ui_SynthMixerDialog.h"
 
 #include "MainWindow.h"
+
+#include <QMenu>
+#include <QScrollBar>
+
+#include <bass.h>
+
 #include "Config.h"
 #include "BASSFX/FX.h"
 #include "Dialogs/SettingVuDialog.h"
@@ -18,15 +24,10 @@
 #include "FXDialogs/EQ31BandDialog.h"
 #include "FXDialogs/ReverbFXDialog.h"
 
-#include <bass.h>
-
 #ifndef __linux__
 #include <bass_vst.h>
 #include "Dialogs/VSTDirsDialog.h"
 #endif
-
-#include <QMenu>
-#include <QScrollBar>
 
 
 SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, MainWindow *mainWin) :
@@ -49,14 +50,17 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     this->setMinimumSize(970, height());
     this->setMaximumHeight(height());
 
-    setBtnEqIcon(synth->equalizer31BandFXs()[0]->isOn());
-    setBtnReverbIcon(synth->reverbFXs()[0]->isOn());
-    setBtnChorusIcon(synth->chorusFXs()[0]->isOn());
-
 
     { // Settings
         QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
 
+        // window parent, stays on top
+        bool noParent = st.value("WindowNoParent", false).toBool();
+        staysOnTop = st.value("WindowStaysOnTop", false).toBool();
+        if (noParent) {
+            auto flags = staysOnTop ? Qt::Window|Qt::WindowStaysOnTopHint : Qt::Window;
+            this->setParent(0, flags);
+        }
 
         QSize size = st.value("Size", this->size()).toSize();
         resize(size);
@@ -137,15 +141,6 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         }
         st.endArray();
     }
-
-    #ifdef __linux__
-    ui->btnVSTDirs->hide();
-    #endif
-
-
-    connect(ui->btnEq, SIGNAL(clicked()), this, SLOT(showEqDialog()));
-    connect(ui->btnReverb, SIGNAL(clicked()), this, SLOT(showReverbDialog()));
-    connect(ui->btnChorus, SIGNAL(clicked()), this, SLOT(showChorusDialog()));
 
     connect(&signalVstActionMapper, SIGNAL(mapped(QString)), this, SLOT(addFX(QString)));
     connect(&signalBusActionMapper, SIGNAL(mapped(int)), this, SLOT(setBusGroup(int)));
@@ -324,8 +319,6 @@ void SynthMixerDialog::showEqDialog()
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(dlg, SIGNAL(switchChanged(bool)), this, SLOT(setBtnEqIcon(bool)));
-
     dlg->show();
 }
 
@@ -338,8 +331,6 @@ void SynthMixerDialog::showReverbDialog()
     dlg->adjustSize();
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);
-
-    connect(dlg, SIGNAL(switchChanged(bool)), this, SLOT(setBtnReverbIcon(bool)));
 
     dlg->show();
 }
@@ -354,33 +345,7 @@ void SynthMixerDialog::showChorusDialog()
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(dlg, SIGNAL(switchChanged(bool)), this, SLOT(setBtnChorusIcon(bool)));
-
     dlg->show();
-}
-
-void SynthMixerDialog::setBtnEqIcon(bool s)
-{
-    if (s)
-        ui->btnEq->setIcon(QIcon(":/Icons/circle_green"));
-    else
-        ui->btnEq->setIcon(QIcon(":/Icons/circle_red"));
-}
-
-void SynthMixerDialog::setBtnReverbIcon(bool s)
-{
-    if (s)
-        ui->btnReverb->setIcon(QIcon(":/Icons/circle_green"));
-    else
-        ui->btnReverb->setIcon(QIcon(":/Icons/circle_red"));
-}
-
-void SynthMixerDialog::setBtnChorusIcon(bool s)
-{
-    if (s)
-        ui->btnChorus->setIcon(QIcon(":/Icons/circle_green"));
-    else
-        ui->btnChorus->setIcon(QIcon(":/Icons/circle_red"));
 }
 
 void SynthMixerDialog::setMute(InstrumentType t, bool m)
@@ -640,34 +605,6 @@ void SynthMixerDialog::createBusActions(InstrumentType t, QMenu *busMenu)
     }
 }
 
-void SynthMixerDialog::on_btnSettingVu_clicked()
-{
-    QList<LEDVu*> vus;
-    for (InstCh *ch : chInstMap.values())
-    {
-        vus.append(ch->vuBar());
-    }
-
-    SettingVuDialog vdlg(this, vus);
-    vdlg.setModal(true);
-    vdlg.adjustSize();
-    vdlg.setFixedSize(vdlg.size());
-    vdlg.setWindowTitle(vdlg.windowTitle() + " (Handy Synth Mixer)");
-    vdlg.exec();
-}
-
-void SynthMixerDialog::on_btnReset_clicked()
-{
-    for (InstrumentType t : chInstMap.keys())
-    {
-        resetMixLevel(t);
-        chInstMap[t]->setMuteButton(false);
-        chInstMap[t]->setSoloButton(false);
-        synth->setMute(t, false);
-        synth->setSolo(t, false);
-    }
-}
-
 void SynthMixerDialog::showChannelMenu(InstrumentType type, const QPoint &pos)
 {
     currentType = type;
@@ -864,7 +801,73 @@ void SynthMixerDialog::removeFX()
     }
 }
 
-void SynthMixerDialog::on_btnBus_clicked()
+void SynthMixerDialog::on_btnMenu_clicked()
+{
+    QIcon onIcon(":/Icons/circle_green");
+    QIcon offIcon(":/Icons/circle_red");
+    bool eqOn = synth->equalizer31BandFXs()[0]->isOn();
+    bool chrOn = synth->chorusFXs()[0]->isOn();
+    bool revOn = synth->reverbFXs()[0]->isOn();
+
+    QAction busAct(QIcon(":Icons/list-ol.png"), tr("บัสกรุ๊ป..."), this);
+    QAction spkAct(QIcon(":Icons/speaker.png"), tr("แยกลำโพง..."), this);
+    #ifndef __linux__
+    QAction vstAct(QIcon(":Icons/list-alt.png"), tr("VST && VSTi..."), this);
+    #endif
+    QAction vuAct(QIcon(":Icons/bar-chart.png"), tr("ตั้งค่า LED Meter..."), this);
+    QAction eqAct(eqOn ? onIcon : offIcon, tr("อีควอไลเซอร์..."), this);
+    QAction chrAct(chrOn ? onIcon : offIcon, tr("เอฟเฟ็กต์เสียงประสาน..."), this);
+    QAction revAct(revOn ? onIcon : offIcon, tr("เอฟเฟ็กต์เสียงก้อง..."), this);
+    QAction resetAct(QIcon(":Icons/refresh.png"), tr("รีเซ็ต"), this);
+    QAction parentAct(tr("แยกหน้าต่างจากหน้าต่างหลัก"), this);
+    QAction stayTopAct(tr("อยู่บนสุดตลอดเวลา"), this);
+
+    parentAct.setCheckable(true);
+    if (parent() == 0) {
+        parentAct.setChecked(true);
+    }
+
+    stayTopAct.setCheckable(true);
+    stayTopAct.setChecked(staysOnTop);
+    stayTopAct.setEnabled(parent() == 0);
+
+    connect(&busAct, SIGNAL(triggered()), this, SLOT(showBusDlg()));
+    connect(&spkAct, SIGNAL(triggered()), this, SLOT(showSpeakersDlg()));
+    #ifndef __linux__
+    connect(&vstAct, SIGNAL(triggered()), this, SLOT(showVSTDirsDlg()));
+    #endif
+    connect(&vuAct, SIGNAL(triggered()), this, SLOT(showVuDlg()));
+    connect(&eqAct, SIGNAL(triggered()), this, SLOT(showEqDialog()));
+    connect(&chrAct, SIGNAL(triggered()), this, SLOT(showChorusDialog()));
+    connect(&revAct, SIGNAL(triggered()), this, SLOT(showReverbDialog()));
+    connect(&resetAct, SIGNAL(triggered()), this, SLOT(resetChannel()));
+    connect(&parentAct, SIGNAL(triggered()), this, SLOT(toggleWindowParent()));
+    connect(&stayTopAct, SIGNAL(triggered(bool)), this, SLOT(setStaysOnTop(bool)));
+
+    QMenu menu(this);
+    menu.setFixedWidth(230);
+    menu.addAction(&busAct);
+    menu.addAction(&spkAct);
+    #ifndef __linux__
+    menu.addAction(&vstAct);
+    #endif
+    menu.addAction(&vuAct);
+    menu.addSeparator();
+    menu.addAction(&eqAct);
+    menu.addAction(&chrAct);
+    menu.addAction(&revAct);
+    menu.addSeparator();
+    menu.addAction(&resetAct);
+    menu.addSeparator();
+    menu.addAction(&parentAct);
+    menu.addAction(&stayTopAct);
+
+    QPoint point = mapToGlobal(QPoint(width() - 230, ui->btnMenu->height() + 5));
+    menu.exec(point);
+}
+
+
+void SynthMixerDialog::showBusDlg()
 {
     BusDialog dlg(this, &chInstMap, synth);
     dlg.setModal(true);
@@ -872,7 +875,7 @@ void SynthMixerDialog::on_btnBus_clicked()
     dlg.exec();
 }
 
-void SynthMixerDialog::on_btnSpeakers_clicked()
+void SynthMixerDialog::showSpeakersDlg()
 {
     SpeakerDialog dlg(this, &chInstMap, mainWin);
     dlg.setModal(true);
@@ -880,7 +883,7 @@ void SynthMixerDialog::on_btnSpeakers_clicked()
     dlg.exec();
 }
 
-void SynthMixerDialog::on_btnVSTDirs_clicked()
+void SynthMixerDialog::showVSTDirsDlg()
 {
     #ifndef __linux__
     VSTDirsDialog dlg(this, mainWin);
@@ -889,4 +892,68 @@ void SynthMixerDialog::on_btnVSTDirs_clicked()
     dlg.setMinimumSize(dlg.size());
     dlg.exec();
     #endif
+}
+
+void SynthMixerDialog::showVuDlg()
+{
+    QList<LEDVu*> vus;
+    for (InstCh *ch : chInstMap.values())
+    {
+        vus.append(ch->vuBar());
+    }
+
+    SettingVuDialog vdlg(this, vus);
+    vdlg.setModal(true);
+    vdlg.adjustSize();
+    vdlg.setFixedSize(vdlg.size());
+    vdlg.setWindowTitle(vdlg.windowTitle() + " (Handy Synth Mixer)");
+    vdlg.exec();
+}
+
+void SynthMixerDialog::resetChannel()
+{
+    for (InstrumentType t : chInstMap.keys())
+    {
+        resetMixLevel(t);
+        chInstMap[t]->setMuteButton(false);
+        chInstMap[t]->setSoloButton(false);
+        synth->setMute(t, false);
+        synth->setSolo(t, false);
+    }
+}
+
+void SynthMixerDialog::toggleWindowParent()
+{
+    this->close();
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+
+    if (this->parent() == 0) {
+        this->setParent(mainWin, Qt::Dialog);
+        st.setValue("WindowNoParent", false);
+    } else {
+        this->setParent(0, Qt::Window);
+        setStaysOnTop(this->staysOnTop);
+        st.setValue("WindowNoParent", true);
+    }
+
+    this->show();
+}
+
+void SynthMixerDialog::setStaysOnTop(bool stay)
+{
+    this->close();
+
+    if (this->parent() == 0 && stay) {
+        this->setParent(0, Qt::Window|Qt::WindowStaysOnTopHint);
+    } else if (this->parent() == 0 && !stay) {
+        this->setParent(0, Qt::Window);
+    } else {
+        this->setParent(mainWin, Qt::Dialog);
+    }
+
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    st.setValue("WindowStaysOnTop", stay);
+    this->staysOnTop = stay;
+
+    this->show();
 }
