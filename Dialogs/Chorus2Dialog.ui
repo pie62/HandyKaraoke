@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ChorusDialog</class>
- <widget class="QDialog" name="ChorusDialog">
+ <class>Chorus2Dialog</class>
+ <widget class="QDialog" name="Chorus2Dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>442</width>
-    <height>186</height>
+    <width>503</width>
+    <height>178</height>
    </rect>
   </property>
   <property name="font">
@@ -21,7 +21,7 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_9">
+  <layout class="QVBoxLayout" name="verticalLayout_10">
    <property name="spacing">
     <number>12</number>
    </property>
@@ -61,6 +61,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnReset">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <property name="text">
         <string>Reset</string>
        </property>
@@ -74,7 +77,7 @@
       <number>12</number>
      </property>
      <item row="0" column="0">
-      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
        <property name="spacing">
         <number>12</number>
        </property>
@@ -83,96 +86,8 @@
          <property name="horizontalSpacing">
           <number>2</number>
          </property>
-         <property name="verticalSpacing">
-          <number>2</number>
-         </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Waveform</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="cbWaveform">
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
-           </property>
-           <item>
-            <property name="text">
-             <string>Triangle</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Sine</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Phase</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="cbPhase">
-           <property name="sizeAdjustPolicy">
-            <enum>QComboBox::AdjustToContents</enum>
-           </property>
-           <item>
-            <property name="text">
-             <string>-180</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>-90</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>90</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>180</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QFormLayout" name="formLayout_2">
-         <property name="horizontalSpacing">
-          <number>2</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QDial" name="dialFeedback">
+          <widget class="QDial" name="dialDry">
            <property name="minimumSize">
             <size>
              <width>51</width>
@@ -186,88 +101,13 @@
             </size>
            </property>
            <property name="minimum">
-            <number>-99</number>
+            <number>-200</number>
            </property>
            <property name="maximum">
-            <number>99</number>
+            <number>200</number>
            </property>
-           <property name="notchTarget">
-            <double>5.700000000000000</double>
-           </property>
-           <property name="notchesVisible">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="QLabel" name="label_3">
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Feedback</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="spinFeedback">
-             <property name="minimumSize">
-              <size>
-               <width>61</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>61</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>-99</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="1">
-      <layout class="QVBoxLayout" name="verticalLayout_7">
-       <property name="spacing">
-        <number>12</number>
-       </property>
-       <item>
-        <layout class="QFormLayout" name="formLayout_4">
-         <property name="horizontalSpacing">
-          <number>2</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QDial" name="dialWetDryMix">
-           <property name="minimumSize">
-            <size>
-             <width>51</width>
-             <height>51</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>51</width>
-             <height>51</height>
-            </size>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
+           <property name="singleStep">
+            <number>10</number>
            </property>
            <property name="notchTarget">
             <double>2.700000000000000</double>
@@ -288,12 +128,12 @@
               </font>
              </property>
              <property name="text">
-              <string>WetDryMix</string>
+              <string>DryMix</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinWetDryMix">
+            <widget class="QDoubleSpinBox" name="spinDry">
              <property name="minimumSize">
               <size>
                <width>61</width>
@@ -306,8 +146,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="minimum">
+              <double>-2.000000000000000</double>
+             </property>
              <property name="maximum">
-              <number>100</number>
+              <double>2.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
              </property>
             </widget>
            </item>
@@ -316,12 +162,12 @@
         </layout>
        </item>
        <item>
-        <layout class="QFormLayout" name="formLayout_3">
+        <layout class="QFormLayout" name="formLayout_4">
          <property name="horizontalSpacing">
           <number>2</number>
          </property>
          <item row="0" column="0">
-          <widget class="QDial" name="dialFrequency">
+          <widget class="QDial" name="dialMin">
            <property name="minimumSize">
             <size>
              <width>51</width>
@@ -338,10 +184,13 @@
             <number>0</number>
            </property>
            <property name="maximum">
+            <number>6000</number>
+           </property>
+           <property name="singleStep">
             <number>10</number>
            </property>
-           <property name="pageStep">
-            <number>1</number>
+           <property name="notchTarget">
+            <double>2.700000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -359,12 +208,12 @@
               </font>
              </property>
              <property name="text">
-              <string>Frequency</string>
+              <string>MinSweep (ms)</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinFrequency">
+            <widget class="QDoubleSpinBox" name="spinMin">
              <property name="minimumSize">
               <size>
                <width>61</width>
@@ -377,8 +226,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="decimals">
+              <number>0</number>
+             </property>
              <property name="maximum">
-              <number>10</number>
+              <double>6000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>10.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -388,18 +243,18 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="2">
+     <item row="0" column="1">
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <property name="spacing">
         <number>12</number>
        </property>
        <item>
-        <layout class="QFormLayout" name="formLayout_5">
+        <layout class="QFormLayout" name="formLayout_2">
          <property name="horizontalSpacing">
           <number>2</number>
          </property>
          <item row="0" column="0">
-          <widget class="QDial" name="dialDepth">
+          <widget class="QDial" name="dialWet">
            <property name="minimumSize">
             <size>
              <width>51</width>
@@ -413,10 +268,13 @@
             </size>
            </property>
            <property name="minimum">
-            <number>0</number>
+            <number>-200</number>
            </property>
            <property name="maximum">
-            <number>100</number>
+            <number>200</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
            </property>
            <property name="notchTarget">
             <double>2.700000000000000</double>
@@ -437,12 +295,12 @@
               </font>
              </property>
              <property name="text">
-              <string>Depth</string>
+              <string>WetMix</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinDepth">
+            <widget class="QDoubleSpinBox" name="spinWet">
              <property name="minimumSize">
               <size>
                <width>61</width>
@@ -455,8 +313,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="minimum">
+              <double>-2.000000000000000</double>
+             </property>
              <property name="maximum">
-              <number>100</number>
+              <double>2.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
              </property>
             </widget>
            </item>
@@ -465,12 +329,12 @@
         </layout>
        </item>
        <item>
-        <layout class="QFormLayout" name="formLayout_6">
+        <layout class="QFormLayout" name="formLayout_5">
          <property name="horizontalSpacing">
           <number>2</number>
          </property>
          <item row="0" column="0">
-          <widget class="QDial" name="dialDelay">
+          <widget class="QDial" name="dialMax">
            <property name="minimumSize">
             <size>
              <width>51</width>
@@ -487,13 +351,13 @@
             <number>0</number>
            </property>
            <property name="maximum">
-            <number>20</number>
+            <number>6000</number>
            </property>
-           <property name="pageStep">
-            <number>1</number>
+           <property name="singleStep">
+            <number>10</number>
            </property>
            <property name="notchTarget">
-            <double>2.699999999999999</double>
+            <double>2.700000000000000</double>
            </property>
            <property name="notchesVisible">
             <bool>true</bool>
@@ -501,7 +365,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
             <widget class="QLabel" name="label_5">
              <property name="font">
@@ -511,12 +375,12 @@
               </font>
              </property>
              <property name="text">
-              <string>Delay</string>
+              <string>MaxSweep (ms)</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinDelay">
+            <widget class="QDoubleSpinBox" name="spinMax">
              <property name="minimumSize">
               <size>
                <width>61</width>
@@ -529,8 +393,181 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="decimals">
+              <number>0</number>
+             </property>
              <property name="maximum">
-              <number>20</number>
+              <double>6000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>10.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="2">
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QFormLayout" name="formLayout_3">
+         <property name="horizontalSpacing">
+          <number>2</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QDial" name="dialFeedback">
+           <property name="minimumSize">
+            <size>
+             <width>51</width>
+             <height>51</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>51</width>
+             <height>51</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>-100</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+           <property name="notchTarget">
+            <double>2.700000000000000</double>
+           </property>
+           <property name="notchesVisible">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Feedback</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="spinFeedback">
+             <property name="minimumSize">
+              <size>
+               <width>61</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>61</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_6">
+         <property name="horizontalSpacing">
+          <number>2</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QDial" name="dialRate">
+           <property name="minimumSize">
+            <size>
+             <width>51</width>
+             <height>51</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>51</width>
+             <height>51</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+           <property name="notchTarget">
+            <double>2.700000000000000</double>
+           </property>
+           <property name="notchesVisible">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QLabel" name="label_6">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Rate (ms/s)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="spinRate">
+             <property name="minimumSize">
+              <size>
+               <width>61</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>61</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="decimals">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <double>1000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>10.000000000000000</double>
              </property>
             </widget>
            </item>

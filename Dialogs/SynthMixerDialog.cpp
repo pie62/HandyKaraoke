@@ -14,6 +14,9 @@
 #include "Dialogs/VSTDialog.h"
 #include "Dialogs/BusDialog.h"
 #include "Dialogs/SpeakerDialog.h"
+#include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/Chorus2Dialog.h"
+#include "Dialogs/ReverbDialog.h"
 
 #include "FXDialogs/AutoWahFXDialog.h"
 #include "FXDialogs/ChorusFXDialog.h"
@@ -90,17 +93,42 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
         setSoundfontPresets(presets);
 
         // Bus names -----------------------------------
-        QStringList n1 = st.value("BusNames", QStringList()).toStringList();
-        QStringList n2 = st.value("BusFullNames", QStringList()).toStringList();
-        if (n1.count() == 16 && n2.count() == 16) {
-            int start = static_cast<int>(InstrumentType::BusGroup1);
-            for (int i=0; i<16; i++) {
-                InstrumentType type = static_cast<InstrumentType>(start + i);
-                chInstMap[type]->setInstrumentNames(n1[i], n2[i]);
+        {
+            QStringList n1 = st.value("BusNames", QStringList()).toStringList();
+            QStringList n2 = st.value("BusFullNames", QStringList()).toStringList();
+            if (n1.count() == 16 && n2.count() == 16) {
+                int start = static_cast<int>(InstrumentType::BusGroup1);
+                for (int i=0; i<16; i++) {
+                    InstrumentType type = static_cast<InstrumentType>(start + i);
+                    chInstMap[type]->setInstrumentNames(n1[i], n2[i]);
+                }
             }
         }
-        // --------------------------------------------
 
+        // Master Eq -----------------------------------
+        {
+            bool eqOn = st.value("MasterEqOn", false).toBool();
+            QList<float> eqParams = st.value("MasterEqParams").value<QList<float>>();
+            for (auto eq : synth->equalizer31BandFXs()) {
+                if (eqOn) eq->on();
+                if (eqParams.count() > 0)
+                    eq->setParams(eqParams);
+            }
+        }
+
+        // Master Chorus -----------------------------------
+        {
+            bool chorusOn = st.value("MasterChorusOn", false).toBool();
+            QList<float> chorusParams = st.value("MasterChorusParams").value<QList<float>>();
+            for (auto cr : synth->chorusFXs()) {
+                if (chorusOn) cr->on();
+                if (chorusParams.count() > 0)
+                    cr->setParams(chorusParams);
+            }
+        }
+
+
+        // Led Vu -------------------------------------------
         LEDVu *vu = chInstMap.first()->vuBar();
         QString bg = st.value("LedBgColor", vu->backgroundColor().name()).toString();
         QString o1 = st.value("LedColorOn1", vu->ledColorOn1().name()).toString();
@@ -177,6 +205,16 @@ SynthMixerDialog::~SynthMixerDialog()
 
         // soundfont presets
         st.setValue("SoundfontPresets", synth->soundfontPresets());
+
+        // Master Eq
+        auto eq = synth->equalizer31BandFXs()[0];
+        st.setValue("MasterEqOn", eq->isOn());
+        st.setValue("MasterEqParams", QVariant::fromValue(eq->params()));
+
+        // Master Chorus
+        auto chorus = synth->chorusFXs()[0];
+        st.setValue("MasterChorusOn", chorus->isOn());
+        st.setValue("MasterChorusParams", QVariant::fromValue(chorus->params()));
 
         LEDVu *vu = chInstMap.first()->vuBar();
         st.setValue("LedColorOn1", vu->ledColorOn1().name());
@@ -364,10 +402,10 @@ void SynthMixerDialog::showReverbDialog()
 
 void SynthMixerDialog::showChorusDialog()
 {
-    if (ChorusDialog::isOpenned())
+    if (Chorus2Dialog::isOpenned())
         return;
 
-    ChorusDialog *dlg = new ChorusDialog(this, synth->chorusFXs());
+    Chorus2Dialog *dlg = new Chorus2Dialog(this, synth->chorusFXs());
     dlg->adjustSize();
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);

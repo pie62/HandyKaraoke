@@ -12,8 +12,9 @@
 #include "Midi/MidiHelper.h"
 #include "BASSFX/FX.h"
 #include "BASSFX/Equalizer31BandFX.h"
-#include "BASSFX/ReverbFX.h"
 #include "BASSFX/ChorusFX.h"
+#include "BASSFX/Chorus2FX.h"
+#include "BASSFX/ReverbFX.h"
 
 #define SF_PRESET_COUNT 11
 
@@ -21,8 +22,8 @@ typedef struct
 {
     DWORD handle;
     Equalizer31BandFX *eq;
+    Chorus2FX *chorus;
     ReverbFX *reverb;
-    ChorusFX *chorus;
 } MixerHandle;
 
 typedef struct
@@ -124,7 +125,7 @@ public:
     // Fx ----------------------
     QList<Equalizer31BandFX *> equalizer31BandFXs();
     QList<ReverbFX *> reverbFXs();
-    QList<ChorusFX *> chorusFXs();
+    QList<Chorus2FX *> chorusFXs();
 
     QMap<uint, VSTNamePath> VSTList() { return _vstList; }
     void setVSTList(const QMap<uint, VSTNamePath> &listMap) { _vstList = listMap; }

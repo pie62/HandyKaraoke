@@ -1,17 +1,20 @@
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 
-#include "Config.h"
-#include "Utils.h"
-#include "Midi/MidiHelper.h"
-#include "Dialogs/MapSoundfontDialog.h"
-#include "Dialogs/MapChannelDialog.h"
-
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFontDialog>
 #include <QColorDialog>
+
+#include "Config.h"
+#include "Utils.h"
+#include "Midi/MidiHelper.h"
+#include "Dialogs/MapSoundfontDialog.h"
+#include "Dialogs/MapChannelDialog.h"
+#include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/Chorus2Dialog.h"
+#include "Dialogs/ReverbDialog.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     QDialog(parent),
@@ -1068,6 +1071,25 @@ void SettingsDialog::on_btnEq_clicked()
         ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
 }
 
+void SettingsDialog::on_btnChorus_clicked()
+{
+    if (Chorus2Dialog::isOpenned())
+        return;
+
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+
+    Chorus2Dialog crDlg(this, synth->chorusFXs());
+    crDlg.setModal(true);
+    crDlg.adjustSize();
+    crDlg.setFixedSize(crDlg.size());
+    crDlg.exec();
+
+    if (synth->chorusFXs()[0]->isOn())
+        ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
+    else
+        ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));
+}
+
 void SettingsDialog::on_btnReverb_clicked()
 {
     if (ReverbDialog::isOpenned())
@@ -1085,25 +1107,6 @@ void SettingsDialog::on_btnReverb_clicked()
         ui->btnReverb->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnReverb->setIcon(QIcon(":/Icons/circle_red.png"));
-}
-
-void SettingsDialog::on_btnChorus_clicked()
-{
-    if (ChorusDialog::isOpenned())
-        return;
-
-    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
-
-    ChorusDialog crDlg(this, synth->chorusFXs());
-    crDlg.setModal(true);
-    crDlg.adjustSize();
-    crDlg.setFixedSize(crDlg.size());
-    crDlg.exec();
-
-    if (synth->chorusFXs()[0]->isOn())
-        ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
-    else
-        ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));
 }
 
 void SettingsDialog::on_btnClose_clicked()

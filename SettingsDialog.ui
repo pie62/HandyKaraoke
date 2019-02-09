@@ -1846,9 +1846,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnReverb">
+          <widget class="QPushButton" name="btnChorus">
            <property name="text">
-            <string>เอฟเฟ็กต์เสียงก้อง</string>
+            <string>เอฟเฟ็กต์เสียงประสาน</string>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">
@@ -1863,9 +1863,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnChorus">
+          <widget class="QPushButton" name="btnReverb">
            <property name="text">
-            <string>เอฟเฟ็กต์เสียงประสาน</string>
+            <string>เอฟเฟ็กต์เสียงก้อง</string>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">

@@ -20,7 +20,7 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 
         mixer.eq = new Equalizer31BandFX();
         mixer.reverb = new ReverbFX();
-        mixer.chorus = new ChorusFX();
+        mixer.chorus = new Chorus2FX();
 
         mixers.append(mixer);
     }
@@ -1010,9 +1010,9 @@ QList<ReverbFX *> MidiSynthesizer::reverbFXs()
     return rvs;
 }
 
-QList<ChorusFX *> MidiSynthesizer::chorusFXs()
+QList<Chorus2FX *> MidiSynthesizer::chorusFXs()
 {
-    QList<ChorusFX *> chs;
+    QList<Chorus2FX *> chs;
 
     for (MixerHandle mix : mixers)
         chs.append(mix.chorus);

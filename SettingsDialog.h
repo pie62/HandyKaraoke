@@ -96,8 +96,8 @@ private slots:
     void onChbSfLoadAllToggled(bool value);
     void on_btnSfMap_clicked();
     void on_btnEq_clicked();
-    void on_btnReverb_clicked();
     void on_btnChorus_clicked();
+    void on_btnReverb_clicked();
 
     void on_btnClose_clicked();
 

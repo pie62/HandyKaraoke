@@ -22,9 +22,6 @@
 #include "Midi/MidiPlayer.h"
 
 #include "Dialogs/SynthMixerDialog.h"
-#include "Dialogs/Equalizer31BandDialog.h"
-#include "Dialogs/ReverbDialog.h"
-#include "Dialogs/ChorusDialog.h"
 #include "Dialogs/SecondMonitorDialog.h"
 
 
@@ -114,10 +111,6 @@ private:
 
     // Synth Mixer
     SynthMixerDialog *synthMix;
-    // Synth effect dialog
-    Equalizer31BandDialog *eq31Dlg;
-    ReverbDialog *reverbDlg;
-    ChorusDialog *chorusDlg;
 
     #ifdef _WIN32
     QWinTaskbarButton *taskbarButton;
@@ -140,8 +133,8 @@ private slots:
     void showContextMenu(const QPoint &pos);
     void showSettingsDialog();
     void showEqDialog();
-    void showReverbDialog();
     void showChorusDialog();
+    void showReverbDialog();
     void showMapMidiChannelDialog();
     void minimizeWindow();
     void showMapSFDialog();

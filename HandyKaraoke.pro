@@ -72,7 +72,10 @@ SOURCES += main.cpp\
     FXDialogs/EchoFXDialog.cpp \
     Widgets/PlaylistWidget.cpp \
     Dialogs/DialogHelper.cpp \
-    Dialogs/SpeakerDialog.cpp
+    Dialogs/SpeakerDialog.cpp \
+    Dialogs/Chorus2Dialog.cpp \
+    BASSFX/Chorus2FX.cpp \
+    BASSFX/Reverb2FX.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -137,7 +140,10 @@ HEADERS  += MainWindow.h \
     Config.h \
     Widgets/PlaylistWidget.h \
     Dialogs/DialogHelper.h \
-    Dialogs/SpeakerDialog.h
+    Dialogs/SpeakerDialog.h \
+    Dialogs/Chorus2Dialog.h \
+    BASSFX/Chorus2FX.h \
+    BASSFX/Reverb2FX.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -167,7 +173,8 @@ FORMS    += MainWindow.ui \
     FXDialogs/DistortionFXDialog.ui \
     FXDialogs/EchoFXDialog.ui \
     Widgets/PlaylistWidget.ui \
-    Dialogs/SpeakerDialog.ui
+    Dialogs/SpeakerDialog.ui \
+    Dialogs/Chorus2Dialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

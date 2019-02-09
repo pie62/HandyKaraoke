@@ -23,7 +23,9 @@ enum class FXType {
     EQ15Band,
     EQ31Band,
     Reverb,
-    VSTEffects
+    VSTEffects,
+    Chorus2,
+    Reverb2
 };
 
 class FX
