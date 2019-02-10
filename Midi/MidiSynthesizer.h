@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QTimer>
 
 #include <bass.h>
 #include <bassmidi.h>
@@ -71,7 +72,6 @@ public:
     void swapSoundfont(int sfIndex, int toIndex);
     float soundfontVolume(int sfIndex);
     void setSoundfontVolume(int sfIndex, float sfvl);
-    void compactSoundfont();
     bool isLoadAllSoundfont() { return sfLoadAll; }
     void setLoadAllSoundfont(bool loadAll);
 
@@ -167,6 +167,9 @@ public:
     const int HANDLE_BUS_COUNT = 16;
     const int HANDLE_BUS_START = 46;
 
+public slots:
+    void compactSoundfont();
+
 signals:
     void noteOnSended(InstrumentType t, int bus, int ch, int note, int velocity);
 
@@ -179,6 +182,8 @@ private:
     HSTREAM getDrumHandleFromNote(int drumNote);
 
 private:
+    QTimer timer;
+
     QList<MixerHandle> mixers;
     //MixerManager mixers;
     //HSTREAM mixHandle;

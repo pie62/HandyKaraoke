@@ -14,6 +14,11 @@
 
 MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 {   
+    timer.setInterval(8 * 60000);
+    timer.start();
+
+    connect(&timer, SIGNAL(timeout()), this, SLOT(compactSoundfont()));
+
     // create mixers
     for (int dv : outDevices.keys())
     {
@@ -83,6 +88,8 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 
 MidiSynthesizer::~MidiSynthesizer()
 {
+    timer.stop();
+
     if (openned)
         close();
 
@@ -393,11 +400,6 @@ void MidiSynthesizer::setSoundfontVolume(int sfIndex, float sfvl)
         return;
 
     BASS_MIDI_FontSetVolume(synth_HSOUNDFONT[sfIndex], sfvl);
-}
-
-void MidiSynthesizer::compactSoundfont()
-{
-    BASS_MIDI_FontCompact(0);
 }
 
 void MidiSynthesizer::setLoadAllSoundfont(bool loadAll)
@@ -1313,6 +1315,11 @@ void MidiSynthesizer::removeVSTiFile(int vstiIndex)
 }
 
 #endif
+
+void MidiSynthesizer::compactSoundfont()
+{
+    BASS_MIDI_FontCompact(0);
+}
 
 DWORD MidiSynthesizer::createStream(InstrumentType t)
 {
