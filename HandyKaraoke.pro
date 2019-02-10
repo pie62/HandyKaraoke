@@ -182,6 +182,8 @@ FORMS    += MainWindow.ui \
 
 INCLUDEPATH += $$PWD/Widgets
 
+TRANSLATIONS = languages/en.ts
+
 
 win32 {
     QT += winextras
