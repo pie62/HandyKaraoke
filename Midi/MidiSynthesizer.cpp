@@ -322,6 +322,11 @@ void MidiSynthesizer::removeSoundfont(int sfIndex)
     if (sfIndex < 0 || sfIndex >= synth_HSOUNDFONT.count())
         return;
 
+    HSOUNDFONT sf = synth_HSOUNDFONT.takeAt(sfIndex);
+    BASS_MIDI_FontUnload(sf, -1, -1);
+    BASS_MIDI_FontFree(sf);
+    sfFiles.removeAt(sfIndex);
+
     for (int presetIndex = 0; presetIndex < SF_PRESET_COUNT; presetIndex++) {
         QList<int> instSfMap = instmSf[presetIndex];
         QList<int> drumSfMap = drumSf[presetIndex];
@@ -344,11 +349,6 @@ void MidiSynthesizer::removeSoundfont(int sfIndex)
 
         setMapSoundfontIndex(presetIndex, instSfMap, drumSfMap);
     }
-
-    HSOUNDFONT sf = synth_HSOUNDFONT.takeAt(sfIndex);
-    BASS_MIDI_FontUnload(sf, -1, -1);
-    BASS_MIDI_FontFree(sf);
-    sfFiles.removeAt(sfIndex);
 }
 
 void MidiSynthesizer::swapSoundfont(int sfIndex, int toIndex)
@@ -358,6 +358,9 @@ void MidiSynthesizer::swapSoundfont(int sfIndex, int toIndex)
 
     if (toIndex < 0 || toIndex >= synth_HSOUNDFONT.count())
         return;
+
+    synth_HSOUNDFONT.swap(sfIndex, toIndex);
+    sfFiles.swap(sfIndex, toIndex);
 
     for (int presetIndex = 0; presetIndex < SF_PRESET_COUNT; presetIndex++) {
         QList<int> instSfMap = instmSf[presetIndex];
@@ -381,9 +384,6 @@ void MidiSynthesizer::swapSoundfont(int sfIndex, int toIndex)
 
         setMapSoundfontIndex(presetIndex, instSfMap, drumSfMap);
     }
-
-    synth_HSOUNDFONT.swap(sfIndex, toIndex);
-    sfFiles.swap(sfIndex, toIndex);
 }
 
 float MidiSynthesizer::soundfontVolume(int sfIndex)

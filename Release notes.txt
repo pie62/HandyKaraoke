@@ -2,6 +2,7 @@
     - แก้ไขความกว้างของ EQ 15 band
     - แก้ไข Chorus และ Reverb
     - แก้ VST และ VSTi ไม่จำค่าบางอย่าง (chunk data)
+    - แก้ไข Midi Synthesizer เลือกซาวด์ฟ้อนไม่ถูกต้องเมื่อลบหรือเปลี่ยนลำดับซาวด์ฟ้อน
     - ย้ายการตั้งค่า Master effect (EQ, Chorus, Reverb) ไปไว้ในส่วนของ Synth Mixer
     - เปลี่ยน Chorus และ Reverb ใหม่
     - เพิ่มความสามารถโปรแกรมรองรับไฟล์ .kar (.kar or .mid)
