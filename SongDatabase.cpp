@@ -308,6 +308,54 @@ bool SongDatabase::insertHNK(const QString &hnkPath, const QString &songId, cons
     return true;
 }
 
+bool SongDatabase::insertKAR(const QString &karPath, const QString &songId, const QString &karFilePath, const QString &fileName)
+{
+    QString id = songId;
+
+    MidiFile mid;
+    if (!mid.read(karFilePath))
+        return false;
+
+    int bpm = 120;
+    if (mid.tempoEvents().size() > 0)
+        bpm = mid.tempoEvents()[0]->bpm();
+
+    QString name = fileName.section(".", 0, 0);
+    QString type = "KAR";
+
+    QString path = karFilePath;
+    path = path.replace(karPath, "");
+
+    QString lyr = "";
+    QStringList lyrics = mid.lyrics().split(QRegExp("\n|\r\n|\r"));
+    if (lyrics.size() > 0)
+        lyr += lyrics[0] + " ";
+    if (lyrics.size() > 1)
+        lyr += lyrics[1] + " ";
+    if (lyrics.size() > 2)
+        lyr += lyrics[2] + " ";
+    if (lyrics.size() > 3)
+        lyr += lyrics[3];
+
+    QSqlQuery query;
+    query.prepare("INSERT INTO songs VALUES "
+                  "(?, ?, ?, ?, ?, ?, ?, ?);");
+    query.bindValue(0, id);
+    query.bindValue(1, name);
+    query.bindValue(2, "");
+    query.bindValue(3, "");
+    query.bindValue(4, bpm);
+    query.bindValue(5, type);
+    query.bindValue(6, lyr);
+    query.bindValue(7, path);
+
+    query.exec();
+    query.finish();
+    query.clear();
+
+    return true;
+}
+
 Song* SongDatabase::nextType(const QString &s)
 {
     Song *sg = song;
@@ -508,6 +556,7 @@ void SongDatabase::run()
     // Count mid file in NCN
     QDir dir(_ncnPath + "/Song");
     QDir hnkDir(_hnkPath);
+    QDir karDir(_karPath);
 
     QDirIterator iter1(dir.path() ,QStringList() << "*.mid" << "*.MID",
                     QDir::Files, QDirIterator::Subdirectories);
@@ -520,6 +569,13 @@ void SongDatabase::run()
                     QDir::Files, QDirIterator::Subdirectories);
     while (iter2.hasNext()) {
         iter2.next();
+        count++;
+    }
+
+    QDirIterator iter3(karDir.path() ,QStringList() << "*.kar" << "*.KAR" << "*.mid" << "*.MID",
+                    QDir::Files, QDirIterator::Subdirectories);
+    while (iter3.hasNext()) {
+        iter3.next();
         count++;
     }
 
@@ -575,6 +631,25 @@ void SongDatabase::run()
         QString hnkId = it2.fileName().section(".", 0, 0);
 
         bool result = insertHNK(_hnkPath, hnkId, it2.filePath());
+
+        if (!result)
+            erCount ++;
+    }
+
+    // Update KAR
+    QDirIterator it3(karDir.path() ,QStringList() << "*.kar" << "*.KAR" << "*.mid" << "*.MID",
+                     QDir::Files, QDirIterator::Subdirectories);
+    while (it3.hasNext()) {
+
+        it3.next();
+
+        i++;
+        emit updatePositionChanged(i);
+        emit updateSongNameChanged(it3.fileName());
+
+        QString karId = "-------";
+
+        bool result = insertKAR(_karPath, karId, it3.filePath(), it3.fileName());
 
         if (!result)
             erCount ++;
