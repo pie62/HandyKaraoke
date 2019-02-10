@@ -402,11 +402,13 @@ Song *SongDatabase::search(const QString &s)
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id LIMIT 1) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? AND songtype != 'KAR' ORDER BY id LIMIT 1) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name LIMIT 1) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? AND songtype != 'KAR' ORDER BY name LIMIT 1) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist LIMIT 1) "
+              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? AND songtype != 'KAR' ORDER BY artist LIMIT 1) "
+              "UNION ALL "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? AND songtype = 'KAR' ORDER BY name LIMIT 1) "
               "LIMIT 1";
         break;
     case SearchType::ById:
@@ -429,6 +431,7 @@ Song *SongDatabase::search(const QString &s)
         query.bindValue(0, s + "%");
         query.bindValue(1, s + "%");
         query.bindValue(2, s + "%");
+        query.bindValue(3, "%" + s + "%");
     } else {
         query.prepare(sql);
         query.bindValue(0, s + "%");
@@ -451,11 +454,13 @@ Song *SongDatabase::searchNext()
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id, name, artist) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? AND songtype != 'KAR' ORDER BY id, name, artist) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name, artist, id) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? AND songtype != 'KAR' ORDER BY name, artist, id) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist, name, id) ";
+              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? AND songtype != 'KAR' ORDER BY artist, name, id) "
+              "UNION ALL "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? AND songtype = 'KAR' ORDER BY name, artist, id) ";
         break;
     case SearchType::ById:
         sql = "SELECT * FROM songs WHERE id LIKE ? "
@@ -478,6 +483,7 @@ Song *SongDatabase::searchNext()
         q.bindValue(0, _searchText + "%");
         q.bindValue(1, _searchText + "%");
         q.bindValue(2, _searchText + "%");
+        q.bindValue(3, "%" + _searchText + "%");
     } else {
         q.bindValue(0, _searchText + "%");
     }
@@ -499,11 +505,13 @@ Song *SongDatabase::searchPrevious()
 
     switch (searchType) {
     case SearchType::ByAll:
-        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? ORDER BY id, name, artist) "
+        sql = "SELECT * FROM (SELECT * FROM songs WHERE id LIKE ? AND songtype != 'KAR' ORDER BY id, name, artist) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? ORDER BY name, artist, id) "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? AND songtype != 'KAR' ORDER BY name, artist, id) "
               "UNION ALL "
-              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? ORDER BY artist, name, id) ";
+              "SELECT * FROM (SELECT * FROM songs WHERE artist LIKE ? AND songtype != 'KAR' ORDER BY artist, name, id) "
+              "UNION ALL "
+              "SELECT * FROM (SELECT * FROM songs WHERE name LIKE ? AND songtype = 'KAR' ORDER BY name, artist, id) ";
         break;
     case SearchType::ById:
         sql = "SELECT * FROM songs WHERE id LIKE ? "
@@ -526,6 +534,7 @@ Song *SongDatabase::searchPrevious()
         q.bindValue(0, _searchText + "%");
         q.bindValue(1, _searchText + "%");
         q.bindValue(2, _searchText + "%");
+        q.bindValue(3, "%" + _searchText + "%");
     } else {
         q.bindValue(0, _searchText + "%");
     }
