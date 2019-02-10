@@ -20,6 +20,9 @@ public:
     int program();
     void setProgram(int programIndex);
 
+    QByteArray chunk() override;
+    void setChunk(const QByteArray &cnk) override;
+
     QList<float> params();
     void setParams(const QList<float> &params);
     void setStreamHandle(DWORD stream);
@@ -31,6 +34,7 @@ private:
 
     int defaultProgramIndex = 0;
     QList<float> tempParams, defaultParams;
+    QByteArray tempChunk;
 };
 
 #endif

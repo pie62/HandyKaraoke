@@ -121,6 +121,8 @@ void registerMetaType()
 
     //qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
     qRegisterMetaTypeStreamOperators<QList<QList<float>>>("QList<QList<float>>");
+
+    qRegisterMetaTypeStreamOperators<QList<QByteArray>>("QList<QByteArray>>");
 }
 
 void checkDatabase(QSplashScreen *splash, SongDatabase *db)
@@ -191,8 +193,7 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
         QString      filePath   = st.value("VstiFilePath", "").toString();
         int          program    = st.value("VstiPrograms", 0).toInt();
         QList<float> params     = st.value("VstiParams").value<QList<float>>();
-        //QByteArray   chunk      = st.value("VstiChunk", QByteArray()).toByteArray();
-        //DWORD        chunkLth   = st.value("VstiChunkLength").value<DWORD>();
+        QByteArray   chunk      = st.value("VstiChunk", QByteArray()).toByteArray();
 
         if (filePath == "")
             continue;
@@ -204,9 +205,11 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
 
         if (vsti != 0)
         {
+            if (chunk.length() > 0)
+                BASS_VST_SetChunk(vsti, false, chunk.constData(), chunk.length());
+
             BASS_VST_SetProgram(vsti, program);
             FX::setVSTParams(vsti, params);
-            //BASS_VST_SetChunk(vsti, true, chunk.constData(), chunkLth);
         }
     }
     st.endArray();

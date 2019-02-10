@@ -1,10 +1,12 @@
 #include "MidiSynthesizer.h"
 
 #include "BASSFX/AutoWahFX.h"
+#include "BASSFX/ChorusFX.h"
 #include "BASSFX/CompressorFX.h"
 #include "BASSFX/DistortionFX.h"
 #include "BASSFX/EchoFX.h"
 #include "BASSFX/Equalizer15BandFX.h"
+#include "BASSFX/ReverbFX.h"
 #include "BASSFX/VSTFX.h"
 
 #include <cstring>
@@ -18,9 +20,9 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         MixerHandle mixer;
         mixer.handle = 0;
 
-        mixer.eq = new Equalizer31BandFX();
-        mixer.reverb = new ReverbFX();
-        mixer.chorus = new Chorus2FX();
+        mixer.eq = new Equalizer31BandFX(0, 1);
+        mixer.chorus = new Chorus2FX(0, 2);
+        mixer.reverb = new Reverb2FX(0, 3);
 
         mixers.append(mixer);
     }
@@ -48,7 +50,6 @@ MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
         mVstiTempProgram[i] = 0;
         mVstiTempParams[i] = QList<float>();
         mVstiChunk[i] = QByteArray();
-        mVstiChunkLength[i] = 0;
     }
     #endif
 
@@ -204,9 +205,9 @@ void MidiSynthesizer::close()
             mVstiTempProgram[vIndex] = BASS_VST_GetProgram(h);
             mVstiTempParams[vIndex] = FX::getVSTParams(h);
 
-            //DWORD length = 0;
-            //mVstiChunk[vIndex] = BASS_VST_GetChunk(h, true, &length);
-            //mVstiChunkLength[vIndex] = length;
+            DWORD length = 0;
+            char *chunk = BASS_VST_GetChunk(h, false, &length);
+            mVstiChunk[vIndex] = QByteArray(chunk, length);
 
             BASS_VST_ChannelFree(h);
             #endif
@@ -1000,9 +1001,9 @@ QList<Equalizer31BandFX *> MidiSynthesizer::equalizer31BandFXs()
     return eqs;
 }
 
-QList<ReverbFX *> MidiSynthesizer::reverbFXs()
+QList<Reverb2FX *> MidiSynthesizer::reverbFXs()
 {
-    QList<ReverbFX *> rvs;
+    QList<Reverb2FX *> rvs;
 
     for (MixerHandle mix : mixers)
         rvs.append(mix.reverb);
@@ -1160,6 +1161,16 @@ QList<int> MidiSynthesizer::fxProgram(InstrumentType type)
     return programs;
 }
 
+QList<QByteArray> MidiSynthesizer::fxChunks(InstrumentType type)
+{
+    QList<QByteArray> chunks;
+
+    for (FX *fx : instMap[type].FXs)
+        chunks.append(fx->chunk());
+
+    return chunks;
+}
+
 QList<QList<float> > MidiSynthesizer::fxParams(InstrumentType type)
 {
     QList<QList<float>> params;
@@ -1218,16 +1229,17 @@ QList<float> MidiSynthesizer::vstiParams(int vstiIndex)
         return mVstiTempParams[vstiIndex];
 }
 
-QByteArray MidiSynthesizer::vstiChunk(int vstiIndex, DWORD *length)
+QByteArray MidiSynthesizer::vstiChunk(int vstiIndex)
 {
     DWORD h = vstiHandle(vstiIndex);
     if (isOpened() && h != 0)
     {
-        return QByteArray(BASS_VST_GetChunk(h, true, length));
+        DWORD length = 0;
+        char *chunk = BASS_VST_GetChunk(h, false, &length);
+        return QByteArray(chunk, length);
     }
     else
     {
-        *length = mVstiChunkLength[vstiIndex];
         return mVstiChunk[vstiIndex];
     }
 }
@@ -1324,7 +1336,7 @@ DWORD MidiSynthesizer::createStream(InstrumentType t)
             #ifdef __linux__
             return 0;
             #else
-            int vIndex = index - (HANDLE_MIDI_COUNT-4);
+            int vIndex = index - (HANDLE_MIDI_COUNT - HANDLE_VSTI_COUNT);
             int chan = MidiHelper::isStereoSpeaker(instMap[t].speaker) ? 2 : 1;
             if (mVstiFiles[vIndex] == "")
                 return 0;
@@ -1337,12 +1349,14 @@ DWORD MidiSynthesizer::createStream(InstrumentType t)
             #endif
             if (h)
             {
+                if (mVstiChunk[vIndex].length() > 0)
+                    BASS_VST_SetChunk(h, false, mVstiChunk[vIndex].constData(), mVstiChunk[vIndex].length());
+
                 BASS_VST_INFO info;
                 BASS_VST_GetInfo(h, &info);
                 mVstiInfos[vIndex] = info;
                 BASS_VST_SetProgram(h, mVstiTempProgram[vIndex]);
                 FX::setVSTParams(h, mVstiTempParams[vIndex]);
-                //BASS_VST_SetChunk(h, true, mVstiChunk[vIndex], mVstiChunkLength[vIndex]);
             }
             return h; // vsti handle
             #endif

@@ -99,6 +99,34 @@ void VSTFX::setProgram(int programIndex)
     }
 }
 
+QByteArray VSTFX::chunk()
+{
+    if (stream == 0)
+    {
+        return tempChunk;
+    }
+    else
+    {
+        DWORD length = 0;
+        char *cnk = BASS_VST_GetChunk(fx, false, &length);
+        return QByteArray(cnk, length);
+    }
+}
+
+void VSTFX::setChunk(const QByteArray &cnk)
+{
+    if (stream == 0)
+    {
+        this->tempChunk = cnk;
+    }
+    else
+    {
+        if (cnk.length() > 0) {
+            BASS_VST_SetChunk(fx, false, cnk.constData(), cnk.length());
+        }
+    }
+}
+
 QList<float> VSTFX::params()
 {
     if (stream == 0)
@@ -133,6 +161,7 @@ void VSTFX::setParams(const QList<float> &params)
 
 void VSTFX::setStreamHandle(DWORD stream)
 {
+    tempChunk = chunk();
     tempParams = params();
     programIndex = program();
     BASS_VST_ChannelRemoveDSP(this->stream, fx);
@@ -149,6 +178,7 @@ void VSTFX::setStreamHandle(DWORD stream)
         #endif
 
         this->setBypass(this->isBypass());
+        this->setChunk(tempChunk);
         this->setProgram(programIndex);
         this->setParams(tempParams);
     }

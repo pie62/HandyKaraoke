@@ -6,8 +6,8 @@
 class Reverb2FX : public FX
 {
 private:
-    float fDryMix   = 0.0f;
-    float fWetMix   = 1.0f;
+    float fDryMix   = 0.5f;
+    float fWetMix   = 2.0f;
     float fRoomSize = 0.5f;
     float fDamp     = 0.5f;
     float fWidth    = 1.0f;

@@ -14,7 +14,7 @@
 #include "Dialogs/MapChannelDialog.h"
 #include "Dialogs/Equalizer31BandDialog.h"
 #include "Dialogs/Chorus2Dialog.h"
-#include "Dialogs/ReverbDialog.h"
+#include "Dialogs/Reverb2Dialog.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     QDialog(parent),
@@ -1092,12 +1092,12 @@ void SettingsDialog::on_btnChorus_clicked()
 
 void SettingsDialog::on_btnReverb_clicked()
 {
-    if (ReverbDialog::isOpenned())
+    if (Reverb2Dialog::isOpenned())
         return;
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
 
-    ReverbDialog rvDlg(this, synth->reverbFXs());
+    Reverb2Dialog rvDlg(this, synth->reverbFXs());
     rvDlg.setModal(true);
     rvDlg.adjustSize();
     rvDlg.setFixedSize(rvDlg.size());

@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QSignalMapper>
 #include <QButtonGroup>
+#include <QTimer>
 
 #include "Midi/MidiPlayer.h"
 #include "Widgets/InstCh.h"
@@ -34,6 +35,7 @@ public:
     QMap<InstrumentType, InstCh *> *mixChannelMapPtr();
 
 public slots:
+    void settingValues();
     void setSoundfontPresets(int presets);
 
 private slots:
@@ -74,6 +76,7 @@ protected:
 private:
     Ui::SynthMixerDialog *ui;
 
+    QTimer settingTimer;
     MainWindow *mainWin;
     MidiPlayer *player;
     MidiSynthesizer *synth;

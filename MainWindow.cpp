@@ -23,7 +23,7 @@
 #include "Dialogs/SpeakerDialog.h"
 #include "Dialogs/Equalizer31BandDialog.h"
 #include "Dialogs/Chorus2Dialog.h"
-#include "Dialogs/ReverbDialog.h"
+#include "Dialogs/Reverb2Dialog.h"
 
 #ifndef __linux__
 #include "Dialogs/VSTDirsDialog.h"
@@ -228,25 +228,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         // Synth EQ -> move to SynthMixer
         // Synth chorus -> move to SynthMixer
-
-        // Synth reverb
-        bool rvOn   = settings->value("SynthFXReverbOn", false).toBool();
-        int rvGain  = settings->value("SynthFXReverbInGain", 0).toInt();
-        int rvMix   = settings->value("SynthFXReverbMix", 0).toInt();
-        int rvTime  = settings->value("SynthFXReverbTime", 1000).toInt();
-        float rvHF  = settings->value("SynthFXReverbHF", 0.001).toFloat();
-
-        if (rvOn)
-            for (auto reverb : synth->reverbFXs())
-                reverb->on();
-
-        for (auto reverb : synth->reverbFXs())
-        {
-            reverb->setInGain((float)rvGain);
-            reverb->setReverbMix((float)rvMix);
-            reverb->setReverbTime((float)rvTime);
-            reverb->setHighFreqRTRatio(rvHF);
-        }
+        // Synth reverb -> move to SynthMixer
 
         // Create synth mixer
         synthMix = new SynthMixerDialog(this, this);
@@ -419,18 +401,6 @@ MainWindow::~MainWindow()
     // WinSparkle
     win_sparkle_cleanup();
     #endif
-
-
-    { // Write synth FX settings
-
-        // Synth reverb
-        ReverbFX *reverb = player->midiSynthesizer()->reverbFXs()[0];
-        settings->setValue("SynthFXReverbOn", reverb->isOn());
-        settings->setValue("SynthFXReverbInGain", (int)reverb->inGain());
-        settings->setValue("SynthFXReverbMix", (int)reverb->reverbMix());
-        settings->setValue("SynthFXReverbTime", (int)reverb->reverbTime());
-        settings->setValue("SynthFXReverbHF", reverb->highFreqRTRatio());
-    }
 
     delete synthMix;
 
@@ -1306,7 +1276,7 @@ void MainWindow::setFrameSearch(Song *s)
 
 void MainWindow::showContextMenu(const QPoint &pos)
 {
-    if (ui->chMix->rect().contains(pos))
+    if (ui->chMix->isVisible() && ui->chMix->rect().contains(pos))
         return;
 
     QMenu menu(tr("Context menu"), this);
@@ -1423,10 +1393,10 @@ void MainWindow::showChorusDialog()
 
 void MainWindow::showReverbDialog()
 {
-    if (ReverbDialog::isOpenned())
+    if (Reverb2Dialog::isOpenned())
         return;
 
-    ReverbDialog *dlg = new ReverbDialog(this, player->midiSynthesizer()->reverbFXs());
+    Reverb2Dialog *dlg = new Reverb2Dialog(this, player->midiSynthesizer()->reverbFXs());
     dlg->adjustSize();
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);

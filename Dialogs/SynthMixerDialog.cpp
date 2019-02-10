@@ -16,7 +16,7 @@
 #include "Dialogs/SpeakerDialog.h"
 #include "Dialogs/Equalizer31BandDialog.h"
 #include "Dialogs/Chorus2Dialog.h"
-#include "Dialogs/ReverbDialog.h"
+#include "Dialogs/Reverb2Dialog.h"
 
 #include "FXDialogs/AutoWahFXDialog.h"
 #include "FXDialogs/ChorusFXDialog.h"
@@ -40,6 +40,11 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     signalBusActionMapper(this)
 {
     ui->setupUi(this);
+
+    // timer
+    settingTimer.setInterval(10 * 60000);
+    settingTimer.start();
+    connect(&settingTimer, SIGNAL(timeout()), this, SLOT(settingValues()));
 
     this->mainWin = mainWin;
     this->player = mainWin->midiPlayer();
@@ -127,6 +132,17 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
             }
         }
 
+        // Master Reverb -----------------------------------
+        {
+            bool reverbOn = st.value("MasterReverbOn", false).toBool();
+            QList<float> reverbParams = st.value("MasterReverbParams").value<QList<float>>();
+            for (auto rv : synth->reverbFXs()) {
+                if (reverbOn) rv->on();
+                if (reverbParams.count() > 0)
+                    rv->setParams(reverbParams);
+            }
+        }
+
 
         // Led Vu -------------------------------------------
         LEDVu *vu = chInstMap.first()->vuBar();
@@ -192,94 +208,10 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
 
 SynthMixerDialog::~SynthMixerDialog()
 {
+    settingTimer.stop();
+
     // settings
-    {
-        QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
-        st.setValue("Size", this->size());
-        st.setValue("SplitterSize", QVariant::fromValue(ui->splitter->sizes()));
-        st.setValue("ScrollInstrument", ui->scrollArea->horizontalScrollBar()->value());
-        st.setValue("ScrollBusGroup", ui->scrollArea_2->horizontalScrollBar()->value());
-
-        st.setValue("WindowNoParent", parent() == 0);
-        st.setValue("WindowStaysOnTop", staysOnTop);
-
-        // soundfont presets
-        st.setValue("SoundfontPresets", synth->soundfontPresets());
-
-        // Master Eq
-        auto eq = synth->equalizer31BandFXs()[0];
-        st.setValue("MasterEqOn", eq->isOn());
-        st.setValue("MasterEqParams", QVariant::fromValue(eq->params()));
-
-        // Master Chorus
-        auto chorus = synth->chorusFXs()[0];
-        st.setValue("MasterChorusOn", chorus->isOn());
-        st.setValue("MasterChorusParams", QVariant::fromValue(chorus->params()));
-
-        LEDVu *vu = chInstMap.first()->vuBar();
-        st.setValue("LedColorOn1", vu->ledColorOn1().name());
-        st.setValue("LedColorOn2", vu->ledColorOn2().name());
-        st.setValue("LedColorOn3", vu->ledColorOn3().name());
-        st.setValue("LedColorOff1", vu->ledColorOff1().name());
-        st.setValue("LedColorOff2", vu->ledColorOff2().name());
-        st.setValue("LedColorOff3", vu->ledColorOff3().name());
-        st.setValue("ShowPeakHold", vu->isShowPeakHold());
-        st.setValue("PeakHoldMs", vu->peakHoldMs());
-
-
-        #ifndef __linux__
-        st.beginWriteArray("VSTiGroup");
-        for (int i=0; i<4; i++)
-        {
-            st.setArrayIndex(i);
-
-            st.setValue("VstiFilePath", synth->vstiFile(i));
-            st.setValue("VstiPrograms", synth->vstiProgram(i));
-            st.setValue("VstiParams", QVariant::fromValue(synth->vstiParams(i)));
-            //DWORD length = 0;
-            //st.setValue("VstiChunk", synth->vstiChunk(i, &length));
-            //st.setValue("VstiChunkLength",  QVariant::fromValue(length));
-        }
-        st.endArray();
-        #endif
-
-
-        QStringList busNames;
-        QStringList busFullNames;
-        int start = static_cast<int>(InstrumentType::BusGroup1);
-        for (int i=0; i<16; i++) {
-            InstrumentType type = static_cast<InstrumentType>(start + i);
-            busNames.append(chInstMap[type]->instrumentName());
-            busFullNames.append(chInstMap[type]->fullInstrumentName());
-        }
-        st.setValue("BusNames", busNames);
-        st.setValue("BusFullNames", busFullNames);
-
-
-        st.beginWriteArray("SynthMixer");
-        for (InstrumentType t : chInstMap.keys())
-        {
-            st.setArrayIndex(static_cast<int>(t));
-            st.setValue("Volume", synth->volume(t));
-            st.setValue("Mute", synth->isMute(t));
-            st.setValue("Solo", synth->isSolo(t));
-            st.setValue("Bus", synth->busGroup(t));
-            st.setValue("VSTi", synth->useVSTi(t));
-
-            QVariant v = QVariant::fromValue(synth->fxUids(t));
-            st.setValue("VstUid", v);
-
-            QVariant bypass = QVariant::fromValue(synth->fxBypass(t));
-            st.setValue("VstBypass", bypass);
-
-            QVariant vstPrograms = QVariant::fromValue(synth->fxProgram(t));
-            st.setValue("VstPrograms", vstPrograms);
-
-            QVariant vstParams = QVariant::fromValue(synth->fxParams(t));
-            st.setValue("VstParams", vstParams);
-        }
-        st.endArray();
-    }
+    this->settingValues();
     // ------------------------
 
     chInstMap.clear();
@@ -336,6 +268,7 @@ void SynthMixerDialog::setFXToSynth()
         QList<bool> vstBypass = st.value("VstBypass").value<QList<bool>>();
         QList<QList<float>> vstParams = st.value("VstParams").value<QList<QList<float>>>();
         QList<int> vstPrograms = st.value("VstPrograms").value<QList<int>>();
+        QList<QByteArray> vstChunks = st.value("VstChunks").value<QList<QByteArray>>();
 
         this->currentType = t;
 
@@ -345,6 +278,10 @@ void SynthMixerDialog::setFXToSynth()
 
             if (fx == nullptr)
                 continue;
+
+            if (fx->fxType() == FXType::VSTEffects && vstChunks.length() > 0) {
+                fx->setChunk(vstChunks[i]);
+            }
 
             fx->setProgram(vstPrograms[i]);
             fx->setParams(vstParams[i]);
@@ -369,6 +306,102 @@ QMap<InstrumentType, InstCh *> *SynthMixerDialog::mixChannelMapPtr()
     return &chInstMap;
 }
 
+void SynthMixerDialog::settingValues()
+{
+    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    st.setValue("Size", this->size());
+    st.setValue("SplitterSize", QVariant::fromValue(ui->splitter->sizes()));
+    st.setValue("ScrollInstrument", ui->scrollArea->horizontalScrollBar()->value());
+    st.setValue("ScrollBusGroup", ui->scrollArea_2->horizontalScrollBar()->value());
+
+    st.setValue("WindowNoParent", parent() == 0);
+    st.setValue("WindowStaysOnTop", staysOnTop);
+
+    // soundfont presets
+    st.setValue("SoundfontPresets", synth->soundfontPresets());
+
+    // Master Eq
+    auto eq = synth->equalizer31BandFXs()[0];
+    st.setValue("MasterEqOn", eq->isOn());
+    st.setValue("MasterEqParams", QVariant::fromValue(eq->params()));
+
+    // Master Chorus
+    auto chorus = synth->chorusFXs()[0];
+    st.setValue("MasterChorusOn", chorus->isOn());
+    st.setValue("MasterChorusParams", QVariant::fromValue(chorus->params()));
+
+    // Master Reverb
+    auto reverb = synth->reverbFXs()[0];
+    st.setValue("MasterReverbOn", reverb->isOn());
+    st.setValue("MasterReverbParams", QVariant::fromValue(reverb->params()));
+
+
+    LEDVu *vu = chInstMap.first()->vuBar();
+    st.setValue("LedColorOn1", vu->ledColorOn1().name());
+    st.setValue("LedColorOn2", vu->ledColorOn2().name());
+    st.setValue("LedColorOn3", vu->ledColorOn3().name());
+    st.setValue("LedColorOff1", vu->ledColorOff1().name());
+    st.setValue("LedColorOff2", vu->ledColorOff2().name());
+    st.setValue("LedColorOff3", vu->ledColorOff3().name());
+    st.setValue("ShowPeakHold", vu->isShowPeakHold());
+    st.setValue("PeakHoldMs", vu->peakHoldMs());
+
+
+    #ifndef __linux__
+    st.beginWriteArray("VSTiGroup");
+    for (int i=0; i<synth->HANDLE_VSTI_COUNT; i++)
+    {
+        st.setArrayIndex(i);
+
+        st.setValue("VstiFilePath", synth->vstiFile(i));
+        st.setValue("VstiPrograms", synth->vstiProgram(i));
+        st.setValue("VstiParams", QVariant::fromValue(synth->vstiParams(i)));
+        st.setValue("VstiChunk", synth->vstiChunk(i));
+    }
+    st.endArray();
+    #endif
+
+
+    QStringList busNames;
+    QStringList busFullNames;
+    int start = static_cast<int>(InstrumentType::BusGroup1);
+    for (int i=0; i<16; i++) {
+        InstrumentType type = static_cast<InstrumentType>(start + i);
+        busNames.append(chInstMap[type]->instrumentName());
+        busFullNames.append(chInstMap[type]->fullInstrumentName());
+    }
+    st.setValue("BusNames", busNames);
+    st.setValue("BusFullNames", busFullNames);
+
+
+    st.beginWriteArray("SynthMixer");
+    for (InstrumentType t : chInstMap.keys())
+    {
+        st.setArrayIndex(static_cast<int>(t));
+        st.setValue("Volume", synth->volume(t));
+        st.setValue("Mute", synth->isMute(t));
+        st.setValue("Solo", synth->isSolo(t));
+        st.setValue("Bus", synth->busGroup(t));
+        st.setValue("VSTi", synth->useVSTi(t));
+
+        QVariant v = QVariant::fromValue(synth->fxUids(t));
+        st.setValue("VstUid", v);
+
+        QVariant bypass = QVariant::fromValue(synth->fxBypass(t));
+        st.setValue("VstBypass", bypass);
+
+        QVariant vstPrograms = QVariant::fromValue(synth->fxProgram(t));
+        st.setValue("VstPrograms", vstPrograms);
+
+        QVariant vstParams = QVariant::fromValue(synth->fxParams(t));
+        st.setValue("VstParams", vstParams);
+
+        QVariant chunks = QVariant::fromValue(synth->fxChunks(t));
+        st.setValue("VstChunks", chunks);
+    }
+    st.endArray();
+}
+
 void SynthMixerDialog::setSoundfontPresets(int presets)
 {
     changeSoundfontPresets(presets);
@@ -389,10 +422,10 @@ void SynthMixerDialog::showEqDialog()
 
 void SynthMixerDialog::showReverbDialog()
 {
-    if (ReverbDialog::isOpenned())
+    if (Reverb2Dialog::isOpenned())
         return;
 
-    ReverbDialog *dlg = new ReverbDialog(this, synth->reverbFXs());
+    Reverb2Dialog *dlg = new Reverb2Dialog(this, synth->reverbFXs());
     dlg->adjustSize();
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);

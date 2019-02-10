@@ -200,8 +200,8 @@ void Reverb2FX::setBypass(bool b)
 
 void Reverb2FX::reset()
 {
-    setDryMix(0.0f);
-    setWetMix(1.0f);
+    setDryMix(0.5f);
+    setWetMix(2.0f);
     setRoomSize(0.5f);
     setDamp(0.5f);
     setWidth(1.0f);

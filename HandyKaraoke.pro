@@ -75,7 +75,9 @@ SOURCES += main.cpp\
     Dialogs/SpeakerDialog.cpp \
     Dialogs/Chorus2Dialog.cpp \
     BASSFX/Chorus2FX.cpp \
-    BASSFX/Reverb2FX.cpp
+    BASSFX/Reverb2FX.cpp \
+    Dialogs/Reverb2Dialog.cpp \
+    Midi/MidiFile2.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -114,7 +116,6 @@ HEADERS  += MainWindow.h \
     Widgets/FaderSlider.h \
     Widgets/VSTLabel.h \
     Midi/HNKFile.h \
-    Midi/lz77.h \
     BASSFX/FX.h \
     Widgets/CustomFXList.h \
     Dialogs/BusDialog.h \
@@ -143,7 +144,10 @@ HEADERS  += MainWindow.h \
     Dialogs/SpeakerDialog.h \
     Dialogs/Chorus2Dialog.h \
     BASSFX/Chorus2FX.h \
-    BASSFX/Reverb2FX.h
+    BASSFX/Reverb2FX.h \
+    Dialogs/Reverb2Dialog.h \
+    Midi/HNKFileComp.h \
+    Midi/MidiFile2.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -174,7 +178,8 @@ FORMS    += MainWindow.ui \
     FXDialogs/EchoFXDialog.ui \
     Widgets/PlaylistWidget.ui \
     Dialogs/SpeakerDialog.ui \
-    Dialogs/Chorus2Dialog.ui
+    Dialogs/Chorus2Dialog.ui \
+    Dialogs/Reverb2Dialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets

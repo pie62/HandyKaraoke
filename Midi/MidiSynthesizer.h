@@ -12,9 +12,8 @@
 #include "Midi/MidiHelper.h"
 #include "BASSFX/FX.h"
 #include "BASSFX/Equalizer31BandFX.h"
-#include "BASSFX/ChorusFX.h"
 #include "BASSFX/Chorus2FX.h"
-#include "BASSFX/ReverbFX.h"
+#include "BASSFX/Reverb2FX.h"
 
 #define SF_PRESET_COUNT 11
 
@@ -23,7 +22,7 @@ typedef struct
     DWORD handle;
     Equalizer31BandFX *eq;
     Chorus2FX *chorus;
-    ReverbFX *reverb;
+    Reverb2FX *reverb;
 } MixerHandle;
 
 typedef struct
@@ -124,7 +123,7 @@ public:
 
     // Fx ----------------------
     QList<Equalizer31BandFX *> equalizer31BandFXs();
-    QList<ReverbFX *> reverbFXs();
+    QList<Reverb2FX *> reverbFXs();
     QList<Chorus2FX *> chorusFXs();
 
     QMap<uint, VSTNamePath> VSTList() { return _vstList; }
@@ -146,6 +145,7 @@ public:
     QList<uint> fxUids(InstrumentType type);
     QList<bool> fxBypass(InstrumentType type);
     QList<int> fxProgram(InstrumentType type);
+    QList<QByteArray> fxChunks(InstrumentType type);
     QList<QList<float>> fxParams(InstrumentType type);
 
     #ifndef __linux__
@@ -155,7 +155,7 @@ public:
     DWORD vstiHandle(int vstiIndex);
     int vstiProgram(int vstiIndex);
     QList<float> vstiParams(int vstiIndex);
-    QByteArray vstiChunk(int vstiIndex, DWORD *length);
+    QByteArray vstiChunk(int vstiIndex);
     DWORD setVSTiFile(int vstiIndex, const QString &file);
     void removeVSTiFile(int vstiIndex);
     #endif
@@ -163,6 +163,7 @@ public:
     const int HANDLE_STREAM_COUNT = 62;
     const int HANDLE_MIDI_COUNT = 46;
     const int HANDLE_VSTI_START = 42;
+    const int HANDLE_VSTI_COUNT = 4;
     const int HANDLE_BUS_COUNT = 16;
     const int HANDLE_BUS_START = 46;
 
@@ -196,7 +197,6 @@ private:
     int mVstiTempProgram[4];
     QList<float> mVstiTempParams[4];
     QByteArray mVstiChunk[4];
-    DWORD mVstiChunkLength[4];
     #endif
 
     // unique ID,  VSTNamePAth
