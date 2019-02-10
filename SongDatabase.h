@@ -67,6 +67,8 @@ public slots:
     Song* searchNext();
     Song* searchPrevious();
 
+    bool removeCurrentSong(bool removeFromStorage = false);
+
 signals:
     void updateCountChanged(int c);
     void updatePositionChanged(int p);

@@ -4,6 +4,8 @@
     - แก้ VST และ VSTi ไม่จำค่าบางอย่าง (chunk data)
     - ย้ายการตั้งค่า Master effect (EQ, Chorus, Reverb) ไปไว้ในส่วนของ Synth Mixer
     - เปลี่ยน Chorus และ Reverb ใหม่
+    - เพิ่มความสามารถโปรแกรมรองรับไฟล์ .kar (.kar or .mid)
+    - เพิ่มความสามารถลบเพลงที่กำลังค้นหา (Ctrl + Delete)
     - เพิ่มความสามารถ Handy Synth Mixer บันทึกค่าอัตโนมัติทุกๆ 10 นาที
 
 2.2.0

@@ -24,6 +24,7 @@
 #include "Dialogs/Equalizer31BandDialog.h"
 #include "Dialogs/Chorus2Dialog.h"
 #include "Dialogs/Reverb2Dialog.h"
+#include "Dialogs/DeleteSongDialog.h"
 
 #ifndef __linux__
 #include "Dialogs/VSTDirsDialog.h"
@@ -888,6 +889,23 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 else
                     this->sendDrumPads(event, true);
                 break;
+        case Qt::Key_Delete:
+            if (ui->frameSearch->isVisible()) {
+                DeleteSongDialog dlg(this);
+                dlg.setModal(true);
+                dlg.adjustSize();
+                dlg.setFixedSize(dlg.size());
+                dlg.exec();
+
+                if (dlg.removeConfirmed()) {
+                    db->removeCurrentSong(dlg.removeFromStorage());
+                    setFrameSearch( db->searchNext() );
+                    if (ui->frameSearch->isVisible()) {
+                        timer2->start(search_timeout);
+                    }
+                }
+            }
+            break;
             default:
                 this->sendDrumPads(event, true);
                 break;

@@ -550,6 +550,59 @@ Song *SongDatabase::searchPrevious()
     return song;
 }
 
+bool SongDatabase::removeCurrentSong(bool removeFromStorage)
+{
+   QString sql = "DELETE FROM songs WHERE id = ? AND name = ? AND songtype = ? AND path = ?";
+
+   QSqlQuery q;
+   q.prepare(sql);
+   q.bindValue(0, song->id());
+   q.bindValue(1, song->name());
+   q.bindValue(2, song->songType());
+   q.bindValue(3, song->path());
+
+   if (!q.exec())
+       return false;
+
+   q.finish();
+   q.clear();
+
+   currentResultIndex--;
+
+   if (removeFromStorage)
+   {
+       if (song->songType() == "NCN")
+       {
+           QString midFilePath = _ncnPath + song->path();
+           QString curFilePath = getCurFilePath(midFilePath);
+           QString lyrFilePath = getLyrFilePath(midFilePath);
+
+           QFile f(midFilePath);
+           f.remove();
+
+           f.setFileName(curFilePath);
+           f.remove();
+
+           f.setFileName(lyrFilePath);
+           f.remove();
+       }
+       else if (song->songType() == "HNK")
+       {
+           QString path = _hnkPath + song->path();
+           QFile f(path);
+           f.remove();
+       }
+       else if (song->songType() == "KAR")
+       {
+           QString path = _karPath + song->path();
+           QFile f(path);
+           f.remove();
+       }
+   }
+
+   return true;
+}
+
 void SongDatabase::run()
 {
     if (!db.isOpen()) {

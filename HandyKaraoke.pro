@@ -76,7 +76,8 @@ SOURCES += main.cpp\
     Dialogs/Chorus2Dialog.cpp \
     BASSFX/Chorus2FX.cpp \
     BASSFX/Reverb2FX.cpp \
-    Dialogs/Reverb2Dialog.cpp
+    Dialogs/Reverb2Dialog.cpp \
+    Dialogs/DeleteSongDialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -145,7 +146,8 @@ HEADERS  += MainWindow.h \
     BASSFX/Chorus2FX.h \
     BASSFX/Reverb2FX.h \
     Dialogs/Reverb2Dialog.h \
-    Midi/HNKFileComp.h
+    Midi/HNKFileComp.h \
+    Dialogs/DeleteSongDialog.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
@@ -177,7 +179,8 @@ FORMS    += MainWindow.ui \
     Widgets/PlaylistWidget.ui \
     Dialogs/SpeakerDialog.ui \
     Dialogs/Chorus2Dialog.ui \
-    Dialogs/Reverb2Dialog.ui
+    Dialogs/Reverb2Dialog.ui \
+    Dialogs/DeleteSongDialog.ui
 
 
 INCLUDEPATH += $$PWD/Widgets
