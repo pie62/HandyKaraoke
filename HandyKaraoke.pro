@@ -76,9 +76,7 @@ SOURCES += main.cpp\
     Dialogs/Chorus2Dialog.cpp \
     BASSFX/Chorus2FX.cpp \
     BASSFX/Reverb2FX.cpp \
-    Dialogs/Reverb2Dialog.cpp \
-    Midi/MidiFile2.cpp \
-    Midi/MidiSequencer2.cpp
+    Dialogs/Reverb2Dialog.cpp
 
 HEADERS  += MainWindow.h \
     SettingsDialog.h \
@@ -147,9 +145,7 @@ HEADERS  += MainWindow.h \
     BASSFX/Chorus2FX.h \
     BASSFX/Reverb2FX.h \
     Dialogs/Reverb2Dialog.h \
-    Midi/HNKFileComp.h \
-    Midi/MidiFile2.h \
-    Midi/MidiSequencer2.h
+    Midi/HNKFileComp.h
 
 FORMS    += MainWindow.ui \
     SettingsDialog.ui \
