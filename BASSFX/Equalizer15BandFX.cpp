@@ -48,7 +48,7 @@ void Equalizer15BandFX::on()
 
     BASS_BFX_PEAKEQ eq;
     eq.fQ = 0;
-    eq.fBandwidth = 0.3333f;
+    eq.fBandwidth = 0.66666666666f;
     eq.lChannel = BASS_BFX_CHANALL;
 
     float eqfreq[15] = { 25, 40, 63, 100, 160, 250, 400, 630, 1000,
