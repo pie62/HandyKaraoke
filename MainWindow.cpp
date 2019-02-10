@@ -747,8 +747,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     synthMix->close();
 
     QMessageBox::StandardButton resBtn = QMessageBox::question(
-                                            this, "ออกจากโปรแกรม",
-                                            "ท่านต้องการออกจากโปรแกรม?",
+                                            this, tr("ออกจากโปรแกรม"),
+                                            tr("ท่านต้องการออกจากโปรแกรม?"),
                                             QMessageBox::Yes|QMessageBox::No);
     if (resBtn != QMessageBox::Yes) {
         event->ignore();
@@ -937,7 +937,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         else t = QString::number(trp);
         ui->songDetail->setDetail(&playingSong);
         ui->songDetail->adjustSize();
-        ui->detail->setDetail("คีย์เพลง ", t);
+        ui->detail->setDetail(tr("คีย์เพลง "), t);
         ui->detail->show();
         detailTimer->start(3000);
         if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -969,7 +969,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         else t = QString::number(trp);
         ui->songDetail->setDetail(&playingSong);
         ui->songDetail->adjustSize();
-        ui->detail->setDetail("คีย์เพลง ", t);
+        ui->detail->setDetail(tr("คีย์เพลง "), t);
         ui->detail->show();
         detailTimer->start(3000);
         if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -1312,19 +1312,19 @@ void MainWindow::showContextMenu(const QPoint &pos)
     QMenu menu(tr("Context menu"), this);
     menu.setMinimumWidth(230);
 
-    QAction actionSettings("ตั้งค่า...", this);
-    QAction actionMappChanel("แยกช่องสัญญาณ...", this);
-    QAction actionShowSynthMixDlg("Handy Synth Mixer...", this);
-    QAction actionShowEqDlg("อีควอไลเซอร์", this);
-    QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน", this);
-    QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง", this);
-    QAction actionMapSF("ตารางเลือกใช้ซาวด์ฟ้อนท์...", this);
-    QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
-    QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
+    QAction actionSettings(tr("ตั้งค่า..."), this);
+    QAction actionMappChanel(tr("แยกช่องสัญญาณ..."), this);
+    QAction actionShowSynthMixDlg(tr("Handy Synth Mixer..."), this);
+    QAction actionShowEqDlg(tr("อีควอไลเซอร์"), this);
+    QAction actionShowChorusDlg(tr("เอฟเฟ็กต์เสียงประสาน"), this);
+    QAction actionShowReverbDlg(tr("เอฟเฟ็กต์เสียงก้อง"), this);
+    QAction actionMapSF(tr("ตารางเลือกใช้ซาวด์ฟ้อนท์..."), this);
+    QAction actionSecondMonitor(tr("ระบบ 2 หน้าจอ"), this);
+    QAction actionFullScreen(tr("เต็มหน้าจอ (ย่อ/ขยาย)"), this);
     QAction actionCheckUpdate(tr("ตรวจสอบอัพเดท..."), this);
-    QAction actionAbout("เกี่ยวกับ...", this);
-    QAction actionAboutQt("เกี่ยวกับ Qt...", this);
-    QAction actionExit("ออกจากโปรแกรม", this);
+    QAction actionAbout(tr("เกี่ยวกับ..."), this);
+    QAction actionAboutQt(tr("เกี่ยวกับ Qt..."), this);
+    QAction actionExit(tr("ออกจากโปรแกรม"), this);
 
     if (secondLyr != nullptr) {
         actionSecondMonitor.setCheckable(true);
@@ -1353,16 +1353,16 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     // synth mixer tool
     {
-        QMenu *m = menu.addMenu("Handy Synth Mixer Tool");
+        QMenu *m = menu.addMenu(tr("Handy Synth Mixer Tool"));
 
-        QAction *act = m->addAction("บัสกรุ๊ป...");
+        QAction *act = m->addAction(tr("บัสกรุ๊ป..."));
         connect(act, SIGNAL(triggered()), this, SLOT(showBusGroupDialog()));
 
-        act = m->addAction("แยกอุปกรณ์เสียง/ลำโพง...");
+        act = m->addAction(tr("แยกอุปกรณ์เสียง/ลำโพง..."));
         connect(act, SIGNAL(triggered()), this, SLOT(showSpeakerDialog()));
 
         #ifndef __linux__
-        act = m->addAction("จัดการ VST && VSTi...");
+        act = m->addAction(tr("จัดการ VST && VSTi..."));
         connect(act, SIGNAL(triggered()), this, SLOT(showVSTDirDialog()));
         #endif
     }
@@ -1638,7 +1638,7 @@ void MainWindow::onSliderVolumeValueChanged(int value)
 {
     player->setVolume(value);
 
-    ui->detail->setDetail("ระดับเสียง", QString::number(value));
+    ui->detail->setDetail(tr("ระดับเสียง"), QString::number(value));
     ui->detail->show();
     detailTimer->start(3000);
     if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -1684,7 +1684,7 @@ void MainWindow::addBpmSpeed(int speed)
         value += QString::number(bpmSp) + ")";
     }
 
-    ui->detail->setDetail("ความเร็ว", value);
+    ui->detail->setDetail(tr("ความเร็ว"), value);
     ui->detail->show();
     detailTimer->start(3000);
     if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -1704,7 +1704,7 @@ void MainWindow::preSetBpmSpeed(int speed)
     else
         s = QString::number(speed);
 
-    ui->lbSearch->setText("ความเร็ว : " + QString::number(song->tempo() + speed) + " (" + s + ")");
+    ui->lbSearch->setText(tr("ความเร็ว : ") + QString::number(song->tempo() + speed) + " (" + s + ")");
     timer2->start(search_timeout);
 }
 
@@ -1721,7 +1721,7 @@ void MainWindow::preSetTranspose(int transpose)
         s = QString::number(transpose);
 
 
-    ui->lbSearch->setText("คีย์เพลง : " + s );
+    ui->lbSearch->setText(tr("คีย์เพลง : ") + s );
     timer2->start(search_timeout);
 }
 
