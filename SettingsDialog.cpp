@@ -467,8 +467,8 @@ void SettingsDialog::on_btnNCNPath_clicked()
         ui->leNCNPath->setText(path);
         db->setNcnPath(path);
     } else {
-        QString title = "ที่เก็บเพลงไม่ถูกต้อง";
-        QString msg = "ต้องมีโฟลเดอร์ Cursor, Lyrics, และ Song อยู่ในที่เก็บเพลง";
+        QString title = tr("ที่เก็บเพลงไม่ถูกต้อง");
+        QString msg = tr("ต้องมีโฟลเดอร์ Cursor, Lyrics, และ Song อยู่ในที่เก็บเพลง");
         QMessageBox::information(this, title, msg, QMessageBox::Ok);
     }
 
@@ -509,9 +509,9 @@ void SettingsDialog::on_btnKARPath_clicked()
 void SettingsDialog::on_btnUpdateSongs_clicked()
 {
     if (!db->isNCNPath(ui->leNCNPath->text())) {
-        QString title = "ไม่สามารถปรับปรุงฐานข้อมูลได้";
-        QString msg = "ไม่มีโฟลเดอร์ Cursor, Lyrics, หรือ Song อยู่ในที่เก็บเพลง NCN"
-                      "\nโปรดเลือกตำแหน่งที่เก็บเพลงให้ถูกต้อง";
+        QString title = tr("ไม่สามารถปรับปรุงฐานข้อมูลได้");
+        QString msg = tr("ไม่มีโฟลเดอร์ Cursor, Lyrics, หรือ Song อยู่ในที่เก็บเพลง NCN"
+                         "\nโปรดเลือกตำแหน่งที่เก็บเพลงให้ถูกต้อง");
         QMessageBox::information(this, title, msg, QMessageBox::Ok);
         return;
     }
@@ -917,7 +917,7 @@ void SettingsDialog::onSpinCurBorderOutWidthValueChanged(int arg1)
 void SettingsDialog::on_btnSfAdd_clicked()
 {
     QStringList sfFiles = QFileDialog::getOpenFileNames(this,
-                                                        "เลือกไฟล์ซาวด์ฟ้อนท์",
+                                                        tr("Add Soundfont"),
                                                         Utils::LAST_OPEN_DIR,
                                                         "SoundFont (*.sf2 *.SF2 *.sfz *.SFZ)");
 
@@ -931,9 +931,8 @@ void SettingsDialog::on_btnSfAdd_clicked()
             ui->listsfFiles->addItem(sf);
         else
         {
-            QString title = "ไฟล์ซาวด์ฟ้อนท์ไม่ถูกต้อง";
-            QString msg = "ไม่สามารถอ่านไฟล์ " + sf + " ได้"
-                          "\nโปรดลองเลือกไฟล์อื่น";
+            QString title = tr("ไฟล์ซาวด์ฟ้อนท์ไม่ถูกต้อง");
+            QString msg = tr("ไม่สามารถอ่านไฟล์ ") + sf + tr(" ได้\nโปรดลองเลือกไฟล์อื่น");
             QMessageBox::warning(this, title, msg, QMessageBox::Ok);
         }
     }
