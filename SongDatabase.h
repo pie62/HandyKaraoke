@@ -50,12 +50,16 @@ public:
     QString hnkPath() { return _hnkPath; }
     void setHNKPath(const QString &p) { _hnkPath = p; }
 
+    QString karPath() { return _karPath; }
+    void setKarPath(const QString &p) { _karPath = p; }
+
     UpdateType updateType() { return upType; }
     void setUpdateType(UpdateType type);
 
 public slots:
     bool insertNCN(const QString &ncnPath, const QString &songId, const QString &midFilePath);
     bool insertHNK(const QString &hnkPath, const QString &songId, const QString &hnkFilePath);
+    bool insertKAR(const QString &karPath, const QString &songId, const QString &karFilePath, const QString &fileName);
 
     void setSearchType(SearchType t) { searchType = t; }
     Song *nextType(const QString &s);
@@ -85,6 +89,8 @@ private:
     UpdateType upType = UpdateType::UpdateAll;
     QString _ncnPath = "";
     QString _hnkPath = "";
+    QString _karPath = "";
+
 
     int upCount = 0;
     bool upTing = false;

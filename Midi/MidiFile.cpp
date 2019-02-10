@@ -58,10 +58,16 @@ void MidiFile::clear()
     fNumOfTracks = 0;
     fResolution = 0;
     fDivision = PPQ;
+
+    fLyrics = "";
+    fLyricscursor.clear();
+
     for (MidiEvent *e : fEvents)
         delete e;
+
     fEvents.clear();
     fTempoEvents.clear();
+    fLyricsEvents.clear();
     fControllerEvents.clear();
     fProgramChangeEvents.clear();
     fTimeSignatureEvents.clear();
@@ -256,11 +262,19 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
 
     qStableSort(fEvents.begin(), fEvents.end(), isGreaterThan);
     qStableSort(fTempoEvents.begin(), fTempoEvents.end(), isGreaterThan);
+    qStableSort(fLyricsEvents.begin(), fLyricsEvents.end(), isGreaterThan);
     qStableSort(fControllerEvents.begin(), fControllerEvents.end(), isGreaterThan);
     qStableSort(fProgramChangeEvents.begin(), fProgramChangeEvents.end(), isGreaterThan);
     qStableSort(fTimeSignatureEvents.begin(), fTimeSignatureEvents.end(), isGreaterThan);
 
     in->close();
+
+    for (auto e : fLyricsEvents) {
+        QString lyr = e->data();
+        for (auto chr : lyr)
+            fLyricscursor.append(e->tick());
+        fLyrics += lyr;
+    }
 
     return true;
 }
@@ -275,6 +289,7 @@ MidiEvent *MidiFile::createMidiEvent(int track, uint32_t tick, uint32_t delta, M
     e->setChannel(ch);
     e->setData1(data1);
     e->setData2(data2);
+
     fEvents.append(e);
 
     return e;
@@ -289,9 +304,13 @@ MidiEvent *MidiFile::createMetaEvent(int track, uint32_t tick, uint32_t delta, i
     me->setEventType(MidiEventType::Meta);
     me->setMetaType(number);
     me->setData(data);
+
     fEvents.append(me);
+
     if (me->metaEventType() == MidiMetaType::SetTempo)
         fTempoEvents.append(me);
+    if (me->metaEventType() == MidiMetaType::Lyrics)
+        fLyricsEvents.append(me);
     if (me->metaEventType() == MidiMetaType::TimeSignature)
         fTimeSignatureEvents.append(me);
 
@@ -306,6 +325,7 @@ MidiEvent *MidiFile::createSysExEvent(int track, uint32_t tick, uint32_t delta, 
     e->setDelta(delta);
     e->setEventType(MidiEventType::SysEx);
     e->setData(data);
+
     fEvents.append(e);
 
     return e;

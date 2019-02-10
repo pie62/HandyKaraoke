@@ -38,6 +38,7 @@ private slots:
     // Database tab
     void on_btnNCNPath_clicked();
     void on_btnHNKPath_clicked();
+    void on_btnKARPath_clicked();
     void on_btnUpdateSongs_clicked();
     void on_upDbUpdateFinished();
 

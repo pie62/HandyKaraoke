@@ -155,6 +155,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     // Database
     ui->leNCNPath->setText(db->ncnPath());
     ui->leHNKPath->setText(db->hnkPath());
+    ui->leKARPath->setText(db->karPath());
     ui->lbCountSongsValue->setText(QString::number(db->count()) + " เพลง");
 
     if (db->isRunning())
@@ -162,6 +163,8 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         ui->barUpdateSongs->setMaximum(db->updateCount());
         ui->btnUpdateSongs->setEnabled(false);
         ui->btnNCNPath->setEnabled(false);
+        ui->btnHNKPath->setEnabled(false);
+        ui->btnKARPath->setEnabled(false);
         ui->lbCountSongsText->setEnabled(false);
         ui->lbCountSongsValue->setEnabled(false);
     }
@@ -487,6 +490,22 @@ void SettingsDialog::on_btnHNKPath_clicked()
     settings->setValue("HNKPath", path);
 }
 
+void SettingsDialog::on_btnKARPath_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(
+                this, tr("เลือกที่เก็บไฟล์เพลง KAR"), Utils::LAST_OPEN_DIR,
+                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (path == "")
+        return;
+
+    Utils::LAST_OPEN_DIR = path;
+
+    ui->leKARPath->setText(path);
+    db->setKarPath(path);
+    settings->setValue("KARPath", path);
+}
+
 void SettingsDialog::on_btnUpdateSongs_clicked()
 {
     if (!db->isNCNPath(ui->leNCNPath->text())) {
@@ -517,6 +536,7 @@ void SettingsDialog::on_upDbUpdateFinished()
 { 
     ui->btnHNKPath->setEnabled(true);
     ui->btnNCNPath->setEnabled(true);
+    ui->btnKARPath->setEnabled(true);
     ui->lbCountSongsText->setEnabled(true);
     ui->lbCountSongsValue->setEnabled(true);
     ui->lbUpdateText->hide();

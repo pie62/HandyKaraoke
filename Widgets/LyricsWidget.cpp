@@ -78,7 +78,13 @@ void LyricsWidget::setLyrics(const QString &lyr, const QList<long> &curs)
     cursors.clear();
     lyrics.clear();
 
-    lyrics = lyr.split("\r\n");
+    if (lyr.length() > 0) {
+        lyrics = lyr.split(QRegExp("\n|\r\n|\r"));
+    } else {
+        lyrics.append("");
+        lyrics.append("");
+    }
+
     cursors = curs;
 
     // ค้นหา บรรทัดว่าง

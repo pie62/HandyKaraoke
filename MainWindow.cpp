@@ -84,10 +84,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
+    QString kar = settings->value("KARPath", QDir::currentPath() + "/Songs/KAR").toString();
 
     db = new SongDatabase();
     db->setNcnPath(ncn);
     db->setHNKPath(hnk);
+    db->setKarPath(kar);
 
 
     timer1 = new QTimer();
@@ -514,41 +516,43 @@ void MainWindow::play(int index, int position)
 
 
     // NCN File
-    if (playingSong.songType() == "NCN") {
-
+    if (playingSong.songType() == "NCN")
+    {
         QString p = db->ncnPath() + playingSong.path();
         if (!player->load(p, true)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ " + p +
-                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ ") + p +
+                                 tr("\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             return;
         }
 
         QString curPath = db->getCurFilePath(p);
         if (curPath == "" || !QFile::exists(curPath)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ Cursor หรัส " + playingSong.id() +
-                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ Cursor หรัส ") + playingSong.id() +
+                                 tr("\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             return;
         }
 
         QString lyrPath = db->getLyrFilePath(p);
         if (lyrPath == "" || !QFile::exists(lyrPath)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ Lyrics รหัส " + playingSong.id() +
-                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ Lyrics รหัส ") + playingSong.id() +
+                                 tr("\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             return;
         }
 
         lyrWidget->setLyrics(Utils::readLyrics(lyrPath),
             Utils::readCurFile(curPath, player->midiFile()->resorution()));
 
-    } else if (playingSong.songType() == "HNK") {
+    }
+    else if (playingSong.songType() == "HNK")
+    {
         // HNK File
         QString p = db->hnkPath() + playingSong.path();
         if (!QFile::exists(p)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ " + p, QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ ") + p, QMessageBox::Ok);
             return;
         }
 
@@ -561,8 +565,8 @@ void MainWindow::play(int index, int position)
         mid.close();
 
         if (!player->load(TEMP_MIDI_DIR_PATH, true)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             mid.remove();
             return;
         }
@@ -572,6 +576,28 @@ void MainWindow::play(int index, int position)
         lyrWidget->setLyrics(Utils::readLyrics(HNKFile::lyrData(p)),
             Utils::readCurFile(HNKFile::curData(p), player->midiFile()->resorution()));
 
+    }
+    else if (playingSong.songType() == "KAR")
+    {
+        // KAR file
+        QString p = db->karPath() + playingSong.path();
+        if (!QFile::exists(p)) {
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ ") + p, QMessageBox::Ok);
+            return;
+        }
+
+        if (!player->load(p, false)) {
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
+            return;
+        }
+
+        lyrWidget->setLyrics(player->midiFile()->lyrics(), player->midiFile()->lyricsCursor());
+    }
+    else
+    {
+        return;
     }
 
     if (secondLyr != nullptr)
@@ -1272,6 +1298,10 @@ void MainWindow::setFrameSearch(Song *s)
         ui->lbTempoKey->setText(" (" + QString::number(s->tempo()) + ")");
     ui->lbType->setText("[" + s->songType() + "]");
     ui->lbLyrics->setText(s->lyrics().replace("\r\n", " "));
+
+    if (s->artist().length() == 0) {
+        ui->lbBtw->hide();
+    }
 }
 
 void MainWindow::showContextMenu(const QPoint &pos)

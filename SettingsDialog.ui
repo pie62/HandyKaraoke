@@ -1167,8 +1167,22 @@
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="leNCNPath">
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_25">
+              <property name="text">
+               <string>KAR :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_22">
+              <property name="text">
+               <string>HNK :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="leHNKPath">
               <property name="readOnly">
                <bool>true</bool>
               </property>
@@ -1200,15 +1214,8 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_22">
-              <property name="text">
-               <string>HNK :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="leHNKPath">
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="leNCNPath">
               <property name="readOnly">
                <bool>true</bool>
               </property>
@@ -1216,6 +1223,32 @@
             </item>
             <item row="1" column="2">
              <widget class="QPushButton" name="btnHNKPath">
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="leKARPath">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="btnKARPath">
               <property name="minimumSize">
                <size>
                 <width>40</width>

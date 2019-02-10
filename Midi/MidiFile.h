@@ -30,8 +30,13 @@ public:
     int numberOfTracks() { return fNumOfTracks; }
     int resorution() { return fResolution; }
     DivisionType divisionType() { return fDivision; }
+
+    QString lyrics() { return fLyrics; }
+    QList<long> lyricsCursor() { return fLyricscursor; }
+
     QList<MidiEvent*> events() { return fEvents; }
     QList<MidiEvent*> tempoEvents() { return fTempoEvents; }
+    QList<MidiEvent*> lyricsEvents() { return fLyricsEvents; }
     QList<MidiEvent*> controllerEvents() { return fControllerEvents; }
     QList<MidiEvent*> programChangeEvents() { return fProgramChangeEvents; }
     QList<MidiEvent*> timeSignatureEvents() { return fTimeSignatureEvents; }
@@ -54,8 +59,13 @@ private:
     int fNumOfTracks;
     int fResolution;
     DivisionType fDivision;
+
+    QString fLyrics;
+    QList<long> fLyricscursor;
+
     QList<MidiEvent*> fEvents;
     QList<MidiEvent*> fTempoEvents;
+    QList<MidiEvent*> fLyricsEvents;
     QList<MidiEvent*> fControllerEvents;
     QList<MidiEvent*> fProgramChangeEvents;
     QList<MidiEvent*> fTimeSignatureEvents;
