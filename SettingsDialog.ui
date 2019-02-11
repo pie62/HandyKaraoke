@@ -360,7 +360,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_10">
            <property name="title">
-            <string>รูปแบบเนื้อเพลง</string>
+            <string>รูปแบบตัวอักษร</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <item>
@@ -589,7 +589,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_4">
            <property name="title">
-            <string>เนื้อเพลง</string>
+            <string>รูปแบบเนื้อเพลง</string>
            </property>
            <layout class="QFormLayout" name="formLayout_2">
             <item row="0" column="0">
@@ -863,7 +863,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_5">
            <property name="title">
-            <string>ตำแหน่งเนื้อร้อง</string>
+            <string>รูปแบบตำแหน่งเนื้อร้อง</string>
            </property>
            <layout class="QFormLayout" name="formLayout_4">
             <item row="0" column="0">
@@ -1410,7 +1410,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_7">
          <property name="title">
-          <string>อุปกรณ์เสียงขาออก</string>
+          <string>อุปกรณ์เสียง</string>
          </property>
          <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
@@ -1440,10 +1440,10 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnMapChannel">
-              <property name="maximumSize">
+              <property name="minimumSize">
                <size>
                 <width>90</width>
-                <height>16777215</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">

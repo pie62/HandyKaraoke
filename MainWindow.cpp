@@ -530,7 +530,7 @@ void MainWindow::play(int index, int position)
         QString curPath = db->getCurFilePath(p);
         if (curPath == "" || !QFile::exists(curPath)) {
             QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
-                                 tr("ไม่มีไฟล์ Cursor หรัส ") + playingSong.id() +
+                                 tr("ไม่มีไฟล์ Cursor รหัส ") + playingSong.id() +
                                  tr("\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             return;
         }

@@ -42,7 +42,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>เปิด / ปิด  เสียงประสาน</string>
+        <string>เปิด / ปิด  เสียงก้อง</string>
        </property>
       </widget>
      </item>
