@@ -2283,7 +2283,7 @@ Please try again</translation>
     <message>
         <location filename="../SettingsDialog.ui" line="1813"/>
         <source>ตารางเลือกใช้ซาวด์ฟ้อนท์</source>
-        <translation type="unfinished">Soundfont mapping table...</translation>
+        <translation type="unfinished">Soundfont mapping table</translation>
     </message>
     <message>
         <location filename="../SettingsDialog.ui" line="1867"/>

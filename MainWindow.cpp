@@ -83,6 +83,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
 
+    // lang
+    QString lang = settings->value("Language", "th").toString();
+    if (lang == "en")
+        setEngLang();
+
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
     QString kar = settings->value("KARPath", QDir::currentPath() + "/Songs/KAR").toString();
@@ -1394,6 +1399,22 @@ void MainWindow::showContextMenu(const QPoint &pos)
     menu.addAction(&actionFullScreen);
     menu.addSeparator();
 
+    { // lang menu
+        QMenu *m = menu.addMenu(tr("Language"));
+
+        QAction *act = m->addAction("ไทย");
+        act->setCheckable(true);
+        act->setChecked(currentLang == "th");
+        connect(act, SIGNAL(triggered()), this, SLOT(setThaiLang()));
+
+        act = m->addAction("English");
+        act->setCheckable(true);
+        act->setChecked(currentLang == "en");
+        connect(act, SIGNAL(triggered()), this, SLOT(setEngLang()));
+
+        menu.addSeparator();
+    }
+
     #ifdef _WIN32
     menu.addAction(&actionCheckUpdate);
     #endif
@@ -1540,6 +1561,31 @@ void MainWindow::showFullScreenOrNormal()
         this->showNormal();
     } else {
         this->showFullScreen();
+    }
+}
+
+void MainWindow::setThaiLang()
+{
+    if (currentLang == "th")
+        return;
+
+    if (QApplication::removeTranslator(&translator)) {
+        currentLang = "th";
+        settings->setValue("Language", currentLang);
+    }
+}
+
+void MainWindow::setEngLang()
+{
+    if (currentLang == "en")
+        return;
+
+    QString path = QApplication::applicationDirPath() + "/languages/en.qm";
+
+    if (translator.load(path)) {
+        QApplication::installTranslator(&translator);
+        currentLang = "en";
+        settings->setValue("Language", currentLang);
     }
 }
 

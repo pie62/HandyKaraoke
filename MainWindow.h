@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QLocale>
 #include <QSettings>
+#include <QTranslator>
 
 #ifdef _WIN32
 #include <QWinTaskbarButton>
@@ -118,6 +119,9 @@ private:
 
     bool firstShow = true;
 
+    QString currentLang = "th";
+    QTranslator translator;
+
 private slots:
     void showFrameSearch();
     void showPlaylist();
@@ -140,6 +144,8 @@ private slots:
     void showMapSFDialog();
     void showSecondMonitor();
     void showFullScreenOrNormal();
+    void setThaiLang();
+    void setEngLang();
     void showCheckUpdateDialog();
     void showAboutDialog();
     void showAboutQtDialog();
