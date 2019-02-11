@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Handy Karaoke"
-#define MyAppVersion "2.2.0"
+#define MyAppVersion "2.3.0"
 #define MyAppPublisher "pie62"
 #define MyAppURL "https://github.com/pie62/HandyKaraoke"
 #define MyAppExeName "HandyKaraoke.exe"
@@ -27,7 +27,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=D:\Projects\QtProjects\HandyKaraoke\gpl-3.0.rtf
 OutputDir=C:\Users\Noob\Desktop\HandyKaraoke_setup
-OutputBaseFilename=HandyKaraoke-2.2.0-x86-setup
+OutputBaseFilename=HandyKaraoke-2.3.0-x86-setup
 SetupIconFile=D:\Projects\QtProjects\HandyKaraoke\icon.ico
 Compression=lzma
 SolidCompression=yes
@@ -82,19 +82,21 @@ Source: "C:\Users\Noob\Desktop\hdk-x86\sqldrivers\qsqlite.dll"; DestDir: "{app}\
 Source: "C:\Users\Noob\Desktop\hdk-x86\sqldrivers\qsqlmysql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
 Source: "C:\Users\Noob\Desktop\hdk-x86\sqldrivers\qsqlodbc.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
 Source: "C:\Users\Noob\Desktop\hdk-x86\sqldrivers\qsqlpsql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x86\languages\en.qm"; DestDir: "{app}\languages"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{#HelperName}"; Filename: "{app}\{#HelperExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{commondesktop}\{#HelperName}"; Filename: "{app}\{#HelperExeName}"
+Name: "{commondesktop}\{#HelperName}"; Filename: "{app}\{#HelperExeName}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Dirs]
 Name: "{app}\Songs\HNK"; Flags: uninsneveruninstall
+Name: "{app}\Songs\KAR"; Flags: uninsneveruninstall
 Name: "{app}\Songs\NCN"; Flags: uninsneveruninstall
 Name: "{app}\Songs\NCN\Cursor"; Flags: uninsneveruninstall
 Name: "{app}\Songs\NCN\Lyrics"; Flags: uninsneveruninstall
