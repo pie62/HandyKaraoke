@@ -1,7 +1,11 @@
 #ifndef MIDIOUT_H
 #define MIDIOUT_H
 
+#ifdef __linux__
+#include <rtmidi/RtMidi.h>
+#else
 #include <RtMidi.h>
+#endif
 
 class MidiOut : public RtMidiOut
 {

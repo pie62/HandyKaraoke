@@ -240,6 +240,7 @@ win32 {
 
 unix:!macx {
     LIBS +=  -lrtmidi
+    QMAKE_LFLAGS += -no-pie
     RESOURCES += \
         fonts.qrc
 
