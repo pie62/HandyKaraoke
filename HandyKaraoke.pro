@@ -23,6 +23,7 @@ SOURCES += main.cpp\
     Midi/MidiOut.cpp \
     Midi/Channel.cpp \
     Midi/MidiSynthesizer.cpp \
+    Widgets/Background.cpp \
     Widgets/ChMx.cpp \
     Widgets/LyricsWidget.cpp \
     Widgets/RhythmWidget.cpp \
@@ -88,6 +89,7 @@ HEADERS  += MainWindow.h \
     Midi/MidiOut.h \
     Midi/Channel.h \
     Midi/MidiSynthesizer.h \
+    Widgets/Background.h \
     Widgets/ChMx.h \
     Widgets/LyricsWidget.h \
     Widgets/RhythmWidget.h \

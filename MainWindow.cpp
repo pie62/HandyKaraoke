@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // End Init BASS
 
 
+    bgWidget = new Background(this);
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
 
@@ -149,18 +150,11 @@ MainWindow::MainWindow(QWidget *parent) :
         auto_playnext = aPlayNext;
 
         int bg = settings->value("BackgroundType", 0).toInt();
-        if (bg == 0) {
-            QString color = settings->value("BackgroundColor", "#525252").toString();
-            setBackgroundColor(color);
-        } else {
-            QString img = settings->value("BackgroundImage", "").toString();
-            if (img != "" && QFile::exists(img)) {
-                setBackgroundImage(img);
-            } else {
-                QString color = settings->value("BackgroundColor", "#525252").toString();
-                setBackgroundColor(color);
-            }
-        }
+        QString bgColor = settings->value("BackgroundColor", "#515151").toString();
+        QString bgImg = settings->value("BackgroundImage", "").toString();
+        bgWidget->setBackgroundType((Background::BackgroundType)bg);
+        bgWidget->setBackgroundColor(bgColor);
+        bgWidget->setBackgroundImage(bgImg);
 
         int w       = settings->value("WindowWidth", this->minimumWidth()).toInt();
         int h       = settings->value("WindowHeight", this->minimumHeight()).toInt();
@@ -451,29 +445,9 @@ MainWindow::~MainWindow()
 
     delete updateDetail;
     delete lyrWidget;
+    delete bgWidget;
 
     BASS_Free();
-}
-
-void MainWindow::setBackgroundColor(const QString &colorName)
-{
-    bgType = 0;
-    bgColor = colorName;
-    this->setStyleSheet("#MainWindow {background-color: " + colorName + ";}");
-}
-
-void MainWindow::setBackgroundImage(const QString &img)
-{
-    if (QFile::exists(img)) {
-        this->setStyleSheet("");
-        bgType = 1;
-        bgImg = img;
-        QPixmap bg(img);
-        bg = bg.scaled(this->size(), Qt::IgnoreAspectRatio);
-        QPalette palette;
-        palette.setBrush(QPalette::Background, bg); //set the pic to the background
-        this->setPalette(palette); //show the background pic
-    }
 }
 
 void MainWindow::play(int index, int position)
@@ -739,10 +713,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
-    if (bgType == 1) {
-        setBackgroundImage(bgImg);
-        QMainWindow::resizeEvent(event);
-    }
+    QMainWindow::resizeEvent(event);
+    bgWidget->resize(ui->centralWidget->size());
     lyrWidget->resize(ui->centralWidget->size());
     updateDetail->move(width() - 260, 70);
     emit resized(event->size());
@@ -1535,10 +1507,10 @@ void MainWindow::showSecondMonitor()
         secondMonitor->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         #endif
 
-        if (bgType == 0)
-            secondMonitor->setBackgroundColor(bgColor);
-        else
-            secondMonitor->setBackgroundImage(bgImg);
+        Background *bg = secondMonitor->backgroundWidget();
+        bg->setBackgroundType(bgWidget->backgroundType());
+        bg->setBackgroundColor(bgWidget->backgroundColor());
+        bg->setBackgroundImage(bgWidget->backgroundImage());
 
         secondLyr = secondMonitor->lyrWidget();
         secondMonitor->show();
@@ -1570,6 +1542,7 @@ void MainWindow::setThaiLang()
         return;
 
     if (QApplication::removeTranslator(&translator)) {
+        QApplication::processEvents();
         currentLang = "th";
         settings->setValue("Language", currentLang);
     }
@@ -1584,6 +1557,7 @@ void MainWindow::setEngLang()
 
     if (translator.load(path)) {
         QApplication::installTranslator(&translator);
+        QApplication::processEvents();
         currentLang = "en";
         settings->setValue("Language", currentLang);
     }

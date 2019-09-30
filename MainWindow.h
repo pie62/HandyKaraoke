@@ -14,6 +14,7 @@
 #include <winsparkle.h>
 #endif
 
+#include <Background.h>
 #include <LyricsWidget.h>
 #include <Detail.h>
 #include <ChannelMixer.h>
@@ -40,6 +41,7 @@ public:
 
     SongDatabase* database() { return db; }
     MidiPlayer* midiPlayer() { return player; }
+    Background *backgroundWidget() { return bgWidget; }
     LyricsWidget* lyricsWidget() { return lyrWidget; }
     LyricsWidget* secondLyrics() { return secondLyr; }
     SecondMonitorDialog* secondMonitorDlg() { return secondMonitor; }
@@ -52,9 +54,6 @@ public:
     void setAutoPlayNext(bool p) { auto_playnext = p; }
     void setSearchTimeout(int s) { search_timeout = s*1000; }
     void setPlaylistTimeout(int s) { playlist_timeout = s*1000; }
-    void setBackgroundColor(const QString &colorName);
-    void setBackgroundImage(const QString &img);
-
 
     // Synth Mixer
     SynthMixerDialog* synthMixerDialog() { return synthMix; }
@@ -80,47 +79,6 @@ protected:
 
 private:
     static void updateShutdownRequest();
-
-private:
-    Ui::MainWindow *ui;
-    QSettings *settings;
-    SongDatabase *db;
-    QTimer *timer1, *timer2, *positionTimer, *lyricsTimer;
-    QTimer *detailTimer;
-
-    QList<Song*> playlist;
-    MidiPlayer *player;
-    Song playingSong;
-    int playingIndex = -1;
-    bool playAfterSeek = false;
-    bool searchBoxChangeBpm = false;
-
-    LyricsWidget *lyrWidget, *secondLyr = nullptr;
-    Detail *updateDetail;
-
-    int bgType = 0;
-    QString bgImg = "", bgColor = "#525252";
-    bool remove_playlist = true;
-    bool auto_playnext = true;
-    int search_timeout = 5000;
-    int playlist_timeout = 5000;
-    int songDetail_timeout = 4000;
-
-    QLocale locale;
-
-    SecondMonitorDialog *secondMonitor = nullptr;
-
-    // Synth Mixer
-    SynthMixerDialog *synthMix;
-
-    #ifdef _WIN32
-    QWinTaskbarButton *taskbarButton;
-    #endif
-
-    bool firstShow = true;
-
-    QString currentLang = "th";
-    QTranslator translator;
 
 private slots:
     void showFrameSearch();
@@ -180,6 +138,49 @@ private slots:
 
     void savePlaylist();
     void loadPlaylist();
+
+private:
+    Ui::MainWindow *ui;
+    QSettings *settings;
+    SongDatabase *db;
+    QTimer *timer1, *timer2, *positionTimer, *lyricsTimer;
+    QTimer *detailTimer;
+
+    QList<Song*> playlist;
+    MidiPlayer *player;
+    Song playingSong;
+    int playingIndex = -1;
+    bool playAfterSeek = false;
+    bool searchBoxChangeBpm = false;
+
+    Background *bgWidget = nullptr;
+    LyricsWidget *lyrWidget, *secondLyr = nullptr;
+    Detail *updateDetail;
+
+//    int bgType = 0;
+//    QString bgImg = "", bgColor = "#525252";
+    bool remove_playlist = true;
+    bool auto_playnext = true;
+    int search_timeout = 5000;
+    int playlist_timeout = 5000;
+    int songDetail_timeout = 4000;
+
+    QLocale locale;
+
+    SecondMonitorDialog *secondMonitor = nullptr;
+
+    // Synth Mixer
+    SynthMixerDialog *synthMix;
+
+    #ifdef _WIN32
+    QWinTaskbarButton *taskbarButton;
+    #endif
+
+    bool firstShow = true;
+
+    QString currentLang = "th";
+    QTranslator translator;
+
 };
 
 #endif // MAINWINDOW_H

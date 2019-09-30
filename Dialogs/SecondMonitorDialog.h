@@ -1,6 +1,7 @@
 #ifndef SECONDMONITORDIALOG_H
 #define SECONDMONITORDIALOG_H
 
+#include "Widgets/Background.h"
 #include "Widgets/LyricsWidget.h"
 
 #include <QDialog>
@@ -17,8 +18,7 @@ public:
     explicit SecondMonitorDialog(QWidget *parent = 0, LyricsWidget *lyr = nullptr);
     ~SecondMonitorDialog();
 
-    void setBackgroundColor(const QString &colorName);
-    void setBackgroundImage(const QString &img);
+    Background *backgroundWidget();
 
     LyricsWidget *lyrWidget();
 
@@ -27,8 +27,7 @@ protected:
 
 private:
     Ui::SecondMonitorDialog *ui;
-    bool useBgImg = false;
-    QString bgImg = "";
+    Background *bgWidget = nullptr;
 };
 
 #endif // SECONDMONITORDIALOG_H

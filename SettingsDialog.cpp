@@ -33,22 +33,28 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         ui->spinSearch->setValue( mainWin->searchTimeout() );
         ui->spinPlaylist->setValue( mainWin->playlistTimout() );
 
-        int bg = settings->value("BackgroundType", 0).toInt();
-        QString color = settings->value("BackgroundColor", "#525252").toString();
-        QString img = settings->value("BackgroundImage", "").toString();
-        ui->lbBgColor->setText(color);
-        ui->lbBgColor->setStyleSheet("background-color : " + color);
-        ui->leBgImgPath->setText(img);
-        if (bg == 0 || img == "") {
+//        int bg = settings->value("BackgroundType", 0).toInt();
+//        QString color = settings->value("BackgroundColor", "#525252").toString();
+//        QString img = settings->value("BackgroundImage", "").toString();
+
+        ui->lbBgColor->setText(mainWin->backgroundWidget()->backgroundColor().name());
+        ui->lbBgColor->setStyleSheet("background-color : " + ui->lbBgColor->text());
+        ui->leBgImgPath->setText(mainWin->backgroundWidget()->backgroundImage());
+        switch (mainWin->backgroundWidget()->backgroundType()) {
+        case Background::Color:
             ui->radioBgColor->setChecked(true);
             ui->lbBgImgN->setEnabled(false);
             ui->btnBgImg->setEnabled(false);
             ui->leBgImgPath->setEnabled(false);
-        } else {
+            break;
+        case Background::Image:
             ui->radioBgImg->setChecked(true);
             ui->lbBgColorN->setEnabled(false);
             ui->lbBgColor->setEnabled(false);
             ui->btnBgColor->setEnabled(false);
+            break;
+        default:
+            break;
         }
 
         #ifdef _WIN32
@@ -378,10 +384,10 @@ void SettingsDialog::onRadioBgColorToggled(bool checked)
         ui->btnBgImg->setEnabled(false);
         ui->leBgImgPath->setEnabled(false);
 
-        settings->setValue("BackgroundType", 0);
-        mainWin->setBackgroundColor(ui->lbBgColor->text());
+        settings->setValue("BackgroundType", Background::Color);
+        mainWin->backgroundWidget()->setBackgroundType(Background::Color);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundColor(ui->lbBgColor->text());
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundType(Background::Color);
     }
 }
 
@@ -396,10 +402,10 @@ void SettingsDialog::onRadioBgImgToggled(bool checked)
         ui->lbBgColor->setEnabled(false);
         ui->btnBgColor->setEnabled(false);
 
-        settings->setValue("BackgroundType", 1);
-        mainWin->setBackgroundImage(ui->leBgImgPath->text());
+        settings->setValue("BackgroundType", Background::Image);
+        mainWin->backgroundWidget()->setBackgroundType(Background::Image);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundImage(ui->leBgImgPath->text());
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundType(Background::Image);
     }
 }
 
@@ -412,9 +418,9 @@ void SettingsDialog::on_btnBgColor_clicked()
         settings->setValue("BackgroundColor", color.name());
         ui->lbBgColor->setText(color.name());
         ui->lbBgColor->setStyleSheet("background-color : " + color.name());
-        mainWin->setBackgroundColor(color.name());
+        mainWin->backgroundWidget()->setBackgroundColor(color);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundColor(color.name());
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundColor(color);
     }
 }
 
@@ -427,9 +433,9 @@ void SettingsDialog::on_btnBgImg_clicked()
     if (f != "") {
         settings->setValue("BackgroundImage", f);
         ui->leBgImgPath->setText(f);
-        mainWin->setBackgroundImage(f);
+        mainWin->backgroundWidget()->setBackgroundImage(f);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundImage(f);
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundImage(f);
 
         Utils::LAST_OPEN_DIR = QFileInfo(f).dir().absolutePath();//QDir().absoluteFilePath(f);
     }

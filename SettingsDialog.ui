@@ -12,6 +12,7 @@
   </property>
   <property name="font">
    <font>
+    <family>Tahoma</family>
     <pointsize>10</pointsize>
    </font>
   </property>
@@ -37,7 +38,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -186,6 +187,8 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>Tahoma</family>
+                    <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
@@ -617,6 +620,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -688,6 +693,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -785,6 +792,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -891,6 +900,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -962,6 +973,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1059,6 +1072,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1348,6 +1363,7 @@
           <widget class="QLabel" name="lbCountSongsText">
            <property name="font">
             <font>
+             <family>Tahoma</family>
              <pointsize>11</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -1362,6 +1378,7 @@
           <widget class="QLabel" name="lbCountSongsValue">
            <property name="font">
             <font>
+             <family>Tahoma</family>
              <pointsize>11</pointsize>
              <weight>75</weight>
              <bold>true</bold>
