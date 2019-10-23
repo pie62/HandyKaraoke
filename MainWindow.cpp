@@ -919,6 +919,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         playNext();
         break;
     }
+    case Qt::Key_Asterisk: {
+        if (ui->chMix->isMuteVoice()) {
+            ui->chMix->setMuteVoice(false);
+            ui->detail->setDetail(tr("เสียงร้อง "), tr("เปิด"));
+        } else {
+            ui->chMix->setMuteVoice(true);
+            ui->detail->setDetail(tr("เสียงร้อง "), tr("ปิด"));
+        }
+        ui->detail->show();
+        detailTimer->start(3000);
+        if (this->width() < 1160 && ui->chMix->isVisible()) {
+            ui->lcdTime->hide();
+        }
+        break;
+    }
     case Qt::Key_Insert: {
         if (ui->frameSearch->isVisible()) {
             preSetTranspose(db->currentSong()->transpose() + 1);

@@ -35,6 +35,9 @@ public:
     void setPlayer(MidiPlayer *p);
     void peak(int ch, int value);
 
+    bool isMuteVoice();
+    void setMuteVoice(bool mute);
+
 public slots:
     void showDeTail(int ch);
     void onPlayerLoaded();

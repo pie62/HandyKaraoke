@@ -155,6 +155,21 @@ void ChannelMixer::peak(int ch, int value)
     chs[ch]->peak(value);
 }
 
+bool ChannelMixer::isMuteVoice()
+{
+    return player->midiChannel()[8].isMute();
+}
+
+void ChannelMixer::setMuteVoice(bool mute)
+{
+    if (player == nullptr)
+        return;
+
+    ui->chbMuteVoice->setChecked(mute);
+    player->setMute(8, mute);
+    chs[8]->setMuteButton(mute);
+}
+
 void ChannelMixer::showDeTail(int ch)
 {
     disconnect(ui->cbInts, SIGNAL(activated(int)), this, SLOT(onCbIntsActivated(int)));
@@ -342,11 +357,8 @@ void ChannelMixer::setPanToolTip(int value)
 }
 
 void ChannelMixer::onChbMuteVoiceToggled(bool checked)
-{if (player == nullptr)
-        return;
-
-    player->setMute(8, checked);
-    chs[8]->setMuteButton(checked);
+{
+    setMuteVoice(checked);
 }
 
 void ChannelMixer::onChbLockToggled(bool checked)
