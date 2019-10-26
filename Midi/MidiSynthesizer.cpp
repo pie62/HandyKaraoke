@@ -11,6 +11,7 @@
 
 #include <cstring>
 
+QMap<int, QString> MidiSynthesizer::outDevices;
 
 MidiSynthesizer::MidiSynthesizer(QObject *parent) : QObject(parent)
 {   
@@ -614,101 +615,15 @@ void MidiSynthesizer::sendNoteAftertouch(int ch, int note, int value)
 
 void MidiSynthesizer::sendController(int ch, int number, int value)
 {
-    DWORD et;
-
-    switch (number) {
-    case 0:
-        et = MIDI_EVENT_BANK; break;
-    case 1:
-        et = MIDI_EVENT_MODULATION; break;
-    case 5:
-        et = MIDI_EVENT_PORTATIME; break;
-        /*
-    case 6:
-    case 38:
-        if (RPNType == 0)
-            return;
-        et = RPNType;
-        break;
-        */
-    case 7:
-        et = MIDI_EVENT_VOLUME; break;
-    case 10:
-        et = MIDI_EVENT_PAN; break;
-    case 11:
-        et = MIDI_EVENT_EXPRESSION; break;
-    case 32:
-        et = MIDI_EVENT_BANK_LSB; break;
-    case 64:
-        et = MIDI_EVENT_SUSTAIN; break;
-    case 65:
-        et = MIDI_EVENT_PORTAMENTO; break;
-    case 66:
-        et = MIDI_EVENT_SOSTENUTO; break;
-    case 67:
-        et = MIDI_EVENT_SOFT; break;
-    case 71:
-        et = MIDI_EVENT_RESONANCE; break;
-    case 72:
-        et = MIDI_EVENT_RELEASE; break;
-    case 73:
-        et = MIDI_EVENT_ATTACK; break;
-    case 74:
-        et = MIDI_EVENT_CUTOFF; break;
-    case 75:
-        et = MIDI_EVENT_DECAY; break;
-    case 84:
-        et = MIDI_EVENT_PORTANOTE; break;
-    case 91:
-        et = MIDI_EVENT_REVERB; break;
-    case 93:
-        et = MIDI_EVENT_CHORUS; break;
-    case 94:
-        et = MIDI_EVENT_USERFX; break;
-        /*
-    case 100:
-    case 101:
-        if (value == 127) {
-            et = MIDI_EVENT_PITCHRANGE;
-            break;
-        }
-        else {
-            switch (value) {
-            case 0: RPNType = MIDI_EVENT_PITCHRANGE; break;
-            case 1: RPNType = MIDI_EVENT_FINETUNE; break;
-            case 2: RPNType = MIDI_EVENT_COARSETUNE; break;
-            default: RPNType = 0;  qDebug() << " Value " << value; break;
-            }
-            return;
-        }
-        */
-    case 120:
-        et = MIDI_EVENT_SOUNDOFF; break;
-    case 121:
-        et = MIDI_EVENT_RESET; break;
-    case 123:
-        et = MIDI_EVENT_NOTESOFF; break;
-    case 126:
-    case 127:
-        et = MIDI_EVENT_MODE; break;
-    default:
-        if (ch < 0 || ch > 15)
-            return;
-        BYTE data[3] = { (0xB0 | ch), (number & 0x7F), (value & 0x7F) };
-        //qDebug() << (data[0] & 0xF0) << "  " << (data[0] & 0x0F) << "  " << data[1] << "  " << data[2];
-        for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
-            HSTREAM h = handles[static_cast<InstrumentType>(i)];
-            if (i < HANDLE_VSTI_START)
-                BASS_MIDI_StreamEvents(h, BASS_MIDI_EVENTS_RAW, data, 3);
-            #ifndef __linux__
-            else
-                BASS_VST_ProcessEventRaw(h, (void*)data, 3);
-            #endif
-        }
+    if (ch < 0 || ch > 15)
         return;
-    }
 
-    sendToAllMidiStream(ch, et, value);
+    BYTE data[3] = { (0xB0 | ch), (number & 0x7F), (value & 0x7F) };
+
+    BASS_MIDI_EVENT event;
+    BASS_MIDI_ConvertEvents(data, 3, &event, 1, 0);
+
+    sendToAllMidiStream(event.chan, event.event, event.param);
 }
 
 void MidiSynthesizer::sendProgramChange(int ch, int number)
@@ -1331,7 +1246,7 @@ DWORD MidiSynthesizer::createStream(InstrumentType t)
     {
         if (index < HANDLE_MIDI_COUNT-4) // Midi
         {
-             DWORD flags = f|BASS_STREAM_DECODE|BASS_MIDI_SINCINTER;
+             DWORD flags = f|BASS_STREAM_DECODE|BASS_MIDI_SINCINTER|BASS_MIDI_NOSYSRESET;
              if (!useFX) flags = flags|BASS_MIDI_NOFX;
              if (!MidiHelper::isStereoSpeaker(instMap[t].speaker))
                  flags = flags|BASS_SAMPLE_MONO;
@@ -1523,5 +1438,3 @@ HSTREAM MidiSynthesizer::getDrumHandleFromNote(int drumNote)
         return handles[InstrumentType::PercussionEtc];
     }
 }
-
-QMap<int, QString> MidiSynthesizer::outDevices;

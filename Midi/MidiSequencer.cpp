@@ -58,6 +58,8 @@ void MidiSequencer::setPositionTick(int t)
     if (_playing)
         stop();
 
+    _mutex.lock();
+
     int index = 0;
     for (MidiEvent *e :_midi->events()) {
         if (e->tick() > t)
@@ -72,6 +74,9 @@ void MidiSequencer::setPositionTick(int t)
     }
 
     _playedIndex = index;
+
+    _mutex.unlock();
+
     if (playAfterSeek)
         start();
 }
@@ -84,12 +89,16 @@ void MidiSequencer::setBpmSpeed(int sp)
     if ((_midiBpm + sp) < 20 || (_midiBpm + sp) > 250)
         return;
 
+    _mutex.lock();
+
     if (_playing) {
         _midiSpeedTemp = sp;
         _midiChangeBpmSpeed = true;
     } else {
         _midiSpeed = sp;
     }
+
+    _mutex.unlock();
 
     emit bpmChanged(_midiBpm + sp);
 }
@@ -122,19 +131,25 @@ void MidiSequencer::stop(bool resetPos)
     if (_stopped)
         return;
 
+    _mutex.lock();
     _playing = false;
     _stopped = false;
     _startPlayIndex = _playedIndex;
 
-    while (!isFinished()) {};
+    _waitCondition.wakeAll();
+    _mutex.unlock();
+
+    wait();
 
     if (resetPos) {
+        _mutex.lock();
         _stopped = true;
         _startPlayTime = 0;
         _startPlayIndex = 0;
         _playedIndex = 0;
         _positionMs = 0;
         _positionTick = 0;
+        _mutex.unlock();
     }
 }
 
@@ -160,6 +175,8 @@ void MidiSequencer::run()
         if (!_playing)
             break;
 
+        _mutex.lock();
+
         if (_midi->events()[i]->eventType() != MidiEventType::Meta) {
 
             uint32_t tick = _midi->events()[i]->tick();
@@ -175,10 +192,12 @@ void MidiSequencer::run()
             long waitTime = eventTime - _startPlayTime  - _eTimer->elapsed();
 
             if (waitTime > 0) {
-                msleep(waitTime);
+                //msleep(waitTime);
+                _waitCondition.wait(&_mutex, waitTime);
             }
 
             _positionMs = eventTime;
+
 
         } else { // Meta event
             if (_midi->events()[i]->metaEventType() == MidiMetaType::SetTempo) {
@@ -192,9 +211,13 @@ void MidiSequencer::run()
         _playedIndex = i;
         _positionTick = _midi->events()[i]->tick();
 
+        _mutex.unlock();
+
     } // End for loop
 
     if (_playedIndex == _midi->events().size() -1 ) {
+        _mutex.lock();
         _finished = true;
+        _mutex.unlock();
     }
 }

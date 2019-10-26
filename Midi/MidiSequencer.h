@@ -3,6 +3,8 @@
 
 #include <QThread>
 #include <QElapsedTimer>
+#include <QWaitCondition>
+#include <QMutex>
 
 #include "MidiFile.h"
 
@@ -65,6 +67,9 @@ private:
     bool    _finished = false;
     bool    _stopped = true;
     bool    _playing = false;
+
+    QWaitCondition _waitCondition;
+    QMutex _mutex;
 };
 
 #endif // MIDISEQUENCER_H
