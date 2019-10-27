@@ -218,9 +218,6 @@ win32 {
         LIBS += -L$$PWD/BASS/bassmix24/ -lbassmix
         LIBS += -L$$PWD/BASS/bass_vst24/ -lbass_vst
         LIBS += -L$$PWD/3rdParty/WinSparkle/x86/ -lWinSparkle
-        LIBS += -L$$PWD/3rdParty/libvlc-3.0.8-win32/sdk/lib/  -llibvlc -llibvlccore
-
-        INCLUDEPATH += $$PWD/3rdParty/libvlc-3.0.8-win32/sdk/include
 
         #DEFINES += _ATL_XP_TARGETING
         #DEFINES += PSAPI_VERSION=1
@@ -233,9 +230,6 @@ win32 {
         LIBS += -L$$PWD/BASS/bassmix24/x64/ -lbassmix
         LIBS += -L$$PWD/BASS/bass_vst24/x64/ -lbass_vst
         LIBS += -L$$PWD/3rdParty/WinSparkle/x64/ -lWinSparkle
-        LIBS += -L$$PWD/3rdParty/libvlc-3.0.8-win64/sdk/lib/  -llibvlc -llibvlccore
-
-        INCLUDEPATH += $$PWD/3rdParty/libvlc-3.0.8-win64/sdk/include
     }
     INCLUDEPATH += $$PWD/BASS/bass24
     INCLUDEPATH += $$PWD/BASS/bassmidi24
