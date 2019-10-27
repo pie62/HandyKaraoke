@@ -44,7 +44,7 @@ SongDatabase::SongDatabase()
                         "path     TEXT"
                     ")";
 
-            QSqlQuery query;
+            QSqlQuery query(db);
             query.exec(sql);
             query.finish();
             query.clear();
@@ -77,7 +77,7 @@ SongDatabase::~SongDatabase()
 
 bool SongDatabase::isNewVersion()
 {
-    QSqlQuery q;
+    QSqlQuery q(db);
     bool rs = q.exec("Select * from miscellaneous");
     q.finish();
     q.clear();
@@ -95,7 +95,7 @@ void SongDatabase::updateToNewVersion()
 
     file.close();
 
-    QSqlQuery q;
+    QSqlQuery q(db);
 
     QStringList sqlList = sqlString.split(QChar(';'));
     for (const QString &sql : sqlList)
@@ -116,7 +116,7 @@ int SongDatabase::count()
         return 0;
 
     int c = 0;
-    QSqlQuery q;
+    QSqlQuery q(db);
     q.exec("SELECT Count(*) FROM songs");
     if (q.next()) {
         c = q.value(0).toInt();
@@ -240,7 +240,7 @@ bool SongDatabase::insertNCN(const QString &ncnPath, const QString &songId, cons
     path = path.replace(ncnPath, "");
 
     // Insert to database
-    QSqlQuery query;
+    QSqlQuery query(db);
     query.prepare("INSERT INTO songs VALUES "
                   "(?, ?, ?, ?, ?, ?, ?, ?);");
     query.bindValue(0, id);
@@ -289,7 +289,7 @@ bool SongDatabase::insertHNK(const QString &hnkPath, const QString &songId, cons
     path = path.replace(hnkPath, "");
 
     // Insert to database
-    QSqlQuery query;
+    QSqlQuery query(db);
     query.prepare("INSERT INTO songs VALUES "
                   "(?, ?, ?, ?, ?, ?, ?, ?);");
     query.bindValue(0, id);
@@ -337,7 +337,7 @@ bool SongDatabase::insertKAR(const QString &karPath, const QString &songId, cons
     if (lyrics.size() > 3)
         lyr += lyrics[3];
 
-    QSqlQuery query;
+    QSqlQuery query(db);
     query.prepare("INSERT INTO songs VALUES "
                   "(?, ?, ?, ?, ?, ?, ?, ?);");
     query.bindValue(0, id);
@@ -425,7 +425,7 @@ Song *SongDatabase::search(const QString &s)
         break;
     }
 
-    QSqlQuery query;
+    QSqlQuery query(db);
     if (searchType == SearchType::ByAll) {
         query.prepare(sql);
         query.bindValue(0, s + "%");
@@ -476,7 +476,7 @@ Song *SongDatabase::searchNext()
         break;
     }
 
-    QSqlQuery q;
+    QSqlQuery q(db);
     q.prepare(sql);
 
     if (searchType == SearchType::ByAll) {
@@ -527,7 +527,7 @@ Song *SongDatabase::searchPrevious()
         break;
     }
 
-    QSqlQuery q;
+    QSqlQuery q(db);
     q.prepare(sql);
 
     if (searchType == SearchType::ByAll) {
@@ -554,7 +554,7 @@ bool SongDatabase::removeCurrentSong(bool removeFromStorage)
 {
    QString sql = "DELETE FROM songs WHERE id = ? AND name = ? AND songtype = ? AND path = ?";
 
-   QSqlQuery q;
+   QSqlQuery q(db);
    q.prepare(sql);
    q.bindValue(0, song->id());
    q.bindValue(1, song->name());
@@ -646,7 +646,7 @@ void SongDatabase::run()
 
     upTing = true;
 
-    QSqlQuery q;
+    QSqlQuery q(db);
     q.exec("DELETE FROM songs");
     q.exec("vacuum");
     q.finish();
@@ -727,7 +727,7 @@ void SongDatabase::run()
 
 void SongDatabase::createIndex()
 {
-    QSqlQuery query;
+    QSqlQuery query(db);
     QString sql;
 
     sql = "CREATE INDEX id_idx ON songs(id); ";
@@ -753,7 +753,7 @@ void SongDatabase::createIndex()
 
 void SongDatabase::dropIndex()
 {
-    QSqlQuery q;
+    QSqlQuery q(db);
     QString sql;
 
     sql = "DROP INDEX id_idx; ";
