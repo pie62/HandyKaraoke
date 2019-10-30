@@ -186,6 +186,7 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
     QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
 
     st.beginReadArray("VSTiGroup");
+
     for (int i=0; i<4; i++)
     {
         st.setArrayIndex(i);
@@ -212,6 +213,7 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
             FX::setVSTParams(vsti, params);
         }
     }
+
     st.endArray();
 }
 
