@@ -153,9 +153,9 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
 
         uint32_t tick = 0, delta = 0;
         unsigned char status, runningStatus = 0;
-        //bool endOfTrack = false;
+        bool endOfTrack = false;
 
-        while (in->pos() < (chunkStart + chunkSize) && !in->atEnd()) {
+        while (in->pos() < (chunkStart + chunkSize) && !endOfTrack && !in->atEnd()) {
 
             delta = readVariableLengthQuantity(in);
             tick += delta;
@@ -236,9 +236,9 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
                 switch (status) {
                     case 0xF0:
                     case 0xF7:
-                        lenght = readVariableLengthQuantity(in) + 1;
+                        lenght = readVariableLengthQuantity(in);
                         data[0] = status;
-                        data += in->read(lenght - 1);
+                        data += in->read(lenght);
                         createSysExEvent(t, tick, delta, data);
                         break;
                     case 0xFF:
@@ -246,17 +246,20 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
                         in->getChar(&number);
                         lenght = readVariableLengthQuantity(in);
                         data = in->read(lenght);
-                        if (number == 0x2F && in->pos() < (chunkStart + chunkSize)
-                                && !in->atEnd()) {
-                            in->read(1);
-                        }
                         createMetaEvent(t, tick, delta, number, data);
+                        if (number == 0x2F) {
+                            endOfTrack = true;
+                        }
                         break;
                 }
                 break;
             } // End Switch
 
         } // End while
+
+        /* forwards compatibility: skip over any unrecognized chunks, or extra
+        * data at the end of tracks. */
+        in->seek(chunkStart + chunkSize);
 
     } // For loop read tracks
 
