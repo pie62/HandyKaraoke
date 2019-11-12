@@ -18,12 +18,12 @@ public:
     ~LyricsWidget();
 
     void reset();
-    void setLyrics(const QString &lyr, const QList<long> &curs);
+    void setLyrics(const QString &lyr, const QVector<long> &curs);
     void setPositionCursor(int tick);
     void setSeekPositionCursor(int tick);
 
     QString lyrData() { return lyrics.join("\r\n"); }
-    QList<long> curData() { return cursors; }
+    QVector<long> curData() { return cursors; }
 
     QFont   textFont()          { return font(); }
     QColor  textColor()         { return tColor; }
@@ -99,12 +99,12 @@ private:
     int line2_y = 100;  // from bottom
 
     QStringList lyrics;
-    QList<long> cursors;
+    QVector<long> cursors;
     bool isLine1 = true;
     bool autoFontSize = true;
     int linesIndex = 0;
 
-    QList<int> chars_width; // In current line
+    QVector<int> chars_width; // In current line
     int char_index = 0; // In current line
     int cursor_index = 0;
     int cursor_width = 0;  // current cursor position
@@ -119,8 +119,8 @@ private:
 
     QRect updateArea;
 
-    QList<int> getCharsWidth();
-    QList<int> getCharsWidth(const QString &text);
+    QVector<int> getCharsWidth();
+    QVector<int> getCharsWidth(const QString &text);
     QRect calculateUpdateArea();
     QSize calculateLineSize(const QString &text);
 

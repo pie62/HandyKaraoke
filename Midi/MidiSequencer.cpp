@@ -60,20 +60,10 @@ void MidiSequencer::setPositionTick(int t)
 
     _mutex.lock();
 
-    int index = 0;
-    for (MidiEvent *e :_midi->events()) {
-        if (e->tick() > t)
-            break;
-
-        if (e->eventType() == MidiEventType::Controller
-            || e->eventType() == MidiEventType::ProgramChange) {
-            emit playingEvent(e);
-        }
-        _positionTick = e->tick();
-        index++;
-    }
-
-    _playedIndex = index;
+    _playedIndex = eventIndexFromTick(t);
+    _startPlayTime = _midi->timeFromTick(t, _midiSpeed) * 1000;
+    _positionMs = _startPlayTime;
+    _positionTick = t;
 
     _mutex.unlock();
 
@@ -123,6 +113,8 @@ bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
         _midiBpm = 120;
     }
 
+    setStartTick(_midi->tickFromBar(26));
+
     return true;
 }
 
@@ -135,6 +127,7 @@ void MidiSequencer::stop(bool resetPos)
     _playing = false;
     _stopped = false;
     _startPlayIndex = _playedIndex;
+    _startPlayTime = positionMs();
 
     _waitCondition.wakeAll();
     _mutex.unlock();
@@ -144,11 +137,26 @@ void MidiSequencer::stop(bool resetPos)
     if (resetPos) {
         _mutex.lock();
         _stopped = true;
-        _startPlayTime = 0;
-        _startPlayIndex = 0;
-        _playedIndex = 0;
-        _positionMs = 0;
-        _positionTick = 0;
+        _startPlayTime = _midi->timeFromTick(_startTick, _midiSpeed) * 1000;;
+        _startPlayIndex = eventIndexFromTick(_startTick);
+        _playedIndex = _startPlayIndex;
+        _positionMs = _startPlayTime;
+        _positionTick = _startTick;
+        _mutex.unlock();
+    }
+}
+
+void MidiSequencer::setStartTick(int tick)
+{
+    _startTick = tick;
+
+    if (_stopped) {
+        _mutex.lock();
+        _startPlayTime = _midi->timeFromTick(tick, _midiSpeed) * 1000;
+        _startPlayIndex = eventIndexFromTick(tick);
+        _playedIndex = _startPlayIndex;
+        _positionMs = _startPlayTime;
+        _positionTick = tick;
         _mutex.unlock();
     }
 }
@@ -158,14 +166,20 @@ void MidiSequencer::run()
     if (_playing)
         return;
 
+    _mutex.lock();
+
     _playing = true;
     _stopped = false;
     _finished = false;
 
+    _mutex.unlock();
 
-    if (_playedIndex > 0) {
-        uint32_t tick = _midi->events()[_playedIndex]->tick();
-        _startPlayTime = _midi->timeFromTick(tick, _midiSpeed) * 1000;
+    if (_positionTick <= _startTick) {
+        for (MidiEvent *e : _midi->controllerAndProgramEvents()) {
+            if (e->tick() > _startTick)
+                break;
+            emit playingEvent(e);
+        }
     }
 
     _eTimer->restart();
@@ -220,4 +234,17 @@ void MidiSequencer::run()
         _finished = true;
         _mutex.unlock();
     }
+}
+
+int MidiSequencer::eventIndexFromTick(int tick)
+{
+    int index = 0;
+    for (MidiEvent *e :_midi->events()) {
+        if (e->tick() >= tick)
+            break;
+
+        index++;
+    }
+
+    return index;
 }

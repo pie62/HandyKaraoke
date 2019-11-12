@@ -1,6 +1,10 @@
 #include "MidiFile.h"
 
+#include "MidiHelper.h"
+
 #include <cstdlib>
+
+#include <QDebug>
 
 // ========================================================
 bool isGreaterThan(MidiEvent* e1, MidiEvent* e2)
@@ -42,9 +46,9 @@ MidiFile::~MidiFile()
     clear();
 }
 
-QList<MidiEvent *> MidiFile::controllerAndProgramEvents()
+QVector<MidiEvent *> MidiFile::controllerAndProgramEvents()
 {
-    QList<MidiEvent*> evnts = fControllerEvents;
+    QVector<MidiEvent*> evnts = fControllerEvents;
     for (MidiEvent *e : fProgramChangeEvents)
         evnts.append(e);
 
@@ -451,6 +455,67 @@ uint32_t MidiFile::tickFromTimeMs(long msTime, int bpmSpeed)
     default:
         return 0;
     }
+}
+
+uint32_t MidiFile::tickFromBeat(float beat)
+{
+    switch (fDivision) {
+    case PPQ:
+        return (uint32_t)(beat * fResolution);
+    case SMPTE24:
+        return (uint32_t)(beat * 24.0);
+    case SMPTE25:
+        return (uint32_t)(beat * 25.0);
+    case SMPTE30DROP:
+        return (uint32_t)(beat * 29.97);
+    case SMPTE30:
+        return (uint32_t)(beat * 30);
+    default:
+        return -1;
+    }
+}
+
+uint32_t MidiFile::tickFromBar(int barNumber)
+{
+    uint32_t result = 0, lastBar = 0, lastBeat = 0, lastBeatInBar = 0;
+
+    for (const SignatureBeat &sigBeat : MidiHelper::calculateBeats(this)) {
+        uint32_t nBar = lastBar + ((sigBeat.nBeat - lastBeat) / sigBeat.nBeatInBar);
+        if (nBar >= barNumber) {
+            result = (barNumber - lastBar) * lastBeatInBar * fResolution;
+            lastBar = barNumber;
+            break;
+        } else {
+            lastBar = nBar;
+            lastBeat = sigBeat.nBeat;
+            lastBeatInBar = sigBeat.nBeatInBar;
+        }
+    }
+
+    if (barNumber > lastBar)
+        result = (barNumber - lastBar) * lastBeatInBar * fResolution;
+
+    return result;
+}
+
+int MidiFile::barCount()
+{
+    int bCount = 0;
+    int lastBeat = 0, lastBeatInBar = 0, tempBeatCount = 0;
+
+    for (SignatureBeat sigBeat : MidiHelper::calculateBeats(this)) {
+        lastBeat = sigBeat.nBeat;
+        if (lastBeat > 0) {
+            bCount += (lastBeat - tempBeatCount) / lastBeatInBar;
+        }
+        tempBeatCount = lastBeat;
+        lastBeatInBar = sigBeat.nBeatInBar;
+    }
+
+    int beatCount = beatFromTick(fEvents.last()->tick());
+    bCount += (beatCount - lastBeat) / lastBeatInBar;
+
+    return bCount;
 }
 
 int MidiFile::firstBpm(const QString &file)

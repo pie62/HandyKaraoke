@@ -4,7 +4,7 @@
 #include "MidiEvent.h"
 
 #include <QString>
-#include <QList>
+#include <QVector>
 #include <QFile>
 
 class MidiFile
@@ -32,15 +32,15 @@ public:
     DivisionType divisionType() { return fDivision; }
 
     QString lyrics() { return fLyrics; }
-    QList<long> lyricsCursor() { return fLyricscursor; }
+    QVector<long> lyricsCursor() { return fLyricscursor; }
 
-    QList<MidiEvent*> events() { return fEvents; }
-    QList<MidiEvent*> tempoEvents() { return fTempoEvents; }
-    QList<MidiEvent*> lyricsEvents() { return fLyricsEvents; }
-    QList<MidiEvent*> controllerEvents() { return fControllerEvents; }
-    QList<MidiEvent*> programChangeEvents() { return fProgramChangeEvents; }
-    QList<MidiEvent*> timeSignatureEvents() { return fTimeSignatureEvents; }
-    QList<MidiEvent*> controllerAndProgramEvents();
+    QVector<MidiEvent*> events() { return fEvents; }
+    QVector<MidiEvent*> tempoEvents() { return fTempoEvents; }
+    QVector<MidiEvent*> lyricsEvents() { return fLyricsEvents; }
+    QVector<MidiEvent*> controllerEvents() { return fControllerEvents; }
+    QVector<MidiEvent*> programChangeEvents() { return fProgramChangeEvents; }
+    QVector<MidiEvent*> timeSignatureEvents() { return fTimeSignatureEvents; }
+    QVector<MidiEvent*> controllerAndProgramEvents();
 
     MidiEvent* createMidiEvent(int track, uint32_t tick, uint32_t delta, MidiEventType evType, int ch, int data1, int data2);
     MidiEvent* createMetaEvent(int track, uint32_t tick, uint32_t delta, int number, QByteArray data);
@@ -50,6 +50,10 @@ public:
     float    timeFromTick(uint32_t tick, int bpmSpeed = 0);
     uint32_t tickFromTime(float time, int bpmSpeed = 0);
     uint32_t tickFromTimeMs(long msTime, int bpmSpeed = 0);
+    uint32_t tickFromBeat(float beat);
+    uint32_t tickFromBar(int barNumber);
+
+    int barCount();
 
     static int firstBpm(const QString &file);
     static int firstBpm(QFile *in);
@@ -61,14 +65,14 @@ private:
     DivisionType fDivision;
 
     QString fLyrics;
-    QList<long> fLyricscursor;
+    QVector<long> fLyricscursor;
 
-    QList<MidiEvent*> fEvents;
-    QList<MidiEvent*> fTempoEvents;
-    QList<MidiEvent*> fLyricsEvents;
-    QList<MidiEvent*> fControllerEvents;
-    QList<MidiEvent*> fProgramChangeEvents;
-    QList<MidiEvent*> fTimeSignatureEvents;
+    QVector<MidiEvent*> fEvents;
+    QVector<MidiEvent*> fTempoEvents;
+    QVector<MidiEvent*> fLyricsEvents;
+    QVector<MidiEvent*> fControllerEvents;
+    QVector<MidiEvent*> fProgramChangeEvents;
+    QVector<MidiEvent*> fTimeSignatureEvents;
 };
 
 #endif // MIDIFILE_H

@@ -27,8 +27,6 @@ public:
     static QStringList midiInDevices();
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
-    static int getNumberBeatInBar(int numerator, int denominator);
-    static QList<SignatureBeat> CalculateBeats(MidiFile *midi);
 
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
     Channel* midiChannel() { return _midiChannels; }
@@ -103,7 +101,7 @@ private slots:
     void onSeqBpmChanged(int bpm);
 
 private:
-    std::vector<MidiSequencer*> _midiSeq;
+    MidiSequencer *_midiSeq;
     QMap<int, MidiOut*> _midiOuts;
     MidiSynthesizer     *_midiSynth;
     RtMidiIn            *_midiIn = nullptr;

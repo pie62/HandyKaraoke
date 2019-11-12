@@ -4,6 +4,7 @@
 #include <QObject>
 #include <bass.h>
 
+class MidiFile;
 enum class InstrumentType;
 enum class SpeakerType;
 
@@ -18,6 +19,9 @@ class MidiHelper
 {
 public:
     MidiHelper();
+
+    static int getNumberBeatInBar(int numerator, int denominator);
+    static QList<SignatureBeat> calculateBeats(MidiFile *midi);
 
     static QStringList GMInstrumentNumberNames();
     static QStringList drumKitNumberNames();

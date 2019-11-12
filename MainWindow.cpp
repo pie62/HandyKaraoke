@@ -594,7 +594,7 @@ void MainWindow::play(int index, int position)
     #endif
 
     // RHM
-    ui->rhmWidget->setBeat(MidiPlayer::CalculateBeats(player->midiFile()), player->beatCount());
+    ui->rhmWidget->setBeat(MidiHelper::calculateBeats(player->midiFile()), player->beatCount());
 
     ui->frameSearch->hide();
     ui->playlistWidget->hide();
