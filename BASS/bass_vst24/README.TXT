@@ -12,10 +12,12 @@ and I'm sure it will work :-)
 Files that you should have found in this Package
 ===============================================================================
 
-README.TXT      This file
-bass_vst.dll    The BASS_VST module
-bass_vst.lib    The BASS_VST import library to access bass_vst.dll easily
-bass_vst.h      BASS_VST C/C++ header file and documentation
+README.TXT          This file
+bass_vst.dll        The BASS_VST module
+x64\bass_vst.dll    The BASS_VST module (64-bit)
+c\bass_vst.h        BASS_VST C/C++ header file and documentation
+c\bass_vst.lib      The BASS_VST import library
+c\x64\bass_vst.lib  The BASS_VST import library (64-bit)
 
 Redistribution of this package is allowed if all files stay intact.
 
@@ -74,12 +76,8 @@ For all functions and parameter descriptions, please refer to bass_vst.h -
 another documentation is not available at the moment (and probably will never
 be). Also note the version history and the disclaimer in this file.
 
+BASS_VST was orginally created by
 (C) Bjoern Petersen Software Design'n'Development
 VST PlugIn Interface Technology by Steinberg Media Technologies GmbH
 
-Contact: drsilver@silverjuke.net - http://www.silverjuke.net
-
-NOTE: Version 2.4.5 and above was created by BaseHead, LLC
-For all questions regarding features added in this version of higher contact support@baseheadinc.com
-http://baseheadinc.com
-
+https://github.com/r10s/BASS_VST

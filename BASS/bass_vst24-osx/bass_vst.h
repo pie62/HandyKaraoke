@@ -23,18 +23,114 @@
  *  obtained for free from Steinberg.  Moreover, BASS_VST also supports
  *  VST instruments (VSTi plugins).
  *
- *  (C) Bjoern Petersen Software Design'n'Development
+ *  (C) Bjoern Petersen Software Design and Development
  *  VST PlugIn Interface Technology by Steinberg Media Technologies GmbH
  *
- *  Contact: drsilver@silverjuke.net - http://www.silverjuke.net
+ *  https://github.com/r10s/BASS_VST
  *
  *****************************************************************************
  *
  *  Version History:
  *
- *  Version 2.4.5.0 (9/16/2013)
- *  First version on BASS_VST for OS X
- *  Ported by BaseHead, LLC   contact support@baseheadinc.com
+ *  Version 2.4.1.0 (23/8/2019)
+ *
+ *      - BASS_VST_Dispatcher() added
+ *      - BASS_VST_ChannelSetDSP/Ex() returned handles are no longer pointers
+ *      - BASS_StreamFree() can be used in place of BASS_VST_ChannelFree()
+ *
+ *  Version ?.?.?.? (19/11/2013) Victor Chechenin additions
+ *
+ *      - Internal event handling for use with shell plugins
+ *      - BASS_VST_ChannelSetDSPEx / BASS_VST_ChannelCreateEx()
+ *        added for shell plugins support
+ *      - BASS_VST_CheckPreset(), BASS_VST_EditorInfo(), BASS_VST_HasEditor(),
+ *        BASS_VST_ReadPresetInfo(), BASS_VST_RecallPreset(),
+ *        BASS_VST_StoreOldPreset(), BASS_VST_StorePreset() added
+ *
+ *  Version 2.4.0.6 (19/11/2008)
+ *
+ *      - MIDI event handling improved
+ *      - BASS_VST_GetInfo() returns the dspHandle now
+ *
+ *  Version 2.4.0.5 (10/04/2008)
+ *
+ *      - BASS_VST_SetScope() can be used with more than one opened editor now
+ *
+ *  Version 2.4.0.4 (22/01/2008)
+ *
+ *      - Fixed a bug in BASS_VST_ProcessEventRaw()
+ *
+ *  Version 2.4.0.3 (21/01/2008)
+ *
+ *      - BASS_VST_ProcessEvent() really sends events now
+ *      - BASS_VST_ProcessEventRaw() added
+ *
+ *  Version 2.4.0.2 (21/01/2008)
+ *
+ *      - VSTi support added: BASS_VST_ChannelCreate() and -Free()
+ *      - BASS_VST_ProcessEvent() added, use this function to send MIDI events
+ *      - "isInstrument" added to BASS_VST_INFO
+ *      - Better synchronization on some plugins' initialization
+ *      - Serving timing information to plugins needing it
+ *
+ *  Version 2.4.0.1 (12/01/2008)
+ *
+ *      - BASS_VST works with BASS 2.4, BASS 2.3 or BASS 2.2 now
+ *      - The "user" parameter of BASS_VST_SetCallback() is a pointer now
+ *
+ *  Version 2.3.0.6 (03/11/2007)
+ *
+ *      - BASS_VST_GetParamInfo() takes care of plugins not following the
+ *        VST specification and using strings that are too long
+ *
+ *  Version 2.3.0.5 (02/09/2006)
+ *
+ *      - BASS_VST_SetScope() added, see the remarks for BASS_VST_EmbedEditor()
+ *        for details.
+ *
+ *  Version 2.3.0.4 (11/06/2006)
+ *
+ *      - Initialized (empty) strings returned from BASS_VST_GetInfo() and
+ *        BASS_VST_GetParamInfo() if a plugin does not provide these information
+ *        (seen at FreeverbToo)
+ *
+ *  Version 2.3.0.3 (11/06/2006)
+ *
+ *      - DLL-compression improved to avoid problems on unloading
+ *      - BASS_VST_INFO.initialDelay given in samples instead of milliseconds
+ *      - Sometimes, eg. on massive program querying, "unchanneled" editors had
+ *        interrupted the processing of other "real playing" channels.  This is
+ *        fixed now - if in doubt, the unchanneled editors are missing some
+ *        samples, however, these data are normally only used for spectrums
+ *        and such, so this should be much better than interrupting playing
+ *        channels.
+ *      - Added some protection against plugins who try to change the number of
+ *        parameters (this is an erroneous behaviour)
+ *      - Documentation change: for a very few plugins, editorWidth and
+ *        editorHeight may be 0 if the editor is not yet opened
+ *
+ *  Version 2.2.0.3 (09/05/2006)
+ *
+ *      - Program handling functions added
+ *      - In BASS_VST_EmbedEditor(): parameter "void* parentWindow" changed to
+ *        "HWND parentWindow" if windows.h was included before
+ *      - In structure BASS_VST_INFO: element "void* aeffect" changed to
+ *        "AEffect* aeffect" if aeffectx.h was included before
+ *      - In the BASS_VST_INFO and BASS_VST_PARAM_INFO structures: "rsvd"
+ *        elements removed as they seem to make more problems as they help
+ *      - BASS_ErrorGetCode() now always returns BASS_OK on success of any
+ *        BASS_VST function
+ *      - BASS_VST works with BASS 2.2 or BASS 2.3 now
+ *
+ *  Version 2.2.0.2 (30/04/2006)
+ *
+ *      - BASS_VST_SetBypass() and BASS_VST_GetBypass() added
+ *      - "flags" parameter added to BASS_VST_ChannelSetDSP()
+ *
+ *  Version 2.2.0.1 (22/04/2006)
+ *
+ *      - Created in this form to work with BASS 2.2
+ *
  *****************************************************************************/
 
 
@@ -111,6 +207,17 @@ extern "C" {
 BASS_VSTSCOPE DWORD BASS_VSTDEF(BASS_VST_ChannelSetDSP)
     (DWORD chHandle, const void* dllFile, DWORD flags, int priority);
 
+/* BASS_VST_ChannelSetDSPEx is version for shell plugin.
+ * For errors, 0 is returned and BASS_ErrorGetCode()
+ * will specify the reason. BASS_UNKNOWN error meant that plugin have sub-plugins.
+ * pluginList contains list of string with format "pluginName\tpluginID"
+ * For sub-plugin initialization set pluginID value from this list
+ */
+
+BASS_VSTSCOPE DWORD BASS_VSTDEF(BASS_VST_ChannelSetDSPEx)
+	(DWORD chHandle, const void* dllFile, DWORD flags, int priority,
+	char *pluginList, int pluginListSize, int pluginID);
+
 #define BASS_VST_KEEP_CHANS 0x00000001 /* flag that may be used for BASS_VST_ChannelSetDSP(), see the comments above */
 
 
@@ -162,11 +269,23 @@ BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_ChannelRemoveDSP)
 BASS_VSTSCOPE DWORD BASS_VSTDEF(BASS_VST_ChannelCreate)
     (DWORD freq, DWORD chans, const void* dllFile, DWORD flags);
 
+/* BASS_VST_ChannelCreateEx is version for shell plugin.
+ * For errors, 0 is returned and BASS_ErrorGetCode()
+ * will specify the reason. BASS_UNKNOWN error meant that plugin have sub-plugins.
+ * pluginList contains list of string with format "pluginName\tpluginID"
+ * For sub-plugin initialization set pluginID value from this list
+ */
+
+BASS_VSTSCOPE DWORD BASS_VSTDEF(BASS_VST_ChannelCreateEx)
+	(DWORD freq, DWORD chans, const void* dllFile, DWORD flags,
+	char *pluginList, int pluginListSize, int pluginID);
+
 
 
 /* BASS_VST_ChannelFree deletes a VST instrument channel created by
  * BASS_VST_ChannelCreate().  Note, that you cannot delete effects assigned to
  * channels this way; for this purpose, please use BASS_VST_ChannelRemoveDSP().
+ * BASS_StreamFree can be used instead of this.
  */
 BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_ChannelFree)
     (DWORD vstHandle);
@@ -223,6 +342,19 @@ BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_GetParamInfo)
 
 
 
+/* Get/Set the parameter data chunk as a plain byte array.
+ * 
+ * length: contains or returns the size of the chunk data pointer.
+ * isPreset: true when saving a single program, false for all programs.
+ * chunk: pointer to the allocated memory block containing the chunk data.
+ */
+BASS_VSTSCOPE char* BASS_VSTDEF(BASS_VST_GetChunk)
+	(DWORD vstHandle, BOOL isPreset, DWORD* length);
+
+BASS_VSTSCOPE DWORD BASS_VSTDEF(BASS_VST_SetChunk)
+	(DWORD vstHandle, BOOL isPreset, const char* chunk, DWORD length);
+
+
 
 /*****************************************************************************
  *  VST Program Handling
@@ -264,13 +396,12 @@ BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_SetProgram)
  * for the same vstHandle or until you delete the plugin.  The number of
  * elements in the returned array is equal to BASS_VST_GetParamCount().
  *
- * programIndex must be smaller than BASS_VST_GetProgramCount().  If you set
- * programIndex to -1, you can retrieve the plugin's default values (these are
- * the same values as returned by BASS_VST_GetParamInfo()).  This function does
- * not change the selected program.
+ * programIndex must be smaller than BASS_VST_GetProgramCount().
+ * length: returns the number of returned params.
+ * This function does not change the selected program.
  */
 BASS_VSTSCOPE const float* BASS_VSTDEF(BASS_VST_GetProgramParam)
-    (DWORD vstHandle, int programIndex);
+    (DWORD vstHandle, int programIndex, DWORD* length);
 
 
 
@@ -284,12 +415,13 @@ BASS_VSTSCOPE const float* BASS_VSTDEF(BASS_VST_GetProgramParam)
  *
  * programIndex must be smaller than BASS_VST_GetProgramCount().  This function
  * does not change the selected program.
+ * length: the number of params passed to this function.
  *
  * If you use BASS_VST_SetCallback(), the BASS_VST_PARAM_CHANGED event is only
  * posted if you select a program with parameters different from the prior.
  */
 BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_SetProgramParam)
-    (DWORD vstHandle, int programIndex, const float* param);
+    (DWORD vstHandle, int programIndex, const float* param, DWORD length);
 
 
 
@@ -453,6 +585,12 @@ BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_EmbedEditor)
 BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_SetScope)
     (DWORD vstHandle, DWORD scope);
 
+BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_HasEditor)
+	(DWORD vstHandle);
+
+BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_EditorInfo)
+	(DWORD vstHandle, void* pInfoBuff);
+
 
 
 /* With BASS_VST_SetCallback() you can assign a callback function of the type
@@ -468,7 +606,7 @@ BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_SetScope)
  * the view of BASS_VST.
  */
 typedef DWORD (CALLBACK VSTPROC)(DWORD vstHandle, DWORD action, DWORD param1, DWORD param2, void* user);
-#define BASS_VST_PARAM_CHANGED  1   /* some parameters are changed by the editor opened by BASS_VST_EmbedEditor(), NOT posted if you call BASS_VST_SetParam() */
+#define BASS_VST_PARAM_CHANGED  1   /* some parameters are changed by the editor opened by BASS_VST_EmbedEditor(), NOT posted if you call BASS_VST_SetParam(), param1=oldParamNum, param2=newParamNum */
 #define BASS_VST_EDITOR_RESIZED 2   /* the embedded editor window should be resized, the new width/height can be found in param1/param2 and in BASS_VST_GetInfo() */
 #define BASS_VST_AUDIO_MASTER   3   /* can be used to subclass the audioMaster callback, param1 is a pointer to a BASS_VST_AUDIO_MASTER_PARAM structure defined below */
 
@@ -523,7 +661,11 @@ typedef struct
 #endif
     long     opcode;
     long     index;
+#if VST_64BIT_PLATFORM
+    long long     value;
+#else
     long     value;
+#endif
     void*    ptr;
     float    opt;
     long     doDefault;
@@ -571,6 +713,33 @@ BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_ProcessEvent)
 BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_ProcessEventRaw)
     (DWORD vstHandle, const void* event, DWORD length);
 
+
+
+/* BASS_VST_QueryPreset() query the existence of preset.
+*
+*/
+BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_CheckPreset)
+	(const void* dllFile, DWORD flag);
+
+BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_StoreOldPreset)
+	(const void* presetPath, DWORD uid, DWORD vstHandle);
+
+BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_StorePreset)
+	(const void* presetPath, DWORD uid, DWORD vstHandle);
+
+BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_RecallPreset)
+	(const void* presetPath, DWORD vstHandle);
+
+BASS_VSTSCOPE BOOL BASS_VSTDEF(BASS_VST_ReadPresetInfo)
+	(const void* presetPath, void* presetData);
+
+
+
+/* With BASS_VST_Dispatcher() you can directly call the effect's
+ * dispatcher function.
+ */
+BASS_VSTSCOPE QWORD BASS_VSTDEF(BASS_VST_Dispatcher)
+	(DWORD vstHandle, DWORD opCode, DWORD index, QWORD value, void* ptr, float opt);
 
 
 

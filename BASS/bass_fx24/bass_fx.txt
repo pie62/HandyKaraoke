@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
-                        (: -= BASS_FX v2.4.11.1 =- :)
+                        (: -= BASS_FX v2.4.12.1 =- :)
                              -=================-
-            Copyright (c) 2002-2014 JOBnik! [Arthur Aminov, ISRAEL]
+            Copyright (c) 2002-2018 JOBnik! [Arthur Aminov, ISRAEL]
                              All rights reserved!
 -------------------------------------------------------------------------------
 
@@ -239,6 +239,48 @@ These are the major (and not so major) changes at each version
 stage. There are ofcourse bug fixes and other little improvements
 made along the way too! To make upgrading simpler, all functions
 affected by a change to the BASS_FX interface are listed.
+
+2.4.12.1 - 07/06/2018
+---------------------
+* BASS_FX:
+  * Fixed file version info on Windows platforms.
+
+* Tempo:
+  * Fixed an issue with flushing the final samples from the tempo processing buffers as described in this post:
+    http://www.un4seen.com/forum/?topic=2181.msg126906#msg126906
+
+2.4.12 - 28/03/2018
+-------------------
+* BASS_FX:
+  * Added "Windows Store (Win10-ARM/x86/x64, Win8-x86/x64, Win8-Phone-ARM)" platform support (package bass_fx24-winstore.zip).
+  * Android, added "arm64-v8a" architecture support (package bass_fx24-android-arm64.zip).
+  * Linux ARM, added "aarch64" architecture support.
+  * OSX, removed PowerPC support, since the PowerPC architecture is no longer supported by BASS and Apple.
+  * Delphi/Pascal, updated BASS_FX.PAS unit and changed "WIN32" to "MSWINDOWS".
+
+* Tempo:
+  * Updated to the latest SoundTouch version 2.0.0
+  * Adjusted algorithm parameters to reduce reverberating effect at tempo slowdown.
+  * Improved sound quality when using integer processing algorithm.
+  * Improved sound quality when BASS_ATTRIB_TEMPO_OPTION_USE_QUICKALGO == TRUE.
+    The new quickseek algorithm can find 99% as good results as the default full-scan mode, while the quickseek algorithm is
+    remarkable less CPU intensive.
+  * "mixtime" BASS_SYNC_END syncs are delayed until the tempo processing reaches the end (not when the source does), in the
+    same was as BASS_SYNC_POS syncs.
+  * Fixed threading issue.
+  * Miscellaneous small fixes and improvements.
+
+* BPM:
+  * Updated to the latest SoundTouch version 2.0.0
+
+* Reverse:
+  * Fixed small bug in reverse processing, that BASS_SYNC_END syncs aren't getting triggered on reverse streams that are
+    playing some files forwards.
+
+* DSP:
+  * Fixed fRate parameter in BASS_FX_BFX_AUTOWAH effect.
+  * BASS_FX_BFX_PITCHSHIFT effect is also enabled for Android (armeabi-v7a, x86) and Linux ARM (hardfp), that using now
+    floating-point instead of fixed-point.
 
 2.4.11.1 - 24/12/2014
 ---------------------
@@ -1175,15 +1217,15 @@ System - Desktop/PC
 
   OS         : Microsoft Windows:
                 x86: 8, 7 Ultimate, Vista Ultimate, XP Pro SP3, 2000 Pro SP4 & 98
-                x64: 8.1 Pro, 7 Enterprise/Ultimate, Vista Ultimate SP1, XP Pro SP1
+                x64: 10 Pro, 8.1 Pro, 7 Enterprise/Ultimate, Vista Ultimate SP1, XP Pro SP1
 
   Sound Card : RealTek HD 7.1 (onboard)
 
   Compiler   : x86: Microsoft Visual C++ v6.0 SP5 with a Processor Pack
                x64: Microsoft Visual C++ 2005 v8.0
 
-  DirectX    : 11, 10, 9.0c and 7.0
-  BASS.DLL   : 2.4.11
+  DirectX    : 12, 11, 10, 9.0c and 7.0
+  BASS.DLL   : 2.4.13.8
 
   ----------------------------------------------------
   LIBBASS_FX.DYLIB - OSX - developed and tested using:
@@ -1196,7 +1238,7 @@ System - Desktop/PC
 
   Compiler      : GCC 4.0.1
   IDE           : XCode 3.1.4
-  LIBBASS.DYLIB : 2.4.11
+  LIBBASS.DYLIB : 2.4.13.8
 
   ---------------------------------------------------
   LIBBASS_FX.SO - Linux - developed and tested using:
@@ -1208,7 +1250,7 @@ System - Desktop/PC
   Compiler   : x86 and x64: GCC 4.2.4 (g++)
 
   IDE        : Code::Blocks v8.02
-  LIBBASS.SO : 2.4.11
+  LIBBASS.SO : 2.4.13.8
 
 
 System - Mobile/Portable
@@ -1222,23 +1264,31 @@ System - Mobile/Portable
 
   Compiler  : GCC 4.2 / LLVM
   IDE       : XCode 3.1.4 / XCode 5.0.2 for armv7s/arm64 architectures
-  LIBBASS.A : 2.4.11
+  LIBBASS.A : 2.4.13.8
 
   -----------------------------------------------------
   LIBBASS_FX.SO - Android - developed and tested using:
   -----------------------------------------------------
-  System     : Samsung Galaxy S3 GT-I9300
+  System     : Samsung Galaxy S7 Edge
+               LG G4-H815
                Samsung Galaxy S2 GT-I9100
                Android Virtual Device
 
-  OS         : Android JB 4.1.1/2
+  OS         : Android Lollipop 5.1
+               Android JB 4.1.1/2
                Android ICS 4.0.3/4
                Android GB 2.3.3
 
-  Compiler   : Android NDK R8: GCC 4.4.3
+  Compiler   : Android NDK R10: GCC 4.4.8/9
 
   IDE        : Eclipse
-  LIBBASS.SO : 2.4.11
+  LIBBASS.SO : 2.4.13.8
+
+  ---------------------------------------------------------------
+  BASS_FX.DLL - Windows Store/Phone - developed and tested using:
+  ---------------------------------------------------------------
+  Compiler   : Microsoft Visual C++ 2015 v14.0
+  BASS.DLL   : 2.4.13.8
 
   -------------------------------------------------
   BASS_FX.DLL - WinCE - developed and tested using:
@@ -1250,7 +1300,7 @@ System - Mobile/Portable
              Windows Mobile 2003 SE version 4.21.1088
 
   Compiler : Microsoft Visual C++ 2005 v8.0
-  BASS.DLL : 2.4.11
+  BASS.DLL : 2.4.13.8
 
   -------------------------------------------------------
   LIBBASS_FX.SO - Linux ARM - developed and tested using:
@@ -1262,7 +1312,7 @@ System - Mobile/Portable
   Compiler   : GCC: (crosstool-NG 1.15.2) 4.7.1 20120402 (prerelease)
 
   IDE        : Code::Blocks v8.02
-  LIBBASS.SO : 2.4.11
+  LIBBASS.SO : 2.4.13.8
 
 
 More Credits ;)
@@ -1275,8 +1325,8 @@ More Credits ;)
     The main source is based on - Manu Webber's - source code.
  @  http://www.un4seen.com/forum/?topic=1246.msg6484#msg6484
 
- *  Tempo/Pitch/Rate/BPM [SoundTouch v1.8.0]
-(c) Copyright (c) 2002-2014 Olli Parviainen
+ *  Tempo/Pitch/Rate/BPM [SoundTouch v2.0.0]
+(c) Copyright (c) 2002-2017 Olli Parviainen
  @  http://www.surina.net/soundtouch
  L  LGPL license
 

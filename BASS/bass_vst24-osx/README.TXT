@@ -1,9 +1,3 @@
-Important!!: You are looking at the documents and some files from the Windows Version of BASS_VST other then the dynamic library file. (.dylib)
-We haven't had time to port the docs yet but you should be able to figure it out from these....8)
-
-If you'd like to help port these docs for OS X users please send a message to BaseHead, LLC  steve@baseheadinc.com
-
-
 
 BASS_VST
 ===============================================================================
@@ -18,12 +12,13 @@ and I'm sure it will work :-)
 Files that you should have found in this Package
 ===============================================================================
 
-README.TXT      This file
-bass_vst.lib    The BASS_VST import library to access 
-libBass_vst.dylib  OS X plugin
-bass_vst.h      BASS_VST C/C++ header file and documentation
+README.TXT         This file
+libbass_vst.dylib  The BASS_VST module
+bass_vst.h         BASS_VST C/C++ header file and documentation
 
 Redistribution of this package is allowed if all files stay intact.
+
+
 
 
 Usage in a glance
@@ -81,10 +76,5 @@ be). Also note the version history and the disclaimer in this file.
 BASS_VST was orginally created by
 (C) Bjoern Petersen Software Design'n'Development
 VST PlugIn Interface Technology by Steinberg Media Technologies GmbH
-Contact for Windows Questions: drsilver@silverjuke.net - http://www.silverjuke.net
 
-The OS X version was ported by BaseHead, LLC
-For all BASS_VST OS X related questions email support@baseheadinc.com
-http://baseheadinc.com
-
-
+https://github.com/r10s/BASS_VST
