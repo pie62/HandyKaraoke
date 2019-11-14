@@ -87,6 +87,12 @@ public:
     void setMapChannelOutput(int ch, int port);
     void receiveMidiIn(std::vector< unsigned char > *message);
 
+    bool isUseMedley() { return _useMedley; }
+    void setUseMedley(bool use);
+
+    int medleyBPM() { return _medleyBPM; }
+    void setMedleyBPM(int bpm);
+
 public slots:
     void sendEvent(MidiEvent *e);
 
@@ -101,6 +107,16 @@ private slots:
     void onSeqBpmChanged(int bpm);
 
 private:
+    void sendEventToDevices(MidiEvent *e);
+    void sendAllNotesOff(int ch);
+    void sendAllNotesOff();
+    void sendResetAllControllers(int ch);
+    void sendResetAllControllers();
+
+    int getNoteNumberToPlay(int ch, int defaultNote);
+    void calculateUsedPort();
+
+private:
     MidiSequencer *_midiSeq;
     QMap<int, MidiOut*> _midiOuts;
     MidiSynthesizer     *_midiSynth;
@@ -111,6 +127,7 @@ private:
     int                 _volume = 100;
     int                 _midiTranspose = 0;
     int                 _seqIndex = 0;
+    int                 _medleyBPM = 120;
     bool                _useMedley = false;
     bool                _useSolo = false;
 
@@ -123,15 +140,6 @@ private:
     int     _lockDrumNumber  = 0;
     int     _lockSnareNumber = 38;
     int     _lockBassBumber  = 32;
-
-    void sendEventToDevices(MidiEvent *e);
-    void sendAllNotesOff(int ch);
-    void sendAllNotesOff();
-    void sendResetAllControllers(int ch);
-    void sendResetAllControllers();
-
-    int getNoteNumberToPlay(int ch, int defaultNote);
-    void calculateUsedPort();
 };
 
 void midiIncallback( double deltatime, std::vector< unsigned char > *message, void *userData );

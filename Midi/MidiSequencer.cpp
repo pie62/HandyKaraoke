@@ -58,10 +58,18 @@ void MidiSequencer::setPositionTick(int t)
     if (_playing)
         stop();
 
+    uint32_t tick = 0;
+    if (t < _startTick)
+        tick = _startTick;
+    else if (t > _endTick)
+        tick = _endTick;
+    else
+        tick = t;
+
     _mutex.lock();
 
-    _playedIndex = eventIndexFromTick(t);
-    _startPlayTime = _midi->timeFromTick(t, _midiSpeed) * 1000;
+    _playedIndex = eventIndexFromTick(tick);
+    _startPlayTime = _midi->timeFromTick(tick, _midiSpeed) * 1000;
     _positionMs = _startPlayTime;
     _positionTick = t;
 
@@ -104,6 +112,7 @@ bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
     _midiSpeed = 0;
     _midiSpeedTemp = 0;
     _midiChangeBpmSpeed = false;
+    _endTick = _midi->events().last()->tick();
 
     _finished = false;
 
@@ -112,8 +121,6 @@ bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
     } else {
         _midiBpm = 120;
     }
-
-    setStartTick(_midi->tickFromBar(26));
 
     return true;
 }

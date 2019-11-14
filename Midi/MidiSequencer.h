@@ -74,6 +74,7 @@ private:
     bool    _playing = false;
 
     int _startTick = 0;
+    int _endTick = 0;
 
     QWaitCondition _waitCondition;
     QMutex _mutex;

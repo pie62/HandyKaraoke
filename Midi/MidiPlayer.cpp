@@ -258,7 +258,7 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     if (!isPlayerStopped())
         stop(true);
 
-    delete _midiSeq;
+    _midiSeq->deleteLater();
     _midiSeq = new MidiSequencer();
 
     connect(_midiSeq, SIGNAL(playingEvent(MidiEvent*)),
@@ -622,6 +622,22 @@ void MidiPlayer::receiveMidiIn(std::vector<unsigned char> *message)
 {
     _midiInEvent.setMessage(message);
     this->sendEvent(&_midiInEvent);
+}
+
+void MidiPlayer::setUseMedley(bool use)
+{
+    if (use == _useMedley)
+        return;
+
+    _useMedley = use;
+}
+
+void MidiPlayer::setMedleyBPM(int bpm)
+{
+    if (bpm == _medleyBPM)
+        return;
+
+    _medleyBPM = bpm;
 }
 
 void MidiPlayer::sendEvent(MidiEvent *e)
