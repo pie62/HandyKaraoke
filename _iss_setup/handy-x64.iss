@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Handy Karaoke (x64)"
-#define MyAppVersion "2.3.0"
+#define MyAppVersion "2.4.1"
 #define MyAppPublisher "pie62"
 #define MyAppURL "https://github.com/pie62/HandyKaraoke"
 #define MyAppExeName "HandyKaraoke.exe"
@@ -27,7 +27,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=D:\Projects\QtProjects\HandyKaraoke\gpl-3.0.rtf
 OutputDir=C:\Users\Noob\Desktop\HandyKaraoke_setup
-OutputBaseFilename=HandyKaraoke-2.3.0-x64-setup
+OutputBaseFilename=HandyKaraoke-2.4.1-x64-setup
 SetupIconFile=D:\Projects\QtProjects\HandyKaraoke\icon.ico
 Compression=lzma
 SolidCompression=yes
@@ -42,50 +42,6 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-[Files]
-Source: "C:\Users\Noob\Desktop\hdk-x64\HandyKaraoke.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\bass.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\bass_fx.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\bass_vst.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\bassmidi.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\bassmix.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\D3Dcompiler_47.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\HandyHelper.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\libGLESV2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\MSVCR100.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\opengl32sw.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Sql.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5WinExtras.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Release notes.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\Style.ini"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\vccorlib120.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\VSTChecker_x64.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\WinSparkle.dll"; DestDir: "{app}"; Flags: ignoreversion
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "C:\Users\Noob\Desktop\hdk-x64\iconengines\qsvgicon.dll"; DestDir: "{app}\iconengines"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qgif.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qicns.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qico.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qjpeg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qsvg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qtga.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qtiff.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qwbmp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qwebp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\platforms\qwindows.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlite.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlmysql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlodbc.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlpsql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
-Source: "C:\Users\Noob\Desktop\hdk-x64\languages\en.qm"; DestDir: "{app}\languages"; Flags: ignoreversion
-
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{#HelperName}"; Filename: "{app}\{#HelperExeName}"
@@ -94,7 +50,8 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Name: "{commondesktop}\{#HelperName}"; Filename: "{app}\{#HelperExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait postinstall skipifsilent; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"
+Filename: "{tmp}\VC_redist.x64.exe"; Parameters: "/install /passive"; Flags: waituntilterminated; Check: VC2017RedistNeedsInstall
 
 [Dirs]
 Name: "{app}\Songs\HNK"; Flags: uninsneveruninstall
@@ -105,3 +62,65 @@ Name: "{app}\Songs\NCN\Lyrics"; Flags: uninsneveruninstall
 Name: "{app}\Songs\NCN\Song"; Flags: uninsneveruninstall
 Name: "{app}\SoundFonts"; Flags: uninsneveruninstall
 Name: "{app}\VST"; Flags: uninsneveruninstall
+
+[Files]
+Source: "C:\Users\Noob\Desktop\hdk-x64\bass.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\bass_fx.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\bass_vst.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\bassmidi.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\bassmix.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\D3Dcompiler_47.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\HandyHelper.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\HandyKaraoke.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\libGLESV2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\opengl32sw.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Sql.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Qt5WinExtras.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Release notes.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\Style.ini"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\VSTChecker_x64.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\WinSparkle.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\iconengines\qsvgicon.dll"; DestDir: "{app}\iconengines"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qgif.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qicns.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qico.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qjpeg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qsvg.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qtga.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qtiff.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qwbmp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\imageformats\qwebp.dll"; DestDir: "{app}\imageformats"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\languages\en.qm"; DestDir: "{app}\languages"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\platforms\qwindows.dll"; DestDir: "{app}\platforms"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlite.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlodbc.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\sqldrivers\qsqlpsql.dll"; DestDir: "{app}\sqldrivers"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\hdk-x64\styles\qwindowsvistastyle.dll"; DestDir: "{app}\styles"; Flags: ignoreversion
+Source: "C:\Users\Noob\Desktop\HandyKaraoke_setup\VC_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion deleteafterinstall
+
+[Code]
+function VC2017RedistNeedsInstall: Boolean;
+var 
+  Version: String;
+begin
+  if (RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64', 'Version', Version)) then
+  begin
+    // Is the installed version at least 14.23 ? 
+    Log('VC Redist Version check : found ' + Version);
+    Result := (CompareStr(Version, 'v14.23.27820.00')<0);
+  end
+  else 
+  begin
+    // Not even an old version installed
+    Result := True;
+  end;
+  if (Result) then
+  begin
+    ExtractTemporaryFile('VC_redist.x64.exe');
+  end;
+end;
