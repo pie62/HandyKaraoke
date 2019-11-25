@@ -10,10 +10,7 @@
 
 MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
 {
-    MidiSequencer *seq1 = new MidiSequencer();
-    MidiSequencer *seq2 = new MidiSequencer();
-    _midiSeq.push_back(seq1);
-    _midiSeq.push_back(seq2);
+    _midiSeq = new MidiSequencer();
 
     _midiSynth  = new MidiSynthesizer();
 
@@ -21,27 +18,11 @@ MidiPlayer::MidiPlayer(QObject *parent) : QObject(parent)
     {
         setMidiOut(0);
     }
-
-    connect(seq1, SIGNAL(playingEvent(MidiEvent*)),
-            this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
-    connect(seq1, SIGNAL(bpmChanged(int)),
-            this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
-    connect(seq1, SIGNAL(finished()),
-            this, SLOT(onSeqFinished()), Qt::DirectConnection);
-
-    connect(seq2, SIGNAL(playingEvent(MidiEvent*)),
-            this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
-    connect(seq2, SIGNAL(bpmChanged(int)),
-            this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
-    connect(seq2, SIGNAL(finished()),
-            this, SLOT(onSeqFinished()), Qt::DirectConnection);
 }
 
 MidiPlayer::~MidiPlayer()
 {
-    for (MidiSequencer *seq : _midiSeq) {
-        delete seq;
-    }
+    delete _midiSeq;
 
     for (MidiOut *out : _midiOuts.values()) {
         if (out) {
@@ -115,68 +96,9 @@ bool MidiPlayer::isBassInstrument(int ints)
         return true;
 }
 
-int MidiPlayer::getNumberBeatInBar(int numerator, int denominator)
-{
-    int value;
-    int d = qPow(2, denominator);
-    switch (d)
-    {
-        case 2:
-        case 4:
-            value = numerator * 1;
-            break;
-        case 8:
-            value = numerator * 0.5;
-            break;
-        case 16:
-            value = numerator * 0.25;
-            break;
-        default:
-            value = 4;
-            break;
-    }
-
-    if (value == 16 || value == 8)
-        value = 4;
-
-    switch (value)
-    {
-        case 16:
-        case 8:
-            value = 4;
-            break;
-        case 12:
-            value = 6;
-            break;
-    }
-
-    return value;
-}
-
-QList<SignatureBeat> MidiPlayer::CalculateBeats(MidiFile *midi)
-{
-    QList<SignatureBeat> beats;
-    uint32_t t = midi->events().back()->tick();
-    ushort bCount = midi->beatFromTick(t);
-
-    for (MidiEvent *evt : midi->timeSignatureEvents())
-    {
-        int nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
-        if (nBeatInBar <= 0)
-            continue;
-
-        SignatureBeat sb;
-        sb.nBeat = midi->beatFromTick(evt->tick());
-        sb.nBeatInBar = nBeatInBar;
-        beats.append(sb);
-    }
-
-    return beats;
-}
-
 MidiFile *MidiPlayer::midiFile()
 {
-    return _midiSeq[_seqIndex]->midiFile();
+    return _midiSeq->midiFile();
 }
 
 bool MidiPlayer::isUsedMidiSynthesizer()
@@ -192,22 +114,22 @@ bool MidiPlayer::isUsedMidiSynthesizer()
 
 bool MidiPlayer::isPlayerPlaying()
 {
-    return _midiSeq[_seqIndex]->isSeqPlaying();
+    return _midiSeq->isSeqPlaying();
 }
 
 bool MidiPlayer::isPlayerStopped()
 {
-    return _midiSeq[_seqIndex]->isSeqStopped();
+    return _midiSeq->isSeqStopped();
 }
 
 bool MidiPlayer::isPlayerPaused()
 {
-    return _midiSeq[_seqIndex]->isSeqPaused();
+    return _midiSeq->isSeqPaused();
 }
 
 bool MidiPlayer::isPlayerFinished()
 {
-    return _midiSeq[_seqIndex]->isSeqFinished();
+    return _midiSeq->isSeqFinished();
 }
 
 PlayerState MidiPlayer::playerState()
@@ -224,42 +146,42 @@ PlayerState MidiPlayer::playerState()
 
 long MidiPlayer::durationMs()
 {
-    return _midiSeq[_seqIndex]->durationMs();
+    return _midiSeq->durationMs();
 }
 
 long MidiPlayer::positionMs()
 {
-    return _midiSeq[_seqIndex]->positionMs();
+    return _midiSeq->positionMs();
 }
 
 int MidiPlayer::durationTick()
 {
-    return _midiSeq[_seqIndex]->durationTick();
+    return _midiSeq->durationTick();
 }
 
 int MidiPlayer::positionTick()
 {
-    return _midiSeq[_seqIndex]->positionTick();
+    return _midiSeq->positionTick();
 }
 
 int MidiPlayer::bpmSpeed()
 {
-    return _midiSeq[_seqIndex]->bpmSpeed();
+    return _midiSeq->bpmSpeed();
 }
 
 int MidiPlayer::currentBpm()
 {
-    return _midiSeq[_seqIndex]->currentBpm();
+    return _midiSeq->currentBpm();
 }
 
 int MidiPlayer::currentBeat()
 {
-    return _midiSeq[_seqIndex]->currentBeat();
+    return _midiSeq->currentBeat();
 }
 
 int MidiPlayer::beatCount()
 {
-    return _midiSeq[_seqIndex]->beatCount();
+    return _midiSeq->beatCount();
 }
 
 bool MidiPlayer::setMidiOut(int portNumber)
@@ -336,14 +258,26 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     if (!isPlayerStopped())
         stop(true);
 
-    if (!_midiSeq[_seqIndex]->load(file, seekFileChunkID))
+    _midiSeq->deleteLater();
+    _midiSeq = new MidiSequencer();
+
+    connect(_midiSeq, SIGNAL(playingEvent(MidiEvent*)),
+            this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
+    connect(_midiSeq, SIGNAL(bpmChanged(int)),
+            this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
+    connect(_midiSeq, SIGNAL(finished()),
+            this, SLOT(onSeqFinished()), Qt::DirectConnection);
+
+    if (!_midiSeq->load(file, seekFileChunkID))
         return false;
 
     _midiTranspose = 0;
 
     for (int i=0; i<16; i++) {
+        bool isLockVol = _midiChannels[i].isLockVol();
+        int lockVol = _midiChannels[i].volume();
         _midiChannels[i].setInstrument(0);
-        _midiChannels[i].setVolume(100);
+        _midiChannels[i].setVolume(isLockVol ? lockVol : 100);
         _midiChannels[i].setPan(64);
         _midiChannels[i].setReverb(0);
         _midiChannels[i].setChorus(0);
@@ -373,7 +307,7 @@ void MidiPlayer::play()
         sendEvent(&ev);
         emit sendedEvent(&ev);
     }
-    _midiSeq[_seqIndex]->start();
+    _midiSeq->start();
 }
 
 void MidiPlayer::stop(bool resetPos)
@@ -381,7 +315,7 @@ void MidiPlayer::stop(bool resetPos)
     if (isPlayerStopped())
         return;
 
-    _midiSeq[_seqIndex]->stop(resetPos);
+    _midiSeq->stop(resetPos);
 
     sendAllNotesOff();
 }
@@ -414,6 +348,9 @@ void MidiPlayer::setVolume(int ch, int v)
     evt.setEventType(MidiEventType::Controller);
     evt.setData1(7);
     evt.setData2(vl);
+
+    // when lock ch volume ch info is not set
+    _midiChannels[ch].setVolume(vl);
 
     sendEvent(&evt);
 }
@@ -540,9 +477,17 @@ void MidiPlayer::setChorus(int ch, int v)
     sendEvent(&evt);
 }
 
+void MidiPlayer::setLockVolume(int ch, bool lock)
+{
+    if (ch < 0 || ch > 15)
+        return;
+
+    _midiChannels[ch].setLockVol(lock);
+}
+
 void MidiPlayer::setPositionTick(int t)
 {
-    _midiSeq[_seqIndex]->setPositionTick(t);
+    _midiSeq->setPositionTick(t);
 }
 
 void MidiPlayer::setTranspose(int t)
@@ -563,7 +508,7 @@ void MidiPlayer::setTranspose(int t)
 
 void MidiPlayer::setBpmSpeed(int sp)
 {
-    _midiSeq[_seqIndex]->setBpmSpeed(sp);
+    _midiSeq->setBpmSpeed(sp);
 }
 
 void MidiPlayer::setLockDrum(bool lock, int number)
@@ -679,6 +624,22 @@ void MidiPlayer::receiveMidiIn(std::vector<unsigned char> *message)
     this->sendEvent(&_midiInEvent);
 }
 
+void MidiPlayer::setUseMedley(bool use)
+{
+    if (use == _useMedley)
+        return;
+
+    _useMedley = use;
+}
+
+void MidiPlayer::setMedleyBPM(int bpm)
+{
+    if (bpm == _medleyBPM)
+        return;
+
+    _medleyBPM = bpm;
+}
+
 void MidiPlayer::sendEvent(MidiEvent *e)
 {
     _playingEventPtr = e;
@@ -747,7 +708,17 @@ void MidiPlayer::sendEventToDevices(MidiEvent *e)
         }
         case MidiEventType::Controller: {
             switch (e->data1()) {
-            case 7: _midiChannels[ch].setVolume(e->data2()); break;
+            case 7: {
+                if (_midiChannels[ch].isLockVol()) {
+                    _tempEvent = *e;
+                    _tempEvent.setData2(_midiChannels[ch].volume());
+                    _playingEventPtr = &_tempEvent;
+                    e = &_tempEvent;
+                } else {
+                    _midiChannels[ch].setVolume(e->data2());
+                }
+                break;
+            }
             case 10: _midiChannels[ch].setPan(e->data2()); break;
             case 91: _midiChannels[ch].setReverb(e->data2()); break;
             case 93: _midiChannels[ch].setChorus(e->data2()); break;

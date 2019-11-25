@@ -32,8 +32,9 @@
 *.app
 
 # HNK
-Midi/lz77.h
+Midi/HNKFileComp.h
 Midi/HNKFile.h
 Midi/HNKFile.cpp
 
-HandyKaraoke\.pro\.user
+HandyKaraoke.pro.user
+HandyKaraoke.pro.user.*

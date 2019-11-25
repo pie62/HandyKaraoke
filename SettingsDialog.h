@@ -31,9 +31,14 @@ private slots:
     void onRadioBgImgToggled(bool checked);
     void on_btnBgColor_clicked();
     void on_btnBgImg_clicked();
+    void on_chbAutoCheckUpdate_toggled(bool checked);
+    void onSpinUpdateValueChanged(int value);
 
+
+    // Database tab
     void on_btnNCNPath_clicked();
     void on_btnHNKPath_clicked();
+    void on_btnKARPath_clicked();
     void on_btnUpdateSongs_clicked();
     void on_upDbUpdateFinished();
 
@@ -92,8 +97,8 @@ private slots:
     void onChbSfLoadAllToggled(bool value);
     void on_btnSfMap_clicked();
     void on_btnEq_clicked();
-    void on_btnReverb_clicked();
     void on_btnChorus_clicked();
+    void on_btnReverb_clicked();
 
     void on_btnClose_clicked();
 

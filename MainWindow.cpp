@@ -21,6 +21,10 @@
 #include "Dialogs/MapChannelDialog.h"
 #include "Dialogs/BusDialog.h"
 #include "Dialogs/SpeakerDialog.h"
+#include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/Chorus2Dialog.h"
+#include "Dialogs/Reverb2Dialog.h"
+#include "Dialogs/DeleteSongDialog.h"
 
 #ifndef __linux__
 #include "Dialogs/VSTDirsDialog.h"
@@ -37,12 +41,20 @@ MainWindow::MainWindow(QWidget *parent) :
         QMap<int, QString> dvs;
         int a, count=0;
         BASS_DEVICEINFO info;
-        for (a=0; BASS_GetDeviceInfo(a, &info); a++) {
+        for (a=0; BASS_GetDeviceInfo(a, &info); a++)
+        {
+            #ifdef __linux__
+            if (info.flags&BASS_DEVICE_ENABLED && BASS_Init(a, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL)) { // device is enabled
+                dvs[a] =  QString(info.name);
+                count++; // count it
+            }
+            #else
             if (info.flags&BASS_DEVICE_ENABLED) { // device is enabled
                 BASS_Init(a, 44100, BASS_DEVICE_SPEAKERS, NULL, NULL);
                 dvs[a] =  QString(info.name);
                 count++; // count it
             }
+            #endif
         }
         MidiSynthesizer::audioDevices(dvs);
     }
@@ -54,12 +66,13 @@ MainWindow::MainWindow(QWidget *parent) :
     float nVoices = (concurentThreadsSupported > 1) ? 500 : 256;
 
     BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
-    BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 5);
+    BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 10);
     BASS_SetConfig(BASS_CONFIG_MIDI_VOICES, nVoices);
     BASS_SetConfig(BASS_CONFIG_MIDI_COMPACT, true);
     // End Init BASS
 
 
+    bgWidget = new Background(this);
     lyrWidget = new LyricsWidget(this);
     updateDetail = new Detail(this);
 
@@ -71,12 +84,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
 
+    // lang
+    QString lang = settings->value("Language", "th").toString();
+    if (lang == "en")
+        setEngLang();
+
     QString ncn = settings->value("NCNPath", QDir::currentPath() + "/Songs/NCN").toString();
     QString hnk = settings->value("HNKPath", QDir::currentPath() + "/Songs/HNK").toString();
+    QString kar = settings->value("KARPath", QDir::currentPath() + "/Songs/KAR").toString();
 
     db = new SongDatabase();
     db->setNcnPath(ncn);
     db->setHNKPath(hnk);
+    db->setKarPath(kar);
 
 
     timer1 = new QTimer();
@@ -130,18 +150,11 @@ MainWindow::MainWindow(QWidget *parent) :
         auto_playnext = aPlayNext;
 
         int bg = settings->value("BackgroundType", 0).toInt();
-        if (bg == 0) {
-            QString color = settings->value("BackgroundColor", "#525252").toString();
-            setBackgroundColor(color);
-        } else {
-            QString img = settings->value("BackgroundImage", "").toString();
-            if (img != "" && QFile::exists(img)) {
-                setBackgroundImage(img);
-            } else {
-                QString color = settings->value("BackgroundColor", "#525252").toString();
-                setBackgroundColor(color);
-            }
-        }
+        QString bgColor = settings->value("BackgroundColor", "#515151").toString();
+        QString bgImg = settings->value("BackgroundImage", "").toString();
+        bgWidget->setBackgroundType((Background::BackgroundType)bg);
+        bgWidget->setBackgroundColor(bgColor);
+        bgWidget->setBackgroundImage(bgImg);
 
         int w       = settings->value("WindowWidth", this->minimumWidth()).toInt();
         int h       = settings->value("WindowHeight", this->minimumHeight()).toInt();
@@ -215,76 +228,9 @@ MainWindow::MainWindow(QWidget *parent) :
         // Soundfonts and Soundfonts map
         // move to setup in main function (main.cpp)
 
-        // Synth EQ
-        auto eqs = synth->equalizer31BandFXs();
-        std::map<EQFrequency31Range, float> eqgain = eqs[0]->gain();
-
-        bool eqon = settings->value("SynthFXEQOn", false).toBool();
-        if (eqon)
-            for (auto eq : eqs)
-                eq->on();
-
-        int gi =0;
-        settings->beginReadArray("SynthFXEQGain");
-        for (const auto& g : eqgain) {
-            settings->setArrayIndex(gi);
-            float gain = settings->value("gain", 0.0f).toFloat();
-            for (auto eq : eqs)
-                eq->setGain(g.first, gain);
-            gi++;
-        }
-        settings->endArray();
-
-
-        // Synth reverb
-        bool rvOn   = settings->value("SynthFXReverbOn", false).toBool();
-        int rvGain  = settings->value("SynthFXReverbInGain", 0).toInt();
-        int rvMix   = settings->value("SynthFXReverbMix", 0).toInt();
-        int rvTime  = settings->value("SynthFXReverbTime", 1000).toInt();
-        float rvHF  = settings->value("SynthFXReverbHF", 0.001).toFloat();
-
-        if (rvOn)
-            for (auto reverb : synth->reverbFXs())
-                reverb->on();
-
-        for (auto reverb : synth->reverbFXs())
-        {
-            reverb->setInGain((float)rvGain);
-            reverb->setReverbMix((float)rvMix);
-            reverb->setReverbTime((float)rvTime);
-            reverb->setHighFreqRTRatio(rvHF);
-        }
-
-
-        // Synth chorus
-        bool cOn = settings->value("SynthFXChorusOn", false).toBool();
-
-        int cWf  = settings->value("SynthFXChorusWaveform", 1).toInt();
-        int cPh  = settings->value("SynthFXChorusPhase", 3).toInt();
-
-        int cWet = settings->value("SynthFXChorusWetDryMix", 50).toInt();
-        int cDep = settings->value("SynthFXChorusDepth", 10).toInt();
-        int cFb  = settings->value("SynthFXChorusFeedback", 25).toInt();
-        int cFq  = settings->value("SynthFXChorusFrequency", 1).toInt();
-        int cDl  = settings->value("SynthFXChorusDelay", 16).toInt();
-
-        WaveformType lWaveform = static_cast<WaveformType>(cWf);
-        PhaseType lPhase = static_cast<PhaseType>(cPh);
-
-        if (cOn)
-            for (auto chorus : synth->chorusFXs())
-                chorus->on();
-
-        for (auto chorus : synth->chorusFXs())
-        {
-            chorus->setWaveform(lWaveform);
-            chorus->setPhase(lPhase);
-            chorus->setWetDryMix((float)cWet);
-            chorus->setDepth((float)cDep);
-            chorus->setFeedback((float)cFb);
-            chorus->setFrequency((float)cFq);
-            chorus->setDelay((float)cDl);
-        }
+        // Synth EQ -> move to SynthMixer
+        // Synth chorus -> move to SynthMixer
+        // Synth reverb -> move to SynthMixer
 
         // Create synth mixer
         synthMix = new SynthMixerDialog(this, this);
@@ -422,6 +368,28 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
+    #ifdef _WIN32
+    // WinSparkle
+    #ifdef Q_PROCESSOR_X86_64
+    QString appcastUrl = "https://raw.githubusercontent.com/pie62/HandyKaraoke-updates-repo/master/appcast-x64.xml";
+    #else
+    QString appcastUrl = "https://raw.githubusercontent.com/pie62/HandyKaraoke-updates-repo/master/appcast-x86.xml";
+    #endif
+    win_sparkle_set_appcast_url(appcastUrl.toStdString().c_str());
+    win_sparkle_set_app_details(qApp->organizationName().toStdWString().c_str(),
+                                qApp->applicationName().toStdWString().c_str(),
+                                qApp->applicationVersion().toStdWString().c_str());
+
+    win_sparkle_init();
+    win_sparkle_set_shutdown_request_callback(updateShutdownRequest);
+
+    QFile keyFile(":/dsa_pub.pem");
+    keyFile.open(QFile::ReadOnly);
+    win_sparkle_set_dsa_pub_pem(keyFile.readAll().constData());
+    keyFile.close();
+    #endif
+
+
     // Menu
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 }
@@ -430,46 +398,11 @@ MainWindow::~MainWindow()
 {
     stop();
 
-    { // Write synth FX settings
-        // Synth EQ
-        Equalizer31BandFX *eq = player->midiSynthesizer()->equalizer31BandFXs()[0];
-        std::map<EQFrequency31Range, float> eqgain = eq->gain();
 
-        settings->setValue("SynthFXEQOn", eq->isOn());
-
-        int gi =0;
-        settings->beginWriteArray("SynthFXEQGain");
-        for (const auto& g : eqgain) {
-            settings->setArrayIndex(gi);
-            settings->setValue("gain", g.second);
-            gi++;
-        }
-        settings->endArray();
-
-        // Synth reverb
-        ReverbFX *reverb = player->midiSynthesizer()->reverbFXs()[0];
-        settings->setValue("SynthFXReverbOn", reverb->isOn());
-        settings->setValue("SynthFXReverbInGain", (int)reverb->inGain());
-        settings->setValue("SynthFXReverbMix", (int)reverb->reverbMix());
-        settings->setValue("SynthFXReverbTime", (int)reverb->reverbTime());
-        settings->setValue("SynthFXReverbHF", reverb->highFreqRTRatio());
-
-
-        // Synth chorus
-        ChorusFX *chorus = player->midiSynthesizer()->chorusFXs()[0];
-        settings->setValue("SynthFXChorusOn", chorus->isOn());
-
-        int cWf  = static_cast<int>(chorus->waveform());
-        int cPh  = static_cast<int>(chorus->phase());
-        settings->setValue("SynthFXChorusWaveform", cWf);
-        settings->setValue("SynthFXChorusPhase", cPh);
-
-        settings->setValue("SynthFXChorusWetDryMix", (int)chorus->wetDryMix());
-        settings->setValue("SynthFXChorusDepth", (int)chorus->depth());
-        settings->setValue("SynthFXChorusFeedback", (int)chorus->feedback());
-        settings->setValue("SynthFXChorusFrequency", (int)chorus->frequency());
-        settings->setValue("SynthFXChorusDelay", (int)chorus->delay());
-    }
+    #ifdef _WIN32
+    // WinSparkle
+    win_sparkle_cleanup();
+    #endif
 
     delete synthMix;
 
@@ -512,29 +445,9 @@ MainWindow::~MainWindow()
 
     delete updateDetail;
     delete lyrWidget;
+    delete bgWidget;
 
     BASS_Free();
-}
-
-void MainWindow::setBackgroundColor(const QString &colorName)
-{
-    bgType = 0;
-    bgColor = colorName;
-    this->setStyleSheet("#MainWindow {background-color: " + colorName + ";}");
-}
-
-void MainWindow::setBackgroundImage(const QString &img)
-{
-    if (QFile::exists(img)) {
-        this->setStyleSheet("");
-        bgType = 1;
-        bgImg = img;
-        QPixmap bg(img);
-        bg = bg.scaled(this->size(), Qt::IgnoreAspectRatio);
-        QPalette palette;
-        palette.setBrush(QPalette::Background, bg); //set the pic to the background
-        this->setPalette(palette); //show the background pic
-    }
 }
 
 void MainWindow::play(int index, int position)
@@ -583,45 +496,47 @@ void MainWindow::play(int index, int position)
 
 
     // NCN File
-    if (playingSong.songType() == "NCN") {
-
+    if (playingSong.songType() == "NCN")
+    {
         QString p = db->ncnPath() + playingSong.path();
         if (!player->load(p, true)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ " + p +
-                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ ") + p +
+                                 tr("\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             return;
         }
 
         QString curPath = db->getCurFilePath(p);
         if (curPath == "" || !QFile::exists(curPath)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ Cursor หรัส " + playingSong.id() +
-                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ Cursor รหัส ") + playingSong.id() +
+                                 tr("\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             return;
         }
 
         QString lyrPath = db->getLyrFilePath(p);
         if (lyrPath == "" || !QFile::exists(lyrPath)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ Lyrics รหัส " + playingSong.id() +
-                                 "\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ Lyrics รหัส ") + playingSong.id() +
+                                 tr("\nหรือไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             return;
         }
 
         lyrWidget->setLyrics(Utils::readLyrics(lyrPath),
             Utils::readCurFile(curPath, player->midiFile()->resorution()));
 
-    } else if (playingSong.songType() == "HNK") {
+    }
+    else if (playingSong.songType() == "HNK")
+    {
         // HNK File
         QString p = db->hnkPath() + playingSong.path();
         if (!QFile::exists(p)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไม่มีไฟล์ " + p, QMessageBox::Ok);
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ ") + p, QMessageBox::Ok);
             return;
         }
 
-        QFile mid("temp.mid");
+        QFile mid(TEMP_MIDI_DIR_PATH);
         if (mid.exists())
             mid.remove();
 
@@ -629,9 +544,9 @@ void MainWindow::play(int index, int position)
         mid.write(HNKFile::midData(p));
         mid.close();
 
-        if (!player->load("temp.mid", true)) {
-            QMessageBox::warning(this, "ไม่สามารถเล่นเพลงได้",
-                                 "ไฟล์อาจเสียหายไม่สามารถอ่านได้", QMessageBox::Ok);
+        if (!player->load(TEMP_MIDI_DIR_PATH, true)) {
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
             mid.remove();
             return;
         }
@@ -641,6 +556,28 @@ void MainWindow::play(int index, int position)
         lyrWidget->setLyrics(Utils::readLyrics(HNKFile::lyrData(p)),
             Utils::readCurFile(HNKFile::curData(p), player->midiFile()->resorution()));
 
+    }
+    else if (playingSong.songType() == "KAR")
+    {
+        // KAR file
+        QString p = db->karPath() + playingSong.path();
+        if (!QFile::exists(p)) {
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไม่มีไฟล์ ") + p, QMessageBox::Ok);
+            return;
+        }
+
+        if (!player->load(p, false)) {
+            QMessageBox::warning(this, tr("ไม่สามารถเล่นเพลงได้"),
+                                 tr("ไฟล์อาจเสียหายไม่สามารถอ่านได้"), QMessageBox::Ok);
+            return;
+        }
+
+        lyrWidget->setLyrics(player->midiFile()->lyrics(), player->midiFile()->lyricsCursor());
+    }
+    else
+    {
+        return;
     }
 
     if (secondLyr != nullptr)
@@ -657,7 +594,7 @@ void MainWindow::play(int index, int position)
     #endif
 
     // RHM
-    ui->rhmWidget->setBeat(MidiPlayer::CalculateBeats(player->midiFile()), player->beatCount());
+    ui->rhmWidget->setBeat(MidiHelper::calculateBeats(player->midiFile()), player->beatCount());
 
     ui->frameSearch->hide();
     ui->playlistWidget->hide();
@@ -749,9 +686,19 @@ void MainWindow::playPrevious()
 
 void MainWindow::showEvent(QShowEvent *event)
 {
+    QMainWindow::showEvent(event);
+
     #ifdef _WIN32
     taskbarButton->setWindow(this->windowHandle());
     #endif
+
+    if (firstShow)
+    {
+        #ifdef _WIN32
+        win_sparkle_check_update_without_ui();
+        #endif
+        firstShow = false;
+    }
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
@@ -766,10 +713,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
-    if (bgType == 1) {
-        setBackgroundImage(bgImg);
-        QMainWindow::resizeEvent(event);
-    }
+    QMainWindow::resizeEvent(event);
+    bgWidget->resize(ui->centralWidget->size());
     lyrWidget->resize(ui->centralWidget->size());
     updateDetail->move(width() - 260, 70);
     emit resized(event->size());
@@ -777,9 +722,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    synthMix->close();
+
     QMessageBox::StandardButton resBtn = QMessageBox::question(
-                                            this, "ออกจากโปรแกรม",
-                                            "ท่านต้องการออกจากโปรแกรม?",
+                                            this, tr("ออกจากโปรแกรม"),
+                                            tr("ท่านต้องการออกจากโปรแกรม?"),
                                             QMessageBox::Yes|QMessageBox::No);
     if (resBtn != QMessageBox::Yes) {
         event->ignore();
@@ -919,6 +866,23 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 else
                     this->sendDrumPads(event, true);
                 break;
+        case Qt::Key_Delete:
+            if (ui->frameSearch->isVisible()) {
+                DeleteSongDialog dlg(this);
+                dlg.setModal(true);
+                dlg.adjustSize();
+                dlg.setFixedSize(dlg.size());
+                dlg.exec();
+
+                if (dlg.removeConfirmed()) {
+                    db->removeCurrentSong(dlg.removeFromStorage());
+                    setFrameSearch( db->searchNext() );
+                    if (ui->frameSearch->isVisible()) {
+                        timer2->start(search_timeout);
+                    }
+                }
+            }
+            break;
             default:
                 this->sendDrumPads(event, true);
                 break;
@@ -955,6 +919,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         playNext();
         break;
     }
+    case Qt::Key_Asterisk: {
+        if (ui->chMix->isMuteVoice()) {
+            ui->chMix->setMuteVoice(false);
+            ui->detail->setDetail(tr("เสียงร้อง "), tr("เปิด"));
+        } else {
+            ui->chMix->setMuteVoice(true);
+            ui->detail->setDetail(tr("เสียงร้อง "), tr("ปิด"));
+        }
+        ui->detail->show();
+        detailTimer->start(3000);
+        if (this->width() < 1160 && ui->chMix->isVisible()) {
+            ui->lcdTime->hide();
+        }
+        break;
+    }
     case Qt::Key_Insert: {
         if (ui->frameSearch->isVisible()) {
             preSetTranspose(db->currentSong()->transpose() + 1);
@@ -968,7 +947,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         else t = QString::number(trp);
         ui->songDetail->setDetail(&playingSong);
         ui->songDetail->adjustSize();
-        ui->detail->setDetail("คีย์เพลง ", t);
+        ui->detail->setDetail(tr("คีย์เพลง "), t);
         ui->detail->show();
         detailTimer->start(3000);
         if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -1000,7 +979,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         else t = QString::number(trp);
         ui->songDetail->setDetail(&playingSong);
         ui->songDetail->adjustSize();
-        ui->detail->setDetail("คีย์เพลง ", t);
+        ui->detail->setDetail(tr("คีย์เพลง "), t);
         ui->detail->show();
         detailTimer->start(3000);
         if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -1227,6 +1206,11 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
+void MainWindow::updateShutdownRequest()
+{
+    qApp->quit();
+}
+
 void MainWindow::showFrameSearch()
 {
     ui->chMix->hide();
@@ -1324,25 +1308,33 @@ void MainWindow::setFrameSearch(Song *s)
         ui->lbTempoKey->setText(" (" + QString::number(s->tempo()) + ")");
     ui->lbType->setText("[" + s->songType() + "]");
     ui->lbLyrics->setText(s->lyrics().replace("\r\n", " "));
+
+    if (s->artist().length() == 0) {
+        ui->lbBtw->hide();
+    }
 }
 
 void MainWindow::showContextMenu(const QPoint &pos)
 {
+    if (ui->chMix->isVisible() && ui->chMix->rect().contains(pos))
+        return;
+
     QMenu menu(tr("Context menu"), this);
     menu.setMinimumWidth(230);
 
-    QAction actionSettings("ตั้งค่า...", this);
-    QAction actionMappChanel("แยกช่องสัญญาณ...", this);
-    QAction actionShowSynthMixDlg("Handy Synth Mixer...", this);
-    QAction actionShowEqDlg("อีควอไลเซอร์...", this);
-    QAction actionShowReverbDlg("เอฟเฟ็กต์เสียงก้อง...", this);
-    QAction actionShowChorusDlg("เอฟเฟ็กต์เสียงประสาน...", this);
-    QAction actionMapSF("ตารางเลือกใช้ซาวด์ฟ้อนท์...", this);
-    QAction actionSecondMonitor("ระบบ 2 หน้าจอ", this);
-    QAction actionFullScreen("เต็มหน้าจอ (ย่อ/ขยาย)", this);
-    QAction actionAbout("เกี่ยวกับ...", this);
-    QAction actionAboutQt("เกี่ยวกับ Qt...", this);
-    QAction actionExit("ออกจากโปรแกรม", this);
+    QAction actionSettings(tr("ตั้งค่า..."), this);
+    QAction actionMappChanel(tr("แยกช่องสัญญาณ..."), this);
+    QAction actionShowSynthMixDlg(tr("Handy Synth Mixer..."), this);
+    QAction actionShowEqDlg(tr("อีควอไลเซอร์"), this);
+    QAction actionShowChorusDlg(tr("เอฟเฟ็กต์เสียงประสาน"), this);
+    QAction actionShowReverbDlg(tr("เอฟเฟ็กต์เสียงก้อง"), this);
+    QAction actionMapSF(tr("ตารางเลือกใช้ซาวด์ฟ้อนท์..."), this);
+    QAction actionSecondMonitor(tr("ระบบ 2 หน้าจอ"), this);
+    QAction actionFullScreen(tr("เต็มหน้าจอ (ย่อ/ขยาย)"), this);
+    QAction actionCheckUpdate(tr("ตรวจสอบอัพเดท..."), this);
+    QAction actionAbout(tr("เกี่ยวกับ..."), this);
+    QAction actionAboutQt(tr("เกี่ยวกับ Qt..."), this);
+    QAction actionExit(tr("ออกจากโปรแกรม"), this);
 
     if (secondLyr != nullptr) {
         actionSecondMonitor.setCheckable(true);
@@ -1358,6 +1350,7 @@ void MainWindow::showContextMenu(const QPoint &pos)
     connect(&actionMapSF, SIGNAL(triggered()), this, SLOT(showMapSFDialog()));
     connect(&actionSecondMonitor, SIGNAL(triggered()), this, SLOT(showSecondMonitor()));
     connect(&actionFullScreen, SIGNAL(triggered()), this, SLOT(showFullScreenOrNormal()));
+    connect(&actionCheckUpdate, SIGNAL(triggered()), this, SLOT(showCheckUpdateDialog()));
     connect(&actionAbout, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
     connect(&actionAboutQt, SIGNAL(triggered()), this, SLOT(showAboutQtDialog()));
     connect(&actionExit, SIGNAL(triggered()), this, SLOT(close()));
@@ -1370,28 +1363,49 @@ void MainWindow::showContextMenu(const QPoint &pos)
 
     // synth mixer tool
     {
-        QMenu *m = menu.addMenu("Handy Synth Mixer Tool");
+        QMenu *m = menu.addMenu(tr("Handy Synth Mixer Tool"));
 
-        QAction *act = m->addAction("บัสกรุ๊ป...");
+        QAction *act = m->addAction(tr("บัสกรุ๊ป..."));
         connect(act, SIGNAL(triggered()), this, SLOT(showBusGroupDialog()));
 
-        act = m->addAction("แยกอุปกรณ์เสียง/ลำโพง...");
+        act = m->addAction(tr("แยกอุปกรณ์เสียง/ลำโพง..."));
         connect(act, SIGNAL(triggered()), this, SLOT(showSpeakerDialog()));
 
         #ifndef __linux__
-        act = m->addAction("จัดการ VST && VSTi...");
+        act = m->addAction(tr("จัดการ VST && VSTi..."));
         connect(act, SIGNAL(triggered()), this, SLOT(showVSTDirDialog()));
         #endif
     }
 
     menu.addAction(&actionShowEqDlg);
-    menu.addAction(&actionShowReverbDlg);
     menu.addAction(&actionShowChorusDlg);
+    menu.addAction(&actionShowReverbDlg);
     menu.addAction(&actionMapSF);
     menu.addSeparator();
     menu.addAction(&actionSecondMonitor);
     menu.addAction(&actionFullScreen);
     menu.addSeparator();
+
+    { // lang menu
+        QMenu *m = menu.addMenu(tr("Language"));
+
+        QAction *act = m->addAction("ไทย");
+        act->setCheckable(true);
+        act->setChecked(currentLang == "th");
+        connect(act, SIGNAL(triggered()), this, SLOT(setThaiLang()));
+
+        act = m->addAction("English");
+        act->setCheckable(true);
+        act->setChecked(currentLang == "en");
+        connect(act, SIGNAL(triggered()), this, SLOT(setEngLang()));
+
+        menu.addSeparator();
+    }
+
+    #ifdef _WIN32
+    menu.addAction(&actionCheckUpdate);
+    #endif
+
     menu.addAction(&actionAbout);
     menu.addAction(&actionAboutQt);
     menu.addAction(&actionExit);
@@ -1421,24 +1435,24 @@ void MainWindow::showEqDialog()
     dlg->show();
 }
 
-void MainWindow::showReverbDialog()
+void MainWindow::showChorusDialog()
 {
-    if (ReverbDialog::isOpenned())
+    if (Chorus2Dialog::isOpenned())
         return;
 
-    ReverbDialog *dlg = new ReverbDialog(this, player->midiSynthesizer()->reverbFXs());
+    Chorus2Dialog *dlg = new Chorus2Dialog(this, player->midiSynthesizer()->chorusFXs());
     dlg->adjustSize();
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->show();
 }
 
-void MainWindow::showChorusDialog()
+void MainWindow::showReverbDialog()
 {
-    if (ChorusDialog::isOpenned())
+    if (Reverb2Dialog::isOpenned())
         return;
 
-    ChorusDialog *dlg = new ChorusDialog(this, player->midiSynthesizer()->chorusFXs());
+    Reverb2Dialog *dlg = new Reverb2Dialog(this, player->midiSynthesizer()->reverbFXs());
     dlg->adjustSize();
     dlg->setFixedSize(dlg->size());
     dlg->setAttribute(Qt::WA_DeleteOnClose);
@@ -1472,16 +1486,16 @@ void MainWindow::showSpeakerDialog()
     dlg.exec();
 }
 
-#ifndef __linux__
 void MainWindow::showVSTDirDialog()
 {
+    #ifndef __linux__
     VSTDirsDialog dlg(this, this);
     dlg.setModal(true);
     dlg.adjustSize();
     dlg.setMinimumSize(dlg.size());
     dlg.exec();
+    #endif
 }
-#endif
 
 void MainWindow::minimizeWindow()
 {
@@ -1508,10 +1522,10 @@ void MainWindow::showSecondMonitor()
         secondMonitor->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         #endif
 
-        if (bgType == 0)
-            secondMonitor->setBackgroundColor(bgColor);
-        else
-            secondMonitor->setBackgroundImage(bgImg);
+        Background *bg = secondMonitor->backgroundWidget();
+        bg->setBackgroundType(bgWidget->backgroundType());
+        bg->setBackgroundColor(bgWidget->backgroundColor());
+        bg->setBackgroundImage(bgWidget->backgroundImage());
 
         secondLyr = secondMonitor->lyrWidget();
         secondMonitor->show();
@@ -1535,6 +1549,40 @@ void MainWindow::showFullScreenOrNormal()
     } else {
         this->showFullScreen();
     }
+}
+
+void MainWindow::setThaiLang()
+{
+    if (currentLang == "th")
+        return;
+
+    if (QApplication::removeTranslator(&translator)) {
+        QApplication::processEvents();
+        currentLang = "th";
+        settings->setValue("Language", currentLang);
+    }
+}
+
+void MainWindow::setEngLang()
+{
+    if (currentLang == "en")
+        return;
+
+    QString path = QApplication::applicationDirPath() + "/languages/en.qm";
+
+    if (translator.load(path)) {
+        QApplication::installTranslator(&translator);
+        QApplication::processEvents();
+        currentLang = "en";
+        settings->setValue("Language", currentLang);
+    }
+}
+
+void MainWindow::showCheckUpdateDialog()
+{
+    #ifdef _WIN32
+    win_sparkle_check_update_with_ui();
+    #endif
 }
 
 void MainWindow::showAboutDialog()
@@ -1643,7 +1691,7 @@ void MainWindow::onSliderVolumeValueChanged(int value)
 {
     player->setVolume(value);
 
-    ui->detail->setDetail("ระดับเสียง", QString::number(value));
+    ui->detail->setDetail(tr("ระดับเสียง"), QString::number(value));
     ui->detail->show();
     detailTimer->start(3000);
     if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -1689,7 +1737,7 @@ void MainWindow::addBpmSpeed(int speed)
         value += QString::number(bpmSp) + ")";
     }
 
-    ui->detail->setDetail("ความเร็ว", value);
+    ui->detail->setDetail(tr("ความเร็ว"), value);
     ui->detail->show();
     detailTimer->start(3000);
     if (this->width() < 1160 && ui->chMix->isVisible()) {
@@ -1709,7 +1757,7 @@ void MainWindow::preSetBpmSpeed(int speed)
     else
         s = QString::number(speed);
 
-    ui->lbSearch->setText("ความเร็ว : " + QString::number(song->tempo() + speed) + " (" + s + ")");
+    ui->lbSearch->setText(tr("ความเร็ว : ") + QString::number(song->tempo() + speed) + " (" + s + ")");
     timer2->start(search_timeout);
 }
 
@@ -1726,7 +1774,7 @@ void MainWindow::preSetTranspose(int transpose)
         s = QString::number(transpose);
 
 
-    ui->lbSearch->setText("คีย์เพลง : " + s );
+    ui->lbSearch->setText(tr("คีย์เพลง : ") + s );
     timer2->start(search_timeout);
 }
 

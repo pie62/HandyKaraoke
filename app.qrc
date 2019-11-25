@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>update-database.sql</file>
+        <file>dsa_pub.pem</file>
     </qresource>
 </RCC>

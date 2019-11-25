@@ -70,8 +70,11 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnReset">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <property name="text">
-        <string>รีเซ็ต</string>
+        <string>Reset</string>
        </property>
       </widget>
      </item>

@@ -3,6 +3,7 @@
 
 #include <QToolTip>
 #include <QCursor>
+#include <QMouseEvent>
 
 
 ChMx::ChMx(QWidget *parent) :
@@ -92,6 +93,14 @@ void ChMx::peak(int v)
         return;
 
     ui->vuBar->peak(v);
+}
+
+void ChMx::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton) {
+        emit mouseRightClicked(chNumber, event->pos());
+        event->ignore();
+    }
 }
 
 void ChMx::onChLabelMouseHover()

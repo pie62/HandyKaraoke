@@ -3,6 +3,8 @@
 
 #include <QThread>
 #include <QElapsedTimer>
+#include <QWaitCondition>
+#include <QMutex>
 
 #include "MidiFile.h"
 
@@ -38,6 +40,8 @@ public:
     bool load(const QString &file, bool seekFileChunkID = false);
     void stop(bool resetPos = false);
 
+    void setStartTick(int tick);
+
 public slots:
 
 signals:
@@ -46,6 +50,9 @@ signals:
 
 protected:
     void run();
+
+private:
+    int eventIndexFromTick(int tick);
 
 private:
     MidiFile *_midi;
@@ -65,6 +72,12 @@ private:
     bool    _finished = false;
     bool    _stopped = true;
     bool    _playing = false;
+
+    int _startTick = 0;
+    int _endTick = 0;
+
+    QWaitCondition _waitCondition;
+    QMutex _mutex;
 };
 
 #endif // MIDISEQUENCER_H

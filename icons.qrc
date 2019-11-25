@@ -133,5 +133,8 @@
         <file>Icons/SoundCard/ports/port-side-left.png</file>
         <file>Icons/SoundCard/ports/port-side-right.png</file>
         <file>Icons/SoundCard/speakers.png</file>
+        <file>Icons/menu.png</file>
+        <file>Icons/refresh.png</file>
+        <file>Icons/06B.png</file>
     </qresource>
 </RCC>

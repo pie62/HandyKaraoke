@@ -1,5 +1,5 @@
 BASS 2.4
-Copyright (c) 1999-2018 Un4seen Developments Ltd. All rights reserved.
+Copyright (c) 1999-2019 Un4seen Developments Ltd. All rights reserved.
 
 Files that you should have found in the BASS package
 ====================================================
@@ -284,6 +284,9 @@ NOTE: You may need to "Unblock" the BASS.CHM file in its "Properties" to
       view it on Windows 7. The documentation can also be viewed online at
       the BASS website.
 
+NOTE: The Delphi and VB examples may not always be up to date with the C
+      examples, so the latter should be preferred as references if possible.
+
 NOTE: To run the example EXEs, first you will need to copy BASS.DLL into the
       same directory as them.
 
@@ -465,10 +468,11 @@ Requirements
 ============
 Win32 version
 -------------
-BASS requires WASAPI or DirectSound for playback and recording, but decoding is
-still possible without them. DirectSound has been included with all Windows
-versions since Windows 98. On Windows Vista and above, the default is to WASAPI
-instead of DirectSound for playback. 32-bit and 64-bit Windows are supported.
+BASS requires WASAPI or DirectSound for playback and recording, but decoding
+and silent playback on the "No sound" device is still possible without them.
+DirectSound has been included with all Windows versions since Windows 98. On
+Windows Vista and above, the default is to use WASAPI instead of DirectSound
+for playback. 32-bit and 64-bit Windows are supported.
 
 MacOSX version
 --------------
@@ -478,9 +482,10 @@ so there are no special library/driver requirements. 32-bit (i386) and 64-bit
 
 Linux version
 -------------
-BASS requires ALSA for playback and recording, but decoding is still possible
-without it. 32-bit (i386) and 64-bit (x86-64) architectures are supported.
-ARM support is also available as a separate download from the website.
+BASS requires ALSA for playback and recording, but decoding and silent playback
+on the "No sound" device is still possible without it. 32-bit (i386) and 64-bit
+(x86-64) architectures are supported. ARM support is also available as a
+separate download from the website.
 
 
 Main Features
@@ -534,7 +539,7 @@ Main Features
   chorus/compressor/distortion/echo/flanger/gargle/parameq/reverb
 
 * User defined DSP functions
-  custom effects may be applied to musics and streams
+  custom effects may be applied to individual streams or the final output mix
 
 * 32 bit floating-point decoding and processing
   floating-point stream/music decoding, DSP/FX, and recording
@@ -558,7 +563,7 @@ functions that you are using have been affected by a change.
 
 Win32 version
 -------------
-C/C++, Visual Basic, and Delphi APIs and example projects are provided. To
+C/C++, Delphi, and Visual Basic APIs and example projects are provided. To
 use BASS with another language you will first have to convert the header
 file. Or, as a last resort, you could use LoadLibrary and GetProcAddress.
 
@@ -722,6 +727,55 @@ These are the major (and not so major) changes at each version stage.
 There are of course bug fixes and other little improvements made along
 the way too! To make upgrading simpler, all functions affected by a
 change to the BASS interface are listed.
+
+2.4.14 - 16/1/2019
+------------------
+* Support for playback on the "No sound" device
+	BASS_Init
+	BASS_StreamCreateFile/User/URL
+	BASS_SampleLoad/Create
+	BASS_ChannelPlay
+* Improved sample rate conversion quality, including 64 point option
+	BASS_ATTRIB_SRC (BASS_ChannelSetAttribute option)
+	BASS_CONFIG_SRC/_SAMPLE (BASS_SetConfig options)
+* Loopback (output device) recording on Windows Vista and above
+	BASS_RecordInit
+	BASS_RecordGetDeviceInfo
+	BASS_DEVICE_LOOPBACK (BASS_DEVICEINFO flag)
+	DEVLIST and RECTEST examples updated
+* Native format recording option
+	BASS_RecordStart
+* Access to the 3D output mix for applying DSP/FX
+	STREAMPROC_DEVICE_3D (BASS_StreamCreate option)
+* Retrieval of a device's started/stopped status
+	BASS_IsStarted
+* Sync for when a device stops unexpectedly
+	BASS_SYNC_DEV_FAIL (BASS_ChannelSetSync type)
+* New channel playback state for a paused device
+	BASS_ACTIVE_PAUSED_DEVICE (BASS_ChannelIsActive)
+* Sync for when a device's sample format changes
+	BASS_SYNC_DEV_FORMAT (BASS_ChannelSetSync type)
+* Adjustable output device update period
+	BASS_CONFIG_DEV_PERIOD (BASS_SetConfig option)
+* Nyquist FFT option
+	BASS_DATA_FFT_NYQUIST (BASS_ChannelGetData flag)
+* Plugin-specific flags are ignored in standard stream creation functions
+	BASS_StreamCreateFile/User/URL
+* Pre-buffering during stream creation is now disabled by default
+	BASS_CONFIG_NET_PREBUF_WAIT (BASS_SetConfig option)
+	BASS_StreamCreateURL/FileUser
+* Existing internet streams are unaffected by read timeout config changes
+	BASS_CONFIG_NET_READTIMEOUT (BASS_SetConfig option)
+* Retrieval of the number of existing handles
+	BASS_CONFIG_HANDLES (BASS_GetConfig option)
+* Windows mixer settings are retained by default and optionally not
+	BASS_CONFIG_WASAPI_PERSIST (BASS_SetConfig option)
+* Configurable OpenSSL library filename on Linux/Android
+	BASS_CONFIG_LIBSSL (BASS_SetConfigPtr option)
+* Fix for bug in playback buffering disabling option
+	BASS_ATTRIB_NOBUFFER (BASS_ChannelSetAttribute option)
+* Fix to support long logarithmic curves in volume effects
+	BASS_FX_VOLUME (BASS_ChannelSetFX type)
 
 2.4.13.8 - 6/2/2018
 -------------------
@@ -2123,7 +2177,7 @@ change to the BASS interface are listed.
 * Compressed WAV samples support (using audio CODECs)
 * Updated CD volume handling - now works with SB Live
 * More linear channel volume/pan scales (were slightly off before)
-* "no sound" device option
+* "No sound" device option
 * 3D sound functions
 	BASS_Set3DFactors
 	BASS_Get3DFactors
@@ -2197,10 +2251,10 @@ CHMOX is (c) 2004 Stéphane Boisson, http://chmox.sourceforge.net/
 
 API/Sample contributors
 -----------------------
-Visual Basic: Adam Hoult, Hendrik Knaepen, Arthur Aminov,
-              Peter Hebels
 Delphi: Titus Miloi, Rogier Timmermans, Alessandro Cappellozza,
         Jesse Naranjo, Chris Troesken, Evgeny Melnikov
+Visual Basic: Adam Hoult, Hendrik Knaepen, Arthur Aminov,
+              Peter Hebels
 
 
 Bug reports, Suggestions, Comments, Enquiries, etc...

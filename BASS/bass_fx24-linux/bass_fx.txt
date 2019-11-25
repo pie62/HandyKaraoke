@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
-                        (: -= BASS_FX v2.4.12 =- :)
-                             -===============-
+                        (: -= BASS_FX v2.4.12.1 =- :)
+                             -=================-
             Copyright (c) 2002-2018 JOBnik! [Arthur Aminov, ISRAEL]
                              All rights reserved!
 -------------------------------------------------------------------------------
@@ -239,6 +239,15 @@ These are the major (and not so major) changes at each version
 stage. There are ofcourse bug fixes and other little improvements
 made along the way too! To make upgrading simpler, all functions
 affected by a change to the BASS_FX interface are listed.
+
+2.4.12.1 - 07/06/2018
+---------------------
+* BASS_FX:
+  * Fixed file version info on Windows platforms.
+
+* Tempo:
+  * Fixed an issue with flushing the final samples from the tempo processing buffers as described in this post:
+    http://www.un4seen.com/forum/?topic=2181.msg126906#msg126906
 
 2.4.12 - 28/03/2018
 -------------------

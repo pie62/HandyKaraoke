@@ -5,6 +5,8 @@ SecondMonitorDialog::SecondMonitorDialog(QWidget *parent, LyricsWidget *lyr) :
     QDialog(parent),
     ui(new Ui::SecondMonitorDialog)
 {
+    bgWidget = new Background(this);
+
     ui->setupUi(this);
 
     ui->lyr->setTextFont(lyr->textFont());
@@ -35,25 +37,13 @@ SecondMonitorDialog::SecondMonitorDialog(QWidget *parent, LyricsWidget *lyr) :
 SecondMonitorDialog::~SecondMonitorDialog()
 {
     delete ui;
+
+    delete bgWidget;
 }
 
-void SecondMonitorDialog::setBackgroundColor(const QString &colorName)
+Background *SecondMonitorDialog::backgroundWidget()
 {
-    useBgImg = false;
-    this->setStyleSheet("background-color: " + colorName + ";");
-}
-
-void SecondMonitorDialog::setBackgroundImage(const QString &img)
-{
-    useBgImg = true;
-    bgImg = img;
-
-    this->setStyleSheet("");
-    QPixmap bg(img);
-    bg = bg.scaled(this->size(), Qt::IgnoreAspectRatio);
-    QPalette palette;
-    palette.setBrush(QPalette::Background, bg); //set the pic to the background
-    this->setPalette(palette); //show the background pic
+    return bgWidget;
 }
 
 LyricsWidget *SecondMonitorDialog::lyrWidget()
@@ -63,10 +53,6 @@ LyricsWidget *SecondMonitorDialog::lyrWidget()
 
 void SecondMonitorDialog::resizeEvent(QResizeEvent *event)
 {
-    if (useBgImg)
-        setBackgroundImage(bgImg);
-
-    if (!ui->lyr->isVisible()) {
-        ui->lyr->resize(this->size());
-    }
+    QDialog::resizeEvent(event);
+    bgWidget->resize(size());
 }

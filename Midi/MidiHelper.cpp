@@ -1,8 +1,72 @@
 #include "MidiHelper.h"
 
+#include "MidiFile.h"
+
+#include <QtMath>
+
+
 MidiHelper::MidiHelper()
 {
 
+}
+
+int MidiHelper::getNumberBeatInBar(int numerator, int denominator)
+{
+    int value;
+    int d = qPow(2, denominator);
+    switch (d)
+    {
+        case 2:
+        case 4:
+            value = numerator * 1;
+            break;
+        case 8:
+            value = numerator * 0.5;
+            break;
+        case 16:
+            value = numerator * 0.25;
+            break;
+        default:
+            value = 4;
+            break;
+    }
+
+    if (value == 16 || value == 8)
+        value = 4;
+
+    switch (value)
+    {
+        case 16:
+        case 8:
+            value = 4;
+            break;
+        case 12:
+            value = 6;
+            break;
+    }
+
+    return value;
+}
+
+QList<SignatureBeat> MidiHelper::calculateBeats(MidiFile *midi)
+{
+    QList<SignatureBeat> beats;
+    uint32_t t = midi->events().back()->tick();
+    ushort bCount = midi->beatFromTick(t);
+
+    for (MidiEvent *evt : midi->timeSignatureEvents())
+    {
+        int nBeatInBar = getNumberBeatInBar(evt->data()[0], evt->data()[1]);
+        if (nBeatInBar <= 0)
+            continue;
+
+        SignatureBeat sb;
+        sb.nBeat = midi->beatFromTick(evt->tick());
+        sb.nBeatInBar = nBeatInBar;
+        beats.append(sb);
+    }
+
+    return beats;
 }
 
 QStringList MidiHelper::GMInstrumentNumberNames()

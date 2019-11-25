@@ -7,11 +7,12 @@
     <x>0</x>
     <y>0</y>
     <width>614</width>
-    <height>472</height>
+    <height>487</height>
    </rect>
   </property>
   <property name="font">
    <font>
+    <family>Tahoma</family>
     <pointsize>10</pointsize>
    </font>
   </property>
@@ -186,6 +187,8 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>Tahoma</family>
+                    <pointsize>10</pointsize>
                     <weight>75</weight>
                     <bold>true</bold>
                    </font>
@@ -284,6 +287,58 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBoxUpdate">
+         <property name="title">
+          <string>อัพเดท</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_26">
+          <item>
+           <widget class="QCheckBox" name="chbAutoCheckUpdate">
+            <property name="text">
+             <string>ตรวจสอบอัพเดทอัตโนมัต</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_9">
+            <item row="0" column="0">
+             <widget class="QLabel" name="lbUpdateInterval">
+              <property name="text">
+               <string>ระยะเวลาตรวจสอบ (ชั่วโมง) : </string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="spinUpdateInterval">
+              <property name="minimumSize">
+               <size>
+                <width>50</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>24</number>
+              </property>
+              <property name="value">
+               <number>24</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -308,7 +363,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_10">
            <property name="title">
-            <string>รูปแบบเนื้อเพลง</string>
+            <string>รูปแบบตัวอักษร</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <item>
@@ -537,7 +592,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_4">
            <property name="title">
-            <string>เนื้อเพลง</string>
+            <string>รูปแบบเนื้อเพลง</string>
            </property>
            <layout class="QFormLayout" name="formLayout_2">
             <item row="0" column="0">
@@ -565,6 +620,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -636,6 +693,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -733,6 +792,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -811,7 +872,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_5">
            <property name="title">
-            <string>ตำแหน่งเนื้อร้อง</string>
+            <string>รูปแบบตำแหน่งเนื้อร้อง</string>
            </property>
            <layout class="QFormLayout" name="formLayout_4">
             <item row="0" column="0">
@@ -839,6 +900,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -910,6 +973,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1007,6 +1072,8 @@
                 </property>
                 <property name="font">
                  <font>
+                  <family>Tahoma</family>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1115,8 +1182,22 @@
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="leNCNPath">
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_25">
+              <property name="text">
+               <string>KAR :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_22">
+              <property name="text">
+               <string>HNK :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="leHNKPath">
               <property name="readOnly">
                <bool>true</bool>
               </property>
@@ -1148,15 +1229,8 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_22">
-              <property name="text">
-               <string>HNK :</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="leHNKPath">
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="leNCNPath">
               <property name="readOnly">
                <bool>true</bool>
               </property>
@@ -1164,6 +1238,32 @@
             </item>
             <item row="1" column="2">
              <widget class="QPushButton" name="btnHNKPath">
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="leKARPath">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="btnKARPath">
               <property name="minimumSize">
                <size>
                 <width>40</width>
@@ -1263,6 +1363,7 @@
           <widget class="QLabel" name="lbCountSongsText">
            <property name="font">
             <font>
+             <family>Tahoma</family>
              <pointsize>11</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -1277,6 +1378,7 @@
           <widget class="QLabel" name="lbCountSongsValue">
            <property name="font">
             <font>
+             <family>Tahoma</family>
              <pointsize>11</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -1325,7 +1427,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_7">
          <property name="title">
-          <string>อุปกรณ์เสียงขาออก</string>
+          <string>อุปกรณ์เสียง</string>
          </property>
          <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
@@ -1355,10 +1457,10 @@
             </item>
             <item>
              <widget class="QPushButton" name="btnMapChannel">
-              <property name="maximumSize">
+              <property name="minimumSize">
                <size>
                 <width>90</width>
-                <height>16777215</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
@@ -1794,9 +1896,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnReverb">
+          <widget class="QPushButton" name="btnChorus">
            <property name="text">
-            <string>เอฟเฟ็กต์เสียงก้อง</string>
+            <string>เอฟเฟ็กต์เสียงประสาน</string>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">
@@ -1811,9 +1913,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="btnChorus">
+          <widget class="QPushButton" name="btnReverb">
            <property name="text">
-            <string>เอฟเฟ็กต์เสียงประสาน</string>
+            <string>เอฟเฟ็กต์เสียงก้อง</string>
            </property>
            <property name="icon">
             <iconset resource="icons.qrc">

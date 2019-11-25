@@ -71,14 +71,20 @@ void LyricsWidget::reset()
     update();
 }
 
-void LyricsWidget::setLyrics(const QString &lyr, const QList<long> &curs)
+void LyricsWidget::setLyrics(const QString &lyr, const QVector<long> &curs)
 {
     animation->stop();
 
     cursors.clear();
     lyrics.clear();
 
-    lyrics = lyr.split("\r\n");
+    if (lyr.length() > 0) {
+        lyrics = lyr.split(QRegExp("\n|\r\n|\r"));
+    } else {
+        lyrics.append("");
+        lyrics.append("");
+    }
+
     cursors = curs;
 
     // ค้นหา บรรทัดว่าง
@@ -493,7 +499,7 @@ void LyricsWidget::onAnimationValueChanged(const QVariant &v)
     update(updateArea);
 }
 
-QList<int> LyricsWidget::getCharsWidth()
+QVector<int> LyricsWidget::getCharsWidth()
 {
     if (isLine1)
         return getCharsWidth(tLine1);
@@ -501,9 +507,9 @@ QList<int> LyricsWidget::getCharsWidth()
         return getCharsWidth(tLine2);
 }
 
-QList<int> LyricsWidget::getCharsWidth(const QString &text)
+QVector<int> LyricsWidget::getCharsWidth(const QString &text)
 {
-    QList<int> cl;
+    QVector<int> cl;
     QFont f = autoFontSize ? getPerfectFont(text) : font();
     QFontMetrics m(f);
 

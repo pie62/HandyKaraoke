@@ -1,17 +1,20 @@
 #include "SettingsDialog.h"
 #include "ui_SettingsDialog.h"
 
-#include "Config.h"
-#include "Utils.h"
-#include "Midi/MidiHelper.h"
-#include "Dialogs/MapSoundfontDialog.h"
-#include "Dialogs/MapChannelDialog.h"
-
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFontDialog>
 #include <QColorDialog>
+
+#include "Config.h"
+#include "Utils.h"
+#include "Midi/MidiHelper.h"
+#include "Dialogs/MapSoundfontDialog.h"
+#include "Dialogs/MapChannelDialog.h"
+#include "Dialogs/Equalizer31BandDialog.h"
+#include "Dialogs/Chorus2Dialog.h"
+#include "Dialogs/Reverb2Dialog.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     QDialog(parent),
@@ -30,24 +33,43 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         ui->spinSearch->setValue( mainWin->searchTimeout() );
         ui->spinPlaylist->setValue( mainWin->playlistTimout() );
 
-        int bg = settings->value("BackgroundType", 0).toInt();
-        QString color = settings->value("BackgroundColor", "#525252").toString();
-        QString img = settings->value("BackgroundImage", "").toString();
-        ui->lbBgColor->setText(color);
-        ui->lbBgColor->setStyleSheet("background-color : " + color);
-        ui->leBgImgPath->setText(img);
-        if (bg == 0 || img == "") {
+//        int bg = settings->value("BackgroundType", 0).toInt();
+//        QString color = settings->value("BackgroundColor", "#525252").toString();
+//        QString img = settings->value("BackgroundImage", "").toString();
+
+        ui->lbBgColor->setText(mainWin->backgroundWidget()->backgroundColor().name());
+        ui->lbBgColor->setStyleSheet("background-color : " + ui->lbBgColor->text());
+        ui->leBgImgPath->setText(mainWin->backgroundWidget()->backgroundImage());
+        switch (mainWin->backgroundWidget()->backgroundType()) {
+        case Background::Color:
             ui->radioBgColor->setChecked(true);
             ui->lbBgImgN->setEnabled(false);
             ui->btnBgImg->setEnabled(false);
             ui->leBgImgPath->setEnabled(false);
-        } else {
+            break;
+        case Background::Image:
             ui->radioBgImg->setChecked(true);
             ui->lbBgColorN->setEnabled(false);
             ui->lbBgColor->setEnabled(false);
             ui->btnBgColor->setEnabled(false);
+            break;
+        default:
+            break;
         }
 
+        #ifdef _WIN32
+        ui->chbAutoCheckUpdate->setChecked(win_sparkle_get_automatic_check_for_updates());
+        ui->spinUpdateInterval->setValue(win_sparkle_get_update_check_interval() / 60 / 60);
+        if (!ui->chbAutoCheckUpdate->isChecked())
+        {
+            ui->lbUpdateInterval->setEnabled(false);
+            ui->spinUpdateInterval->setEnabled(false);
+        }
+        connect(ui->spinUpdateInterval, SIGNAL(valueChanged(int)),
+                this, SLOT(onSpinUpdateValueChanged(int)));
+        #else
+        ui->groupBoxUpdate->hide();
+        #endif
 
         connect(ui->spinSearch, SIGNAL(valueChanged(int)), this, SLOT(onSpinSearchValueChanged(int)));
         connect(ui->spinPlaylist, SIGNAL(valueChanged(int)), this, SLOT(onSpinPlaylistValueChanged(int)));
@@ -139,6 +161,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
     // Database
     ui->leNCNPath->setText(db->ncnPath());
     ui->leHNKPath->setText(db->hnkPath());
+    ui->leKARPath->setText(db->karPath());
     ui->lbCountSongsValue->setText(QString::number(db->count()) + " เพลง");
 
     if (db->isRunning())
@@ -146,6 +169,8 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
         ui->barUpdateSongs->setMaximum(db->updateCount());
         ui->btnUpdateSongs->setEnabled(false);
         ui->btnNCNPath->setEnabled(false);
+        ui->btnHNKPath->setEnabled(false);
+        ui->btnKARPath->setEnabled(false);
         ui->lbCountSongsText->setEnabled(false);
         ui->lbCountSongsValue->setEnabled(false);
     }
@@ -359,10 +384,10 @@ void SettingsDialog::onRadioBgColorToggled(bool checked)
         ui->btnBgImg->setEnabled(false);
         ui->leBgImgPath->setEnabled(false);
 
-        settings->setValue("BackgroundType", 0);
-        mainWin->setBackgroundColor(ui->lbBgColor->text());
+        settings->setValue("BackgroundType", Background::Color);
+        mainWin->backgroundWidget()->setBackgroundType(Background::Color);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundColor(ui->lbBgColor->text());
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundType(Background::Color);
     }
 }
 
@@ -377,10 +402,10 @@ void SettingsDialog::onRadioBgImgToggled(bool checked)
         ui->lbBgColor->setEnabled(false);
         ui->btnBgColor->setEnabled(false);
 
-        settings->setValue("BackgroundType", 1);
-        mainWin->setBackgroundImage(ui->leBgImgPath->text());
+        settings->setValue("BackgroundType", Background::Image);
+        mainWin->backgroundWidget()->setBackgroundType(Background::Image);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundImage(ui->leBgImgPath->text());
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundType(Background::Image);
     }
 }
 
@@ -393,9 +418,9 @@ void SettingsDialog::on_btnBgColor_clicked()
         settings->setValue("BackgroundColor", color.name());
         ui->lbBgColor->setText(color.name());
         ui->lbBgColor->setStyleSheet("background-color : " + color.name());
-        mainWin->setBackgroundColor(color.name());
+        mainWin->backgroundWidget()->setBackgroundColor(color);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundColor(color.name());
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundColor(color);
     }
 }
 
@@ -408,12 +433,29 @@ void SettingsDialog::on_btnBgImg_clicked()
     if (f != "") {
         settings->setValue("BackgroundImage", f);
         ui->leBgImgPath->setText(f);
-        mainWin->setBackgroundImage(f);
+        mainWin->backgroundWidget()->setBackgroundImage(f);
         if (mainWin->secondMonitorDlg() != nullptr)
-            mainWin->secondMonitorDlg()->setBackgroundImage(f);
+            mainWin->secondMonitorDlg()->backgroundWidget()->setBackgroundImage(f);
 
         Utils::LAST_OPEN_DIR = QFileInfo(f).dir().absolutePath();//QDir().absoluteFilePath(f);
     }
+}
+
+void SettingsDialog::on_chbAutoCheckUpdate_toggled(bool checked)
+{
+    #ifdef _WIN32
+    win_sparkle_set_automatic_check_for_updates(checked);
+    #endif
+
+    ui->lbUpdateInterval->setEnabled(checked);
+    ui->spinUpdateInterval->setEnabled(checked);
+}
+
+void SettingsDialog::onSpinUpdateValueChanged(int value)
+{
+    #ifdef _WIN32
+    win_sparkle_set_update_check_interval(value * 60 * 60);
+    #endif
 }
 
 void SettingsDialog::on_btnNCNPath_clicked()
@@ -431,8 +473,8 @@ void SettingsDialog::on_btnNCNPath_clicked()
         ui->leNCNPath->setText(path);
         db->setNcnPath(path);
     } else {
-        QString title = "ที่เก็บเพลงไม่ถูกต้อง";
-        QString msg = "ต้องมีโฟลเดอร์ Cursor, Lyrics, และ Song อยู่ในที่เก็บเพลง";
+        QString title = tr("ที่เก็บเพลงไม่ถูกต้อง");
+        QString msg = tr("ต้องมีโฟลเดอร์ Cursor, Lyrics, และ Song อยู่ในที่เก็บเพลง");
         QMessageBox::information(this, title, msg, QMessageBox::Ok);
     }
 
@@ -454,12 +496,28 @@ void SettingsDialog::on_btnHNKPath_clicked()
     settings->setValue("HNKPath", path);
 }
 
+void SettingsDialog::on_btnKARPath_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(
+                this, tr("เลือกที่เก็บไฟล์เพลง KAR"), Utils::LAST_OPEN_DIR,
+                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (path == "")
+        return;
+
+    Utils::LAST_OPEN_DIR = path;
+
+    ui->leKARPath->setText(path);
+    db->setKarPath(path);
+    settings->setValue("KARPath", path);
+}
+
 void SettingsDialog::on_btnUpdateSongs_clicked()
 {
     if (!db->isNCNPath(ui->leNCNPath->text())) {
-        QString title = "ไม่สามารถปรับปรุงฐานข้อมูลได้";
-        QString msg = "ไม่มีโฟลเดอร์ Cursor, Lyrics, หรือ Song อยู่ในที่เก็บเพลง NCN"
-                      "\nโปรดเลือกตำแหน่งที่เก็บเพลงให้ถูกต้อง";
+        QString title = tr("ไม่สามารถปรับปรุงฐานข้อมูลได้");
+        QString msg = tr("ไม่มีโฟลเดอร์ Cursor, Lyrics, หรือ Song อยู่ในที่เก็บเพลง NCN"
+                         "\nโปรดเลือกตำแหน่งที่เก็บเพลงให้ถูกต้อง");
         QMessageBox::information(this, title, msg, QMessageBox::Ok);
         return;
     }
@@ -484,6 +542,7 @@ void SettingsDialog::on_upDbUpdateFinished()
 { 
     ui->btnHNKPath->setEnabled(true);
     ui->btnNCNPath->setEnabled(true);
+    ui->btnKARPath->setEnabled(true);
     ui->lbCountSongsText->setEnabled(true);
     ui->lbCountSongsValue->setEnabled(true);
     ui->lbUpdateText->hide();
@@ -864,7 +923,7 @@ void SettingsDialog::onSpinCurBorderOutWidthValueChanged(int arg1)
 void SettingsDialog::on_btnSfAdd_clicked()
 {
     QStringList sfFiles = QFileDialog::getOpenFileNames(this,
-                                                        "เลือกไฟล์ซาวด์ฟ้อนท์",
+                                                        tr("Add Soundfont"),
                                                         Utils::LAST_OPEN_DIR,
                                                         "SoundFont (*.sf2 *.SF2 *.sfz *.SFZ)");
 
@@ -878,15 +937,23 @@ void SettingsDialog::on_btnSfAdd_clicked()
             ui->listsfFiles->addItem(sf);
         else
         {
-            QString title = "ไฟล์ซาวด์ฟ้อนท์ไม่ถูกต้อง";
-            QString msg = "ไม่สามารถอ่านไฟล์ " + sf + " ได้"
-                          "\nโปรดลองเลือกไฟล์อื่น";
+            QString title = tr("ไฟล์ซาวด์ฟ้อนท์ไม่ถูกต้อง");
+            QString msg = tr("ไม่สามารถอ่านไฟล์ ") + sf + tr(" ได้\nโปรดลองเลือกไฟล์อื่น");
             QMessageBox::warning(this, title, msg, QMessageBox::Ok);
         }
     }
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::on_btnSfRemove_clicked()
@@ -901,8 +968,17 @@ void SettingsDialog::on_btnSfRemove_clicked()
     synth->removeSoundfont(i);
 
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::on_btnSfUp_clicked()
@@ -919,8 +995,17 @@ void SettingsDialog::on_btnSfUp_clicked()
     synth->swapSoundfont(i, i-1);
 
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::on_btnSfDown_clicked()
@@ -937,8 +1022,17 @@ void SettingsDialog::on_btnSfDown_clicked()
     synth->swapSoundfont(i, i+1);
 
     settings->setValue("SynthSoundfonts", QVariant::fromValue(synth->soundfontFiles()));
-    settings->setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings->setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        settings->setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(i)));
+        settings->setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(i)));
+    }
 }
 
 void SettingsDialog::onSliderSfValueChanged(int value)
@@ -1002,33 +1096,14 @@ void SettingsDialog::on_btnEq_clicked()
         ui->btnEq->setIcon(QIcon(":/Icons/circle_red.png"));
 }
 
-void SettingsDialog::on_btnReverb_clicked()
-{
-    if (ReverbDialog::isOpenned())
-        return;
-
-    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
-
-    ReverbDialog rvDlg(this, synth->reverbFXs());
-    rvDlg.setModal(true);
-    rvDlg.adjustSize();
-    rvDlg.setFixedSize(rvDlg.size());
-    rvDlg.exec();
-
-    if (synth->reverbFXs()[0]->isOn())
-        ui->btnReverb->setIcon(QIcon(":/Icons/circle_green.png"));
-    else
-        ui->btnReverb->setIcon(QIcon(":/Icons/circle_red.png"));
-}
-
 void SettingsDialog::on_btnChorus_clicked()
 {
-    if (ChorusDialog::isOpenned())
+    if (Chorus2Dialog::isOpenned())
         return;
 
     MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
 
-    ChorusDialog crDlg(this, synth->chorusFXs());
+    Chorus2Dialog crDlg(this, synth->chorusFXs());
     crDlg.setModal(true);
     crDlg.adjustSize();
     crDlg.setFixedSize(crDlg.size());
@@ -1038,6 +1113,25 @@ void SettingsDialog::on_btnChorus_clicked()
         ui->btnChorus->setIcon(QIcon(":/Icons/circle_green.png"));
     else
         ui->btnChorus->setIcon(QIcon(":/Icons/circle_red.png"));
+}
+
+void SettingsDialog::on_btnReverb_clicked()
+{
+    if (Reverb2Dialog::isOpenned())
+        return;
+
+    MidiSynthesizer *synth = mainWin->midiPlayer()->midiSynthesizer();
+
+    Reverb2Dialog rvDlg(this, synth->reverbFXs());
+    rvDlg.setModal(true);
+    rvDlg.adjustSize();
+    rvDlg.setFixedSize(rvDlg.size());
+    rvDlg.exec();
+
+    if (synth->reverbFXs()[0]->isOn())
+        ui->btnReverb->setIcon(QIcon(":/Icons/circle_green.png"));
+    else
+        ui->btnReverb->setIcon(QIcon(":/Icons/circle_red.png"));
 }
 
 void SettingsDialog::on_btnClose_clicked()

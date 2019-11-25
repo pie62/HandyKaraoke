@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QMap>
 #include <QSignalMapper>
+#include <QButtonGroup>
+#include <QTimer>
 
 #include "Midi/MidiPlayer.h"
 #include "Widgets/InstCh.h"
@@ -32,23 +34,20 @@ public:
     QMap<InstrumentType, InstCh *> mixChannelMap();
     QMap<InstrumentType, InstCh *> *mixChannelMapPtr();
 
+public slots:
+    void settingValues();
+    void setSoundfontPresets(int presets);
 
 private slots:
     void showEqDialog();
     void showReverbDialog();
     void showChorusDialog();
-    void setBtnEqIcon(bool s);
-    void setBtnReverbIcon(bool s);
-    void setBtnChorusIcon(bool s);
 
     void setMute(InstrumentType t, bool m);
     void setSolo(InstrumentType t, bool s);
     void setMixLevel(InstrumentType t, int level);
     void resetMixLevel(InstrumentType t);
     void showPeakVU(InstrumentType t, int bus, int ch, int note, int velocity);
-
-    void on_btnSettingVu_clicked();
-    void on_btnReset_clicked();
 
     void showChannelMenu(InstrumentType type, const QPoint &pos);
     void setBusGroup(int group);
@@ -59,9 +58,16 @@ private slots:
     void showVSTiDialog(InstrumentType vstiIndexType);
     void removeFX();
 
-    void on_btnBus_clicked();
-    void on_btnSpeakers_clicked();
-    void on_btnVSTDirs_clicked();
+    void on_btnMenu_clicked();
+    void showBusDlg();
+    void showSpeakersDlg();
+    void showVSTDirsDlg();
+    void showVuDlg();
+    void resetChannel();
+    void toggleWindowParent();
+    void setStaysOnTop(bool stay);
+
+    void changeSoundfontPresets(int presets);
 
 protected:
     void showEvent(QShowEvent *);
@@ -70,6 +76,7 @@ protected:
 private:
     Ui::SynthMixerDialog *ui;
 
+    QTimer settingTimer;
     MainWindow *mainWin;
     MidiPlayer *player;
     MidiSynthesizer *synth;
@@ -82,7 +89,11 @@ private:
     QSignalMapper signalBusActionMapper;
     QSignalMapper *signalBFXActionMapper = nullptr;
 
+    QButtonGroup btnPresets;
+
     int currentFxIndexToRemove;
+
+    bool staysOnTop = false;
 
     void mapChInstUI();
     void setChInstDetails();

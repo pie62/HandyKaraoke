@@ -35,6 +35,9 @@ public:
     void setPlayer(MidiPlayer *p);
     void peak(int ch, int value);
 
+    bool isMuteVoice();
+    void setMuteVoice(bool mute);
+
 public slots:
     void showDeTail(int ch);
     void onPlayerLoaded();
@@ -51,6 +54,7 @@ private slots:
     void onChSliderValueChanged(int ch, int v);
     void onChMuteChanged(int ch, bool m);
     void onChSoloChanged(int ch, bool s);
+    void onChMouseRightClicked(int ch, const QPoint &p);
     void onCbIntsActivated(int index);
     void onDialPanValueChanged(int value);
     void onDialReverbValueChanged(int value);

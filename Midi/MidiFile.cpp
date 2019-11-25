@@ -1,6 +1,10 @@
 #include "MidiFile.h"
 
+#include "MidiHelper.h"
+
 #include <cstdlib>
+
+#include <QDebug>
 
 // ========================================================
 bool isGreaterThan(MidiEvent* e1, MidiEvent* e2)
@@ -42,9 +46,9 @@ MidiFile::~MidiFile()
     clear();
 }
 
-QList<MidiEvent *> MidiFile::controllerAndProgramEvents()
+QVector<MidiEvent *> MidiFile::controllerAndProgramEvents()
 {
-    QList<MidiEvent*> evnts = fControllerEvents;
+    QVector<MidiEvent*> evnts = fControllerEvents;
     for (MidiEvent *e : fProgramChangeEvents)
         evnts.append(e);
 
@@ -58,10 +62,16 @@ void MidiFile::clear()
     fNumOfTracks = 0;
     fResolution = 0;
     fDivision = PPQ;
+
+    fLyrics = "";
+    fLyricscursor.clear();
+
     for (MidiEvent *e : fEvents)
         delete e;
+
     fEvents.clear();
     fTempoEvents.clear();
+    fLyricsEvents.clear();
     fControllerEvents.clear();
     fProgramChangeEvents.clear();
     fTimeSignatureEvents.clear();
@@ -147,9 +157,9 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
 
         uint32_t tick = 0, delta = 0;
         unsigned char status, runningStatus = 0;
-        //bool endOfTrack = false;
+        bool endOfTrack = false;
 
-        while (in->pos() < (chunkStart + chunkSize) && !in->atEnd()) {
+        while (in->pos() < (chunkStart + chunkSize) && !endOfTrack && !in->atEnd()) {
 
             delta = readVariableLengthQuantity(in);
             tick += delta;
@@ -230,9 +240,9 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
                 switch (status) {
                     case 0xF0:
                     case 0xF7:
-                        lenght = readVariableLengthQuantity(in) + 1;
+                        lenght = readVariableLengthQuantity(in);
                         data[0] = status;
-                        data += in->read(lenght - 1);
+                        data += in->read(lenght);
                         createSysExEvent(t, tick, delta, data);
                         break;
                     case 0xFF:
@@ -240,11 +250,10 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
                         in->getChar(&number);
                         lenght = readVariableLengthQuantity(in);
                         data = in->read(lenght);
-                        if (number == 0x2F && in->pos() < (chunkStart + chunkSize)
-                                && !in->atEnd()) {
-                            in->read(1);
-                        }
                         createMetaEvent(t, tick, delta, number, data);
+                        if (number == 0x2F) {
+                            endOfTrack = true;
+                        }
                         break;
                 }
                 break;
@@ -252,15 +261,27 @@ bool MidiFile::read(QFile *in, bool seekFileChunkID)
 
         } // End while
 
+        /* forwards compatibility: skip over any unrecognized chunks, or extra
+        * data at the end of tracks. */
+        in->seek(chunkStart + chunkSize);
+
     } // For loop read tracks
 
     qStableSort(fEvents.begin(), fEvents.end(), isGreaterThan);
     qStableSort(fTempoEvents.begin(), fTempoEvents.end(), isGreaterThan);
+    qStableSort(fLyricsEvents.begin(), fLyricsEvents.end(), isGreaterThan);
     qStableSort(fControllerEvents.begin(), fControllerEvents.end(), isGreaterThan);
     qStableSort(fProgramChangeEvents.begin(), fProgramChangeEvents.end(), isGreaterThan);
     qStableSort(fTimeSignatureEvents.begin(), fTimeSignatureEvents.end(), isGreaterThan);
 
     in->close();
+
+    for (auto e : fLyricsEvents) {
+        QString lyr = e->data();
+        for (auto chr : lyr)
+            fLyricscursor.append(e->tick());
+        fLyrics += lyr;
+    }
 
     return true;
 }
@@ -275,6 +296,7 @@ MidiEvent *MidiFile::createMidiEvent(int track, uint32_t tick, uint32_t delta, M
     e->setChannel(ch);
     e->setData1(data1);
     e->setData2(data2);
+
     fEvents.append(e);
 
     return e;
@@ -289,9 +311,13 @@ MidiEvent *MidiFile::createMetaEvent(int track, uint32_t tick, uint32_t delta, i
     me->setEventType(MidiEventType::Meta);
     me->setMetaType(number);
     me->setData(data);
+
     fEvents.append(me);
+
     if (me->metaEventType() == MidiMetaType::SetTempo)
         fTempoEvents.append(me);
+    if (me->metaEventType() == MidiMetaType::Lyrics)
+        fLyricsEvents.append(me);
     if (me->metaEventType() == MidiMetaType::TimeSignature)
         fTimeSignatureEvents.append(me);
 
@@ -306,6 +332,7 @@ MidiEvent *MidiFile::createSysExEvent(int track, uint32_t tick, uint32_t delta, 
     e->setDelta(delta);
     e->setEventType(MidiEventType::SysEx);
     e->setData(data);
+
     fEvents.append(e);
 
     return e;
@@ -428,6 +455,67 @@ uint32_t MidiFile::tickFromTimeMs(long msTime, int bpmSpeed)
     default:
         return 0;
     }
+}
+
+uint32_t MidiFile::tickFromBeat(float beat)
+{
+    switch (fDivision) {
+    case PPQ:
+        return (uint32_t)(beat * fResolution);
+    case SMPTE24:
+        return (uint32_t)(beat * 24.0);
+    case SMPTE25:
+        return (uint32_t)(beat * 25.0);
+    case SMPTE30DROP:
+        return (uint32_t)(beat * 29.97);
+    case SMPTE30:
+        return (uint32_t)(beat * 30);
+    default:
+        return -1;
+    }
+}
+
+uint32_t MidiFile::tickFromBar(int barNumber)
+{
+    uint32_t result = 0, lastBar = 0, lastBeat = 0, lastBeatInBar = 0;
+
+    for (const SignatureBeat &sigBeat : MidiHelper::calculateBeats(this)) {
+        uint32_t nBar = lastBar + ((sigBeat.nBeat - lastBeat) / sigBeat.nBeatInBar);
+        if (nBar >= barNumber) {
+            result = (barNumber - lastBar) * lastBeatInBar * fResolution;
+            lastBar = barNumber;
+            break;
+        } else {
+            lastBar = nBar;
+            lastBeat = sigBeat.nBeat;
+            lastBeatInBar = sigBeat.nBeatInBar;
+        }
+    }
+
+    if (barNumber > lastBar)
+        result = (barNumber - lastBar) * lastBeatInBar * fResolution;
+
+    return result;
+}
+
+int MidiFile::barCount()
+{
+    int bCount = 0;
+    int lastBeat = 0, lastBeatInBar = 0, tempBeatCount = 0;
+
+    for (SignatureBeat sigBeat : MidiHelper::calculateBeats(this)) {
+        lastBeat = sigBeat.nBeat;
+        if (lastBeat > 0) {
+            bCount += (lastBeat - tempBeatCount) / lastBeatInBar;
+        }
+        tempBeatCount = lastBeat;
+        lastBeatInBar = sigBeat.nBeatInBar;
+    }
+
+    int beatCount = beatFromTick(fEvents.last()->tick());
+    bCount += (beatCount - lastBeat) / lastBeatInBar;
+
+    return bCount;
 }
 
 int MidiFile::firstBpm(const QString &file)

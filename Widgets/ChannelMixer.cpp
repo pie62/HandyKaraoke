@@ -8,6 +8,7 @@
 #include <QToolTip>
 #include <QCursor>
 #include <QSettings>
+#include <QMenu>
 
 #include "Config.h"
 
@@ -71,6 +72,8 @@ ChannelMixer::ChannelMixer(QWidget *parent) :
                 this, SLOT(onChMuteChanged(int,bool)));
         connect(chs[i], SIGNAL(soloChanged(int,bool)),
                 this, SLOT(onChSoloChanged(int,bool)));
+        connect(chs[i], SIGNAL(mouseRightClicked(int,QPoint)),
+                this, SLOT(onChMouseRightClicked(int,QPoint)));
 
         // set vu Color
         LEDVu *vb = chs[i]->vuBar();
@@ -150,6 +153,21 @@ void ChannelMixer::setPlayer(MidiPlayer *p)
 void ChannelMixer::peak(int ch, int value)
 {
     chs[ch]->peak(value);
+}
+
+bool ChannelMixer::isMuteVoice()
+{
+    return player->midiChannel()[8].isMute();
+}
+
+void ChannelMixer::setMuteVoice(bool mute)
+{
+    if (player == nullptr)
+        return;
+
+    ui->chbMuteVoice->setChecked(mute);
+    player->setMute(8, mute);
+    chs[8]->setMuteButton(mute);
 }
 
 void ChannelMixer::showDeTail(int ch)
@@ -265,6 +283,26 @@ void ChannelMixer::onChSoloChanged(int ch, bool s)
     player->setSolo(ch, s);
 }
 
+void ChannelMixer::onChMouseRightClicked(int ch, const QPoint &p)
+{
+    bool tempLock = lock;
+    lock = true;
+
+    QAction act(tr("ล็อคระดับเสียง"), this);
+    act.setCheckable(true);
+    act.setChecked(player->midiChannel()[ch].isLockVol());
+
+    connect(&act, &QAction::triggered, [this, ch](bool checked){
+        player->setLockVolume(ch, checked);
+    });
+
+    QMenu menu(this);
+    menu.addAction(&act);
+    menu.exec(QCursor::pos());
+
+    lock = tempLock;
+}
+
 void ChannelMixer::onCbIntsActivated(int index)
 {
     if (player == nullptr)
@@ -319,11 +357,8 @@ void ChannelMixer::setPanToolTip(int value)
 }
 
 void ChannelMixer::onChbMuteVoiceToggled(bool checked)
-{if (player == nullptr)
-        return;
-
-    player->setMute(8, checked);
-    chs[8]->setMuteButton(checked);
+{
+    setMuteVoice(checked);
 }
 
 void ChannelMixer::onChbLockToggled(bool checked)

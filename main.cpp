@@ -45,7 +45,11 @@ int main(int argc, char *argv[])
     qApp->processEvents();
 
     { // Config Dir
-        QDir dir(ALL_DATA_DIR_PATH);
+        QDir dir(TEMP_DIR_PATH);
+        if (!dir.exists())
+            dir.mkpath(TEMP_DIR_PATH);
+
+        dir.setPath(ALL_DATA_DIR_PATH);
         if (!dir.exists())
             dir.mkpath(ALL_DATA_DIR_PATH);
 
@@ -117,6 +121,8 @@ void registerMetaType()
 
     //qRegisterMetaType<QList<QList<float>>>("QList<QList<float>>");
     qRegisterMetaTypeStreamOperators<QList<QList<float>>>("QList<QList<float>>");
+
+    qRegisterMetaTypeStreamOperators<QList<QByteArray>>("QList<QByteArray>>");
 }
 
 void checkDatabase(QSplashScreen *splash, SongDatabase *db)
@@ -154,15 +160,23 @@ void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)
 
 
     // set Map soundfont
-     QList<int> sfMap     = settings.value("SynthSoundfontsMap").value<QList<int>>();
-     QList<int> sfDrumMap = settings.value("SynthSoundfontsDrumMap").value<QList<int>>();
+    for (int i = 0; i < SF_PRESET_COUNT; i++) {
+        QString sfKey = "SynthSoundfontsMap";
+        QString drKey = "SynthSoundfontsDrumMap";
+        if (i > 0) {
+            sfKey = sfKey + QString::number(i);
+            drKey = drKey + QString::number(i);
+        }
+        QList<int> sfMap     = settings.value(sfKey).value<QList<int>>();
+        QList<int> sfDrumMap = settings.value(drKey).value<QList<int>>();
 
-     if (sfMap.count() == 0)
-         sfMap = synth->getMapSoundfontIndex();
-     if (sfDrumMap.count() == 0)
-         sfDrumMap = synth->getDrumMapSfIndex();
+        if (sfMap.count() == 0)
+            sfMap = synth->getMapSoundfontIndex(i);
+        if (sfDrumMap.count() == 0)
+            sfDrumMap = synth->getDrumMapSfIndex(i);
 
-     synth->setMapSoundfontIndex(sfMap, sfDrumMap);
+        synth->setMapSoundfontIndex(i, sfMap, sfDrumMap);
+    }
 }
 
 #ifndef __linux__
@@ -172,13 +186,15 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
     QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
 
     st.beginReadArray("VSTiGroup");
+
     for (int i=0; i<4; i++)
     {
         st.setArrayIndex(i);
 
-        QString      filePath    = st.value("VstiFilePath", "").toString();
-        int          program     = st.value("VstiPrograms", 0).toInt();
-        QList<float> params      = st.value("VstiParams").value<QList<float>>();
+        QString      filePath   = st.value("VstiFilePath", "").toString();
+        int          program    = st.value("VstiPrograms", 0).toInt();
+        QList<float> params     = st.value("VstiParams").value<QList<float>>();
+        QByteArray   chunk      = st.value("VstiChunk", QByteArray()).toByteArray();
 
         if (filePath == "")
             continue;
@@ -190,10 +206,14 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
 
         if (vsti != 0)
         {
+            if (chunk.length() > 0)
+                BASS_VST_SetChunk(vsti, false, chunk.constData(), chunk.length());
+
             BASS_VST_SetProgram(vsti, program);
             FX::setVSTParams(vsti, params);
         }
     }
+
     st.endArray();
 }
 

@@ -1,5 +1,5 @@
 BASSMIDI 2.4
-Copyright (c) 2006-2017 Un4seen Developments Ltd. All rights reserved.
+Copyright (c) 2006-2018 Un4seen Developments Ltd. All rights reserved.
 
 Files that you should have found in the BASSMIDI package
 ========================================================
@@ -176,6 +176,42 @@ These are the major (and not so major) changes at each version stage.
 There are of course bug fixes and other little improvements made along
 the way too! To make upgrading simpler, all functions affected by a
 change to the BASSMIDI interface are listed.
+
+2.4.12 - 9/11/2018
+------------------
+* Support for more than 16 MIDI channels in custom event sequences
+	BASS_MIDI_StreamCreateEvents
+* Absolute timing option for custom events
+	BASS_MIDI_EVENTS_ABSTIME (BASS_MIDI_StreamEvents flag)
+* Retrieval of note-on events
+	MIDI_EVENT_NOTES (BASS_MIDI_StreamGetEvents/Ex filter)
+* Soundfont config can be modified without stopping currently playing notes
+	BASS_MIDI_StreamSetFonts
+* Memory-mapped soundfonts can be preloaded/mapped
+	BASS_MIDI_FontLoad
+* Support for Key On Velocity to initialAttenuation SF2 modulators
+	BASS_MIDI_FontInit/User
+* Linear attack phase option for SF2 modulation envelopes
+	BASS_MIDI_FONT_LINATTMOD (BASS_MIDI_FontInit/User flag)
+* The attack phase of SFZ pitch/filter envelopes is now linear instead of convex
+* Support for trigger/rt_decay/delay/amplfo_fade/fillfo_fade/pitchlfo_fade/pitch_random/
+  xfin_lokey/xfin_hikey/xfout_lokey/xfout_hikey/xf_keycurve/xfin_lovel/xfin_hivel/
+  xfout_lovel/xfout_hivel/xf_velcurve SFZ opcodes
+	BASS_MIDI_FontInit/User
+* Support for separate amplifier/filter/pitch LFOs in SFZ
+	BASS_MIDI_FontInit/User
+* Support for UTF-8 sample SFZ opcodes on Windows (already on other platforms)
+	BASS_MIDI_FontInit/User
+* Support for #include directive in SFZ files
+	BASS_MIDI_FontInit
+* SFZ files are no longer kept open/locked after being loaded
+	BASS_MIDI_FontInit
+* Samples given more time to load asynchronously when CPU usage is low
+	BASS_ATTRIB_MIDI_CPU
+* BASS_MIDI_SINCINTER flag deprecated in favour of BASS_ATTRIB_MIDI_SRC attribute
+	BASS_MIDI_StreamCreate/Events/File/User/URL
+* Smoother low-pass filter activation and deactivation
+* Fix for transpose/tune SFZ opcodes with encoded samples
 
 2.4.11 - 30/3/2017
 ------------------

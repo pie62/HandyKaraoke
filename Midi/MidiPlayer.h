@@ -27,8 +27,6 @@ public:
     static QStringList midiInDevices();
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
-    static int getNumberBeatInBar(int numerator, int denominator);
-    static QList<SignatureBeat> CalculateBeats(MidiFile *midi);
 
     MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
     Channel* midiChannel() { return _midiChannels; }
@@ -76,6 +74,8 @@ public:
     void setPan(int ch, int v);
     void setReverb(int ch, int v);
     void setChorus(int ch, int v);
+    void setLockVolume(int ch, bool lock);
+
     void setPositionTick(int t);
     void setTranspose(int t);
     void setBpmSpeed(int sp);
@@ -86,6 +86,12 @@ public:
 
     void setMapChannelOutput(int ch, int port);
     void receiveMidiIn(std::vector< unsigned char > *message);
+
+    bool isUseMedley() { return _useMedley; }
+    void setUseMedley(bool use);
+
+    int medleyBPM() { return _medleyBPM; }
+    void setMedleyBPM(int bpm);
 
 public slots:
     void sendEvent(MidiEvent *e);
@@ -101,7 +107,17 @@ private slots:
     void onSeqBpmChanged(int bpm);
 
 private:
-    std::vector<MidiSequencer*> _midiSeq;
+    void sendEventToDevices(MidiEvent *e);
+    void sendAllNotesOff(int ch);
+    void sendAllNotesOff();
+    void sendResetAllControllers(int ch);
+    void sendResetAllControllers();
+
+    int getNoteNumberToPlay(int ch, int defaultNote);
+    void calculateUsedPort();
+
+private:
+    MidiSequencer *_midiSeq;
     QMap<int, MidiOut*> _midiOuts;
     MidiSynthesizer     *_midiSynth;
     RtMidiIn            *_midiIn = nullptr;
@@ -111,6 +127,7 @@ private:
     int                 _volume = 100;
     int                 _midiTranspose = 0;
     int                 _seqIndex = 0;
+    int                 _medleyBPM = 120;
     bool                _useMedley = false;
     bool                _useSolo = false;
 
@@ -123,16 +140,6 @@ private:
     int     _lockDrumNumber  = 0;
     int     _lockSnareNumber = 38;
     int     _lockBassBumber  = 32;
-
-
-    void sendEventToDevices(MidiEvent *e);
-    void sendAllNotesOff(int ch);
-    void sendAllNotesOff();
-    void sendResetAllControllers(int ch);
-    void sendResetAllControllers();
-
-    int getNoteNumberToPlay(int ch, int defaultNote);
-    void calculateUsedPort();
 };
 
 void midiIncallback( double deltatime, std::vector< unsigned char > *message, void *userData );

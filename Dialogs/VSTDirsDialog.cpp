@@ -166,21 +166,26 @@ void VSTDirsDialog::on_btnUpdate_clicked()
     for (int i=0; i<filesPath.count(); i++) {
 
         ui->lbVSTName->setText(filesName[i]);
+        QApplication::processEvents();
 
         VSTNamePath info;
 
         if (!Utils::vstInfo(filesPath[i], &info))
         {
             ui->progressBar->setValue(i+1);
+            QApplication::processEvents();
             continue;
         }
 
         vstList[info.uniqueID] = info;
 
         ui->progressBar->setValue(i+1);
+        QApplication::processEvents();
     }
 
     ui->lbVSTName->setText("");
+    QApplication::processEvents();
+
     synth->setVSTList(vstList);
     mixDlg->setVSTVendorMenu();
 }

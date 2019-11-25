@@ -23,7 +23,9 @@ enum class FXType {
     EQ15Band,
     EQ31Band,
     Reverb,
-    VSTEffects
+    VSTEffects,
+    Chorus2,
+    Reverb2
 };
 
 class FX
@@ -43,6 +45,9 @@ public:
     virtual int program() { return programIndex; }
     virtual void setProgram(int programIndex) { this->programIndex = programIndex; }
 
+    virtual QByteArray chunk() { return QByteArray(); }
+    virtual void setChunk(const QByteArray &cnk) {}
+
     virtual QList<float> params() = 0;
     virtual void setParams(const QList<float> &params) = 0;
     virtual void setStreamHandle(DWORD stream) = 0;
@@ -55,10 +60,6 @@ public:
     static QList<float> getVSTParams(DWORD vstHandle);
     static void setVSTParams(DWORD fxHandle, const QList<float> &params);
     #endif
-
-    static QList<HFX>   createEQ31Band(DWORD stream, int priority = 1);
-    static void         removeEQ31Band(DWORD stream, QList<HFX> fxs);
-    static QList<float> getParamsEQ31Band(QList<HFX> fxs);
 
 protected:
     DWORD stream;

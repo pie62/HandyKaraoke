@@ -14,6 +14,7 @@ class Channel
     int cInstrument;
     bool cMute;
     bool cSolo;
+    bool cLockVolume;
     bool cChangingPort = false;
     InstrumentType cInstType;
 
@@ -30,6 +31,7 @@ public:
     int instrument(){ return cInstrument; }
     bool isMute()   { return cMute; }
     bool isSolo()   { return cSolo; }
+    bool isLockVol(){ return cLockVolume; }
     bool isChangingPort() { return cChangingPort; }
     InstrumentType instrumentType() { return cInstType; }
 
@@ -42,6 +44,7 @@ public:
     void setInstrument(int i) { cInstrument = i; }
     void setMute(bool m)    { cMute = m; }
     void setSolo(bool s)    { cSolo = s; }
+    void setLockVol(bool l) { cLockVolume = l; }
     void setChangingPort(bool cp) { cChangingPort = cp; }
     void setInstrumentType(InstrumentType t) { cInstType = t; }
 };

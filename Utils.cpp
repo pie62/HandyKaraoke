@@ -15,9 +15,9 @@ Utils::Utils()
 
 }
 
-QList<long> Utils::readCurFile(const QString &curFile, uint32_t resolution)
+QVector<long> Utils::readCurFile(const QString &curFile, uint32_t resolution)
 {
-    QList<long> curs;
+    QVector<long> curs;
     QFile f(curFile);
     f.open(QIODevice::ReadOnly);
 
@@ -34,9 +34,9 @@ QList<long> Utils::readCurFile(const QString &curFile, uint32_t resolution)
     return curs;
 }
 
-QList<long> Utils::readCurFile(const QByteArray &data, uint32_t resolution)
+QVector<long> Utils::readCurFile(const QByteArray &data, uint32_t resolution)
 {
-    QList<long> curs;
+    QVector<long> curs;
     QDataStream in(data);
     while (!in.atEnd()) {
         quint8 b1 = 0;

@@ -19,38 +19,13 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiSynthesizer *synth) 
     for (const QString& sn : synth->soundfontFiles())
         sfNames.append(QFileInfo(sn).fileName());
 
-    QStringList instNames = MidiHelper::GMInstrumentNumberNames();
-    for (int i=0; i<instNames.count(); i++)
-    {
-        int sfIndex = synth->getMapSoundfontIndex()[i];
-
-        QTableWidgetItem *item1 = new QTableWidgetItem(instNames[i]);
-        QTableWidgetItem *item2 = new QTableWidgetItem();
-
-        if (sfIndex < sfNames.count())
-            item2->setText(sfNames[sfIndex]);
-
-        ui->tableInst->insertRow(i);
-        ui->tableInst->setItem(i, 0, item1);
-        ui->tableInst->setItem(i, 1, item2);
-    }
-
-
-    // drum
-    for (int i=0; i<16; i++)
-    {
-        int sfIndex = synth->getDrumMapSfIndex()[i];
-        QTableWidgetItem *item = new QTableWidgetItem();
-
-        if (sfIndex < sfNames.count())
-            item->setText(sfNames[sfIndex]);
-
-        ui->tableDrum->setItem(i, 1, item);
-    }
+    this->showSoundfontPreset(0);
 
     ui->tableInst->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableDrum->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+    connect(ui->cbPresets, SIGNAL(activated(int)),
+            this, SLOT(showSoundfontPreset(int)));
     connect(ui->tableInst, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showInstSoundfontsMenu(QPoint)));
     connect(ui->tableDrum, SIGNAL(customContextMenuRequested(QPoint)),
@@ -60,6 +35,40 @@ MapSoundfontDialog::MapSoundfontDialog(QWidget *parent, MidiSynthesizer *synth) 
 MapSoundfontDialog::~MapSoundfontDialog()
 {
     delete ui;
+}
+
+void MapSoundfontDialog::showSoundfontPreset(int preset)
+{
+    QStringList instNames = MidiHelper::GMInstrumentNumberNames();
+    for (int i=0; i<instNames.count(); i++)
+    {
+        int sfIndex = synth->getMapSoundfontIndex(preset)[i];
+
+        QTableWidgetItem *item1 = new QTableWidgetItem(instNames[i]);
+        QTableWidgetItem *item2 = new QTableWidgetItem();
+
+        if (sfIndex < sfNames.count())
+            item2->setText(sfNames[sfIndex]);
+
+        if (ui->tableInst->rowCount() <= i) {
+            ui->tableInst->insertRow(i);
+            ui->tableInst->setItem(i, 0, item1);
+        }
+        ui->tableInst->setItem(i, 1, item2);
+    }
+
+
+    // drum
+    for (int i=0; i<16; i++)
+    {
+        int sfIndex = synth->getDrumMapSfIndex(preset)[i];
+        QTableWidgetItem *item = new QTableWidgetItem();
+
+        if (sfIndex < sfNames.count())
+            item->setText(sfNames[sfIndex]);
+
+        ui->tableDrum->setItem(i, 1, item);
+    }
 }
 
 void MapSoundfontDialog::showInstSoundfontsMenu(const QPoint &pos)
@@ -94,8 +103,9 @@ void MapSoundfontDialog::showDrumSoundfontsMenu(const QPoint &pos)
 
 void MapSoundfontDialog::setMapSoundfontsIndex(int sfIndex)
 {
-    QList<int> instMap = synth->getMapSoundfontIndex();
-    QList<int> drumMap = synth->getDrumMapSfIndex();
+    int presetsIndex = ui->cbPresets->currentIndex();
+    QList<int> instMap = synth->getMapSoundfontIndex(presetsIndex);
+    QList<int> drumMap = synth->getDrumMapSfIndex(presetsIndex);
 
     QModelIndexList selection;
     if (selectedInstTable)
@@ -118,11 +128,17 @@ void MapSoundfontDialog::setMapSoundfontsIndex(int sfIndex)
         }
     }
 
-    synth->setMapSoundfontIndex(instMap, drumMap);
+    synth->setMapSoundfontIndex(presetsIndex, instMap, drumMap);
 
+    QString sfKey = "SynthSoundfontsMap";
+    QString drKey = "SynthSoundfontsDrumMap";
+    if (presetsIndex > 0) {
+        sfKey = sfKey + QString::number(presetsIndex);
+        drKey = drKey + QString::number(presetsIndex);
+    }
     QSettings settings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
-    settings.setValue("SynthSoundfontsMap", QVariant::fromValue(synth->getMapSoundfontIndex()));
-    settings.setValue("SynthSoundfontsDrumMap", QVariant::fromValue(synth->getDrumMapSfIndex()));
+    settings.setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(presetsIndex)));
+    settings.setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(presetsIndex)));
 }
 
 void MapSoundfontDialog::createSoundfontsListMenu(QMenu *menu, QSignalMapper *signalMapper)
