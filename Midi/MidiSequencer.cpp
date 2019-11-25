@@ -1,5 +1,7 @@
 #include "MidiSequencer.h"
 
+#include <QDebug>
+
 MidiSequencer::MidiSequencer(QObject *parent) : QThread(parent)
 {
     _midi = new MidiFile();
@@ -122,6 +124,9 @@ bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
         _midiBpm = 120;
     }
 
+    setStartTick(_midi->tickFromBar(4));
+    setEndTick(_midi->tickFromBar(8));
+
     return true;
 }
 
@@ -168,6 +173,37 @@ void MidiSequencer::setStartTick(int tick)
     }
 }
 
+void MidiSequencer::setEndTick(int tick)
+{
+    if (tick == 0) {
+        _endTick = 0;
+        if (_endEvent != nullptr) {
+            _midi->takeEvent(_endEventIndex);
+            delete _endEvent;
+            _endEvent = nullptr;
+            _endEventIndex = 0;
+        }
+    } else if (tick > _startTick) {
+        _endTick = tick;
+        if (_endEvent == nullptr) {
+            _endEvent = new MidiEvent();
+        } else {
+            _midi->takeEvent(_endEventIndex);
+        }
+        _endEvent->setTick(tick);
+
+        int index = _midi->events().size() - 1;
+        for (int i = index; i >= 0; i--) {
+            index = i;
+            if (_midi->events()[i]->tick() < tick)
+                break;
+        }
+
+        _endEventIndex = index;
+        _midi->insertEvent(_endEventIndex, _endEvent);
+    }
+}
+
 void MidiSequencer::run()
 {
     if (_playing)
@@ -182,12 +218,19 @@ void MidiSequencer::run()
     _mutex.unlock();
 
     if (_positionTick <= _startTick) {
-        for (MidiEvent *e : _midi->controllerAndProgramEvents()) {
+        for (MidiEvent *e : _midi->events()) {
             if (e->tick() > _startTick)
                 break;
-            emit playingEvent(e);
+            if (e->eventType() != MidiEventType::Meta)
+                emit playingEvent(e);
+            else if (e->metaEventType() == MidiMetaType::SetTempo) {
+                _midiBpm = e->bpm();
+                emit bpmChanged(_midiBpm + _midiSpeed);
+            }
         }
     }
+
+    bool seqEnded = false;
 
     _eTimer->restart();
 
@@ -195,6 +238,11 @@ void MidiSequencer::run()
 
         if (!_playing)
             break;
+
+        if ((_endTick > 0) && _midi->events()[i]->tick() >= _endEvent->tick()) {
+            seqEnded = true;
+            break;
+        }
 
         _mutex.lock();
 
@@ -236,7 +284,7 @@ void MidiSequencer::run()
 
     } // End for loop
 
-    if (_playedIndex == _midi->events().size() -1 ) {
+    if (seqEnded || (_playedIndex == _midi->events().size() -1)) {
         _mutex.lock();
         _finished = true;
         _mutex.unlock();

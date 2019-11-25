@@ -8,7 +8,6 @@
 
 #include "MidiFile.h"
 
-
 class MidiSequencer : public QThread
 {
     Q_OBJECT
@@ -41,6 +40,7 @@ public:
     void stop(bool resetPos = false);
 
     void setStartTick(int tick);
+    void setEndTick(int tick);
 
 public slots:
 
@@ -75,6 +75,8 @@ private:
 
     int _startTick = 0;
     int _endTick = 0;
+    int _endEventIndex = 0;
+    MidiEvent *_endEvent = nullptr;
 
     QWaitCondition _waitCondition;
     QMutex _mutex;

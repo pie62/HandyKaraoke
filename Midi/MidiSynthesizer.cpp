@@ -700,7 +700,7 @@ void MidiSynthesizer::sendController(int ch, int number, int value)
         for (int i=0; i<HANDLE_MIDI_COUNT; i++) {
             HSTREAM h = handles[static_cast<InstrumentType>(i)];
             if (i < HANDLE_VSTI_START)
-                BASS_MIDI_StreamEvents(h, BASS_MIDI_EVENTS_RAW, data, 3);
+                BASS_MIDI_StreamEvents(h, BASS_MIDI_EVENTS_RAW, (void*)data, 3);
             #ifndef __linux__
             else
                 BASS_VST_ProcessEventRaw(h, (void*)data, 3);

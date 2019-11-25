@@ -518,6 +518,22 @@ int MidiFile::barCount()
     return bCount;
 }
 
+void MidiFile::insertEvent(int index, MidiEvent *event)
+{
+    fEvents.insert(index, event);
+}
+
+MidiEvent *MidiFile::takeEvent(int index)
+{
+    return fEvents.takeAt(index);
+}
+
+MidiEvent *MidiFile::takeEvent(MidiEvent *event)
+{
+    int i = fEvents.indexOf(event, fEvents.count() - 1);
+    return takeEvent(i);
+}
+
 int MidiFile::firstBpm(const QString &file)
 {
     if (!QFile::exists(file))

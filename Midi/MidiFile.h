@@ -55,6 +55,10 @@ public:
 
     int barCount();
 
+    void insertEvent(int index, MidiEvent *event);
+    MidiEvent *takeEvent(int index);
+    MidiEvent *takeEvent(MidiEvent *event);
+
     static int firstBpm(const QString &file);
     static int firstBpm(QFile *in);
 
