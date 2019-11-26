@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
     qApp->processEvents();
 
     { // Config Dir
+        Config::initConfigDataPath();
+
         QDir dir(TEMP_DIR_PATH);
         if (!dir.exists())
             dir.mkpath(TEMP_DIR_PATH);
@@ -53,9 +55,9 @@ int main(int argc, char *argv[])
         if (!dir.exists())
             dir.mkpath(ALL_DATA_DIR_PATH);
 
-        dir.setPath(CONFIG_DIR_PATH);
+        dir.setPath(Config::CONFIG_DIR_PATH);
         if (!dir.exists())
-            dir.mkpath(CONFIG_DIR_PATH);
+            dir.mkpath(Config::CONFIG_DIR_PATH);
     }
 
     { // set style
@@ -138,7 +140,7 @@ void checkDatabase(QSplashScreen *splash, SongDatabase *db)
 
 void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)
 {
-    QSettings settings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+    QSettings settings(Config::CONFIG_APP_FILE_PATH, QSettings::IniFormat);
 
     synth->setLoadAllSoundfont(settings.value("SynthSoundfontsLoadAll", false).toBool());
 
@@ -183,7 +185,7 @@ void loadSoundfonts(QSplashScreen *splash, MidiSynthesizer *synth)
 
 void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
 {
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
 
     st.beginReadArray("VSTiGroup");
 
@@ -219,7 +221,7 @@ void loadVSTi(QSplashScreen *splash, MidiSynthesizer *synth)
 
 void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth)
 {
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     QStringList dirs = st.value("VSTDirs", QStringList()).toStringList();
 
     QStringList vstDirs;

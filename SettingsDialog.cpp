@@ -22,7 +22,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, MainWindow *m) :
 {
     ui->setupUi(this);
     this->mainWin = m;
-    settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+    settings = new QSettings(Config::CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     db = mainWin->database();
 
 

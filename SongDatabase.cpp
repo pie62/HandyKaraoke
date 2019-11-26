@@ -18,16 +18,16 @@ SongDatabase::SongDatabase()
 
     bool hasDb = false;
 
-    if (QFile::exists(DATABASE_FILE_PATH)) {
+    if (QFile::exists(Config::DATABASE_FILE_PATH)) {
         hasDb = true;
     } else {
-        QDir dir(DATABASE_DIR_PATH);
+        QDir dir(Config::DATABASE_DIR_PATH);
         if (!dir.exists())
-            dir.mkpath(DATABASE_DIR_PATH);
+            dir.mkpath(Config::DATABASE_DIR_PATH);
     }
 
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(DATABASE_FILE_PATH);
+    db.setDatabaseName(Config::DATABASE_FILE_PATH);
 
     if (db.open()) {
 

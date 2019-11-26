@@ -86,7 +86,7 @@ void MapChannelDialog::setMapMidiOut(int port)
         ports.append(player->midiChannel()[i].port());
     }
 
-    QSettings st(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     st.setValue("MidiChannelMapper", QVariant::fromValue(ports));
 }
 

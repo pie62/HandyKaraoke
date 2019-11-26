@@ -90,7 +90,7 @@ void SpeakerDialog::setSpeaker(int number)
     if (synth->isOpened() && player->isPlayerPlaying())
         mainWindow->stop();
 
-    QSettings settings(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings settings(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     settings.beginWriteArray("SynthMixer");
 
     QModelIndexList selection = ui->tableSpeaker->selectionModel()->selectedRows();

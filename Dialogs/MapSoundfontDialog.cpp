@@ -136,7 +136,7 @@ void MapSoundfontDialog::setMapSoundfontsIndex(int sfIndex)
         sfKey = sfKey + QString::number(presetsIndex);
         drKey = drKey + QString::number(presetsIndex);
     }
-    QSettings settings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+    QSettings settings(Config::CONFIG_APP_FILE_PATH, QSettings::IniFormat);
     settings.setValue(sfKey, QVariant::fromValue(synth->getMapSoundfontIndex(presetsIndex)));
     settings.setValue(drKey, QVariant::fromValue(synth->getDrumMapSfIndex(presetsIndex)));
 }

@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     taskbarButton = new QWinTaskbarButton();
     #endif
 
-    settings = new QSettings(CONFIG_APP_FILE_PATH, QSettings::IniFormat);
+    settings = new QSettings(Config::CONFIG_APP_FILE_PATH, QSettings::IniFormat);
 
     // lang
     QString lang = settings->value("Language", "th").toString();

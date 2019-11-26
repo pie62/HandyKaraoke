@@ -26,7 +26,7 @@ VSTDirsDialog::VSTDirsDialog(QWidget *parent, MainWindow *mainWindow) :
 
     // VST dir tab
     {
-        QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+        QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
         QStringList dirs = st.value("VSTDirs", QStringList()).toStringList();
 
         QStringList vstDirs;
@@ -96,7 +96,7 @@ VSTDirsDialog::~VSTDirsDialog()
         vstDirs << item->text();
     }
 
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     st.setValue("VSTDirs", vstDirs);
 
     delete ui;
@@ -239,7 +239,7 @@ bool VSTDirsDialog::setVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName, QL
 
     initVSTiDetail(vstiIndex, le, lbName, lbVendor, btn, btn2);
 
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     st.beginWriteArray("VSTiGroup");
     st.setArrayIndex(vstiIndex);
     st.setValue("VstiFilePath", file);
@@ -298,7 +298,7 @@ void VSTDirsDialog::removeVSTiFile(int vstiIndex, QLineEdit *le, QLabel *lbName,
     btn->setIcon(QIcon());
     btn2->setEnabled(false);
 
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     st.beginWriteArray("VSTiGroup");
     st.setArrayIndex(vstiIndex);
     st.setValue("VstiFilePath", "");

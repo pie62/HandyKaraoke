@@ -14,6 +14,7 @@ TARGET = HandyKaraoke
 TEMPLATE = app
 
 SOURCES += main.cpp\
+    Config.cpp \
         MainWindow.cpp \
     SettingsDialog.cpp \
     SongDatabase.cpp \

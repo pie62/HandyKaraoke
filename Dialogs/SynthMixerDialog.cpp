@@ -71,7 +71,7 @@ SynthMixerDialog::SynthMixerDialog(QWidget *parent, MainWindow *mainWin) : //, M
     btnPresets.addButton(ui->btnPreset10, 10);
 
     { // Settings
-        QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+        QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
 
         // window parent, stays on top
         bool noParent = st.value("WindowNoParent", false).toBool();
@@ -258,7 +258,7 @@ void SynthMixerDialog::setVSTVendorMenu()
 
 void SynthMixerDialog::setFXToSynth()
 {
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     st.beginReadArray("SynthMixer");
     for (InstrumentType t : chInstMap.keys())
     {
@@ -308,7 +308,7 @@ QMap<InstrumentType, InstCh *> *SynthMixerDialog::mixChannelMapPtr()
 
 void SynthMixerDialog::settingValues()
 {
-    QSettings st(CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
+    QSettings st(Config::CONFIG_SYNTH_FILE_PATH, QSettings::IniFormat);
     st.setValue("Size", this->size());
     st.setValue("SplitterSize", QVariant::fromValue(ui->splitter->sizes()));
     st.setValue("ScrollInstrument", ui->scrollArea->horizontalScrollBar()->value());
