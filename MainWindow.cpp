@@ -12,6 +12,7 @@
 
 #include "Config.h"
 #include "Utils.h"
+#include "MedleyLoader.h"
 #include "DrumPadsKey.h"
 #include "SettingsDialog.h"
 #include "Midi/MidiFile.h"
@@ -29,6 +30,8 @@
 #ifndef __linux__
 #include "Dialogs/VSTDirsDialog.h"
 #endif
+
+#include <QDebug>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -209,6 +212,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
         connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
         connect(player, SIGNAL(bpmChanged(int)), ui->rhmWidget, SLOT(setBpm(int)));
+
+        // test
+        player->setUseMedley(true);
+        connect(player, SIGNAL(nextMedleyStarted()), this, SLOT(onNextMedleyStarted()));
     }
 
 
@@ -425,6 +432,10 @@ MainWindow::~MainWindow()
         delete s;
     }
 
+    if (medleyLoader != nullptr) {
+        medleyLoader->wait();
+    }
+
     delete player;
 
     delete detailTimer;
@@ -607,6 +618,17 @@ void MainWindow::play(int index, int position)
     ui->songDetail->show();
     timer2->start(songDetail_timeout);
 
+    // test
+    MidiFile *midi = player->midiSequencer()->midiFile();
+    player->midiSequencer()->setStartTick(midi->tickFromBar(4));
+    player->midiSequencer()->setEndTick(midi->tickFromBar(8));
+
+    if (player->isUseMedley()) {
+        lyrWidget->setSeekPositionCursor(player->positionTick());
+        if (secondLyr != nullptr)
+            secondLyr->setSeekPositionCursor(player->positionTick());
+    }
+
     player->setBpmSpeed(playingSong.bpmSpeed());
     player->setTranspose(playingSong.transpose());
     player->play();
@@ -615,6 +637,7 @@ void MainWindow::play(int index, int position)
 
     if (secondLyr != nullptr)
         secondLyr->show();
+
     positionTimer->start();
     lyricsTimer->start();
 }
@@ -830,9 +853,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                     if (i >= ui->playlistWidget->rowCount() -1)
                         break;
 
-                    playlist.swap(i, i+1);
-                    ui->playlistWidget->swapRow(i, i+1);
-                    ui->playlistWidget->setCurrentRow(i+1);
+                    swapInPlaylist(i, i+1);
                     timer2->start(playlist_timeout);
                 }
                 break;
@@ -842,9 +863,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                     if (i == 0)
                         break;
 
-                    playlist.swap(i, i-1);
-                    ui->playlistWidget->swapRow(i, i-1);
-                    ui->playlistWidget->setCurrentRow(i-1);
+                    swapInPlaylist(i, i-1);
                     timer2->start(playlist_timeout);
                 }
                 break;
@@ -964,9 +983,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             int i = ui->playlistWidget->currentRow();
             if (i<0)
                 break;
-            delete playlist.at(i);
-            playlist.removeAt(i);
-            ui->playlistWidget->removeRow(i);
+            removeFromPlaylist(i);
             showPlaylist();
             timer2->start(playlist_timeout);
             break;
@@ -1128,11 +1145,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Return:
         if (ui->frameSearch->isVisible()) {
             Song *s = db->currentSong();
-            ui->playlistWidget->addSong(s);
-
-            Song *songToAdd = new Song();
-            *songToAdd = *s;
-            playlist.append(songToAdd);
+            addToPlaylist(s);
 
             if (auto_playnext && playlist.count() == 1 && player->isPlayerStopped()) {
                 play(0);
@@ -1157,9 +1170,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             if (i >= ui->playlistWidget->rowCount() -1)
                 break;
 
-            playlist.swap(i, i+1);
-            ui->playlistWidget->swapRow(i, i+1);
-            ui->playlistWidget->setCurrentRow(i+1);
+            swapInPlaylist(i, i+1);
             timer2->start(playlist_timeout);
             break;
         }
@@ -1169,9 +1180,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             if (i == 0)
                 break;
 
-            playlist.swap(i, i-1);
-            ui->playlistWidget->swapRow(i, i-1);
-            ui->playlistWidget->setCurrentRow(i-1);
+            swapInPlaylist(i, i-1);
             timer2->start(playlist_timeout);
             break;
         }
@@ -1204,6 +1213,46 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     if (event->modifiers() == Qt::ControlModifier) {
         this->sendDrumPads(event, false);
     }
+}
+
+void MainWindow::loadNextMedley(Song *song)
+{
+    if ((medleyLoader != nullptr) && medleyLoader->isRunning())
+        medleyLoader->wait();
+    medleyLoader = new MedleyLoader(this, song, db, player, lyrWidget);
+    qDebug() << "MedleyLoader Created";
+    connect(medleyLoader, &MedleyLoader::finished, [=](){
+        medleyLoader->deleteLater();
+        medleyLoader = nullptr;
+        qDebug() << "MedleyLoader Deleted : " << medleyLoader;
+    });
+    medleyLoader->start();
+}
+
+void MainWindow::addToPlaylist(Song *song)
+{
+    Song *songToAdd = new Song();
+    *songToAdd = *song;
+
+    playlist.append(songToAdd);
+    ui->playlistWidget->addSong(songToAdd);
+
+    if (player->isUseMedley() && !player->isPlayerStopped() && ((playlist.size() - 1 - playingIndex) == 1)) {
+        loadNextMedley(songToAdd);
+    }
+}
+
+void MainWindow::removeFromPlaylist(int index)
+{
+    delete playlist.takeAt(index);
+    ui->playlistWidget->removeRow(index);
+}
+
+void MainWindow::swapInPlaylist(int index, int toIndex)
+{
+    playlist.swap(index, toIndex);
+    ui->playlistWidget->swapRow(index, toIndex);
+    ui->playlistWidget->setCurrentRow(toIndex);
 }
 
 void MainWindow::updateShutdownRequest()
@@ -1494,7 +1543,7 @@ void MainWindow::showVSTDirDialog()
     dlg.adjustSize();
     dlg.setMinimumSize(dlg.size());
     dlg.exec();
-    #endif
+#endif
 }
 
 void MainWindow::minimizeWindow()
@@ -1697,6 +1746,38 @@ void MainWindow::onSliderVolumeValueChanged(int value)
     if (this->width() < 1160 && ui->chMix->isVisible()) {
         ui->lcdTime->hide();
     }
+}
+
+void MainWindow::onNextMedleyStarted()
+{
+    if (remove_playlist && playlist.size() > 0) {
+        delete playlist.takeAt(0);
+        ui->playlistWidget->removeRow(0);
+        playingIndex = -1;
+    }
+
+    positionTimer->stop();
+    lyricsTimer->stop();
+
+    ui->rhmWidget->setBeat(MidiHelper::calculateBeats(player->midiFile()), player->beatCount());
+
+    lyrWidget->hide();
+    lyrWidget->switchToLyricsTemp();
+    lyrWidget->setSeekPositionCursor(player->positionTick());
+    lyrWidget->show();
+
+    if (secondLyr != nullptr) {
+        secondLyr->hide();
+        secondLyr->switchToLyricsTemp();
+        secondLyr->setSeekPositionCursor(player->positionTick());
+        secondLyr->show();
+    }
+
+    positionTimer->start();
+    lyricsTimer->start();
+
+    if (playlist.size() > 0)
+        loadNextMedley(playlist[playingIndex + 1]);
 }
 
 void MainWindow::onPlayerThreadFinished()

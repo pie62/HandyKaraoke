@@ -107,6 +107,38 @@ void LyricsWidget::setLyrics(const QString &lyr, const QVector<long> &curs)
     reset();
 }
 
+void LyricsWidget::setLyricsTemp(const QString &lyr, const QVector<long> &curs)
+{
+    cursorsTemp.clear();
+    lyricsTemp.clear();
+
+    if (lyr.length() > 0) {
+        lyricsTemp = lyr.split(QRegExp("\n|\r\n|\r"));
+    } else {
+        lyricsTemp.append("");
+        lyricsTemp.append("");
+    }
+
+    cursorsTemp = curs;
+
+    // ค้นหา บรรทัดว่าง
+    int index = 0;
+    for (QString &l : lyricsTemp)
+    {
+        index += l.length() + 1;
+
+        if (l.length() != 0)
+            continue;
+
+        if (index >= cursorsTemp.count())
+            break;
+
+        l = " ";
+        cursorsTemp.insert(index, cursorsTemp[index]);
+        index++;
+    }
+}
+
 void LyricsWidget::setPositionCursor(int tick)
 {
     if (cursor_index >= cursors.count())
@@ -291,6 +323,19 @@ void LyricsWidget::setSeekPositionCursor(int tick)
     updateArea = calculateUpdateArea();
     cursor_width = cursor_toEnd;
     update();
+}
+
+void LyricsWidget::switchToLyricsTemp()
+{
+    animation->stop();
+
+    lyrics = lyricsTemp;
+    cursors = cursorsTemp;
+
+    lyricsTemp.clear();
+    cursorsTemp.clear();
+
+    reset();
 }
 
 void LyricsWidget::setTextFont(const QFont &f)

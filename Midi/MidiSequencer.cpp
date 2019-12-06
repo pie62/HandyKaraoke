@@ -124,9 +124,6 @@ bool MidiSequencer::load(const QString &file, bool seekFileChunkID)
         _midiBpm = 120;
     }
 
-    setStartTick(_midi->tickFromBar(4));
-    setEndTick(_midi->tickFromBar(8));
-
     return true;
 }
 
@@ -219,10 +216,16 @@ void MidiSequencer::run()
 
     if (_positionTick <= _startTick) {
         for (MidiEvent *e : _midi->events()) {
-            if (e->tick() > _startTick)
+            if (e->tick() >= _startTick)
                 break;
             if (e->eventType() != MidiEventType::Meta)
-                emit playingEvent(e);
+                switch (e->eventType()) {
+                case MidiEventType::NoteOff:
+                case MidiEventType::NoteOn:
+                    break;
+                default:
+                    emit playingEvent(e);
+                }
             else if (e->metaEventType() == MidiMetaType::SetTempo) {
                 _midiBpm = e->bpm();
                 emit bpmChanged(_midiBpm + _midiSpeed);

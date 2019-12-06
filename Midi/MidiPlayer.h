@@ -28,8 +28,9 @@ public:
     static bool isSnareNumber(int num);
     static bool isBassInstrument(int ints);
 
-    MidiSynthesizer* midiSynthesizer() { return _midiSynth; }
-    Channel* midiChannel() { return _midiChannels; }
+    MidiSequencer *midiSequencer() { return _midiSeq; }
+    MidiSynthesizer *midiSynthesizer() { return _midiSynth; }
+    Channel *midiChannel() { return _midiChannels; }
     int midiOutPortNumber() { return _midiPortNum; }
     int midiInPortNumber() { return _midiPortInNum; }
     int volume() { return _volume; }
@@ -42,7 +43,8 @@ public:
     bool isLockSnare()  { return _lockSnare; }
     bool isLockBass()   { return _lockBass; }
 
-    MidiFile* midiFile();
+    MidiFile *midiFile();
+    MidiFile *midiFileTemp();
 
     bool isUsedMidiSynthesizer();
 
@@ -93,6 +95,8 @@ public:
     int medleyBPM() { return _medleyBPM; }
     void setMedleyBPM(int bpm);
 
+    bool loadNextMedley(const QString &file, int startBar, int endBar);
+
 public slots:
     void sendEvent(MidiEvent *e);
 
@@ -101,6 +105,7 @@ signals:
     void finished();
     void sendedEvent(MidiEvent *e);
     void bpmChanged(int bpm);
+    void nextMedleyStarted();
 
 private slots:
     void onSeqFinished();
@@ -110,6 +115,8 @@ private:
     void sendEventToDevices(MidiEvent *e);
     void sendAllNotesOff(int ch);
     void sendAllNotesOff();
+    void sendAllSoundOff(int ch);
+    void sendAllSoundOff();
     void sendResetAllControllers(int ch);
     void sendResetAllControllers();
 
@@ -118,6 +125,7 @@ private:
 
 private:
     MidiSequencer *_midiSeq;
+    MidiSequencer *_midiSeqTemp = nullptr;
     QMap<int, MidiOut*> _midiOuts;
     MidiSynthesizer     *_midiSynth;
     RtMidiIn            *_midiIn = nullptr;
@@ -130,6 +138,8 @@ private:
     int                 _medleyBPM = 120;
     bool                _useMedley = false;
     bool                _useSolo = false;
+
+    QString _medleyId = "";
 
     MidiEvent   _tempEvent, _midiInEvent;
     MidiEvent*  _playingEventPtr = nullptr;

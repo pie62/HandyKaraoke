@@ -27,6 +27,9 @@
 #include "Dialogs/SecondMonitorDialog.h"
 
 
+class MedleyLoader;
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -78,6 +81,10 @@ protected:
     void keyReleaseEvent(QKeyEvent *event);
 
 private:
+    void loadNextMedley(Song *song);
+    void addToPlaylist(Song *song);
+    void removeFromPlaylist(int index);
+    void swapInPlaylist(int index, int toIndex);
     static void updateShutdownRequest();
 
 private slots:
@@ -125,6 +132,7 @@ private slots:
     void on_btnPlay_clicked();
     void onSliderVolumeValueChanged(int value);
 
+    void onNextMedleyStarted();
     void onPlayerThreadFinished();
 
     void onDbUpdateChanged(int v);
@@ -152,6 +160,8 @@ private:
     int playingIndex = -1;
     bool playAfterSeek = false;
     bool searchBoxChangeBpm = false;
+
+    MedleyLoader *medleyLoader = nullptr;
 
     Background *bgWidget = nullptr;
     LyricsWidget *lyrWidget, *secondLyr = nullptr;

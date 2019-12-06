@@ -46,7 +46,7 @@ public:
     virtual void setProgram(int programIndex) { this->programIndex = programIndex; }
 
     virtual QByteArray chunk() { return QByteArray(); }
-    virtual void setChunk(const QByteArray &cnk) {}
+    virtual void setChunk(const QByteArray &cnk) { Q_UNUSED(cnk) }
 
     virtual QList<float> params() = 0;
     virtual void setParams(const QList<float> &params) = 0;

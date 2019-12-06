@@ -19,8 +19,10 @@ public:
 
     void reset();
     void setLyrics(const QString &lyr, const QVector<long> &curs);
+    void setLyricsTemp(const QString &lyr, const QVector<long> &curs);
     void setPositionCursor(int tick);
     void setSeekPositionCursor(int tick);
+    void switchToLyricsTemp();
 
     QString lyrData() { return lyrics.join("\r\n"); }
     QVector<long> curData() { return cursors; }
@@ -98,8 +100,8 @@ private:
     int line1_y = 220;  // from bottom
     int line2_y = 100;  // from bottom
 
-    QStringList lyrics;
-    QVector<long> cursors;
+    QStringList lyrics, lyricsTemp;
+    QVector<long> cursors, cursorsTemp;
     bool isLine1 = true;
     bool autoFontSize = true;
     int linesIndex = 0;

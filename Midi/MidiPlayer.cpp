@@ -24,6 +24,9 @@ MidiPlayer::~MidiPlayer()
 {
     delete _midiSeq;
 
+    if (_midiSeqTemp != nullptr)
+        delete _midiSeqTemp;
+
     for (MidiOut *out : _midiOuts.values()) {
         if (out) {
             out->closePort();
@@ -99,6 +102,14 @@ bool MidiPlayer::isBassInstrument(int ints)
 MidiFile *MidiPlayer::midiFile()
 {
     return _midiSeq->midiFile();
+}
+
+MidiFile *MidiPlayer::midiFileTemp()
+{
+    if (_midiSeqTemp == nullptr)
+        return nullptr;
+    else
+        return _midiSeqTemp->midiFile();
 }
 
 bool MidiPlayer::isUsedMidiSynthesizer()
@@ -630,6 +641,9 @@ void MidiPlayer::setUseMedley(bool use)
         return;
 
     _useMedley = use;
+
+    if (!_useMedley)
+        _medleyId = "";
 }
 
 void MidiPlayer::setMedleyBPM(int bpm)
@@ -638,6 +652,24 @@ void MidiPlayer::setMedleyBPM(int bpm)
         return;
 
     _medleyBPM = bpm;
+}
+
+bool MidiPlayer::loadNextMedley(const QString &file, int startBar, int endBar)
+{
+    if (!_useMedley)
+        return false;
+
+    if (_midiSeqTemp == nullptr)
+        _midiSeqTemp = new MidiSequencer();
+
+    if (!_midiSeqTemp->load(file, true))
+        return false;
+
+    MidiFile *midi = _midiSeqTemp->midiFile();
+    _midiSeqTemp->setStartTick(midi->tickFromBar(startBar));
+    _midiSeqTemp->setEndTick(midi->tickFromBar(endBar));
+
+    return true;
 }
 
 void MidiPlayer::sendEvent(MidiEvent *e)
@@ -664,7 +696,31 @@ void MidiPlayer::sendEvent(MidiEvent *e)
 
 void MidiPlayer::onSeqFinished()
 {
-    emit finished();
+    if (_useMedley) {
+        sendAllNotesOff();
+        if (_midiSeq->isSeqFinished() && (_midiSeqTemp != nullptr)) {
+            _midiSeq->deleteLater();
+            _midiSeq = _midiSeqTemp;
+            _midiSeqTemp = nullptr;
+
+            connect(_midiSeq, SIGNAL(playingEvent(MidiEvent*)),
+                    this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
+            connect(_midiSeq, SIGNAL(bpmChanged(int)),
+                    this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
+            connect(_midiSeq, SIGNAL(finished()),
+                    this, SLOT(onSeqFinished()), Qt::DirectConnection);
+
+            _midiTranspose = 0;
+            _midiSynth->compactSoundfont();
+            _midiSeq->start();
+
+            emit nextMedleyStarted();
+        } else if (_midiSeq->isSeqFinished() && (_midiSeqTemp == nullptr)) {
+            emit finished();
+        }
+    } else {
+        emit finished();
+    }
 }
 
 void MidiPlayer::onSeqBpmChanged(int bpm)
@@ -793,6 +849,22 @@ void MidiPlayer::sendAllNotesOff()
 {
     for (int i=0; i<16; i++) {
         this->sendAllNotesOff(i);
+    }
+}
+
+void MidiPlayer::sendAllSoundOff(int ch)
+{
+    if (_midiChannels[ch].port() == -1) {
+        _midiSynth->sendController(ch, 120, 0);
+    } else {
+        _midiOuts[_midiChannels[ch].port()]->sendController(ch, 120, 0);
+    }
+}
+
+void MidiPlayer::sendAllSoundOff()
+{
+    for (int i=0; i<16; i++) {
+        this->sendAllSoundOff(i);
     }
 }
 

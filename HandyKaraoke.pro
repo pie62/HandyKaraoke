@@ -16,6 +16,7 @@ TEMPLATE = app
 SOURCES += main.cpp\
     Config.cpp \
         MainWindow.cpp \
+    MedleyLoader.cpp \
     SettingsDialog.cpp \
     SongDatabase.cpp \
     Song.cpp \
@@ -82,6 +83,7 @@ SOURCES += main.cpp\
     Dialogs/DeleteSongDialog.cpp
 
 HEADERS  += MainWindow.h \
+    MedleyLoader.h \
     SettingsDialog.h \
     SongDatabase.h \
     Song.h \
