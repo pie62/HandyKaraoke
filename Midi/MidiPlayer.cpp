@@ -282,6 +282,9 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     if (!_midiSeq->load(file, seekFileChunkID))
         return false;
 
+    if (_useMedley)
+        _midiSeq->midiFile()->setSingleTempo(true);
+
     _midiTranspose = 0;
 
     for (int i=0; i<16; i++) {
@@ -654,7 +657,7 @@ void MidiPlayer::setMedleyBPM(int bpm)
     _medleyBPM = bpm;
 }
 
-bool MidiPlayer::loadNextMedley(const QString &file, int startBar, int endBar)
+bool MidiPlayer::loadNextMedley(const QString &file, int startBar, int endBar, int midiSpeed, int transpose)
 {
     if (!_useMedley)
         return false;
@@ -664,6 +667,11 @@ bool MidiPlayer::loadNextMedley(const QString &file, int startBar, int endBar)
 
     if (!_midiSeqTemp->load(file, true))
         return false;
+
+    _midiSeqTemp->midiFile()->setSingleTempo(true);
+
+    _midiSeqTemp->setBpmSpeed(midiSpeed);
+    _midiTransposeTemp = transpose;
 
     MidiFile *midi = _midiSeqTemp->midiFile();
     _midiSeqTemp->setStartTick(midi->tickFromBar(startBar));
@@ -710,7 +718,9 @@ void MidiPlayer::onSeqFinished()
             connect(_midiSeq, SIGNAL(finished()),
                     this, SLOT(onSeqFinished()), Qt::DirectConnection);
 
-            _midiTranspose = 0;
+            _midiTranspose = _midiTransposeTemp;
+            _midiTransposeTemp = 0;
+
             _midiSynth->compactSoundfont();
             _midiSeq->start();
 

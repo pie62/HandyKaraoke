@@ -95,7 +95,7 @@ public:
     int medleyBPM() { return _medleyBPM; }
     void setMedleyBPM(int bpm);
 
-    bool loadNextMedley(const QString &file, int startBar, int endBar);
+    bool loadNextMedley(const QString &file, int startBar, int endBar, int midiSpeed, int transpose);
 
 public slots:
     void sendEvent(MidiEvent *e);
@@ -134,6 +134,7 @@ private:
     int                 _midiPortInNum = -1;
     int                 _volume = 100;
     int                 _midiTranspose = 0;
+    int                 _midiTransposeTemp = 0;
     int                 _seqIndex = 0;
     int                 _medleyBPM = 120;
     bool                _useMedley = false;

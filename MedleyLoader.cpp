@@ -14,13 +14,15 @@ MedleyLoader::MedleyLoader(QObject *parent,
                            Song *song,
                            SongDatabase *songDB,
                            MidiPlayer *player,
-                           LyricsWidget *lyrWidget)
+                           LyricsWidget *lyrWidget,
+                           LyricsWidget *lyrWidget2)
     : QThread(parent)
 {
     _song = song;
     _songDb = songDB;
     _player = player;
     _lyrWidget = lyrWidget;
+    _lyrWidget2 = lyrWidget2;
 }
 
 void MedleyLoader::run()
@@ -28,7 +30,7 @@ void MedleyLoader::run()
     if (_song->songType() == "NCN")
     {
         QString midPath = _songDb->ncnPath() + _song->path();
-        _player->loadNextMedley(midPath, 4, 8);
+        _player->loadNextMedley(midPath, 4, 12, _song->bpmSpeed(), _song->transpose());
 
         QString curPath = _songDb->getCurFilePath(midPath);
         if (curPath == "" || !QFile::exists(curPath)) {
@@ -55,7 +57,7 @@ void MedleyLoader::run()
         mid.write(HNKFile::midData(hnkPath));
         mid.close();
 
-        _player->loadNextMedley(TEMP_MIDI_DIR_PATH, 4, 8);
+        _player->loadNextMedley(TEMP_MIDI_DIR_PATH, 4, 12, _song->bpmSpeed(), _song->transpose());
 
         mid.remove();
 
@@ -66,8 +68,11 @@ void MedleyLoader::run()
     {
         QString karPath = _songDb->karPath() + _song->path();
 
-        _player->loadNextMedley(karPath, 4, 8);
+        _player->loadNextMedley(karPath, 4, 12, _song->bpmSpeed(), _song->transpose());
 
         _lyrWidget->setLyricsTemp(_player->midiFileTemp()->lyrics(), _player->midiFileTemp()->lyricsCursor());
     }
+
+    if (_lyrWidget2 != nullptr)
+        _lyrWidget2->setLyricsTemp(_lyrWidget->lyrTempData(), _lyrWidget->curTempData());
 }

@@ -618,6 +618,9 @@ void MainWindow::play(int index, int position)
     ui->songDetail->show();
     timer2->start(songDetail_timeout);
 
+    player->setBpmSpeed(playingSong.bpmSpeed());
+    player->setTranspose(playingSong.transpose());
+
     // test
     MidiFile *midi = player->midiSequencer()->midiFile();
     player->midiSequencer()->setStartTick(midi->tickFromBar(4));
@@ -629,8 +632,6 @@ void MainWindow::play(int index, int position)
             secondLyr->setSeekPositionCursor(player->positionTick());
     }
 
-    player->setBpmSpeed(playingSong.bpmSpeed());
-    player->setTranspose(playingSong.transpose());
     player->play();
 
     lyrWidget->show();
@@ -1219,7 +1220,7 @@ void MainWindow::loadNextMedley(Song *song)
 {
     if ((medleyLoader != nullptr) && medleyLoader->isRunning())
         medleyLoader->wait();
-    medleyLoader = new MedleyLoader(this, song, db, player, lyrWidget);
+    medleyLoader = new MedleyLoader(this, song, db, player, lyrWidget, secondLyr);
     qDebug() << "MedleyLoader Created";
     connect(medleyLoader, &MedleyLoader::finished, [=](){
         medleyLoader->deleteLater();
@@ -1233,6 +1234,11 @@ void MainWindow::addToPlaylist(Song *song)
 {
     Song *songToAdd = new Song();
     *songToAdd = *song;
+
+    if (player->isUseMedley()) {
+        int medleySpeed = player->medleyBPM() - songToAdd->tempo();
+        songToAdd->setBpmSpeed(songToAdd->bpmSpeed() + medleySpeed);
+    }
 
     playlist.append(songToAdd);
     ui->playlistWidget->addSong(songToAdd);
@@ -1758,6 +1764,16 @@ void MainWindow::onNextMedleyStarted()
 
     positionTimer->stop();
     lyricsTimer->stop();
+
+    onPlayerDurationTickChanged(player->durationTick());
+    onPlayerDurationMSChanged(player->durationMs());
+
+    #ifdef _WIN32
+    taskbarButton->progress()->setValue(0);
+    taskbarButton->progress()->setMaximum(player->durationTick());
+    taskbarButton->progress()->resume();
+    taskbarButton->progress()->show();
+    #endif
 
     ui->rhmWidget->setBeat(MidiHelper::calculateBeats(player->midiFile()), player->beatCount());
 

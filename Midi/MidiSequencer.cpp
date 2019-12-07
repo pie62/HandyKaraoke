@@ -227,6 +227,8 @@ void MidiSequencer::run()
                     emit playingEvent(e);
                 }
             else if (e->metaEventType() == MidiMetaType::SetTempo) {
+                if (_midi->isSingleTempo() && (e != _midi->tempoEvents()[0]))
+                    continue;
                 _midiBpm = e->bpm();
                 emit bpmChanged(_midiBpm + _midiSpeed);
             }

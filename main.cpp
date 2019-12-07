@@ -27,7 +27,7 @@ void makeVSTList(QSplashScreen *splash, MidiSynthesizer *synth);
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv); 
+    QApplication a(argc, argv);
 
     QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
     QCoreApplication::setApplicationVersion(VER_FILEVERSION_STR);

@@ -55,6 +55,9 @@ public:
 
     int barCount();
 
+    bool isSingleTempo();
+    void setSingleTempo(bool single);
+
     void insertEvent(int index, MidiEvent *event);
     MidiEvent *takeEvent(int index);
     MidiEvent *takeEvent(MidiEvent *event);
@@ -77,6 +80,8 @@ private:
     QVector<MidiEvent*> fControllerEvents;
     QVector<MidiEvent*> fProgramChangeEvents;
     QVector<MidiEvent*> fTimeSignatureEvents;
+
+    bool _singleTempo = false;
 };
 
 #endif // MIDIFILE_H

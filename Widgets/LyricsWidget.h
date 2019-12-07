@@ -27,6 +27,9 @@ public:
     QString lyrData() { return lyrics.join("\r\n"); }
     QVector<long> curData() { return cursors; }
 
+    QString lyrTempData() { return lyricsTemp.join("\r\n"); }
+    QVector<long> curTempData() { return cursorsTemp; }
+
     QFont   textFont()          { return font(); }
     QColor  textColor()         { return tColor; }
     QColor  textBorderColor()   { return tBorderColor; }

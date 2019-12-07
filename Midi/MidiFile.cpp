@@ -372,6 +372,9 @@ float MidiFile::timeFromTick(uint32_t tick, int bpmSpeed)
                 (((float)(e->tick() - tempo_event_tick)) / fResolution / (tempo / 60));
             tempo_event_tick = e->tick();
             tempo = e->bpm() + bpmSpeed;
+
+            if (_singleTempo)
+                break;
         }
 
         float time =
@@ -407,6 +410,9 @@ uint32_t MidiFile::tickFromTime(float time, int bpmSpeed)
             tempo_event_time = next_tempo_event_time;
             tempo_event_tick = e->tick();
             tempo = e->bpm() + bpmSpeed;
+
+            if (_singleTempo)
+                break;
         }
 
         return tempo_event_tick + (uint32_t)((time - tempo_event_time) * (tempo / 60) * fResolution);
@@ -440,6 +446,9 @@ uint32_t MidiFile::tickFromTimeMs(long msTime, int bpmSpeed)
             tempo_event_time = next_tempo_event_time;
             tempo_event_tick = e->tick();
             tempo = e->bpm() + bpmSpeed;
+
+            if (_singleTempo)
+                break;
         }
 
         return tempo_event_tick + (uint32_t)((msTime - tempo_event_time) * (tempo / 60000) * fResolution);
@@ -516,6 +525,16 @@ int MidiFile::barCount()
     bCount += (beatCount - lastBeat) / lastBeatInBar;
 
     return bCount;
+}
+
+bool MidiFile::isSingleTempo()
+{
+    return _singleTempo;
+}
+
+void MidiFile::setSingleTempo(bool single)
+{
+    _singleTempo = single;
 }
 
 void MidiFile::insertEvent(int index, MidiEvent *event)
