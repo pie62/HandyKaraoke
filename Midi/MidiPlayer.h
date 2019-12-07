@@ -106,6 +106,7 @@ signals:
     void sendedEvent(MidiEvent e);
     void bpmChanged(int bpm);
     void nextMedleyStarted();
+    void nextMedleyAfterStarted();
 
 private slots:
     void onSeqFinished();

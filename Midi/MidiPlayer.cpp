@@ -724,6 +724,7 @@ void MidiPlayer::onSeqFinished()
             _midiSeq->start();
 
             emit nextMedleyStarted();
+            emit nextMedleyAfterStarted();
         } else if (_midiSeq->isSeqFinished() && (_midiSeqTemp == nullptr)) {
             emit finished();
         }

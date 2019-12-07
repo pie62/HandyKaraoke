@@ -215,7 +215,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
         // test
         player->setUseMedley(true);
+        connect(player, SIGNAL(nextMedleyStarted()), lyricsTimer, SLOT(stop()));
         connect(player, SIGNAL(nextMedleyStarted()), this, SLOT(onNextMedleyStarted()));
+        connect(player, SIGNAL(nextMedleyStarted()), this, SLOT(switchMedleyLyrics()));
+        connect(player, SIGNAL(nextMedleyStarted()), this, SLOT(switchMedleyLyrics2()));
+        connect(player, SIGNAL(nextMedleyAfterStarted()), lyricsTimer, SLOT(start()));
+        connect(player, SIGNAL(nextMedleyAfterStarted()), this, SLOT(onNextMedleyAfterStarted()));
     }
 
 
@@ -1754,6 +1759,24 @@ void MainWindow::onSliderVolumeValueChanged(int value)
     }
 }
 
+void MainWindow::switchMedleyLyrics()
+{
+    lyrWidget->hide();
+    lyrWidget->switchToLyricsTemp();
+    lyrWidget->setSeekPositionCursor(player->positionTick());
+    lyrWidget->show();
+}
+
+void MainWindow::switchMedleyLyrics2()
+{
+    if (secondLyr != nullptr) {
+        secondLyr->hide();
+        secondLyr->switchToLyricsTemp();
+        secondLyr->setSeekPositionCursor(player->positionTick());
+        secondLyr->show();
+    }
+}
+
 void MainWindow::onNextMedleyStarted()
 {
     if (remove_playlist && playlist.size() > 0) {
@@ -1763,7 +1786,6 @@ void MainWindow::onNextMedleyStarted()
     }
 
     positionTimer->stop();
-    lyricsTimer->stop();
 
     onPlayerDurationTickChanged(player->durationTick());
     onPlayerDurationMSChanged(player->durationMs());
@@ -1777,21 +1799,11 @@ void MainWindow::onNextMedleyStarted()
 
     ui->rhmWidget->setBeat(MidiHelper::calculateBeats(player->midiFile()), player->beatCount());
 
-    lyrWidget->hide();
-    lyrWidget->switchToLyricsTemp();
-    lyrWidget->setSeekPositionCursor(player->positionTick());
-    lyrWidget->show();
-
-    if (secondLyr != nullptr) {
-        secondLyr->hide();
-        secondLyr->switchToLyricsTemp();
-        secondLyr->setSeekPositionCursor(player->positionTick());
-        secondLyr->show();
-    }
-
     positionTimer->start();
-    lyricsTimer->start();
+}
 
+void MainWindow::onNextMedleyAfterStarted()
+{
     if (playlist.size() > 0)
         loadNextMedley(playlist[playingIndex + 1]);
 }

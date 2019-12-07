@@ -132,7 +132,10 @@ private slots:
     void on_btnPlay_clicked();
     void onSliderVolumeValueChanged(int value);
 
+    void switchMedleyLyrics();
+    void switchMedleyLyrics2();
     void onNextMedleyStarted();
+    void onNextMedleyAfterStarted();
     void onPlayerThreadFinished();
 
     void onDbUpdateChanged(int v);

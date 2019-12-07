@@ -6,9 +6,9 @@
 #include "Song.h"
 #include "SongDatabase.h"
 #include "Midi/MidiPlayer.h"
+#include "Midi/HNKFile.h"
 #include "Widgets/LyricsWidget.h"
 
-#include "Midi/HNKFile.h"
 
 MedleyLoader::MedleyLoader(QObject *parent,
                            Song *song,
@@ -71,8 +71,11 @@ void MedleyLoader::run()
         _player->loadNextMedley(karPath, 4, 12, _song->bpmSpeed(), _song->transpose());
 
         _lyrWidget->setLyricsTemp(_player->midiFileTemp()->lyrics(), _player->midiFileTemp()->lyricsCursor());
+    }  else {
+        return;
     }
 
-    if (_lyrWidget2 != nullptr)
+    if (_lyrWidget2 != nullptr) {
         _lyrWidget2->setLyricsTemp(_lyrWidget->lyrTempData(), _lyrWidget->curTempData());
+    }
 }

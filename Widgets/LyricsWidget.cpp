@@ -322,6 +322,7 @@ void LyricsWidget::setSeekPositionCursor(int tick)
 
     updateArea = calculateUpdateArea();
     cursor_width = cursor_toEnd;
+
     update();
 }
 
