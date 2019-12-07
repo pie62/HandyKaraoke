@@ -41,7 +41,7 @@ public:
 public slots:
     void showDeTail(int ch);
     void onPlayerLoaded();
-    void onPlayerPlayingEvent(MidiEvent *e);
+    void onPlayerPlayingEvent(MidiEvent e);
 
 signals:
     void lockChanged(bool lock);

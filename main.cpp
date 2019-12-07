@@ -107,6 +107,7 @@ int main(int argc, char *argv[])
 
 void registerMetaType()
 {
+    qRegisterMetaType<MidiEvent>("MidiEvent");
     qRegisterMetaType<InstrumentType>("InstrumentType");
 
     //<QList<int>>("QList<int>");

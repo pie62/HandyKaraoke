@@ -46,7 +46,7 @@ public slots:
 
 signals:
     void bpmChanged(int bpm);
-    void playingEvent(MidiEvent *e);
+    void playingEvent(MidiEvent e);
 
 protected:
     void run();

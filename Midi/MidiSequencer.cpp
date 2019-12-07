@@ -224,7 +224,7 @@ void MidiSequencer::run()
                 case MidiEventType::NoteOn:
                     break;
                 default:
-                    emit playingEvent(e);
+                    emit playingEvent(*e);
                 }
             else if (e->metaEventType() == MidiMetaType::SetTempo) {
                 if (_midi->isSingleTempo() && (e != _midi->tempoEvents()[0]))
@@ -245,6 +245,14 @@ void MidiSequencer::run()
             break;
 
         if ((_endTick > 0) && _midi->events()[i]->tick() >= _endEvent->tick()) {
+            MidiEvent evt;
+            evt.setEventType(MidiEventType::Controller);
+            evt.setData1(123);
+            evt.setData2(0);
+            for (int ch = 0; ch < 16; ch++) {
+                evt.setChannel(ch);
+                emit playingEvent(evt);
+            }
             seqEnded = true;
             break;
         }
@@ -280,7 +288,7 @@ void MidiSequencer::run()
             }
         }
 
-        emit playingEvent(_midi->events()[i]);
+        emit playingEvent(*_midi->events()[i]);
 
         _playedIndex = i;
         _positionTick = _midi->events()[i]->tick();

@@ -139,15 +139,15 @@ void ChannelMixer::setPlayer(MidiPlayer *p)
 {
     if (player != nullptr) {
         disconnect(player, SIGNAL(loaded()), this, SLOT(onPlayerLoaded()));
-        disconnect(player, SIGNAL(sendedEvent(MidiEvent*)),
-                   this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
+        disconnect(player, SIGNAL(sendedEvent(MidiEvent)),
+                   this, SLOT(onPlayerPlayingEvent(MidiEvent)));
     }
 
     player = p;
 
     connect(player, SIGNAL(loaded()), this, SLOT(onPlayerLoaded()));
-    connect(player, SIGNAL(sendedEvent(MidiEvent*)),
-            this, SLOT(onPlayerPlayingEvent(MidiEvent*)));
+    connect(player, SIGNAL(sendedEvent(MidiEvent)),
+            this, SLOT(onPlayerPlayingEvent(MidiEvent)));
 }
 
 void ChannelMixer::peak(int ch, int value)
@@ -214,18 +214,18 @@ void ChannelMixer::onPlayerLoaded()
     showDeTail(ui->cbCh->currentIndex());
 }
 
-void ChannelMixer::onPlayerPlayingEvent(MidiEvent *e)
+void ChannelMixer::onPlayerPlayingEvent(MidiEvent e)
 {
-    switch (e->eventType()) {
+    switch (e.eventType()) {
     case MidiEventType::NoteOn:
-        chs[e->channel()]->peak(e->data2());
+        chs[e.channel()]->peak(e.data2());
         break;
     case MidiEventType::Controller:
-        if (e->data1() == 7) {
-            chs[e->channel()]->setSliderValue(e->data2());
+        if (e.data1() == 7) {
+            chs[e.channel()]->setSliderValue(e.data2());
         }
-        if (e->channel() == ui->cbCh->currentIndex()) {
-            switch (e->data1()) {
+        if (e.channel() == ui->cbCh->currentIndex()) {
+            switch (e.data1()) {
             case 10:
             case 91:
             case 93:
@@ -237,7 +237,7 @@ void ChannelMixer::onPlayerPlayingEvent(MidiEvent *e)
         }
         break;
     case MidiEventType::ProgramChange:
-        if (e->channel() == ui->cbCh->currentIndex())
+        if (e.channel() == ui->cbCh->currentIndex())
             showDeTail(ui->cbCh->currentIndex());
         break;
     default:

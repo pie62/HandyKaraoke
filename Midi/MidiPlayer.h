@@ -98,12 +98,12 @@ public:
     bool loadNextMedley(const QString &file, int startBar, int endBar, int midiSpeed, int transpose);
 
 public slots:
-    void sendEvent(MidiEvent *e);
+    void sendEvent(MidiEvent e);
 
 signals:
     void loaded();
     void finished();
-    void sendedEvent(MidiEvent *e);
+    void sendedEvent(MidiEvent e);
     void bpmChanged(int bpm);
     void nextMedleyStarted();
 
@@ -112,7 +112,7 @@ private slots:
     void onSeqBpmChanged(int bpm);
 
 private:
-    void sendEventToDevices(MidiEvent *e);
+    void sendEventToDevices(MidiEvent evt);
     void sendAllNotesOff(int ch);
     void sendAllNotesOff();
     void sendAllSoundOff(int ch);

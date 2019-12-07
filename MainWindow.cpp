@@ -1891,39 +1891,39 @@ void MainWindow::sendDrumPads(QKeyEvent *key, bool noteOn)
     switch (key->key()) {
         case DrumPadsKey::bassDrum:
             e.setData1(36);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::snare:
             e.setData1(38);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::hihatClose:
             e.setData1(42);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::hihatOpen:
             e.setData1(46);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::cowbell:
             e.setData1(56);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::tambourine:
             e.setData1(54);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::tom1:
             e.setData1(50);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::tom2:
             e.setData1(48);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         case DrumPadsKey::crashCymbal:
             e.setData1(49);
-            player->sendEvent(&e);
+            player->sendEvent(e);
             break;
         default:
             break;

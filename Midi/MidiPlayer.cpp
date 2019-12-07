@@ -272,8 +272,8 @@ bool MidiPlayer::load(const QString &file, bool seekFileChunkID)
     _midiSeq->deleteLater();
     _midiSeq = new MidiSequencer();
 
-    connect(_midiSeq, SIGNAL(playingEvent(MidiEvent*)),
-            this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
+    connect(_midiSeq, SIGNAL(playingEvent(MidiEvent)),
+            this, SLOT(sendEvent(MidiEvent)), Qt::DirectConnection);
     connect(_midiSeq, SIGNAL(bpmChanged(int)),
             this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
     connect(_midiSeq, SIGNAL(finished()),
@@ -318,8 +318,8 @@ void MidiPlayer::play()
         } else {
             ev.setData1(0);
         }
-        sendEvent(&ev);
-        emit sendedEvent(&ev);
+        sendEvent(ev);
+        emit sendedEvent(ev);
     }
     _midiSeq->start();
 }
@@ -366,7 +366,7 @@ void MidiPlayer::setVolume(int ch, int v)
     // when lock ch volume ch info is not set
     _midiChannels[ch].setVolume(vl);
 
-    sendEvent(&evt);
+    sendEvent(evt);
 }
 
 void MidiPlayer::setInstrument(int ch, int i)
@@ -450,7 +450,7 @@ void MidiPlayer::setPan(int ch, int v)
     evt.setData1(10);
     evt.setData2(vl);
 
-    sendEvent(&evt);
+    sendEvent(evt);
 }
 
 void MidiPlayer::setReverb(int ch, int v)
@@ -469,7 +469,7 @@ void MidiPlayer::setReverb(int ch, int v)
     evt.setData1(91);
     evt.setData2(vl);
 
-    sendEvent(&evt);
+    sendEvent(evt);
 }
 
 void MidiPlayer::setChorus(int ch, int v)
@@ -488,7 +488,7 @@ void MidiPlayer::setChorus(int ch, int v)
     evt.setData1(93);
     evt.setData2(vl);
 
-    sendEvent(&evt);
+    sendEvent(evt);
 }
 
 void MidiPlayer::setLockVolume(int ch, bool lock)
@@ -535,8 +535,8 @@ void MidiPlayer::setLockDrum(bool lock, int number)
         ev.setEventType(MidiEventType::ProgramChange);
         ev.setChannel(9);
         ev.setData1(number);
-        sendEvent(&ev);
-        emit sendedEvent(&ev);
+        sendEvent(ev);
+        emit sendedEvent(ev);
     }
 }
 
@@ -572,8 +572,8 @@ void MidiPlayer::setLockBass(bool lock, int number)
             ev.setEventType(MidiEventType::ProgramChange);
             ev.setChannel(i);
             ev.setData1(number);
-            sendEvent(&ev);
-            emit sendedEvent(&ev);
+            sendEvent(ev);
+            emit sendedEvent(ev);
         }
     }
 }
@@ -635,7 +635,7 @@ void MidiPlayer::setMapChannelOutput(int ch, int port)
 void MidiPlayer::receiveMidiIn(std::vector<unsigned char> *message)
 {
     _midiInEvent.setMessage(message);
-    this->sendEvent(&_midiInEvent);
+    this->sendEvent(_midiInEvent);
 }
 
 void MidiPlayer::setUseMedley(bool use)
@@ -680,17 +680,17 @@ bool MidiPlayer::loadNextMedley(const QString &file, int startBar, int endBar, i
     return true;
 }
 
-void MidiPlayer::sendEvent(MidiEvent *e)
+void MidiPlayer::sendEvent(MidiEvent e)
 {
-    _playingEventPtr = e;
+    _playingEventPtr = &e;
 
-    if (e->eventType() == MidiEventType::Controller
-        || e->eventType() == MidiEventType::ProgramChange) {
+    if (e.eventType() == MidiEventType::Controller
+        || e.eventType() == MidiEventType::ProgramChange) {
         sendEventToDevices(e);
     } else {
-        if (_midiChannels[e->channel()].isMute() == false) {
+        if (_midiChannels[e.channel()].isMute() == false) {
             if (_useSolo) {
-                if (_midiChannels[e->channel()].isSolo()) {
+                if (_midiChannels[e.channel()].isSolo()) {
                     sendEventToDevices(e);
                 }
             } else {
@@ -699,20 +699,19 @@ void MidiPlayer::sendEvent(MidiEvent *e)
         }
     }
 
-    emit sendedEvent(_playingEventPtr);
+    emit sendedEvent(*_playingEventPtr);
 }
 
 void MidiPlayer::onSeqFinished()
 {
     if (_useMedley) {
-        sendAllNotesOff();
         if (_midiSeq->isSeqFinished() && (_midiSeqTemp != nullptr)) {
             _midiSeq->deleteLater();
             _midiSeq = _midiSeqTemp;
             _midiSeqTemp = nullptr;
 
-            connect(_midiSeq, SIGNAL(playingEvent(MidiEvent*)),
-                    this, SLOT(sendEvent(MidiEvent*)), Qt::DirectConnection);
+            connect(_midiSeq, SIGNAL(playingEvent(MidiEvent)),
+                    this, SLOT(sendEvent(MidiEvent)), Qt::DirectConnection);
             connect(_midiSeq, SIGNAL(bpmChanged(int)),
                     this, SLOT(onSeqBpmChanged(int)), Qt::DirectConnection);
             connect(_midiSeq, SIGNAL(finished()),
@@ -738,8 +737,9 @@ void MidiPlayer::onSeqBpmChanged(int bpm)
     emit bpmChanged(bpm);
 }
 
-void MidiPlayer::sendEventToDevices(MidiEvent *e)
+void MidiPlayer::sendEventToDevices(MidiEvent evt)
 {
+    MidiEvent *e = &evt;
     int ch = e->channel();
 
     switch (e->eventType()) {
