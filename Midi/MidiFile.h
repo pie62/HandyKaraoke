@@ -52,6 +52,7 @@ public:
     uint32_t tickFromTimeMs(long msTime, int bpmSpeed = 0);
     uint32_t tickFromBeat(float beat);
     uint32_t tickFromBar(int barNumber);
+    int      barFromTick(uint32_t tick);
 
     int barCount();
 

@@ -15,6 +15,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     Config.cpp \
+    Dialogs/MedleyDialog.cpp \
         MainWindow.cpp \
     MedleyLoader.cpp \
     SettingsDialog.cpp \
@@ -35,6 +36,7 @@ SOURCES += main.cpp\
     Dialogs/MapSoundfontDialog.cpp \
     Widgets/Slider.cpp \
     BASSFX/Equalizer15BandFX.cpp \
+    Widgets/SongMedley.cpp \
     Widgets/SwitchButton.cpp \
     BASSFX/Equalizer31BandFX.cpp \
     Dialogs/Equalizer31BandDialog.cpp \
@@ -83,6 +85,7 @@ SOURCES += main.cpp\
     Dialogs/DeleteSongDialog.cpp
 
 HEADERS  += MainWindow.h \
+    Dialogs/MedleyDialog.h \
     MedleyLoader.h \
     SettingsDialog.h \
     SongDatabase.h \
@@ -103,6 +106,7 @@ HEADERS  += MainWindow.h \
     Dialogs/ComboBoxItem.h \
     Widgets/Slider.h \
     BASSFX/Equalizer15BandFX.h \
+    Widgets/SongMedley.h \
     Widgets/SwitchButton.h \
     BASSFX/Equalizer31BandFX.h \
     Dialogs/Equalizer31BandDialog.h \
@@ -155,6 +159,7 @@ HEADERS  += MainWindow.h \
     Dialogs/DeleteSongDialog.h
 
 FORMS    += MainWindow.ui \
+    Dialogs/MedleyDialog.ui \
     SettingsDialog.ui \
     Widgets/ChMx.ui \
     Widgets/RhythmWidget.ui \
@@ -169,6 +174,7 @@ FORMS    += MainWindow.ui \
     Widgets/SongDetail.ui \
     Widgets/Detail.ui \
     Dialogs/AboutDialog.ui \
+    Widgets/SongMedley.ui \
     Widgets/VSTLabel.ui \
     Dialogs/BusDialog.ui \
     Dialogs/SecondMonitorDialog.ui \

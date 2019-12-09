@@ -42,6 +42,11 @@ public:
     void setStartTick(int tick);
     void setEndTick(int tick);
 
+    void setCutStartBar(int bar);
+    void setCutEndBar(int bar);
+
+    int currentBar();
+
 public slots:
 
 signals:

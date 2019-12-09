@@ -12,6 +12,9 @@ Song::Song(QObject *parent) : QObject(parent)
     sSongType   = "";
     sLyrics     = "";
     sPath       = "";
+
+    sCutStartBar = 0;
+    sCutEndBar   = 0;
 }
 
 Song::Song(const Song &s)
@@ -26,6 +29,9 @@ Song::Song(const Song &s)
     sSongType   = s.sSongType;
     sLyrics     = s.sLyrics;
     sPath       = s.sPath;
+
+    sCutStartBar = s.sCutStartBar;
+    sCutEndBar   = s.sCutEndBar;
 }
 
 Song &Song::operator =(const Song &s)
@@ -40,6 +46,9 @@ Song &Song::operator =(const Song &s)
     sSongType   = s.sSongType;
     sLyrics     = s.sLyrics;
     sPath       = s.sPath;
+
+    sCutStartBar = s.sCutStartBar;
+    sCutEndBar   = s.sCutEndBar;
 
     return *this;
 }

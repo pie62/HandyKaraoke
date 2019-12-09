@@ -128,7 +128,7 @@ bool Utils::savePlaylist(const QString &filePath, const QList<Song *> &songs)
     out.setCodec("UTF-8");
 
     out << HANDY_PLAYLIST_HEADTEXT << endl;
-    out << HANDY_PLAYLIST_VERSION_1 << endl;
+    out << HANDY_PLAYLIST_VERSION_2 << endl;
     out << HANDY_PLAYLIST_NAME + QFileInfo(filePath).baseName() << endl;
     out << HANDY_PLAYLIST_COUNT + QString::number(songs.count()) << endl;
 
@@ -150,6 +150,8 @@ bool Utils::savePlaylist(const QString &filePath, const QList<Song *> &songs)
         out << s->songType() << endl;
         out << s->lyrics() << endl;
         out << s->path() << endl;
+        out << s->cutStartBar() << endl;
+        out << s->cutEndBar() << endl;
         out << endl;
     }
 
@@ -162,6 +164,8 @@ bool Utils::savePlaylist(const QString &filePath, const QList<Song *> &songs)
 
 bool Utils::loadPlaylist(const QString &filePath, QList<Song *> &songs)
 {
+    int version = 0;
+
     QFile file(filePath);
 
     if (!file.open(QIODevice::ReadOnly))
@@ -176,7 +180,12 @@ bool Utils::loadPlaylist(const QString &filePath, QList<Song *> &songs)
         return false;
     }
 
-    if (in.readLine().indexOf(HANDY_PLAYLIST_VERSION) != 0)
+    QString versionString = in.readLine();
+    if (versionString == HANDY_PLAYLIST_VERSION_1)
+        version = 1;
+    else if (versionString == HANDY_PLAYLIST_VERSION_2)
+        version = 2;
+    else
     {
         file.close();
         return false;
@@ -233,6 +242,12 @@ bool Utils::loadPlaylist(const QString &filePath, QList<Song *> &songs)
         s->setSongType(in.readLine());
         s->setLyrics(in.readLine());
         s->setPath(in.readLine());
+
+        if (version >= 2)
+        {
+            s->setCutStartBar(in.readLine().toInt());
+            s->setCutEndBar(in.readLine().toInt());
+        }
 
         in.readLine();
 

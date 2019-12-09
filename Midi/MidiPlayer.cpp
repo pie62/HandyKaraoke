@@ -657,14 +657,15 @@ void MidiPlayer::setMedleyBPM(int bpm)
     _medleyBPM = bpm;
 }
 
-bool MidiPlayer::loadNextMedley(const QString &file, int startBar, int endBar, int midiSpeed, int transpose)
+bool MidiPlayer::loadNextMedley(const QString &file, int cutStartBar, int cutEndBar, int midiSpeed, int transpose)
 {
     if (!_useMedley)
         return false;
 
-    if (_midiSeqTemp == nullptr)
-        _midiSeqTemp = new MidiSequencer();
+    if (_midiSeqTemp != nullptr)
+        delete _midiSeqTemp;
 
+    _midiSeqTemp = new MidiSequencer();
     if (!_midiSeqTemp->load(file, true))
         return false;
 
@@ -673,11 +674,19 @@ bool MidiPlayer::loadNextMedley(const QString &file, int startBar, int endBar, i
     _midiSeqTemp->setBpmSpeed(midiSpeed);
     _midiTransposeTemp = transpose;
 
-    MidiFile *midi = _midiSeqTemp->midiFile();
-    _midiSeqTemp->setStartTick(midi->tickFromBar(startBar));
-    _midiSeqTemp->setEndTick(midi->tickFromBar(endBar));
+    _midiSeqTemp->setCutStartBar(cutStartBar);
+    _midiSeqTemp->setCutEndBar(cutEndBar);
 
     return true;
+}
+
+void MidiPlayer::unloadNextMedley()
+{
+    if (_midiSeqTemp != nullptr) {
+        delete _midiSeqTemp;
+        _midiSeqTemp = nullptr;
+        _midiTransposeTemp = 0;
+    }
 }
 
 void MidiPlayer::sendEvent(MidiEvent e)

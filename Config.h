@@ -21,6 +21,7 @@
 #define HANDY_PLAYLIST_HEADTEXT     "Handy Karaoke playlist file"
 #define HANDY_PLAYLIST_VERSION      "Version="
 #define HANDY_PLAYLIST_VERSION_1    "Version=1"
+#define HANDY_PLAYLIST_VERSION_2    "Version=2"
 #define HANDY_PLAYLIST_NAME         "Name="
 #define HANDY_PLAYLIST_COUNT        "Count="
 #define HANDY_PLAYLIST_SONGLIST     "[Song list]"

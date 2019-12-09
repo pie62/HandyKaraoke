@@ -63,8 +63,10 @@ void MidiSequencer::setPositionTick(int t)
     uint32_t tick = 0;
     if (t < _startTick)
         tick = _startTick;
-    else if (t > _endTick)
+    else if ((_endTick > 0) && (t > _endTick))
         tick = _endTick;
+    else if (t > durationTick())
+        tick = durationTick();
     else
         tick = t;
 
@@ -189,16 +191,48 @@ void MidiSequencer::setEndTick(int tick)
         }
         _endEvent->setTick(tick);
 
-        int index = _midi->events().size() - 1;
-        for (int i = index; i >= 0; i--) {
-            index = i;
-            if (_midi->events()[i]->tick() < tick)
-                break;
+        MidiEvent *halfEvent = _midi->events()[ _midi->events().size() / 2 ];
+
+        int index;
+
+        if (tick >= halfEvent->tick()) {
+            index = _midi->events().size() - 1;
+            for (int i = index; i >= 0; i--) {
+                index = i;
+                if (_midi->events()[i]->tick() < tick)
+                    break;
+            }
+        } else {
+            index = 0;
+            for (int i = index; i < _midi->events().size(); i++) {
+                index = i;
+                if (_midi->events()[i]->tick() >= tick)
+                    break;
+            }
         }
 
         _endEventIndex = index;
         _midi->insertEvent(_endEventIndex, _endEvent);
     }
+}
+
+void MidiSequencer::setCutStartBar(int bar)
+{
+    setStartTick(_midi->tickFromBar(bar));
+}
+
+void MidiSequencer::setCutEndBar(int bar)
+{
+    int endbar = (_midi->barCount() + 1) - bar;
+    if (bar <= 0)
+        endbar--;
+
+    setEndTick(_midi->tickFromBar(endbar));
+}
+
+int MidiSequencer::currentBar()
+{
+    return _midi->barFromTick(positionTick());
 }
 
 void MidiSequencer::run()
@@ -244,7 +278,7 @@ void MidiSequencer::run()
         if (!_playing)
             break;
 
-        if ((_endTick > 0) && _midi->events()[i]->tick() >= _endEvent->tick()) {
+        if ((_endEvent != nullptr) && (_endTick > 0) && _midi->events()[i]->tick() >= _endEvent->tick()) {
             MidiEvent evt;
             evt.setEventType(MidiEventType::Controller);
             evt.setData1(123);
@@ -283,6 +317,12 @@ void MidiSequencer::run()
 
         } else { // Meta event
             if (_midi->events()[i]->metaEventType() == MidiMetaType::SetTempo) {
+                if (_midi->isSingleTempo() && (_midi->events()[i] != _midi->tempoEvents()[0])) {
+                    _playedIndex = i;
+                    _positionTick = _midi->events()[i]->tick();
+                    _mutex.unlock();
+                    continue;
+                }
                 _midiBpm = _midi->events()[i]->bpm();
                 emit bpmChanged(_midiBpm + _midiSpeed);
             }

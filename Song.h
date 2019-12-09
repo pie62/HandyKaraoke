@@ -22,6 +22,9 @@ public:
     QString lyrics()    { return sLyrics.replace("\n", " "); }
     QString path()      { return sPath; }
 
+    int     cutStartBar()   { return sCutStartBar; }
+    int     cutEndBar()     { return sCutEndBar; }
+
     void setId          (const QString &id)     { sId = id; }
     void setName        (const QString &name)   { sName = name; }
     void setArtist      (const QString &artist) { sArtist = artist; }
@@ -32,6 +35,9 @@ public:
     void setSongType    (const QString &type)   { sSongType = type; }
     void setLyrics      (const QString &lyr)    { sLyrics = lyr; }
     void setPath        (const QString &path)   { sPath = path; }
+
+    void setCutStartBar (int bar)               { sCutStartBar = bar; }
+    void setCutEndBar   (int bar)               { sCutEndBar = bar; }
 
     QString detail();
     QString detailWithoutIDType();
@@ -51,6 +57,9 @@ private:
     QString sSongType;
     QString sLyrics;
     QString sPath;
+
+    int     sCutStartBar;
+    int     sCutEndBar;
 };
 
 #endif // SONG_H

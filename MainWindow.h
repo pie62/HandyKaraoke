@@ -164,6 +164,8 @@ private:
     bool playAfterSeek = false;
     bool searchBoxChangeBpm = false;
 
+    bool nextMedleyRequested = false;
+
     MedleyLoader *medleyLoader = nullptr;
 
     Background *bgWidget = nullptr;

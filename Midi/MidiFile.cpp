@@ -507,6 +507,28 @@ uint32_t MidiFile::tickFromBar(int barNumber)
     return result;
 }
 
+int MidiFile::barFromTick(uint32_t tick)
+{
+    if (tick == 0)
+        return 0;
+
+    int currentBeat = beatFromTick(tick);
+
+    int lastBeat = 0;
+    int lastBar = 0;
+    int beatInbar = 4;
+    for (const SignatureBeat &sigBeat : MidiHelper::calculateBeats(this)) {
+        if (sigBeat.nBeat > currentBeat) {
+            break;
+        }
+        lastBar += (sigBeat.nBeat - lastBeat) / beatInbar;
+        lastBeat = sigBeat.nBeat;
+        beatInbar = sigBeat.nBeatInBar;
+    }
+
+    return ((currentBeat - lastBeat) / beatInbar) + lastBar;;
+}
+
 int MidiFile::barCount()
 {
     int bCount = 0;

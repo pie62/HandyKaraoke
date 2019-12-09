@@ -95,7 +95,8 @@ public:
     int medleyBPM() { return _medleyBPM; }
     void setMedleyBPM(int bpm);
 
-    bool loadNextMedley(const QString &file, int startBar, int endBar, int midiSpeed, int transpose);
+    bool loadNextMedley(const QString &file, int cutStartBar, int cutEndBar, int midiSpeed, int transpose);
+    void unloadNextMedley();
 
 public slots:
     void sendEvent(MidiEvent e);

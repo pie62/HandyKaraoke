@@ -26,6 +26,7 @@
 #include "Dialogs/Chorus2Dialog.h"
 #include "Dialogs/Reverb2Dialog.h"
 #include "Dialogs/DeleteSongDialog.h"
+#include "Dialogs/MedleyDialog.h"
 
 #ifndef __linux__
 #include "Dialogs/VSTDirsDialog.h"
@@ -213,8 +214,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(player, SIGNAL(finished()), this, SLOT(onPlayerThreadFinished()));
         connect(player, SIGNAL(bpmChanged(int)), ui->rhmWidget, SLOT(setBpm(int)));
 
-        // test
-        player->setUseMedley(true);
         connect(player, SIGNAL(nextMedleyStarted()), lyricsTimer, SLOT(stop()));
         connect(player, SIGNAL(nextMedleyStarted()), this, SLOT(onNextMedleyStarted()));
         connect(player, SIGNAL(nextMedleyStarted()), this, SLOT(switchMedleyLyrics()));
@@ -468,7 +467,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::play(int index, int position)
 {
+    if (player->isUseMedley() && player->isPlayerPlaying()) {
+        loadNextMedley(playlist[index]);
+        connect(medleyLoader, &MedleyLoader::finished, [this, index](){
+            MidiSequencer *seq = player->midiSequencer();
+            seq->setEndTick(seq->midiFile()->tickFromBar(seq->currentBar() + 1));
+            playingIndex = index - 1;
+            qDebug() << "Medlet loaded : Playing index is " << playingIndex;
+        });
+        return;
+    }
+
     stop();
+
     if (index == -1 && playingSong.id() != "")
     {
         lyrWidget->reset();
@@ -626,12 +637,10 @@ void MainWindow::play(int index, int position)
     player->setBpmSpeed(playingSong.bpmSpeed());
     player->setTranspose(playingSong.transpose());
 
-    // test
-    MidiFile *midi = player->midiSequencer()->midiFile();
-    player->midiSequencer()->setStartTick(midi->tickFromBar(4));
-    player->midiSequencer()->setEndTick(midi->tickFromBar(8));
-
     if (player->isUseMedley()) {
+        player->midiSequencer()->setCutStartBar(playingSong.cutStartBar());
+        player->midiSequencer()->setCutEndBar(playingSong.cutEndBar());
+
         lyrWidget->setSeekPositionCursor(player->positionTick());
         if (secondLyr != nullptr)
             secondLyr->setSeekPositionCursor(player->positionTick());
@@ -646,6 +655,10 @@ void MainWindow::play(int index, int position)
 
     positionTimer->start();
     lyricsTimer->start();
+
+    if (player->isUseMedley() && (playlist.size() > (playingIndex + 1))) {
+        loadNextMedley(playlist[playingIndex + 1]);
+    }
 }
 
 void MainWindow::pause()
@@ -921,6 +934,37 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         hideUIFrame();
         break;
     }
+    case Qt::Key_F4: {
+        if (player->isUseMedley()) {
+            QMessageBox::StandardButton resBtn = QMessageBox::question(
+                                                    this, tr("ปิดเมลเลย์"),
+                                                    tr("ท่านต้องการปิดโหมดเมลเลย์?"),
+                                                    QMessageBox::Yes|QMessageBox::No);
+            if (resBtn == QMessageBox::Yes) {
+                player->setUseMedley(false);
+                ui->detail->setDetail(tr("เมดเลย์ "), tr("ปิด"));
+                ui->detail->show();
+                detailTimer->start(3000);
+                if (this->width() < 1160 && ui->chMix->isVisible())
+                    ui->lcdTime->hide();
+            }
+        } else {
+            MedleyDialog dlg(this, player);
+            dlg.adjustSize();
+            dlg.setFixedSize(dlg.size());
+            dlg.setModal(true);
+            dlg.exec();
+
+            if (player->isUseMedley()) {
+                ui->detail->setDetail(tr("เมดเลย์ "), tr("เปิด"));
+                ui->detail->show();
+                detailTimer->start(3000);
+                if (this->width() < 1160 && ui->chMix->isVisible())
+                    ui->lcdTime->hide();
+            }
+        }
+        break;
+    }
     case Qt::Key_F5: {
         if (player->isPlayerPaused())
             resume();
@@ -1165,6 +1209,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_Space:
+        if (player->isUseMedley() && ui->playlistWidget->isVisible()) {
+
+            break;
+        }
+
         if (ui->frameSearch->isHidden()) {
             showSongDetail();
             timer2->start(songDetail_timeout);
@@ -1225,12 +1274,11 @@ void MainWindow::loadNextMedley(Song *song)
 {
     if ((medleyLoader != nullptr) && medleyLoader->isRunning())
         medleyLoader->wait();
+
     medleyLoader = new MedleyLoader(this, song, db, player, lyrWidget, secondLyr);
-    qDebug() << "MedleyLoader Created";
-    connect(medleyLoader, &MedleyLoader::finished, [=](){
+    connect(medleyLoader, &MedleyLoader::finished, [this](){
         medleyLoader->deleteLater();
         medleyLoader = nullptr;
-        qDebug() << "MedleyLoader Deleted : " << medleyLoader;
     });
     medleyLoader->start();
 }
@@ -1257,6 +1305,12 @@ void MainWindow::removeFromPlaylist(int index)
 {
     delete playlist.takeAt(index);
     ui->playlistWidget->removeRow(index);
+
+    if (playlist.size() == 0)
+        player->unloadNextMedley();
+
+    if (player->isUseMedley() && (index == playingIndex + 1) && (playlist.size() > playingIndex + 1))
+        loadNextMedley(playlist[playingIndex + 1]);
 }
 
 void MainWindow::swapInPlaylist(int index, int toIndex)
@@ -1264,6 +1318,12 @@ void MainWindow::swapInPlaylist(int index, int toIndex)
     playlist.swap(index, toIndex);
     ui->playlistWidget->swapRow(index, toIndex);
     ui->playlistWidget->setCurrentRow(toIndex);
+
+    bool isNextSong = (index == playingIndex + 1) || (toIndex == playingIndex + 1);
+
+    if (player->isUseMedley() && isNextSong && (playlist.size() > playingIndex + 1)) {
+        loadNextMedley(playlist[playingIndex + 1]);
+    }
 }
 
 void MainWindow::updateShutdownRequest()
@@ -1779,9 +1839,17 @@ void MainWindow::switchMedleyLyrics2()
 
 void MainWindow::onNextMedleyStarted()
 {
+    int index = playingIndex + 1;
+
+    qDebug() << "Playlist count " << playlist.count();
+    qDebug() << "Playing Index " << playingIndex;
+    qDebug() << "Remove Index " << index;
+
+    playingSong = *playlist[index];
+
     if (remove_playlist && playlist.size() > 0) {
-        delete playlist.takeAt(0);
-        ui->playlistWidget->removeRow(0);
+        delete playlist.takeAt(index);
+        ui->playlistWidget->removeRow(index);
         playingIndex = -1;
     }
 
@@ -1800,6 +1868,17 @@ void MainWindow::onNextMedleyStarted()
     ui->rhmWidget->setBeat(MidiHelper::calculateBeats(player->midiFile()), player->beatCount());
 
     positionTimer->start();
+
+    ui->frameSearch->hide();
+    ui->playlistWidget->hide();
+    ui->chMix->hide();
+    ui->expandChMix->hide();
+
+    // SongDetail
+    ui->songDetail->setDetail(&playingSong);
+    ui->songDetail->adjustSize();
+    ui->songDetail->show();
+    timer2->start(songDetail_timeout);
 }
 
 void MainWindow::onNextMedleyAfterStarted()
