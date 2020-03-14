@@ -1,7 +1,5 @@
 #include "MidiSequencer.h"
 
-#include <QDebug>
-
 MidiSequencer::MidiSequencer(QObject *parent) : QThread(parent)
 {
     _midi = new MidiFile();

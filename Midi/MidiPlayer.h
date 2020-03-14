@@ -29,6 +29,7 @@ public:
     static bool isBassInstrument(int ints);
 
     MidiSequencer *midiSequencer() { return _midiSeq; }
+    MidiSequencer *midiSequencerTemp() { return _midiSeqTemp; }
     MidiSynthesizer *midiSynthesizer() { return _midiSynth; }
     Channel *midiChannel() { return _midiChannels; }
     int midiOutPortNumber() { return _midiPortNum; }

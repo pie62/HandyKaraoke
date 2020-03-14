@@ -4,8 +4,6 @@
 
 #include <cstdlib>
 
-#include <QDebug>
-
 // ========================================================
 bool isGreaterThan(MidiEvent* e1, MidiEvent* e2)
 {

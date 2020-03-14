@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>670</height>
+   </rect>
+  </property>
   <property name="minimumSize">
    <size>
     <width>1000</width>
@@ -45,7 +53,7 @@ background-color: rgb(51, 51, 51);
      <number>0</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayoutMain">
       <property name="leftMargin">
        <number>9</number>
       </property>
@@ -546,6 +554,16 @@ color: rgb(238, 238, 238);</string>
          </widget>
         </item>
         <item>
+         <widget class="SongMedley" name="songMedley" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -971,6 +989,12 @@ QSlider::sub-page:horizontal {
    <class>PlaylistWidget</class>
    <extends>QWidget</extends>
    <header>PlaylistWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SongMedley</class>
+   <extends>QWidget</extends>
+   <header>SongMedley.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

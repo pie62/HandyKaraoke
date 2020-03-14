@@ -32,8 +32,6 @@
 #include "Dialogs/VSTDirsDialog.h"
 #endif
 
-#include <QDebug>
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -318,6 +316,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->frameSearch->hide();
         ui->playlistWidget->hide();
         ui->songDetail->hide();
+        ui->songMedley->hide();
         ui->sliderVolume->setValue(player->volume());
 
         // 249
@@ -473,7 +472,6 @@ void MainWindow::play(int index, int position)
             MidiSequencer *seq = player->midiSequencer();
             seq->setEndTick(seq->midiFile()->tickFromBar(seq->currentBar() + 1));
             playingIndex = index - 1;
-            qDebug() << "Medlet loaded : Playing index is " << playingIndex;
         });
         return;
     }
@@ -784,6 +782,35 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if (ui->songMedley->isVisible()) {
+        switch (event->key()) {
+        case Qt::Key_Escape: {
+            ui->songMedley->hide();
+            timer2->start(playlist_timeout);
+            break;
+        }
+        case Qt::Key_Enter:
+        case Qt::Key_Return: {
+            Song *s = playlist[ui->playlistWidget->currentRow()];
+            s->setCutStartBar(ui->songMedley->cutStartBar());
+            s->setCutEndBar(ui->songMedley->cutEndBar());
+            this->setFocus();
+            ui->songMedley->hide();
+            timer2->start(playlist_timeout);
+
+            if (ui->playlistWidget->currentRow() == playingIndex + 1) {
+                MidiSequencer *seq = player->midiSequencerTemp();
+                seq->setCutStartBar(s->cutStartBar());
+                seq->setCutEndBar(s->cutEndBar());
+            }
+            break;
+        }
+        default:
+            break;
+        }
+        return;
+    }
+
     if (event->modifiers() == Qt::ControlModifier) {
         switch (event->key()) {
             case Qt::Key_Up:
@@ -1210,7 +1237,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Space:
         if (player->isUseMedley() && ui->playlistWidget->isVisible()) {
-
+            timer2->stop();
+            Song *s = playlist[ui->playlistWidget->currentRow()];
+            ui->songMedley->setup(s->cutStartBar(), s->cutEndBar());
+            ui->songMedley->show();
             break;
         }
 
@@ -1840,10 +1870,6 @@ void MainWindow::switchMedleyLyrics2()
 void MainWindow::onNextMedleyStarted()
 {
     int index = playingIndex + 1;
-
-    qDebug() << "Playlist count " << playlist.count();
-    qDebug() << "Playing Index " << playingIndex;
-    qDebug() << "Remove Index " << index;
 
     playingSong = *playlist[index];
 

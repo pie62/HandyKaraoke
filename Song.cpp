@@ -14,7 +14,7 @@ Song::Song(QObject *parent) : QObject(parent)
     sPath       = "";
 
     sCutStartBar = 0;
-    sCutEndBar   = 0;
+    sCutEndBar   = 1;
 }
 
 Song::Song(const Song &s)
